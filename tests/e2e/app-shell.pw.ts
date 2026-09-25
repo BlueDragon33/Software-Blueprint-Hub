@@ -185,7 +185,7 @@ test("canonical project workspace has stable truthful views", async ({
   ).toBeVisible();
   await expect(page.getByText("accepted", { exact: true }).first()).toBeVisible();
   await expect(
-    page.getByText("revision-p6-004-e2e", { exact: true }).first()
+    page.getByText(/Revision revision-p6-004-e2e/)
   ).toBeVisible();
 
   await page.screenshot({
