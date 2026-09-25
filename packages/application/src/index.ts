@@ -209,3 +209,5 @@ export * from "./foundation-templates";
 export * from "./project-registry";
 
 export * from "./project-readiness";
+
+export * from "./governance-service";

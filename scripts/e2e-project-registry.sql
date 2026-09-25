@@ -321,3 +321,133 @@ VALUES
   }'::jsonb,
   '2026-09-25T15:14:30Z'::timestamptz
 );
+
+
+-- P6-004 canonical governance fixture for the B4 Beta project.
+
+INSERT INTO "ArchitectureDecision" (
+  "id",
+  "projectId",
+  "schemaVersion",
+  "recordVersion",
+  "status",
+  "document",
+  "createdAt",
+  "updatedAt"
+)
+VALUES
+(
+  'architecture-decision:p6-beta-governance',
+  'project:p6-registry-beta',
+  '1.0.0',
+  1,
+  'accepted',
+  '{
+    "id":"architecture-decision:p6-beta-governance",
+    "projectId":"project:p6-registry-beta",
+    "title":"Keep governance state canonical and structured",
+    "context":"Workspace views must not turn Markdown or UI state into architectural authority.",
+    "decision":"Persist decisions, risks and technical debt behind repository ports and project authority.",
+    "consequences":[
+      "Governance records survive UI redesigns.",
+      "Accepted ADR content is immutable and future direction uses explicit supersession."
+    ],
+    "status":"accepted",
+    "source":"blueprint-os:p6-004-e2e",
+    "sourceRevision":"revision-p6-004-e2e",
+    "meta":{
+      "schemaVersion":"1.0.0",
+      "recordVersion":1,
+      "createdAt":"2026-09-25T23:35:00Z",
+      "updatedAt":"2026-09-25T23:35:00Z"
+    }
+  }'::jsonb,
+  '2026-09-25T23:35:00Z'::timestamptz,
+  '2026-09-25T23:35:00Z'::timestamptz
+);
+
+INSERT INTO "Risk" (
+  "id",
+  "projectId",
+  "schemaVersion",
+  "recordVersion",
+  "likelihood",
+  "impact",
+  "status",
+  "document",
+  "createdAt",
+  "updatedAt"
+)
+VALUES
+(
+  'risk:p6-beta-governance-drift',
+  'project:p6-registry-beta',
+  '1.0.0',
+  1,
+  'medium',
+  'high',
+  'mitigating',
+  '{
+    "id":"risk:p6-beta-governance-drift",
+    "projectId":"project:p6-registry-beta",
+    "title":"Governance records can drift from implementation",
+    "description":"Decision and risk records may become stale if remediation work is not linked and reviewed.",
+    "likelihood":"medium",
+    "impact":"high",
+    "status":"mitigating",
+    "mitigation":"Track mitigation through the canonical readiness dashboard Work Package.",
+    "owner":"platform-team",
+    "linkedWorkPackageIds":["work-package:p6-beta-dashboard"],
+    "source":"blueprint-os:p6-004-e2e",
+    "sourceRevision":"revision-p6-004-e2e",
+    "meta":{
+      "schemaVersion":"1.0.0",
+      "recordVersion":1,
+      "createdAt":"2026-09-25T23:36:00Z",
+      "updatedAt":"2026-09-25T23:36:00Z"
+    }
+  }'::jsonb,
+  '2026-09-25T23:36:00Z'::timestamptz,
+  '2026-09-25T23:36:00Z'::timestamptz
+);
+
+INSERT INTO "TechnicalDebt" (
+  "id",
+  "projectId",
+  "schemaVersion",
+  "recordVersion",
+  "severity",
+  "status",
+  "document",
+  "createdAt",
+  "updatedAt"
+)
+VALUES
+(
+  'technical-debt:p6-beta-legacy-notes',
+  'project:p6-registry-beta',
+  '1.0.0',
+  1,
+  'medium',
+  'accepted',
+  '{
+    "id":"technical-debt:p6-beta-legacy-notes",
+    "projectId":"project:p6-registry-beta",
+    "title":"Legacy governance notes remain outside structured records",
+    "description":"Historical Markdown decisions still exist and should be migrated only when they remain active project truth.",
+    "severity":"medium",
+    "status":"accepted",
+    "remediation":"Migrate active legacy items into canonical records during normal project evolution.",
+    "linkedWorkPackageIds":["work-package:p6-beta-foundation"],
+    "source":"blueprint-os:p6-004-e2e",
+    "sourceRevision":"revision-p6-004-e2e",
+    "meta":{
+      "schemaVersion":"1.0.0",
+      "recordVersion":1,
+      "createdAt":"2026-09-25T23:37:00Z",
+      "updatedAt":"2026-09-25T23:37:00Z"
+    }
+  }'::jsonb,
+  '2026-09-25T23:37:00Z'::timestamptz,
+  '2026-09-25T23:37:00Z'::timestamptz
+);

@@ -1,5 +1,6 @@
 import {
   foundationBlueprintTemplatesV1,
+  GovernanceApplicationService,
   ProjectProfileApplicationService,
   ProjectReadinessApplicationService,
   ProjectRegistryApplicationService,
@@ -11,6 +12,7 @@ import { AuthorityService } from "@blueprint-os/core";
 import {
   createPrismaClient,
   PostgresAuthorityRepository,
+  PostgresGovernanceRepository,
   PostgresProjectProfileRepository,
   PostgresWorkQualityRepository,
   type BlueprintPrismaClient
@@ -22,6 +24,7 @@ export interface BlueprintServerRuntime {
   readonly profiles: ProjectProfileApplicationService;
   readonly registry: ProjectRegistryApplicationService;
   readonly readiness: ProjectReadinessApplicationService;
+  readonly governance: GovernanceApplicationService;
   readonly workQuality: WorkQualityApplicationService;
   readonly prompts: PromptProjectionApplicationService;
 }
@@ -38,6 +41,7 @@ export function createBlueprintServerRuntime(
   const authority = new AuthorityService(authorityRepository);
   const profileRepository = new PostgresProjectProfileRepository(prisma);
   const workRepository = new PostgresWorkQualityRepository(prisma);
+  const governanceRepository = new PostgresGovernanceRepository(prisma);
   const templates = new StaticTemplateCatalog(foundationBlueprintTemplatesV1);
   const profiles = new ProjectProfileApplicationService(
     profileRepository,
@@ -56,6 +60,11 @@ export function createBlueprintServerRuntime(
     workRepository,
     authority
   );
+  const governance = new GovernanceApplicationService(
+    governanceRepository,
+    workRepository,
+    authority
+  );
   const prompts = new PromptProjectionApplicationService(
     authority,
     profiles,
@@ -68,6 +77,7 @@ export function createBlueprintServerRuntime(
     profiles,
     registry,
     readiness,
+    governance,
     workQuality,
     prompts
   });

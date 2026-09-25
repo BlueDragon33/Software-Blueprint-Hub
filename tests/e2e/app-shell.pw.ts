@@ -179,15 +179,46 @@ test("canonical project workspace has stable truthful views", async ({
     page.getByRole("heading", { name: "Architecture Decisions" })
   ).toBeVisible();
   await expect(
-    page.getByText("Canonical module not available yet", { exact: true })
+    page.getByText("Keep governance state canonical and structured", {
+      exact: true
+    })
   ).toBeVisible();
-  await expect(page.getByText("P6-004", { exact: true })).toBeVisible();
+  await expect(page.getByText("accepted", { exact: true }).first()).toBeVisible();
+  await expect(
+    page.getByText(/Revision revision-p6-004-e2e/)
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p6-004-decisions-${testInfo.project.name}.png`,
+    fullPage: true
+  });
 
   await page.getByRole("link", { name: /Risks & Debt/ }).click();
   await expect(
     page.getByRole("heading", { name: "Risks & Technical Debt" })
   ).toBeVisible();
-  await expect(page.getByText("P6-004", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Governance records can drift from implementation", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Legacy governance notes remain outside structured records",
+      { exact: true }
+    )
+  ).toBeVisible();
+  await expect(
+    page.getByText("work-package:p6-beta-dashboard", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("work-package:p6-beta-foundation", { exact: true })
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p6-004-risks-debt-${testInfo.project.name}.png`,
+    fullPage: true
+  });
 
   await page.getByRole("link", { name: /Releases & Lessons/ }).click();
   await expect(
