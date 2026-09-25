@@ -1,12 +1,12 @@
 import { readFile } from "node:fs/promises";
 
-import type { ProjectProfile } from "@blueprint-os/contracts";
-import { validateProjectProfile } from "@blueprint-os/contracts";
-import { RecordVersionConflictError } from "@blueprint-os/core";
+import type { ProjectProfile } from "../../packages/contracts/src/index";
+import { validateProjectProfile } from "../../packages/contracts/src/index";
+import { RecordVersionConflictError } from "../../packages/core/src/index";
 import {
   createPrismaClient,
   PostgresProjectProfileRepository
-} from "@blueprint-os/persistence";
+} from "../../packages/persistence/src/index";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 const connectionString = process.env["DATABASE_URL"];
