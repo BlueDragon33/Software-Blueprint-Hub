@@ -44,6 +44,7 @@ export interface WorkQualityRepository {
 
   createQualityGate(gate: QualityGate): Promise<QualityGate>;
   findQualityGateById(id: string): Promise<QualityGate | null>;
+  listQualityGatesByProject(projectId: string): Promise<readonly QualityGate[]>;
   updateQualityGate(
     gate: QualityGate,
     expectedRecordVersion: number

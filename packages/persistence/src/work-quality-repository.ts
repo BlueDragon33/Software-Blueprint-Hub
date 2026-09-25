@@ -123,6 +123,19 @@ export class PostgresWorkQualityRepository implements WorkQualityRepository {
     return row.document;
   }
 
+  async listQualityGatesByProject(
+    projectId: string
+  ): Promise<readonly QualityGate[]> {
+    const rows = await this.prisma.qualityGate.findMany({
+      where: { projectId },
+      orderBy: { id: "asc" }
+    });
+    return rows.map((row) => {
+      assertValid<QualityGate>("QualityGate", row.document);
+      return row.document;
+    });
+  }
+
   async updateQualityGate(
     gate: QualityGate,
     expectedRecordVersion: number
