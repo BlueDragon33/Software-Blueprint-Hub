@@ -1,128 +1,10 @@
 import { encode } from "@auth/core/jwt";
 import { expect, test, type Page } from "@playwright/test";
 
-import type { ProjectProfile } from "../../packages/contracts/src";
-import {
-  createPrismaClient,
-  PostgresProjectProfileRepository
-} from "../../packages/persistence/src";
-
 const e2eAuthSecret = process.env.AUTH_SECRET ?? "";
 
-function registryProfile(
-  projectId: string,
-  profileId: string,
-  name: string,
-  level: ProjectProfile["blueprintLevel"],
-  updatedAt: string
-): ProjectProfile {
-  return {
-    id: profileId,
-    projectId,
-    meta: {
-      schemaVersion: "1.0.0",
-      recordVersion: 1,
-      createdAt: updatedAt,
-      updatedAt
-    },
-    name,
-    projectType: "web-application",
-    blueprintLevel: level,
-    primaryUsers: ["software-builder"],
-    jobsToBeDone: ["Manage an evidence-backed software blueprint."],
-    dataSensitivity: "internal",
-    persistence: "server",
-    authentication: "required",
-    authorization: "role-based",
-    offlineRequirement: "none",
-    externalIntegrations: [],
-    aiUse: "assistive",
-    extensibilityRequirement: "templates",
-    expectedLifetime: "long-lived",
-    expectedScale: "project-defined",
-    availabilityRequirement: "recoverable web service",
-    complianceSecuritySensitivity: "project-defined",
-    deploymentTarget: "managed web platform",
-    maintenanceModel: "versioned continuous maintenance"
-  };
-}
-
-async function seedRegistryForSystemOwner(projectSuffix: string): Promise<{
-  readonly firstName: string;
-  readonly secondName: string;
-}> {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is required for canonical registry E2E");
-  }
-  if (!e2eAuthSecret) {
-    throw new Error("AUTH_SECRET is required for canonical registry E2E");
-  }
-
-  const prisma = createPrismaClient(process.env.DATABASE_URL);
-  const profiles = new PostgresProjectProfileRepository(prisma);
-  const projectIds = [
-    `project:p6-registry-alpha-${projectSuffix}`,
-    `project:p6-registry-beta-${projectSuffix}`
-  ];
-  const firstName = `Registry Alpha ${projectSuffix}`;
-  const secondName = `Registry Beta ${projectSuffix}`;
-
-  try {
-    await prisma.project.deleteMany({ where: { id: { in: projectIds } } });
-
-    await profiles.createProjectWithProfile(
-      registryProfile(
-        projectIds[0]!,
-        `profile:p6-registry-alpha-${projectSuffix}`,
-        firstName,
-        "B2",
-        "2026-09-25T13:00:00Z"
-      )
-    );
-    await profiles.createProjectWithProfile(
-      registryProfile(
-        projectIds[1]!,
-        `profile:p6-registry-beta-${projectSuffix}`,
-        secondName,
-        "B4",
-        "2026-09-25T14:00:00Z"
-      )
-    );
-
-    await prisma.principal.upsert({
-      where: {
-        provider_providerSubject: {
-          provider: "github",
-          providerSubject: "p6-e2e-owner"
-        }
-      },
-      create: {
-        id: "principal:p6-e2e-owner",
-        provider: "github",
-        providerSubject: "p6-e2e-owner",
-        email: "p6-e2e@example.test"
-      },
-      update: {
-        email: "p6-e2e@example.test"
-      }
-    });
-
-    await prisma.systemBootstrap.upsert({
-      where: { id: "system" },
-      create: {
-        id: "system",
-        ownerPrincipalId: "principal:p6-e2e-owner"
-      },
-      update: {
-        ownerPrincipalId: "principal:p6-e2e-owner"
-      }
-    });
-
-    return { firstName, secondName };
-  } finally {
-    await prisma.$disconnect();
-  }
-}
+const registryAlphaName = "Registry Alpha canonical";
+const registryBetaName = "Registry Beta canonical";
 
 async function authenticateRegistryOwner(page: Page): Promise<void> {
   await page.setExtraHTTPHeaders({ "x-forwarded-proto": "http" });
@@ -167,14 +49,12 @@ test("signed-out root protects the canonical project registry", async ({ page },
 test("System Owner sees canonical multi-project registry and opens a project", async ({
   page
 }, testInfo) => {
-  const suffix = testInfo.project.name.replaceAll(/[^a-z0-9]+/gi, "-").toLowerCase();
-  const seeded = await seedRegistryForSystemOwner(suffix);
   await authenticateRegistryOwner(page);
 
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
-  await expect(page.getByText(seeded.firstName, { exact: true })).toBeVisible();
-  await expect(page.getByText(seeded.secondName, { exact: true })).toBeVisible();
+  await expect(page.getByText(registryAlphaName, { exact: true })).toBeVisible();
+  await expect(page.getByText(registryBetaName, { exact: true })).toBeVisible();
   await expect(page.getByText("System Owner", { exact: true }).first()).toBeVisible();
 
   await page.screenshot({
@@ -182,9 +62,9 @@ test("System Owner sees canonical multi-project registry and opens a project", a
     fullPage: true
   });
 
-  await page.getByRole("link", { name: new RegExp(seeded.secondName) }).click();
+  await page.getByRole("link", { name: new RegExp(registryBetaName) }).click();
   await expect(
-    page.getByRole("heading", { name: seeded.secondName })
+    page.getByRole("heading", { name: registryBetaName })
   ).toBeVisible();
   await expect(page.getByText("Canonical", { exact: true })).toBeVisible();
   await expect(page.getByText("B4", { exact: true }).first()).toBeVisible();
