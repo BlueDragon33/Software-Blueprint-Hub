@@ -27,6 +27,7 @@ export function createAuthJsConfig(
 
   return {
     secret,
+    basePath: "/api/auth",
     trustHost: true,
     session: { strategy: "jwt" },
     providers: [
