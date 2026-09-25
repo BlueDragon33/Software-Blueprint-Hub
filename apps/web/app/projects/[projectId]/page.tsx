@@ -2,8 +2,8 @@ import Link from "next/link";
 
 import { AppShell } from "@blueprint-os/ui";
 
-import { resolveWebActor } from "../../src/auth/server-actor";
-import { getBlueprintServerRuntime } from "../../src/server/runtime";
+import { resolveWebActor } from "../../../src/auth/server-actor";
+import { getBlueprintServerRuntime } from "../../../src/server/runtime";
 
 export const dynamic = "force-dynamic";
 
