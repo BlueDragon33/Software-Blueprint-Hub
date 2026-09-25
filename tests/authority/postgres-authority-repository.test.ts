@@ -15,10 +15,44 @@ describePostgres("PostgreSQL authority foundation", () => {
   const service = new AuthorityService(repository);
 
   beforeEach(async () => {
-    await prisma.authorityAuditEvent.deleteMany();
-    await prisma.projectAuthority.deleteMany();
+    await prisma.authorityAuditEvent.deleteMany({
+      where: {
+        OR: [
+          { projectId: { startsWith: "project:authority-" } },
+          {
+            actor: {
+              providerSubject: {
+                in: ["owner-1", "editor-1", "attacker"]
+              }
+            }
+          }
+        ]
+      }
+    });
+    await prisma.projectAuthority.deleteMany({
+      where: {
+        OR: [
+          { projectId: { startsWith: "project:authority-" } },
+          {
+            principal: {
+              providerSubject: {
+                in: ["owner-1", "editor-1", "attacker"]
+              }
+            }
+          }
+        ]
+      }
+    });
+    // SystemBootstrap is intentionally global. Integration files therefore run
+    // serially; all other fixture cleanup remains namespace-scoped.
     await prisma.systemBootstrap.deleteMany();
-    await prisma.principal.deleteMany();
+    await prisma.principal.deleteMany({
+      where: {
+        providerSubject: {
+          in: ["owner-1", "editor-1", "attacker"]
+        }
+      }
+    });
     await prisma.project.deleteMany({
       where: { id: { startsWith: "project:authority-" } }
     });
