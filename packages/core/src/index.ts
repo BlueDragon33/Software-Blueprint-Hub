@@ -8,6 +8,7 @@ export * from "./authority";
 export * from "./persistence";
 export * from "./work-quality";
 export * from "./project-readiness";
+export * from "./governance";
 
 export interface RegisteredProject {
   readonly id: ProjectId;
