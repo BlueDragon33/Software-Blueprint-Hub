@@ -66,8 +66,30 @@ describePostgres("PostgresProjectProfileRepository", () => {
   });
 
   beforeEach(async () => {
-    await prisma.projectProfile.deleteMany();
-    await prisma.project.deleteMany();
+    await prisma.projectProfile.deleteMany({
+      where: {
+        projectId: {
+          in: [
+            "project:persistence-roundtrip",
+            "project:persistence-version",
+            "project:rollback-source",
+            "project:rollback-target"
+          ]
+        }
+      }
+    });
+    await prisma.project.deleteMany({
+      where: {
+        id: {
+          in: [
+            "project:persistence-roundtrip",
+            "project:persistence-version",
+            "project:rollback-source",
+            "project:rollback-target"
+          ]
+        }
+      }
+    });
   });
 
   afterAll(async () => {
@@ -75,7 +97,10 @@ describePostgres("PostgresProjectProfileRepository", () => {
   });
 
   it("round-trips a validated canonical ProjectProfile", async () => {
-    const profile = await loadProfile();
+    const profile = withIdentity(await loadProfile(), {
+      id: "profile:persistence-roundtrip",
+      projectId: "project:persistence-roundtrip"
+    });
 
     await repository.createProjectWithProfile(profile);
     const stored = await repository.findProfileByProjectId(profile.projectId);
@@ -84,7 +109,10 @@ describePostgres("PostgresProjectProfileRepository", () => {
   });
 
   it("rejects stale recordVersion updates without overwriting newer state", async () => {
-    const initial = await loadProfile();
+    const initial = withIdentity(await loadProfile(), {
+      id: "profile:persistence-version",
+      projectId: "project:persistence-version"
+    });
     const version2 = nextVersion(initial);
     const staleVersion2 = {
       ...version2,
