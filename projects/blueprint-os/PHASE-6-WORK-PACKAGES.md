@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 6 Product Expansion Work Packages
 
-Status: **AUTHORIZED AFTER A2 / P6-001/P6-002 COMPLETE / P6-003 NEXT**
+Status: **AUTHORIZED AFTER A2 / P6-001/P6-002 COMPLETE / P6-003 IN PROGRESS**
 
 Phase 6 expands the proven vertical slice into a professional multi-project product. Work remains dependency-driven; production deployment is not implied.
 
@@ -34,7 +34,7 @@ Show project readiness, active gates, blocked work, evidence freshness and next 
 
 ## P6-003 — Project Workspace information architecture
 
-Status: **NEXT / AUTHORIZED AFTER P6-002 MERGE**
+Status: **IN PROGRESS**
 
 Dependencies: P6-001, P6-002.
 
