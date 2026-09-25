@@ -142,8 +142,9 @@ describePostgres("FND-007 Work Package + Quality Gate integration", () => {
     return { principalId: owner.id };
   }
 
-  async function reviewerActor(): Promise<{ principalId: string }> {
-    const owner = await ownerActor();
+  async function reviewerActor(
+    owner: { principalId: string }
+  ): Promise<{ principalId: string }> {
     const reviewer = await authority.resolveIdentity({
       provider: "github",
       providerSubject: "fnd007-reviewer"
@@ -156,8 +157,9 @@ describePostgres("FND-007 Work Package + Quality Gate integration", () => {
     return { principalId: reviewer.id };
   }
 
-  async function editorActor(): Promise<{ principalId: string }> {
-    const owner = await ownerActor();
+  async function editorActor(
+    owner: { principalId: string }
+  ): Promise<{ principalId: string }> {
     const editor = await authority.resolveIdentity({
       provider: "github",
       providerSubject: "fnd007-editor"
@@ -217,8 +219,8 @@ describePostgres("FND-007 Work Package + Quality Gate integration", () => {
 
   it("requires reviewer authority and real source/revision evidence before PASS", async () => {
     const owner = await ownerActor();
-    const editor = await editorActor();
-    const reviewer = await reviewerActor();
+    const editor = await editorActor(owner);
+    const reviewer = await reviewerActor(owner);
 
     await service.createQualityGate(owner, initialGate);
 
