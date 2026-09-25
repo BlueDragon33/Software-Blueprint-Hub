@@ -4,6 +4,7 @@ import type {
   ProjectProfileSummary
 } from "@blueprint-os/contracts";
 
+export * from "./authority";
 export * from "./persistence";
 
 export interface RegisteredProject {
