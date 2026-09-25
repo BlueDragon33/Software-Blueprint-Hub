@@ -1,6 +1,6 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **FOUNDATION IN PROGRESS — FND-001/002/003 COMPLETE / FND-004 NEXT**
+Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004 COMPLETE / FND-005 NEXT**
 
 The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
@@ -83,17 +83,34 @@ Gate evidence:
 
 ## FND-004 — Identity and authority foundation
 
+Status: **COMPLETE**
+
 Dependencies: FND-001, FND-003.
 
 Purpose:
 Implement ADR-0003 identity/session and Blueprint-owned authorization.
 
 Acceptance:
-- unauthenticated persistent mutation denied;
-- role checks are server-side/application-service-side;
-- Owner bootstrap is one-time and conflict-protected;
-- Viewer/Editor/Reviewer/Owner matrix is tested;
-- secrets do not enter canonical project records.
+- [x] unauthenticated persistent mutation denied;
+- [x] role checks are server-side/application-service-side;
+- [x] Owner bootstrap is one-time and conflict-protected;
+- [x] Viewer/Editor/Reviewer/Owner matrix is tested;
+- [x] Editor authority is project-scoped;
+- [x] Reviewer cannot perform Owner administration;
+- [x] role mutations are audit-recorded;
+- [x] OAuth/provider secrets do not enter Blueprint authority records;
+- [x] Auth.js is isolated to identity configuration and does not own Blueprint roles.
+
+Gate evidence:
+- Auth.js Core 0.41.3 config uses JWT sessions and fails closed on missing secrets.
+- Blueprint Core owns the authorization matrix and policy checks.
+- PostgreSQL models persist Principal, one-time SystemBootstrap, ProjectAuthority, and AuthorityAuditEvent.
+- Owner bootstrap is protected by transaction + unique constraints and replay tests.
+- Unit role-matrix tests cover unauthenticated, Viewer, Editor, Reviewer, and Owner behavior.
+- PostgreSQL integration tests prove bootstrap replay rejection, scoped role persistence, audit events, and absence of provider token/secret fields.
+- Integration fixtures are namespace-isolated so PostgreSQL test files may run in parallel without deleting each other's state.
+- Exact-head CI run 36122611028 passed frozen install, migrations, 19 tests, and production build on revision 236ff341e604e081e853c6dbcddd8d16bc76452d.
+- A later red revision reopens this package.
 
 ## FND-005 — Template resolver
 
