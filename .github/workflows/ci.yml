@@ -49,8 +49,14 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for FND-009 Playwright bootstrap
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Bootstrap lockfile evidence
+        run: |
+          echo "===BLUEPRINT_PNPM_LOCKFILE_BEGIN==="
+          cat pnpm-lock.yaml
+          echo "===BLUEPRINT_PNPM_LOCKFILE_END==="
 
       - name: Generate Prisma Client
         run: pnpm prisma:generate
@@ -84,3 +90,20 @@ jobs:
 
       - name: Production build
         run: pnpm build
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: App Shell E2E + screenshots
+        run: pnpm test:e2e
+
+      - name: Upload Human UX evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fnd009-human-ux-${{ github.sha }}
+          path: |
+            artifacts/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14
