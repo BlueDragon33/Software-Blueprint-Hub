@@ -1,6 +1,7 @@
 import {
   foundationBlueprintTemplatesV1,
   ProjectProfileApplicationService,
+  ProjectReadinessApplicationService,
   ProjectRegistryApplicationService,
   PromptProjectionApplicationService,
   StaticTemplateCatalog,
@@ -20,6 +21,7 @@ export interface BlueprintServerRuntime {
   readonly authority: AuthorityService;
   readonly profiles: ProjectProfileApplicationService;
   readonly registry: ProjectRegistryApplicationService;
+  readonly readiness: ProjectReadinessApplicationService;
   readonly workQuality: WorkQualityApplicationService;
   readonly prompts: PromptProjectionApplicationService;
 }
@@ -46,6 +48,10 @@ export function createBlueprintServerRuntime(
     profileRepository,
     authority
   );
+  const readiness = new ProjectReadinessApplicationService(
+    workRepository,
+    authority
+  );
   const workQuality = new WorkQualityApplicationService(
     workRepository,
     authority
@@ -61,6 +67,7 @@ export function createBlueprintServerRuntime(
     authority,
     profiles,
     registry,
+    readiness,
     workQuality,
     prompts
   });
