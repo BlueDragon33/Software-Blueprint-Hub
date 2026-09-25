@@ -73,7 +73,9 @@ describePostgres("PostgresProjectProfileRepository", () => {
             "project:persistence-roundtrip",
             "project:persistence-version",
             "project:rollback-source",
-            "project:rollback-target"
+            "project:rollback-target",
+            "project:registry-a",
+            "project:registry-b"
           ]
         }
       }
@@ -85,7 +87,9 @@ describePostgres("PostgresProjectProfileRepository", () => {
             "project:persistence-roundtrip",
             "project:persistence-version",
             "project:rollback-source",
-            "project:rollback-target"
+            "project:rollback-target",
+            "project:registry-a",
+            "project:registry-b"
           ]
         }
       }
@@ -106,6 +110,33 @@ describePostgres("PostgresProjectProfileRepository", () => {
     const stored = await repository.findProfileByProjectId(profile.projectId);
 
     expect(stored).toEqual(profile);
+  });
+
+  it("lists all profiles and filters by authorized project IDs", async () => {
+    const base = await loadProfile();
+    const first = withIdentity(base, {
+      id: "profile:registry-a",
+      projectId: "project:registry-a",
+      name: "Registry A"
+    });
+    const second = withIdentity(base, {
+      id: "profile:registry-b",
+      projectId: "project:registry-b",
+      name: "Registry B"
+    });
+
+    await repository.createProjectWithProfile(first);
+    await repository.createProjectWithProfile(second);
+
+    const all = await repository.listProfiles();
+    const filtered = await repository.listProfilesByProjectIds([
+      second.projectId
+    ]);
+
+    expect(all.map((item) => item.projectId)).toEqual(
+      expect.arrayContaining([first.projectId, second.projectId])
+    );
+    expect(filtered).toEqual([second]);
   });
 
   it("rejects stale recordVersion updates without overwriting newer state", async () => {

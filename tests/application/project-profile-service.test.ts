@@ -51,6 +51,18 @@ class MemoryProfiles implements ProjectProfileRepository {
     return this.value?.projectId === projectId ? this.value : null;
   }
 
+  async listProfiles(): Promise<readonly ProjectProfile[]> {
+    return this.value ? [this.value] : [];
+  }
+
+  async listProfilesByProjectIds(
+    projectIds: readonly string[]
+  ): Promise<readonly ProjectProfile[]> {
+    return this.value && projectIds.includes(this.value.projectId)
+      ? [this.value]
+      : [];
+  }
+
   async updateProfile(
     value: ProjectProfile,
     expectedRecordVersion: number
@@ -89,6 +101,19 @@ class MemoryAuthority implements AuthorityRepository {
     principalId: string
   ): Promise<ProjectRole | null> {
     return this.roles.get(`${projectId}:${principalId}`) ?? null;
+  }
+
+  async listProjectRolesForPrincipal(
+    principalId: string
+  ): Promise<readonly ProjectRoleAssignment[]> {
+    const suffix = `:${principalId}`;
+    return [...this.roles.entries()]
+      .filter(([key]) => key.endsWith(suffix))
+      .map(([key, role]) => ({
+        projectId: key.slice(0, -suffix.length),
+        principalId,
+        role
+      }));
   }
 
   async setProjectRole(

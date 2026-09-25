@@ -51,6 +51,20 @@ class MemoryAuthorityRepository implements AuthorityRepository {
     return this.roles.get(`${projectId}:${principalId}`) ?? null;
   }
 
+  async listProjectRolesForPrincipal(
+    principalId: string
+  ): Promise<readonly ProjectRoleAssignment[]> {
+    const suffix = `:${principalId}`;
+    return [...this.roles.entries()]
+      .filter(([key]) => key.endsWith(suffix))
+      .map(([key, role]) => ({
+        projectId: key.slice(0, -suffix.length),
+        principalId,
+        role
+      }))
+      .sort((a, b) => a.projectId.localeCompare(b.projectId));
+  }
+
   async setProjectRole(
     assignment: ProjectRoleAssignment,
     _audit: AuthorityAuditInput
@@ -176,6 +190,54 @@ describe("Blueprint-owned authority matrix", () => {
     await expect(
       service.require({ principalId: viewer.id }, "project:a", "PROJECT_MUTATE")
     ).rejects.toBeInstanceOf(AuthorizationDeniedError);
+  });
+
+  it("returns an all-project read scope for the System Owner", async () => {
+    const repository = new MemoryAuthorityRepository();
+    const service = new AuthorityService(repository);
+    const owner = await service.bootstrapOwner({
+      provider: "github",
+      providerSubject: "owner-scope"
+    });
+
+    await expect(
+      service.readableProjectScope({ principalId: owner.id })
+    ).resolves.toEqual({ kind: "all" });
+  });
+
+  it("returns only explicitly assigned readable projects for a normal actor", async () => {
+    const repository = new MemoryAuthorityRepository();
+    const service = new AuthorityService(repository);
+    const owner = await service.bootstrapOwner({
+      provider: "github",
+      providerSubject: "owner-reader"
+    });
+    const viewer = await service.resolveIdentity({
+      provider: "github",
+      providerSubject: "scoped-viewer"
+    });
+
+    await service.grantProjectRole(
+      { principalId: owner.id },
+      {
+        projectId: "project:allowed",
+        principalId: viewer.id,
+        role: "VIEWER"
+      }
+    );
+
+    await expect(
+      service.readableProjectScope({ principalId: viewer.id })
+    ).resolves.toEqual({
+      kind: "projects",
+      assignments: [
+        {
+          projectId: "project:allowed",
+          principalId: viewer.id,
+          role: "VIEWER"
+        }
+      ]
+    });
   });
 
   it("prevents owner bootstrap replay", async () => {
