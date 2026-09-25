@@ -1,7 +1,7 @@
 # FND-010 — Foundation Gate A1 Review
 
 Review date: 2026-09-25  
-Status: **CANDIDATE — FINAL EXACT-HEAD CI REQUIRED**
+Status: **PASS — FOUNDATION READY**
 
 ## Purpose
 
@@ -162,7 +162,7 @@ Post-merge revalidation:
 - [x] Human UX review has no blocking issue.
 - [x] No open P0/P1 issue is currently recorded.
 - [x] Merged Foundation revision has a full successful CI run.
-- [ ] This A1 review branch itself has successful exact-head CI.
+- [x] A1 candidate review branch passed exact-head CI: revision `5ebb64c73c6ad6d5bd45d7c92589fa1209867ebc`, run `36144510640`.
 
 ## Contradiction / regression review
 
@@ -178,8 +178,21 @@ No blocking contradiction is currently identified among:
 
 The shared PostgreSQL integration race found after FND-009 UX PASS was not ignored. It was fixed through serialized shared-state tests, namespace-scoped fixture cleanup and scoped audit assertions. Production authorization semantics were not weakened.
 
-## Candidate decision
+## Decision
 
-**A1 is eligible to PASS, pending exact-head CI of this review branch.**
+**A1 — FOUNDATION READY: PASS**
 
-Do not change this document to PASS until the review commit itself is green.
+Candidate review evidence:
+- revision: `5ebb64c73c6ad6d5bd45d7c92589fa1209867ebc`
+- CI run: `36144510640`
+- result: **SUCCESS**
+
+This PASS authorizes the next controlled product/vertical-slice expansion wave.
+
+It does **not** authorize:
+- automatic production deployment;
+- bypassing later quality gates;
+- weakening contracts, authority, migrations or Human UX acceptance;
+- broad feature accumulation without dependency/work-package justification.
+
+The final PASS commit itself must also remain green before this PR is merged. A red exact-head revision reopens A1.
