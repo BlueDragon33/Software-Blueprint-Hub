@@ -1,6 +1,7 @@
 import {
   foundationBlueprintTemplatesV1,
   ProjectProfileApplicationService,
+  ProjectRegistryApplicationService,
   PromptProjectionApplicationService,
   StaticTemplateCatalog,
   WorkQualityApplicationService
@@ -18,6 +19,7 @@ export interface BlueprintServerRuntime {
   readonly prisma: BlueprintPrismaClient;
   readonly authority: AuthorityService;
   readonly profiles: ProjectProfileApplicationService;
+  readonly registry: ProjectRegistryApplicationService;
   readonly workQuality: WorkQualityApplicationService;
   readonly prompts: PromptProjectionApplicationService;
 }
@@ -40,6 +42,10 @@ export function createBlueprintServerRuntime(
     authority,
     templates
   );
+  const registry = new ProjectRegistryApplicationService(
+    profileRepository,
+    authority
+  );
   const workQuality = new WorkQualityApplicationService(
     workRepository,
     authority
@@ -54,6 +60,7 @@ export function createBlueprintServerRuntime(
     prisma,
     authority,
     profiles,
+    registry,
     workQuality,
     prompts
   });

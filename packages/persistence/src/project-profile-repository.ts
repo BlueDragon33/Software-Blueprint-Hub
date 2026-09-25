@@ -28,6 +28,27 @@ function fromJson(document: Prisma.JsonValue): ProjectProfile {
   return document;
 }
 
+function fromRow(row: {
+  readonly projectId: string;
+  readonly schemaVersion: string;
+  readonly recordVersion: number;
+  readonly document: Prisma.JsonValue;
+}): ProjectProfile {
+  const profile = fromJson(row.document);
+
+  if (
+    profile.projectId !== row.projectId ||
+    profile.meta.schemaVersion !== row.schemaVersion ||
+    profile.meta.recordVersion !== row.recordVersion
+  ) {
+    throw new Error(
+      `Persistent profile metadata drift detected for project ${row.projectId}`
+    );
+  }
+
+  return profile;
+}
+
 export class PostgresProjectProfileRepository
   implements ProjectProfileRepository
 {
@@ -66,22 +87,34 @@ export class PostgresProjectProfileRepository
       where: { projectId }
     });
 
-    if (!row) {
-      return null;
+    return row ? fromRow(row) : null;
+  }
+
+  async listProfiles(): Promise<readonly ProjectProfile[]> {
+    const rows = await this.prisma.projectProfile.findMany({
+      orderBy: [{ updatedAt: "desc" }, { projectId: "asc" }]
+    });
+
+    return Object.freeze(rows.map(fromRow));
+  }
+
+  async listProfilesByProjectIds(
+    projectIds: readonly string[]
+  ): Promise<readonly ProjectProfile[]> {
+    if (projectIds.length === 0) {
+      return Object.freeze([]);
     }
 
-    const profile = fromJson(row.document);
+    const rows = await this.prisma.projectProfile.findMany({
+      where: {
+        projectId: {
+          in: [...new Set(projectIds)]
+        }
+      },
+      orderBy: [{ updatedAt: "desc" }, { projectId: "asc" }]
+    });
 
-    if (
-      profile.meta.schemaVersion !== row.schemaVersion ||
-      profile.meta.recordVersion !== row.recordVersion
-    ) {
-      throw new Error(
-        `Persistent profile metadata drift detected for project ${projectId}`
-      );
-    }
-
-    return profile;
+    return Object.freeze(rows.map(fromRow));
   }
 
   async updateProfile(

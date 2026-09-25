@@ -17,6 +17,10 @@ export class RecordVersionConflictError extends Error {
 export interface ProjectProfileRepository {
   createProjectWithProfile(profile: ProjectProfile): Promise<ProjectProfile>;
   findProfileByProjectId(projectId: string): Promise<ProjectProfile | null>;
+  listProfiles(): Promise<readonly ProjectProfile[]>;
+  listProfilesByProjectIds(
+    projectIds: readonly string[]
+  ): Promise<readonly ProjectProfile[]>;
   updateProfile(
     profile: ProjectProfile,
     expectedRecordVersion: number

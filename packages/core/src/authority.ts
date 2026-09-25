@@ -56,6 +56,9 @@ export interface AuthorityRepository {
     projectId: string,
     principalId: string
   ): Promise<ProjectRole | null>;
+  listProjectRolesForPrincipal(
+    principalId: string
+  ): Promise<readonly ProjectRoleAssignment[]>;
   setProjectRole(
     assignment: ProjectRoleAssignment,
     audit: AuthorityAuditInput
@@ -68,6 +71,15 @@ export class OwnerBootstrapConflictError extends Error {
   constructor() {
     super("Blueprint OS owner bootstrap has already been completed");
     this.name = "OwnerBootstrapConflictError";
+  }
+}
+
+export class AuthenticationRequiredError extends Error {
+  readonly code = "AUTHENTICATION_REQUIRED";
+
+  constructor() {
+    super("Authenticated identity is required");
+    this.name = "AuthenticationRequiredError";
   }
 }
 
@@ -89,6 +101,13 @@ const roleActions: Readonly<Record<ProjectRole, ReadonlySet<AuthorityAction>>> =
   REVIEWER: new Set(["PROJECT_READ", "PROJECT_REVIEW"]),
   VIEWER: new Set(["PROJECT_READ"])
 };
+
+export type ProjectReadScope =
+  | { readonly kind: "all" }
+  | {
+      readonly kind: "projects";
+      readonly assignments: readonly ProjectRoleAssignment[];
+    };
 
 export class AuthorityService {
   constructor(private readonly repository: AuthorityRepository) {}
@@ -130,6 +149,34 @@ export class AuthorityService {
     if (!(await this.can(actor, projectId, action))) {
       throw new AuthorizationDeniedError(action, projectId);
     }
+  }
+
+  async readableProjectScope(
+    actor: AuthenticatedActor | null
+  ): Promise<ProjectReadScope> {
+    if (!actor) {
+      throw new AuthenticationRequiredError();
+    }
+
+    if (await this.repository.isSystemOwner(actor.principalId)) {
+      return Object.freeze({ kind: "all" });
+    }
+
+    const assignments = (
+      await this.repository.listProjectRolesForPrincipal(actor.principalId)
+    )
+      .filter((assignment) => roleActions[assignment.role].has("PROJECT_READ"))
+      .sort(
+        (a, b) =>
+          a.projectId.localeCompare(b.projectId) ||
+          a.role.localeCompare(b.role)
+      )
+      .map((assignment) => Object.freeze({ ...assignment }));
+
+    return Object.freeze({
+      kind: "projects",
+      assignments: Object.freeze(assignments)
+    });
   }
 
   async grantProjectRole(

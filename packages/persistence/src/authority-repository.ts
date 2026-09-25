@@ -160,6 +160,30 @@ export class PostgresAuthorityRepository implements AuthorityRepository {
     return row?.role ? (row.role as ProjectRole) : null;
   }
 
+  async listProjectRolesForPrincipal(
+    principalId: string
+  ): Promise<readonly ProjectRoleAssignment[]> {
+    const rows = await this.prisma.projectAuthority.findMany({
+      where: { principalId },
+      orderBy: [{ projectId: "asc" }, { role: "asc" }],
+      select: {
+        projectId: true,
+        principalId: true,
+        role: true
+      }
+    });
+
+    return Object.freeze(
+      rows.map((row) =>
+        Object.freeze({
+          projectId: row.projectId,
+          principalId: row.principalId,
+          role: row.role as ProjectRole
+        })
+      )
+    );
+  }
+
   async setProjectRole(
     assignment: ProjectRoleAssignment,
     audit: AuthorityAuditInput
