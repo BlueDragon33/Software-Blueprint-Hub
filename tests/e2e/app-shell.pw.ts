@@ -1,9 +1,19 @@
 import { expect, test } from "@playwright/test";
 
+test("signed-out root protects the canonical project registry", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Sign in to open your project registry." })
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+  await expect(page.getByText(/does not expose canonical project names/i)).toBeVisible();
+});
+
 test("critical preview journey stays understandable and evidence-honest", async ({
   page
 }, testInfo) => {
-  await page.goto("/");
+  await page.goto("/projects/new");
   await expect(
     page.getByRole("heading", { name: "Build with evidence, not guesswork." })
   ).toBeVisible();
@@ -59,7 +69,7 @@ test("critical preview journey stays understandable and evidence-honest", async 
 });
 
 test("critical preview journey is keyboard-operable", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/projects/new");
 
   const projectName = page.getByLabel("Project name");
   await projectName.focus();
