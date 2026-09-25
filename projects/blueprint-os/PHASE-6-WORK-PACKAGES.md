@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 6 Product Expansion Work Packages
 
-Status: **AUTHORIZED AFTER A2 / P6-001/P6-002/P6-003 COMPLETE / P6-004 IN PROGRESS**
+Status: **AUTHORIZED AFTER A2 / P6-001/P6-002/P6-003/P6-004 COMPLETE / P6-005 NEXT**
 
 Phase 6 expands the proven vertical slice into a professional multi-project product. Work remains dependency-driven; production deployment is not implied.
 
@@ -46,7 +46,7 @@ The proven vertical-slice flow must remain available as a guided creation path.
 
 ## P6-004 — Decisions / Risks / Technical Debt
 
-Status: **IN PROGRESS**
+Status: **COMPLETE**
 
 Dependencies: P6-003.
 
@@ -54,6 +54,8 @@ Purpose:
 Promote ADR, Risk and TechnicalDebt from blueprint concepts into canonical product modules with authority, provenance and version discipline.
 
 ## P6-005 — Knowledge Library
+
+Status: **NEXT / AUTHORIZED AFTER P6-004 MERGE**
 
 Dependencies: P6-003.
 
