@@ -53,25 +53,27 @@ export class StaticTemplateCatalog implements TemplateCatalog {
             template.requirements.map((requirement) =>
               Object.freeze({
                 ...requirement,
-                tags: requirement.tags
-                  ? Object.freeze([...requirement.tags])
-                  : undefined,
-                dependsOn: requirement.dependsOn
-                  ? Object.freeze([...requirement.dependsOn])
-                  : undefined
+                ...(requirement.tags
+                  ? { tags: Object.freeze([...requirement.tags]) }
+                  : {}),
+                ...(requirement.dependsOn
+                  ? { dependsOn: Object.freeze([...requirement.dependsOn]) }
+                  : {})
               })
             )
           ),
-          activation: template.activation
-            ? Object.freeze({
-                explanation: template.activation.explanation,
-                all: Object.freeze(
-                  template.activation.all.map((condition) =>
-                    Object.freeze({ ...condition })
+          ...(template.activation
+            ? {
+                activation: Object.freeze({
+                  explanation: template.activation.explanation,
+                  all: Object.freeze(
+                    template.activation.all.map((condition) =>
+                      Object.freeze({ ...condition })
+                    )
                   )
-                )
-              })
-            : undefined
+                })
+              }
+            : {})
         })
       )
     );
