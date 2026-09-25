@@ -37,33 +37,29 @@ describePostgres("FND-009 canonical App Shell journey", () => {
   });
 
   async function ownerActor(): Promise<{ principalId: string }> {
-    const principal = await runtime.authority.resolveIdentity({
-      provider: "github",
-      providerSubject: "fnd009-owner"
+    const existing = await runtime.prisma.systemBootstrap.findUnique({
+      where: { id: "system" }
     });
-    // System-owner bootstrap is intentionally not reset between parallel suites.
-    // Project-scoped OWNER is enough to exercise the canonical vertical slice.
-    await runtime.prisma.project.upsert({
-      where: { id: ids.projectId },
-      update: {},
-      create: { id: ids.projectId }
-    });
-    await runtime.prisma.projectAuthority.upsert({
-      where: {
-        projectId_principalId: {
-          projectId: ids.projectId,
-          principalId: principal.id
-        }
-      },
-      update: { role: "OWNER" },
-      create: {
-        projectId: ids.projectId,
-        principalId: principal.id,
-        role: "OWNER"
+    if (existing) {
+      return { principalId: existing.ownerPrincipalId };
+    }
+
+    try {
+      const principal = await runtime.authority.bootstrapOwner({
+        provider: "github",
+        providerSubject: "fnd009-owner"
+      });
+      return { principalId: principal.id };
+    } catch {
+      // Another parallel authority suite may win the one-time bootstrap race.
+      const winner = await runtime.prisma.systemBootstrap.findUnique({
+        where: { id: "system" }
+      });
+      if (!winner) {
+        throw new Error("System Owner bootstrap did not produce an owner");
       }
-    });
-    await runtime.prisma.project.delete({ where: { id: ids.projectId } });
-    return { principalId: principal.id };
+      return { principalId: winner.ownerPrincipalId };
+    }
   }
 
   it("persists Project/Profile, Work/Gate, then generates Prompt Projection from canonical state", async () => {
