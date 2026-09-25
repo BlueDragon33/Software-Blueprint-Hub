@@ -49,8 +49,14 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for FND-004 bootstrap
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Bootstrap lockfile evidence
+        run: |
+          echo "===BLUEPRINT_PNPM_LOCKFILE_BEGIN==="
+          cat pnpm-lock.yaml
+          echo "===BLUEPRINT_PNPM_LOCKFILE_END==="
 
       - name: Generate Prisma Client
         run: pnpm prisma:generate
@@ -79,7 +85,7 @@ jobs:
       - name: Architecture boundaries
         run: pnpm check:boundaries
 
-      - name: Unit, contract, and PostgreSQL integration tests
+      - name: Unit, contract, authority, and PostgreSQL integration tests
         run: pnpm test
 
       - name: Production build

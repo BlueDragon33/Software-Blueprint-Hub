@@ -9,10 +9,11 @@ datasource db {
 }
 
 model Project {
-  id        String          @id @db.VarChar(160)
-  createdAt DateTime        @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime        @updatedAt @db.Timestamptz(6)
-  profile   ProjectProfile?
+  id          String             @id @db.VarChar(160)
+  createdAt   DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime           @updatedAt @db.Timestamptz(6)
+  profile     ProjectProfile?
+  authorities ProjectAuthority[]
 }
 
 model ProjectProfile {
@@ -27,4 +28,57 @@ model ProjectProfile {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId, recordVersion])
+}
+
+model Principal {
+  id              String                @id @db.VarChar(160)
+  provider        String                @db.VarChar(80)
+  providerSubject String                @db.VarChar(255)
+  email           String?               @db.VarChar(320)
+  createdAt       DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime              @updatedAt @db.Timestamptz(6)
+  systemBootstrap SystemBootstrap?
+  authorities     ProjectAuthority[]
+  auditActor      AuthorityAuditEvent[] @relation("AuthorityAuditActor")
+  auditTarget     AuthorityAuditEvent[] @relation("AuthorityAuditTarget")
+
+  @@unique([provider, providerSubject])
+}
+
+model SystemBootstrap {
+  id               String   @id @default("system") @db.VarChar(32)
+  ownerPrincipalId String   @unique @db.VarChar(160)
+  initializedAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  owner Principal @relation(fields: [ownerPrincipalId], references: [id], onDelete: Restrict)
+}
+
+model ProjectAuthority {
+  projectId   String   @db.VarChar(160)
+  principalId String   @db.VarChar(160)
+  role        String   @db.VarChar(32)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  principal Principal @relation(fields: [principalId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, principalId])
+  @@index([principalId, role])
+}
+
+model AuthorityAuditEvent {
+  id                String   @id @db.VarChar(160)
+  actorPrincipalId  String   @db.VarChar(160)
+  targetPrincipalId String?  @db.VarChar(160)
+  projectId         String?  @db.VarChar(160)
+  action            String   @db.VarChar(80)
+  detail            Json?
+  createdAt         DateTime @default(now()) @db.Timestamptz(6)
+
+  actor  Principal  @relation("AuthorityAuditActor", fields: [actorPrincipalId], references: [id], onDelete: Restrict)
+  target Principal? @relation("AuthorityAuditTarget", fields: [targetPrincipalId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, createdAt])
+  @@index([actorPrincipalId, createdAt])
 }
