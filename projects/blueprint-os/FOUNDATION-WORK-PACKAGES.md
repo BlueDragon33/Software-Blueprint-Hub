@@ -1,6 +1,6 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005 COMPLETE / FND-006 NEXT**
+Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005/006 COMPLETE / FND-007 NEXT**
 
 The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
@@ -148,17 +148,32 @@ Gate evidence:
 
 ## FND-006 — Project Profile application service
 
+Status: **COMPLETE**
+
 Dependencies: FND-003, FND-004, FND-005.
 
 Purpose:
 Create/update Project Profile and produce a versioned resolved blueprint.
 
 Acceptance:
-- profile write validates schema and authority;
-- resolution references exact profile recordVersion/template versions;
-- concurrent stale update fails cleanly;
-- change of relevant profile dimension re-resolves blueprint;
-- unrelated UI state cannot alter resolution.
+- [x] profile write validates schema and authority;
+- [x] unauthenticated mutation is rejected before persistence;
+- [x] invalid schema is rejected before persistence;
+- [x] resolution references exact profile recordVersion/template versions;
+- [x] concurrent stale update fails cleanly without overwriting canonical state;
+- [x] change of relevant profile dimension re-resolves blueprint;
+- [x] unrelated UI state cannot alter resolution fingerprint;
+- [x] application service depends on repository/authority/template contracts rather than Prisma or Next.js;
+- [x] frozen dependency graph is enforced in CI.
+
+Gate evidence:
+- Application layer composes FND-002 validation, FND-004 authority, FND-005 resolver, and FND-003 repository ports.
+- Unit tests prove unauthenticated denial, invalid-profile rejection before persistence, exact version/template references, and UI-state isolation.
+- PostgreSQL integration tests prove create/resolve, relevant-dimension re-resolution, and stale recordVersion conflict preservation.
+- The initial application typecheck defect was root-caused to missing Node type context for the source-level blueprint-engine dependency and fixed in the application tsconfig without changing resolver semantics.
+- Bootstrap lockfile was captured from a successful full CI run, committed, and CI returned to frozen-lockfile mode.
+- Exact-head frozen CI run 36129206143 passed PostgreSQL 16 migration/status, generated contract drift, schema compatibility, lint, typecheck, architecture boundaries, all tests, and production build on revision f96b35bae9abd0b421967733ae90af445928a7b5.
+- A later red revision reopens this package.
 
 ## FND-007 — Work Package + Quality Gate core
 

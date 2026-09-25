@@ -42,9 +42,15 @@ async function checkFile(file) {
     }
   }
 
+  if (rel.startsWith("packages/application/")) {
+    if (hasImport(content, /from\s+["'](?:next|react|react-dom|@blueprint-os\/ui|@blueprint-os\/persistence)/)) {
+      violations.push(`${rel}: application services must depend on ports/core, not web/UI/persistence implementations`);
+    }
+  }
+
   if (rel.startsWith("packages/persistence/")) {
-    if (hasImport(content, /from\s+["'](?:next|react|react-dom|@blueprint-os\/ui)/)) {
-      violations.push(`${rel}: persistence must not depend on web/UI frameworks`);
+    if (hasImport(content, /from\s+["'](?:next|react|react-dom|@blueprint-os\/ui|@blueprint-os\/application)/)) {
+      violations.push(`${rel}: persistence must not depend on web/UI/application orchestration`);
     }
   }
 
