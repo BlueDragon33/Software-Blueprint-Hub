@@ -87,6 +87,9 @@ jobs:
       - name: Production build
         run: pnpm build
 
+      - name: Seed canonical Project Registry E2E data
+        run: pnpm exec prisma db execute --config prisma7.config.ts --file scripts/e2e-project-registry.sql
+
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
