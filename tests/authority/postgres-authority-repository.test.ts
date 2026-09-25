@@ -2,7 +2,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { AuthorityService, OwnerBootstrapConflictError } from "../../packages/core/src/authority";
 import {
-  createBlueprintPrismaClient,
+  createPrismaClient,
   PostgresAuthorityRepository
 } from "../../packages/persistence/src";
 
@@ -10,7 +10,7 @@ const databaseUrl = process.env.DATABASE_URL;
 const describePostgres = databaseUrl ? describe : describe.skip;
 
 describePostgres("PostgreSQL authority foundation", () => {
-  const prisma = createBlueprintPrismaClient(databaseUrl!);
+  const prisma = createPrismaClient(databaseUrl!);
   const repository = new PostgresAuthorityRepository(prisma);
   const service = new AuthorityService(repository);
 
