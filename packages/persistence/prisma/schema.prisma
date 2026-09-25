@@ -1,0 +1,30 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Project {
+  id        String          @id @db.VarChar(160)
+  createdAt DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime        @updatedAt @db.Timestamptz(6)
+  profile   ProjectProfile?
+}
+
+model ProjectProfile {
+  id            String   @id @db.VarChar(160)
+  projectId     String   @unique @db.VarChar(160)
+  schemaVersion String   @db.VarChar(32)
+  recordVersion Int
+  document      Json
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, recordVersion])
+}

@@ -31,7 +31,7 @@ async function checkFile(file) {
   const content = await readFile(file, "utf8");
 
   if (rel.startsWith("packages/contracts/")) {
-    if (hasImport(content, /from\s+["'](?:next|react|react-dom|@blueprint-os\/core|@blueprint-os\/ui)/)) {
+    if (hasImport(content, /from\s+["'](?:next|react|react-dom|@blueprint-os\/core|@blueprint-os\/ui|@blueprint-os\/persistence)/)) {
       violations.push(`${rel}: contracts must remain framework/domain independent`);
     }
   }
@@ -39,6 +39,12 @@ async function checkFile(file) {
   if (rel.startsWith("packages/core/")) {
     if (hasImport(content, /from\s+["'](?:next|react|react-dom|@blueprint-os\/ui|@blueprint-os\/persistence)/)) {
       violations.push(`${rel}: core must not depend on web/UI/persistence implementation`);
+    }
+  }
+
+  if (rel.startsWith("packages/persistence/")) {
+    if (hasImport(content, /from\s+["'](?:next|react|react-dom|@blueprint-os\/ui)/)) {
+      violations.push(`${rel}: persistence must not depend on web/UI frameworks`);
     }
   }
 

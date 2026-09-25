@@ -4,6 +4,8 @@ import type {
   ProjectProfileSummary
 } from "@blueprint-os/contracts";
 
+export * from "./persistence";
+
 export interface RegisteredProject {
   readonly id: ProjectId;
   readonly profile: ProjectProfileSummary;
