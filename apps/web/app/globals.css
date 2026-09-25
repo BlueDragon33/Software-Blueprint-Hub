@@ -812,3 +812,82 @@ input:hover {
     animation: none !important;
   }
 }
+
+
+.permission-banner,
+.system-state,
+.empty-state {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #dce3ef;
+  border-radius: 0.85rem;
+  background: #f8faff;
+}
+
+.permission-banner > div,
+.system-state {
+  color: #526078;
+}
+
+.permission-banner > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.permission-banner strong,
+.system-state strong,
+.empty-state strong {
+  color: #283754;
+  font-size: 0.82rem;
+}
+
+.permission-banner span,
+.system-state span,
+.empty-state span {
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.system-state {
+  justify-content: flex-start;
+}
+
+.system-state-error {
+  color: #8f3038;
+  border-color: #f0cdd0;
+  background: #fff6f6;
+}
+
+.system-state-error strong {
+  color: #8f3038;
+}
+
+.state-spinner {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.1rem;
+  border: 2px solid #cfd6e6;
+  border-top-color: #4255d7;
+  border-radius: 50%;
+  animation: blueprint-spin 0.8s linear infinite;
+}
+
+.empty-state {
+  display: grid;
+  justify-content: stretch;
+  min-height: 10rem;
+  place-content: center;
+  text-align: center;
+  border-style: dashed;
+  color: #7b8598;
+  background: #fbfcfe;
+}
+
+@keyframes blueprint-spin {
+  to { transform: rotate(360deg); }
+}
