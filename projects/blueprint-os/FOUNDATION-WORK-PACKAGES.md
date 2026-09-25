@@ -1,6 +1,6 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004 COMPLETE / FND-005 NEXT**
+Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005 COMPLETE / FND-006 NEXT**
 
 The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
@@ -114,17 +114,37 @@ Gate evidence:
 
 ## FND-005 — Template resolver
 
+Status: **COMPLETE**
+
 Dependencies: FND-002.
 
 Purpose:
 Implement `TEMPLATE-RESOLUTION-CONTRACT.v1.md`.
 
 Acceptance:
-- deterministic result/fingerprint;
-- authority-layer merge rules implemented;
-- incompatible values fail with RESOLUTION_CONFLICT;
-- dependency closure and cycle detection tested;
-- rationale/provenance emitted per required module/gate.
+- [x] deterministic result/fingerprint;
+- [x] authority-layer merge rules implemented;
+- [x] compatible tags/dependencies union with stable ordering;
+- [x] stricter required/depth rules cannot be weakened by lower authority layers;
+- [x] incompatible scalar values fail closed with RESOLUTION_CONFLICT;
+- [x] dependency closure promotes required dependencies;
+- [x] missing dependencies fail closed;
+- [x] dependency cycles fail closed;
+- [x] rationale/provenance emitted per required module/gate;
+- [x] exact template version participates in the fingerprint;
+- [x] template input order does not change normalized output;
+- [x] successful output validates against the ResolvedBlueprint schema.
+
+Gate evidence:
+- Pure TypeScript resolver implements the B0 Template Resolution Contract without provider/framework coupling.
+- Templates are sorted by authority layer → canonical ID → semantic version.
+- Canonical SHA-256 fingerprint covers normalized Project Profile, resolver version, template versions, activation and requirements.
+- Activation predicates read only immutable Project Profile fields.
+- 10 resolver tests cover determinism, B0/B4 activation, compatible merge, scalar conflict, anti-weakening, missing dependency, cycle detection, version fingerprint, input-order invariance and schema-valid dependency closure.
+- Initial type-boundary defects (Node crypto types and tuple semver indexing) were root-caused and fixed without changing resolver semantics.
+- Fingerprint regression assertion was corrected to read the successful ResolvedBlueprint boundary rather than a nonexistent wrapper field.
+- Exact-head CI run 36123549650 passed migrations, contract drift, schema compatibility, lint, typecheck, boundaries, all tests and production build on revision 0c1567e3e9ead6173d976ac04aca3092c36dd057.
+- A later red revision reopens this package.
 
 ## FND-006 — Project Profile application service
 
