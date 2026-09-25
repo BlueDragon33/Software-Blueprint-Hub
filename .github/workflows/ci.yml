@@ -31,20 +31,11 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Install dependencies for FND-002 bootstrap
-        run: pnpm install --no-frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Generate typed contract projection
-        run: pnpm contracts:generate
-
-      - name: Bootstrap generated evidence
-        run: |
-          echo "===BLUEPRINT_PNPM_LOCKFILE_BEGIN==="
-          cat pnpm-lock.yaml
-          echo "===BLUEPRINT_PNPM_LOCKFILE_END==="
-          echo "===BLUEPRINT_GENERATED_TYPES_BEGIN==="
-          cat packages/contracts/src/generated/vertical-slice.ts
-          echo "===BLUEPRINT_GENERATED_TYPES_END==="
+      - name: Generated contract drift
+        run: pnpm contracts:check
 
       - name: Schema compatibility
         run: pnpm schema:compat
