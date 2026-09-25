@@ -264,7 +264,13 @@ describe("Blueprint template resolver", () => {
     const first = resolveBlueprint(input([v1]));
     const second = resolveBlueprint(input([v2]));
 
-    expect(first.inputFingerprint).not.toBe(second.inputFingerprint);
+    expect(first.status).toBe("success");
+    expect(second.status).toBe("success");
+    if (first.status !== "success" || second.status !== "success") return;
+
+    expect(first.blueprint.inputFingerprint).not.toBe(
+      second.blueprint.inputFingerprint
+    );
   });
 
   it("is invariant to input template list order", () => {
