@@ -151,7 +151,6 @@ export interface PromptProjection {
   contentHash: string;
   content: string;
 }
-
 /**
  * This interface was referenced by `VerticalSliceContracts`'s JSON-Schema
  * via the `definition` "ArchitectureDecision".
