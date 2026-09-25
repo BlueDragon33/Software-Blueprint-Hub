@@ -1,6 +1,6 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **FOUNDATION IN PROGRESS — FND-001/002 COMPLETE / FND-003 NEXT**
+Status: **FOUNDATION IN PROGRESS — FND-001/002/003 COMPLETE / FND-004 NEXT**
 
 The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
@@ -56,17 +56,30 @@ Gate evidence:
 
 ## FND-003 — Persistence and migration foundation
 
+Status: **COMPLETE**
+
 Dependencies: FND-001, FND-002.
 
 Purpose:
 Implement ADR-0002 through repository ports and PostgreSQL.
 
 Acceptance:
-- empty DB migrates reproducibly;
-- project/profile records round-trip;
-- recordVersion conflict is rejected;
-- transaction rollback leaves no partial canonical state;
-- migration integration test uses PostgreSQL.
+- [x] empty DB migrates reproducibly;
+- [x] project/profile records round-trip;
+- [x] recordVersion conflict is rejected;
+- [x] transaction rollback leaves no partial canonical state;
+- [x] migration integration test uses PostgreSQL;
+- [x] Prisma runtime remains behind repository ports;
+- [x] generated Prisma Client is ephemeral and regenerated in CI;
+- [x] dependency install is frozen with explicit allow-list for Prisma build scripts.
+
+Gate evidence:
+- PostgreSQL 16 service initializes cleanly in CI.
+- Prisma 7.10.0 schema validation, client generation, migrate deploy, and migrate status pass.
+- Integration tests prove canonical ProjectProfile round-trip, stale recordVersion rejection, and transaction rollback on profile insertion failure.
+- pnpm supply-chain policy allows only the required Prisma install scripts rather than enabling all dependency builds.
+- Exact-head CI includes production build after PostgreSQL integration tests.
+- A later red revision reopens this package.
 
 ## FND-004 — Identity and authority foundation
 
