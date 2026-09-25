@@ -243,3 +243,184 @@ export async function generatePromptPreviewAction(
 
   return { ok: true, projection };
 }
+
+
+import { randomUUID } from "node:crypto";
+import { AuthorizationDeniedError, RecordVersionConflictError } from "@blueprint-os/core";
+import { BlueprintResolutionConflictError } from "@blueprint-os/application";
+import { getBlueprintServerRuntime } from "../src/server/runtime";
+import { resolveWebActor, resolveWebIdentity } from "../src/auth/server-actor";
+import {
+  createCanonicalProject,
+  createCanonicalWorkAndGate,
+  generateCanonicalPrompt,
+  type CanonicalWorkspaceIds
+} from "../src/workspace/canonical";
+
+export type CanonicalActionFailureKind =
+  | "authentication"
+  | "permission"
+  | "conflict"
+  | "validation"
+  | "runtime";
+
+export type CanonicalActionResult<T> =
+  | { readonly ok: true; readonly value: T }
+  | {
+      readonly ok: false;
+      readonly kind: CanonicalActionFailureKind;
+      readonly message: string;
+    };
+
+function canonicalFailure(error: unknown): CanonicalActionResult<never> {
+  if (error instanceof AuthorizationDeniedError) {
+    return {
+      ok: false,
+      kind: "permission",
+      message: "Your account does not have authority for this project action."
+    };
+  }
+  if (error instanceof RecordVersionConflictError) {
+    return {
+      ok: false,
+      kind: "conflict",
+      message: "Canonical state changed. Reload the project before trying again."
+    };
+  }
+  if (error instanceof BlueprintResolutionConflictError) {
+    return {
+      ok: false,
+      kind: "conflict",
+      message: "Blueprint resolution has a structural conflict that must be resolved."
+    };
+  }
+  if (error instanceof TypeError) {
+    return { ok: false, kind: "validation", message: error.message };
+  }
+  return {
+    ok: false,
+    kind: "runtime",
+    message: "The trusted server could not complete the canonical operation."
+  };
+}
+
+function newCanonicalIds(): CanonicalWorkspaceIds {
+  const token = randomUUID();
+  return {
+    projectId: `project:${token}`,
+    profileId: `profile:${token}`,
+    workPackageId: `work-package:${token}`,
+    qualityGateId: `gate:${token}:human-ux`
+  };
+}
+
+export async function bootstrapOwnerAction(): Promise<CanonicalActionResult<{ principalId: string }>> {
+  try {
+    const identity = await resolveWebIdentity();
+    if (!identity) {
+      return {
+        ok: false,
+        kind: "authentication",
+        message: "Sign in before initializing Blueprint OS ownership."
+      };
+    }
+    const runtime = getBlueprintServerRuntime();
+    const principal = await runtime.authority.bootstrapOwner(identity);
+    return { ok: true, value: { principalId: principal.id } };
+  } catch (error) {
+    return canonicalFailure(error);
+  }
+}
+
+export async function createCanonicalProjectAction(
+  input: BlueprintPreviewInput
+): Promise<CanonicalActionResult<{
+  profile: ProjectProfile;
+  blueprint: ResolvedBlueprint;
+  templateVersions: readonly { readonly id: string; readonly version: string }[];
+  ids: CanonicalWorkspaceIds;
+}>> {
+  const actor = await resolveWebActor();
+  if (!actor) {
+    return {
+      ok: false,
+      kind: "authentication",
+      message: "Sign in to create canonical Blueprint project state."
+    };
+  }
+
+  try {
+    const runtime = getBlueprintServerRuntime();
+    const ids = newCanonicalIds();
+    const state = await createCanonicalProject(
+      runtime,
+      actor,
+      input,
+      ids,
+      new Date().toISOString()
+    );
+    return {
+      ok: true,
+      value: {
+        profile: state.profile,
+        blueprint: state.blueprint,
+        templateVersions: state.templateVersions,
+        ids
+      }
+    };
+  } catch (error) {
+    return canonicalFailure(error);
+  }
+}
+
+export async function createCanonicalWorkAction(input: {
+  readonly profile: ProjectProfile;
+  readonly ids: CanonicalWorkspaceIds;
+  readonly workTitle: string;
+}): Promise<CanonicalActionResult<{
+  workPackage: WorkPackage;
+  qualityGate: QualityGate;
+}>> {
+  const actor = await resolveWebActor();
+  if (!actor) {
+    return { ok: false, kind: "authentication", message: "Sign in to persist project work." };
+  }
+  try {
+    const value = await createCanonicalWorkAndGate(
+      getBlueprintServerRuntime(),
+      actor,
+      { profile: input.profile },
+      input.ids,
+      input.workTitle,
+      new Date().toISOString()
+    );
+    return {
+      ok: true,
+      value: {
+        workPackage: value.workPackage!,
+        qualityGate: value.qualityGate!
+      }
+    };
+  } catch (error) {
+    return canonicalFailure(error);
+  }
+}
+
+export async function generateCanonicalPromptAction(
+  projectId: string
+): Promise<CanonicalActionResult<PromptProjection>> {
+  const actor = await resolveWebActor();
+  if (!actor) {
+    return { ok: false, kind: "authentication", message: "Sign in to generate from canonical state." };
+  }
+  try {
+    const projection = await generateCanonicalPrompt(
+      getBlueprintServerRuntime(),
+      actor,
+      projectId
+    );
+    return { ok: true, value: projection };
+  } catch (error) {
+    return canonicalFailure(error);
+  }
+}
