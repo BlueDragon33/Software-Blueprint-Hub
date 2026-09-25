@@ -1,0 +1,76 @@
+{
+  "schema": "BLUEPRINT_META_MODEL_V0",
+  "schemaVersion": "0.1.0",
+  "status": "design-baseline",
+  "compatibility": {
+    "strategy": "additive-first",
+    "breakingChangeRequires": [
+      "ADR",
+      "migrationPlan",
+      "compatibilityStatement"
+    ],
+    "promptProjectionIsSourceOfTruth": false
+  },
+  "projectProfile": {
+    "dimensions": [
+      "name",
+      "projectType",
+      "blueprintLevel",
+      "primaryUsers",
+      "jobsToBeDone",
+      "dataSensitivity",
+      "persistence",
+      "authentication",
+      "authorization",
+      "offlineRequirement",
+      "externalIntegrations",
+      "aiUse",
+      "extensibilityRequirement",
+      "expectedLifetime",
+      "expectedScale",
+      "availabilityRequirement",
+      "complianceSecuritySensitivity",
+      "deploymentTarget",
+      "maintenanceModel"
+    ]
+  },
+  "blueprintLevels": {
+    "B0": "MICRO",
+    "B1": "SMALL",
+    "B2": "PRODUCT",
+    "B3": "SYSTEM",
+    "B4": "PLATFORM",
+    "B5": "CRITICAL"
+  },
+  "entities": [
+    "Project",
+    "ProjectProfile",
+    "BlueprintLevel",
+    "ProjectTypeTemplate",
+    "Constitution",
+    "BlueprintModule",
+    "Pattern",
+    "ArchitectureDecision",
+    "Roadmap",
+    "Wave",
+    "WorkPackage",
+    "Dependency",
+    "QualityGate",
+    "GateEvidence",
+    "Risk",
+    "TechnicalDebt",
+    "Release",
+    "LessonLearned",
+    "PromptTemplate",
+    "PromptProjection"
+  ],
+  "invariants": [
+    "templateDefinitionSeparateFromProjectInstance",
+    "blueprintRequirementSeparateFromCompletionEvidence",
+    "workStatusSeparateFromGateStatus",
+    "documentProjectionSeparateFromCanonicalStructuredState",
+    "universalConstitutionSeparateFromDomainTemplate",
+    "uiStateIsNotDomainAuthority",
+    "gateStatusRequiresEvidence"
+  ]
+}
