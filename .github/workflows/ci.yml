@@ -93,7 +93,7 @@ jobs:
 
       - name: Upload Human UX evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: fnd009-human-ux-${{ github.sha }}
           path: |
