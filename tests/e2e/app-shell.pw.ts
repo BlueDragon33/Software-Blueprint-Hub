@@ -122,6 +122,96 @@ test("canonical B4 project surfaces truthful readiness without percentages", asy
   });
 });
 
+test("canonical project workspace has stable truthful views", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/projects/project%3Ap6-registry-beta");
+
+  const workspaceNav = page.getByRole("navigation", {
+    name: "Project workspace views"
+  });
+
+  await expect(workspaceNav.getByRole("link", { name: /Overview/ })).toHaveAttribute(
+    "aria-current",
+    "page"
+  );
+
+  await workspaceNav.getByRole("link", { name: /Profile/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Canonical Project Profile" })
+  ).toBeVisible();
+  await expect(page.getByText("role-based", { exact: true })).toBeVisible();
+
+  await page.getByRole("link", { name: /Blueprint/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Resolved engineering requirements" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("gate:platform:compatibility", { exact: true })
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: /Roadmap/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Dependency-aware Work Packages" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Ship readiness dashboard", { exact: true })
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: /Quality/ }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Quality Gates and revision-specific evidence"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("revision-p6-beta-quality", { exact: true })
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p6-003-workspace-quality-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+
+  await page.getByRole("link", { name: /Decisions/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Architecture Decisions" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Canonical module not available yet", { exact: true })
+  ).toBeVisible();
+  await expect(page.getByText("P6-004", { exact: true })).toBeVisible();
+
+  await page.getByRole("link", { name: /Risks & Debt/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Risks & Technical Debt" })
+  ).toBeVisible();
+  await expect(page.getByText("P6-004", { exact: true })).toBeVisible();
+
+  await page.getByRole("link", { name: /Releases & Lessons/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Releases & Lessons" })
+  ).toBeVisible();
+  await expect(page.getByText("P6-006", { exact: true })).toBeVisible();
+
+  await page.getByRole("link", { name: /Overview/ }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Readiness is blocked by canonical engineering state."
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("link", { name: "Guided project setup" })
+  ).toHaveAttribute("href", "/projects/new");
+
+  await page.screenshot({
+    path: `artifacts/p6-003-workspace-overview-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
 test("critical preview journey stays understandable and evidence-honest", async ({
   page
 }, testInfo) => {
