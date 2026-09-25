@@ -70,6 +70,58 @@ test("System Owner sees canonical multi-project registry and opens a project", a
   await expect(page.getByText("B4", { exact: true }).first()).toBeVisible();
 });
 
+test("canonical B4 project surfaces truthful readiness without percentages", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/projects/project%3Ap6-registry-beta");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Readiness is blocked by canonical engineering state."
+    })
+  ).toBeVisible();
+
+  await expect(page.getByText("1 / 4 PASS", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("1 required gate records missing", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Define required gate gate:platform:compatibility"
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("gate:platform:compatibility", { exact: true }).first()
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Revision recorded · currentness unverified", {
+      exact: true
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Ship readiness dashboard", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText(
+      /Dependency work-package:p6-beta-foundation is testing, not completed/
+    )
+  ).toBeVisible();
+
+  const readiness = page.getByLabel("Canonical readiness summary");
+  await expect(readiness).not.toContainText("%");
+
+  await page.screenshot({
+    path: `artifacts/p6-002-readiness-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
 test("critical preview journey stays understandable and evidence-honest", async ({
   page
 }, testInfo) => {

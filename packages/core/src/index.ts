@@ -7,6 +7,7 @@ import type {
 export * from "./authority";
 export * from "./persistence";
 export * from "./work-quality";
+export * from "./project-readiness";
 
 export interface RegisteredProject {
   readonly id: ProjectId;
