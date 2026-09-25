@@ -54,7 +54,7 @@ describe("App Shell server preview", () => {
     expect(result.projection.content).toContain(
       "evidence:preview:ux-review"
     );
-    expect(result.projection.contentHash).toMatch(/^[a-f0-9]{64}$/);
+    expect(result.projection.contentHash).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(result.projection.sourceRevision).toMatch(/^sha256:[a-f0-9]{64}$/);
   });
 
