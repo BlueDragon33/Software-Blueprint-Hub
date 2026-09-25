@@ -1,0 +1,17 @@
+{
+  "name": "@blueprint-os/application",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@blueprint-os/blueprint-engine": "workspace:*",
+    "@blueprint-os/contracts": "workspace:*",
+    "@blueprint-os/core": "workspace:*"
+  }
+}
