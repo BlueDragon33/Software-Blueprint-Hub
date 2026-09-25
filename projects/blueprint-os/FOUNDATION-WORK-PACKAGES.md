@@ -1,6 +1,6 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005/006/007 COMPLETE / FND-008 NEXT**
+Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005/006/007/008 COMPLETE / FND-009 NEXT**
 
 The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
@@ -208,16 +208,31 @@ Gate evidence:
 
 ## FND-008 — Prompt Projection
 
+Status: **COMPLETE**
+
 Dependencies: FND-006, FND-007.
 
 Purpose:
 Generate one execution prompt from canonical project/profile/resolution/work/gate state.
 
 Acceptance:
-- projection records sourceRevision + templateVersion + contentHash;
-- prompt generation is deterministic for normalized source state;
-- generated text cannot mutate source state;
-- stale projection is visibly detectable after source revision changes.
+- [x] projection records sourceRevision + templateVersion + contentHash;
+- [x] prompt generation is deterministic for normalized source state;
+- [x] generated text cannot mutate source state;
+- [x] stale projection is visibly detectable after source revision changes;
+- [x] projection includes exact template versions, Work status, Gate status, and evidence source/revision provenance;
+- [x] prompt content is a generated projection and owns no canonical mutation path;
+- [x] source collection is protected by PROJECT_READ authority.
+
+Gate evidence:
+- Prompt Projection normalizes template/work/gate/evidence ordering before canonical SHA-256 source hashing.
+- Prompt content and contentHash are deterministic for the same normalized source even when input collection order differs.
+- generatedAt is metadata supplied by a clock and does not change sourceRevision/contentHash semantics.
+- Pure tests prove deterministic rendering, no source-object mutation, stale detection after Work change, and provenance rendering.
+- PostgreSQL end-to-end test gathers Profile/Resolved Blueprint/Work/Gate/Evidence through existing FND-006/FND-007 boundaries, generates a projection, changes persisted Work state, and proves the old projection becomes stale.
+- Quality Gate evidence source + revision appear in generated execution context; unreferenced UI state is absent.
+- Exact-head CI run 36130895405 passed frozen install, PostgreSQL migrations/status, contract drift, schema compatibility, lint, typecheck, architecture boundaries, all tests, and production build on revision a6ddbd9e9040cf6b4b6a64cf4d96bfa1f833487b.
+- A later red revision reopens this package.
 
 ## FND-009 — V1 App Shell vertical slice
 
