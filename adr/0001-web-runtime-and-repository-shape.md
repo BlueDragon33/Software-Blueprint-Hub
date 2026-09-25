@@ -12,10 +12,13 @@ Blueprint OS V1 needs one professional web application and shared domain package
 Use:
 
 - TypeScript as the implementation language;
+- Node.js 24 LTS as the Foundation runtime baseline;
 - Next.js App Router for `apps/web`;
 - pnpm workspace for repository/package management;
 - domain/application logic in reusable packages outside page components;
 - a modular-monolith deployment for the first vertical slice.
+
+Node 24 is an LTS line. Runtime patch/minor versions are lockfile/CI concerns; changing Node major requires compatibility review.
 
 Next.js is the delivery shell, not the domain architecture.
 
