@@ -10,7 +10,10 @@ export type VerticalSliceContractName =
   | "WorkPackage"
   | "QualityGate"
   | "GateEvidence"
-  | "PromptProjection";
+  | "PromptProjection"
+  | "ArchitectureDecision"
+  | "Risk"
+  | "TechnicalDebt";
 
 export interface ContractValidationError {
   readonly instancePath: string;
