@@ -157,6 +157,24 @@ describe("ProjectProfileApplicationService", () => {
     expect(profiles.value).toBeNull();
   });
 
+  it("rejects an invalid profile before persistence", async () => {
+    const profiles = new MemoryProfiles();
+    const service = new ProjectProfileApplicationService(
+      profiles,
+      new AuthorityService(new MemoryAuthority()),
+      new StaticTemplateCatalog(templates)
+    );
+    const invalid = {
+      ...profile,
+      blueprintLevel: "B9"
+    } as unknown as ProjectProfile;
+
+    await expect(
+      service.create({ principalId: "principal:owner" }, invalid)
+    ).rejects.toBeInstanceOf(TypeError);
+    expect(profiles.value).toBeNull();
+  });
+
   it("returns the exact profile version and exact template snapshot", async () => {
     const service = new ProjectProfileApplicationService(
       new MemoryProfiles(),
