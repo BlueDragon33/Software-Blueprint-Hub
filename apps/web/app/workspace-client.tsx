@@ -1,9 +1,17 @@
 "use client";
 
-import type { PromptProjection } from "@blueprint-os/contracts";
+import type {
+  PromptProjection,
+  QualityGate,
+  WorkPackage
+} from "@blueprint-os/contracts";
 import { useMemo, useState, useTransition } from "react";
 
 import {
+  bootstrapOwnerAction,
+  createCanonicalProjectAction,
+  createCanonicalWorkAction,
+  generateCanonicalPromptAction,
   generatePromptPreviewAction,
   resolveBlueprintPreviewAction,
   type BlueprintPreviewResult
@@ -43,8 +51,15 @@ export function BlueprintWorkspace() {
   const [workTitle, setWorkTitle] = useState(
     "Ship the first verified vertical slice"
   );
-  const [gateReady, setGateReady] = useState(false);
   const [resolution, setResolution] = useState<ResolvedPreview | null>(null);
+  const [canonicalIds, setCanonicalIds] = useState<{
+    readonly projectId: string;
+    readonly profileId: string;
+    readonly workPackageId: string;
+    readonly qualityGateId: string;
+  } | null>(null);
+  const [canonicalWork, setCanonicalWork] = useState<WorkPackage | null>(null);
+  const [canonicalGate, setCanonicalGate] = useState<QualityGate | null>(null);
   const [projection, setProjection] = useState<PromptProjection | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -53,6 +68,9 @@ export function BlueprintWorkspace() {
 
   function invalidatePreview(): void {
     setResolution(null);
+    setCanonicalIds(null);
+    setCanonicalWork(null);
+    setCanonicalGate(null);
     setProjection(null);
     setFeedback(null);
   }
@@ -82,6 +100,73 @@ export function BlueprintWorkspace() {
     });
   }
 
+  function createCanonicalProject(): void {
+    setFeedback(null);
+    startTransition(async () => {
+      const result = await createCanonicalProjectAction({
+        projectName,
+        projectType,
+        blueprintLevel
+      });
+
+      if (!result.ok) {
+        setFeedback(result.message);
+        return;
+      }
+
+      setResolution({
+        ok: true,
+        profile: result.value.profile,
+        blueprint: result.value.blueprint,
+        templateVersions: result.value.templateVersions
+      });
+      setCanonicalIds(result.value.ids);
+      setCanonicalWork(null);
+      setCanonicalGate(null);
+      setProjection(null);
+      setStage("blueprint");
+    });
+  }
+
+  function initializeOwner(): void {
+    setFeedback(null);
+    startTransition(async () => {
+      const result = await bootstrapOwnerAction();
+      setFeedback(
+        result.ok
+          ? "Blueprint OS Owner initialized. Canonical project mutations are now available."
+          : result.message
+      );
+    });
+  }
+
+  function persistCanonicalWork(): void {
+    if (!resolution || !canonicalIds) {
+      setStage("gate");
+      return;
+    }
+
+    setFeedback(null);
+    startTransition(async () => {
+      const result = await createCanonicalWorkAction({
+        profile: resolution.profile,
+        ids: canonicalIds,
+        workTitle
+      });
+
+      if (!result.ok) {
+        setFeedback(result.message);
+        return;
+      }
+
+      setCanonicalWork(result.value.workPackage);
+      setCanonicalGate(result.value.qualityGate);
+      setProjection(null);
+      setStage("gate");
+    });
+  }
+
+
   function generatePrompt(): void {
     if (!resolution) {
       setFeedback("Resolve the Project Profile before generating a prompt.");
@@ -89,14 +174,36 @@ export function BlueprintWorkspace() {
       return;
     }
 
+    if (canonicalIds && (!canonicalWork || !canonicalGate)) {
+      setFeedback(
+        "Persist the canonical Work Package and Quality Gate before generating from canonical state."
+      );
+      setStage("work");
+      return;
+    }
+
     setFeedback(null);
     startTransition(async () => {
+      if (canonicalIds) {
+        const result = await generateCanonicalPromptAction(
+          resolution.profile.projectId
+        );
+        if (!result.ok) {
+          setProjection(null);
+          setFeedback(result.message);
+          return;
+        }
+        setProjection(result.value);
+        setStage("prompt");
+        return;
+      }
+
       const result = await generatePromptPreviewAction({
         profile: resolution.profile,
         blueprint: resolution.blueprint,
         templateVersions: resolution.templateVersions,
         workTitle,
-        gateReady
+        gateReady: false
       });
 
       if (!result.ok) {
@@ -119,6 +226,11 @@ export function BlueprintWorkspace() {
       return;
     }
 
+    if (stage === "work") {
+      persistCanonicalWork();
+      return;
+    }
+
     if (stage === "gate") {
       generatePrompt();
       return;
@@ -131,6 +243,18 @@ export function BlueprintWorkspace() {
     if (target !== "project" && !resolution) {
       setFeedback("Resolve the Project Profile before opening later stages.");
       setStage("project");
+      return;
+    }
+
+    if (
+      canonicalIds &&
+      (target === "gate" || target === "prompt") &&
+      (!canonicalWork || !canonicalGate)
+    ) {
+      setFeedback(
+        "Persist the canonical Work Package and Quality Gate before opening later canonical stages."
+      );
+      setStage("work");
       return;
     }
 
@@ -247,14 +371,22 @@ export function BlueprintWorkspace() {
             <div className="workbench-main">
               <div className="permission-banner">
                 <div>
-                  <strong>Preview mode</strong>
+                  <strong>{canonicalIds ? "Canonical mode" : "Preview mode"}</strong>
                   <span>
-                    Resolver and Prompt Projection run on the trusted server.
-                    Canonical writes remain locked until an authenticated actor is
-                    authorized.
+                    {canonicalIds
+                      ? "Project/Profile and subsequent Work/Gate state are persisted through authorized application services."
+                      : "Preview resolution is read-only. Sign in and create canonical state before treating this workspace as project truth."}
                   </span>
                 </div>
-                <span className="status-chip status-chip-neutral">Read / preview</span>
+                <span
+                  className={
+                    canonicalIds
+                      ? "status-chip status-chip-success"
+                      : "status-chip status-chip-neutral"
+                  }
+                >
+                  {canonicalIds ? "Persisted" : "Read / preview"}
+                </span>
               </div>
 
               {isPending && (
@@ -338,6 +470,28 @@ export function BlueprintWorkspace() {
                       </div>
                     </label>
                   </div>
+
+                  <div className="stage-actions stage-actions-inline">
+                    <a className="secondary-button" href="/api/auth/signin">
+                      Sign in
+                    </a>
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      onClick={initializeOwner}
+                      disabled={isPending}
+                    >
+                      Initialize Owner
+                    </button>
+                    <button
+                      type="button"
+                      className="primary-button"
+                      onClick={createCanonicalProject}
+                      disabled={isPending}
+                    >
+                      Create canonical project
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -405,7 +559,9 @@ export function BlueprintWorkspace() {
                       <p className="section-kicker">03 · Work package</p>
                       <h2>Turn the blueprint into dependency-aware work.</h2>
                     </div>
-                    <span className="status-chip status-chip-warning">Ready</span>
+                    <span className="status-chip status-chip-warning">
+                      {canonicalWork ? "Persisted" : "Ready"}
+                    </span>
                   </div>
 
                   <label className="stacked-field">
@@ -414,6 +570,8 @@ export function BlueprintWorkspace() {
                       value={workTitle}
                       onChange={(event) => {
                         setWorkTitle(event.target.value);
+                        setCanonicalWork(null);
+                        setCanonicalGate(null);
                         setProjection(null);
                       }}
                     />
@@ -445,14 +603,8 @@ export function BlueprintWorkspace() {
                       <p className="section-kicker">04 · Quality gate</p>
                       <h2>PASS is a decision backed by evidence.</h2>
                     </div>
-                    <span
-                      className={
-                        gateReady
-                          ? "status-chip status-chip-success"
-                          : "status-chip status-chip-warning"
-                      }
-                    >
-                      {gateReady ? "Candidate" : "Not ready"}
+                    <span className="status-chip status-chip-warning">
+                      {canonicalGate ? "Persisted · Not ready" : "Preview · Not ready"}
                     </span>
                   </div>
 
@@ -462,8 +614,8 @@ export function BlueprintWorkspace() {
                       ["Contract checks", "No schema or projection drift", true],
                       [
                         "Human UX review",
-                        "Critical journey is understandable",
-                        gateReady
+                        "Must be recorded by an authorized reviewer against an exact revision",
+                        false
                       ]
                     ].map(([title, detail, done]) => (
                       <div className="evidence-row" key={String(title)}>
@@ -485,16 +637,14 @@ export function BlueprintWorkspace() {
                     ))}
                   </div>
 
-                  <button
-                    type="button"
-                    className="secondary-button"
-                    onClick={() => {
-                      setGateReady((value) => !value);
-                      setProjection(null);
-                    }}
-                  >
-                    {gateReady ? "Remove UX evidence" : "Add UX review evidence"}
-                  </button>
+                  <div className="context-note">
+                    <strong>Evidence boundary</strong>
+                    <p>
+                      This UI cannot manufacture Human UX evidence. The gate remains
+                      not-ready until a trusted reviewer records evidence with source
+                      and exact revision.
+                    </p>
+                  </div>
                 </div>
               )}
 
@@ -549,9 +699,13 @@ export function BlueprintWorkspace() {
                     ? "Processing…"
                     : stage === "project"
                       ? "Resolve blueprint"
-                      : stage === "gate"
-                        ? "Generate prompt"
-                        : "Continue"}
+                      : stage === "work" && canonicalIds
+                        ? "Persist work & gate"
+                        : stage === "gate"
+                          ? canonicalIds
+                            ? "Generate canonical prompt"
+                            : "Generate preview prompt"
+                          : "Continue"}
                 </button>
               </div>
             </div>
