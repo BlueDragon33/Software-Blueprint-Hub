@@ -1,7 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import type { PromptProjection } from "@blueprint-os/contracts";
+import { useMemo, useState, useTransition } from "react";
 
+import {
+  generatePromptPreviewAction,
+  resolveBlueprintPreviewAction,
+  type BlueprintPreviewResult
+} from "./actions";
 import {
   nextWorkspaceStage,
   previousWorkspaceStage,
@@ -18,36 +24,127 @@ const levelDescriptions = {
   B5: "Critical system"
 } as const;
 
+type ResolvedPreview = Extract<BlueprintPreviewResult, { readonly ok: true }>;
+
+function humanizeRequirement(id: string): string {
+  return id
+    .split(":")
+    .slice(1)
+    .join(" · ")
+    .replaceAll("-", " ");
+}
+
 export function BlueprintWorkspace() {
   const [stage, setStage] = useState<WorkspaceStage>("project");
   const [projectName, setProjectName] = useState("Software Blueprint Hub");
-  const [projectType, setProjectType] = useState("Web application");
+  const [projectType, setProjectType] = useState("web-application");
   const [blueprintLevel, setBlueprintLevel] =
     useState<keyof typeof levelDescriptions>("B4");
   const [workTitle, setWorkTitle] = useState(
     "Ship the first verified vertical slice"
   );
   const [gateReady, setGateReady] = useState(false);
+  const [resolution, setResolution] = useState<ResolvedPreview | null>(null);
+  const [projection, setProjection] = useState<PromptProjection | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const stages = useMemo(() => workspaceStageState(stage), [stage]);
 
-  const promptText = [
-    "# Blueprint OS Execution Prompt",
-    "",
-    "Project: " + projectName,
-    "Blueprint level: " + blueprintLevel,
-    "",
-    "## Work Package",
-    "- [ready] " + workTitle,
-    "",
-    "## Quality Gate",
-    "- [" + (gateReady ? "candidate" : "not-ready") + "] Human UX acceptance",
-    "",
-    "## Constraints",
-    "- Execute only against this source revision.",
-    "- Do not infer PASS from Work Package completion.",
-    "- Regenerate if canonical state changes."
-  ].join("\n");
+  function invalidatePreview(): void {
+    setResolution(null);
+    setProjection(null);
+    setFeedback(null);
+  }
+
+  function resolvePreview(): void {
+    setFeedback(null);
+    startTransition(async () => {
+      const result = await resolveBlueprintPreviewAction({
+        projectName,
+        projectType,
+        blueprintLevel
+      });
+
+      if (!result.ok) {
+        setResolution(null);
+        setProjection(null);
+        setFeedback(
+          result.message +
+            (result.details.length ? " " + result.details.join(" · ") : "")
+        );
+        return;
+      }
+
+      setResolution(result);
+      setProjection(null);
+      setStage("blueprint");
+    });
+  }
+
+  function generatePrompt(): void {
+    if (!resolution) {
+      setFeedback("Resolve the Project Profile before generating a prompt.");
+      setStage("project");
+      return;
+    }
+
+    setFeedback(null);
+    startTransition(async () => {
+      const result = await generatePromptPreviewAction({
+        profile: resolution.profile,
+        blueprint: resolution.blueprint,
+        templateVersions: resolution.templateVersions,
+        workTitle,
+        gateReady
+      });
+
+      if (!result.ok) {
+        setProjection(null);
+        setFeedback(
+          result.message +
+            (result.details.length ? " " + result.details.join(" · ") : "")
+        );
+        return;
+      }
+
+      setProjection(result.projection);
+      setStage("prompt");
+    });
+  }
+
+  function continueJourney(): void {
+    if (stage === "project") {
+      resolvePreview();
+      return;
+    }
+
+    if (stage === "gate") {
+      generatePrompt();
+      return;
+    }
+
+    setStage(nextWorkspaceStage(stage));
+  }
+
+  function openStage(target: WorkspaceStage): void {
+    if (target !== "project" && !resolution) {
+      setFeedback("Resolve the Project Profile before opening later stages.");
+      setStage("project");
+      return;
+    }
+
+    if (target === "prompt" && !projection) {
+      generatePrompt();
+      return;
+    }
+
+    setFeedback(null);
+    setStage(target);
+  }
+
+  const moduleCount = resolution?.blueprint.requiredModules.length;
+  const gateCount = resolution?.blueprint.requiredGates.length;
 
   return (
     <div className="workspace-shell">
@@ -115,9 +212,9 @@ export function BlueprintWorkspace() {
 
             <div className="readiness-card" aria-label="Blueprint readiness">
               <span>Blueprint readiness</span>
-              <strong>4 / 5</strong>
+              <strong>{resolution ? "4 / 5" : "1 / 5"}</strong>
               <div className="readiness-track" aria-hidden="true">
-                <span />
+                <span style={{ width: resolution ? "80%" : "20%" }} />
               </div>
               <small>Current focus: {stage}</small>
             </div>
@@ -131,7 +228,7 @@ export function BlueprintWorkspace() {
               >
                 <button
                   type="button"
-                  onClick={() => setStage(item.id)}
+                  onClick={() => openStage(item.id)}
                   aria-current={item.status === "current" ? "step" : undefined}
                 >
                   <span className="journey-index" aria-hidden="true">
@@ -148,6 +245,32 @@ export function BlueprintWorkspace() {
 
           <section className="workbench" aria-live="polite">
             <div className="workbench-main">
+              <div className="permission-banner">
+                <div>
+                  <strong>Preview mode</strong>
+                  <span>
+                    Resolver and Prompt Projection run on the trusted server.
+                    Canonical writes remain locked until an authenticated actor is
+                    authorized.
+                  </span>
+                </div>
+                <span className="status-chip status-chip-neutral">Read / preview</span>
+              </div>
+
+              {isPending && (
+                <div className="system-state" role="status">
+                  <span className="state-spinner" aria-hidden="true" />
+                  Processing against versioned Blueprint contracts…
+                </div>
+              )}
+
+              {feedback && (
+                <div className="system-state system-state-error" role="alert">
+                  <strong>Action needs attention</strong>
+                  <span>{feedback}</span>
+                </div>
+              )}
+
               {stage === "project" && (
                 <div className="stage-panel">
                   <div className="section-heading">
@@ -155,7 +278,9 @@ export function BlueprintWorkspace() {
                       <p className="section-kicker">01 · Project profile</p>
                       <h2>Define what is being built.</h2>
                     </div>
-                    <span className="status-chip status-chip-info">Draft</span>
+                    <span className="status-chip status-chip-info">
+                      {resolution ? "Resolved" : "Draft"}
+                    </span>
                   </div>
 
                   <div className="field-grid">
@@ -163,14 +288,20 @@ export function BlueprintWorkspace() {
                       <span>Project name</span>
                       <input
                         value={projectName}
-                        onChange={(event) => setProjectName(event.target.value)}
+                        onChange={(event) => {
+                          setProjectName(event.target.value);
+                          invalidatePreview();
+                        }}
                       />
                     </label>
                     <label>
                       <span>Project type</span>
                       <input
                         value={projectType}
-                        onChange={(event) => setProjectType(event.target.value)}
+                        onChange={(event) => {
+                          setProjectType(event.target.value);
+                          invalidatePreview();
+                        }}
                       />
                     </label>
                     <label className="field-span">
@@ -192,11 +323,12 @@ export function BlueprintWorkspace() {
                                   ? "level-card level-card-active"
                                   : "level-card"
                               }
-                              onClick={() =>
+                              onClick={() => {
                                 setBlueprintLevel(
                                   level as keyof typeof levelDescriptions
-                                )
-                              }
+                                );
+                                invalidatePreview();
+                              }}
                             >
                               <strong>{level}</strong>
                               <span>{description}</span>
@@ -217,46 +349,52 @@ export function BlueprintWorkspace() {
                       <h2>See the engineering depth this project requires.</h2>
                     </div>
                     <span className="status-chip status-chip-success">
-                      Resolved
+                      {resolution ? "Resolved" : "Empty"}
                     </span>
                   </div>
 
-                  <div className="summary-grid">
-                    <article className="metric-card">
-                      <span>Level</span>
-                      <strong>{blueprintLevel}</strong>
-                      <small>{levelDescriptions[blueprintLevel]}</small>
-                    </article>
-                    <article className="metric-card">
-                      <span>Modules</span>
-                      <strong>8</strong>
-                      <small>Architecture, data, UX, security + 4</small>
-                    </article>
-                    <article className="metric-card">
-                      <span>Quality gates</span>
-                      <strong>5</strong>
-                      <small>Evidence required before release</small>
-                    </article>
-                  </div>
-
-                  <div className="requirement-list">
-                    {[
-                      ["Architecture", "System boundaries + contracts"],
-                      ["Data", "Source of truth + migration"],
-                      ["Security", "Authority + trust model"],
-                      ["UI / UX", "Critical journey + accessibility"]
-                    ].map(([name, detail]) => (
-                      <div className="requirement-row" key={name}>
-                        <div>
-                          <strong>{name}</strong>
-                          <span>{detail}</span>
-                        </div>
-                        <span className="status-chip status-chip-neutral">
-                          Required
-                        </span>
+                  {resolution ? (
+                    <>
+                      <div className="summary-grid">
+                        <article className="metric-card">
+                          <span>Level</span>
+                          <strong>{blueprintLevel}</strong>
+                          <small>{levelDescriptions[blueprintLevel]}</small>
+                        </article>
+                        <article className="metric-card">
+                          <span>Modules</span>
+                          <strong>{moduleCount}</strong>
+                          <small>Resolved from versioned templates</small>
+                        </article>
+                        <article className="metric-card">
+                          <span>Quality gates</span>
+                          <strong>{gateCount}</strong>
+                          <small>Evidence required before PASS</small>
+                        </article>
                       </div>
-                    ))}
-                  </div>
+
+                      <div className="requirement-list">
+                        {resolution.blueprint.requiredModules
+                          .slice(0, 6)
+                          .map((id) => (
+                            <div className="requirement-row" key={id}>
+                              <div>
+                                <strong>{humanizeRequirement(id)}</strong>
+                                <span>{id}</span>
+                              </div>
+                              <span className="status-chip status-chip-neutral">
+                                Required
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="empty-state">
+                      <strong>No resolved blueprint yet.</strong>
+                      <span>Return to Project and resolve the profile first.</span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -274,7 +412,10 @@ export function BlueprintWorkspace() {
                     <span>Work package title</span>
                     <input
                       value={workTitle}
-                      onChange={(event) => setWorkTitle(event.target.value)}
+                      onChange={(event) => {
+                        setWorkTitle(event.target.value);
+                        setProjection(null);
+                      }}
                     />
                   </label>
 
@@ -347,7 +488,10 @@ export function BlueprintWorkspace() {
                   <button
                     type="button"
                     className="secondary-button"
-                    onClick={() => setGateReady((value) => !value)}
+                    onClick={() => {
+                      setGateReady((value) => !value);
+                      setProjection(null);
+                    }}
                   >
                     {gateReady ? "Remove UX evidence" : "Add UX review evidence"}
                   </button>
@@ -362,17 +506,27 @@ export function BlueprintWorkspace() {
                       <h2>Project state becomes an executable handoff.</h2>
                     </div>
                     <span className="status-chip status-chip-success">
-                      Deterministic
+                      {projection ? "Deterministic" : "Empty"}
                     </span>
                   </div>
 
-                  <div className="prompt-card">
-                    <div className="prompt-toolbar">
-                      <span>execution-prompt:v1</span>
-                      <span>source · sha256:9fe2…71c4</span>
+                  {projection ? (
+                    <div className="prompt-card">
+                      <div className="prompt-toolbar">
+                        <span>{projection.templateVersion}</span>
+                        <span>{projection.sourceRevision.slice(0, 24)}…</span>
+                      </div>
+                      <pre>{projection.content}</pre>
                     </div>
-                    <pre>{promptText}</pre>
-                  </div>
+                  ) : (
+                    <div className="empty-state">
+                      <strong>No execution prompt yet.</strong>
+                      <span>
+                        Complete the Gate step and generate a projection from server
+                        state.
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -381,17 +535,23 @@ export function BlueprintWorkspace() {
                   type="button"
                   className="secondary-button"
                   onClick={() => setStage(previousWorkspaceStage(stage))}
-                  disabled={stage === "project"}
+                  disabled={stage === "project" || isPending}
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   className="primary-button"
-                  onClick={() => setStage(nextWorkspaceStage(stage))}
-                  disabled={stage === "prompt"}
+                  onClick={continueJourney}
+                  disabled={stage === "prompt" || isPending}
                 >
-                  Continue
+                  {isPending
+                    ? "Processing…"
+                    : stage === "project"
+                      ? "Resolve blueprint"
+                      : stage === "gate"
+                        ? "Generate prompt"
+                        : "Continue"}
                 </button>
               </div>
             </div>
@@ -405,7 +565,11 @@ export function BlueprintWorkspace() {
               <div className="context-block">
                 <span className="context-label">Blueprint</span>
                 <strong>{blueprintLevel}</strong>
-                <small>{levelDescriptions[blueprintLevel]}</small>
+                <small>
+                  {resolution
+                    ? String(moduleCount) + " modules · " + String(gateCount) + " gates"
+                    : "Not resolved"}
+                </small>
               </div>
               <div className="context-block">
                 <span className="context-label">Active work</span>
@@ -413,10 +577,11 @@ export function BlueprintWorkspace() {
                 <small>App Shell vertical slice</small>
               </div>
               <div className="context-note">
-                <strong>Foundation rule</strong>
+                <strong>Authority boundary</strong>
                 <p>
-                  UI state is never domain authority. Canonical mutation wiring is
-                  completed at the trusted server boundary.
+                  Preview actions cannot write canonical project state. Production
+                  mutation requires an authenticated actor and application-service
+                  authorization.
                 </p>
               </div>
             </aside>
