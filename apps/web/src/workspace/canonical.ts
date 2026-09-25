@@ -5,8 +5,9 @@ import type {
   QualityGate,
   WorkPackage
 } from "@blueprint-os/contracts";
-import type { AuthenticatedActor } from "@blueprint-os/core";
 import type { BlueprintServerRuntime } from "@blueprint-os/runtime";
+
+type RuntimeActor = Parameters<BlueprintServerRuntime["profiles"]["create"]>[0];
 
 export interface CanonicalWorkspaceIds {
   readonly projectId: string;
@@ -73,7 +74,7 @@ function profileFromInput(
 
 export async function createCanonicalProject(
   runtime: Pick<BlueprintServerRuntime, "profiles">,
-  actor: AuthenticatedActor | null,
+  actor: RuntimeActor,
   input: CanonicalProjectInput,
   ids: CanonicalWorkspaceIds,
   now: string
@@ -92,7 +93,7 @@ export async function createCanonicalProject(
 
 export async function createCanonicalWorkAndGate(
   runtime: Pick<BlueprintServerRuntime, "workQuality">,
-  actor: AuthenticatedActor | null,
+  actor: RuntimeActor,
   state: Pick<CanonicalWorkspaceState, "profile">,
   ids: CanonicalWorkspaceIds,
   workTitle: string,
@@ -150,7 +151,7 @@ export async function createCanonicalWorkAndGate(
 
 export async function generateCanonicalPrompt(
   runtime: Pick<BlueprintServerRuntime, "prompts">,
-  actor: AuthenticatedActor | null,
+  actor: RuntimeActor,
   projectId: string
 ): Promise<PromptProjection> {
   return runtime.prompts.generate(actor, projectId);
@@ -158,7 +159,7 @@ export async function generateCanonicalPrompt(
 
 export async function recordCanonicalHumanUxEvidence(
   runtime: Pick<BlueprintServerRuntime, "workQuality">,
-  actor: AuthenticatedActor | null,
+  actor: RuntimeActor,
   gate: QualityGate,
   evidence: GateEvidence
 ): Promise<GateEvidence> {
