@@ -1,6 +1,6 @@
 # P6-003 — Project Workspace information architecture
 
-Status: **IN PROGRESS**
+Status: **COMPLETE — CI/E2E/HUMAN UX EVIDENCE ACCEPTED**
 
 ## Purpose
 
@@ -113,5 +113,46 @@ P6-003 may PASS only when:
 - desktop/mobile browser navigation passes;
 - Human UX review finds no blocking P0/P1 issue;
 - exact-head push and PR CI are green.
+
+Production deployment remains unauthorized.
+
+
+## Completion evidence
+
+Reviewed implementation revision before the completion-status commit:
+
+`e9b6ceba42fad333488416bf022308f89227e95a`
+
+Automated evidence:
+
+- push CI run `36162507523`: **SUCCESS**;
+- PR CI run `36162535826`: **SUCCESS**;
+- exact revision passed PostgreSQL migration/status, schema compatibility, lint, typecheck, architecture boundaries, unit/authority/PostgreSQL integration tests, production build and Playwright E2E;
+- workspace browser journey traversed Overview → Profile → Blueprint → Roadmap → Quality → Decisions → Risks & Debt → Releases & Lessons → Overview;
+- guided `/projects/new` journey remained functional.
+
+Human UX artifact:
+
+- artifact id: `10876187214`;
+- digest: `sha256:557e262ab26390508d3ebce0ba67474a8156d1fc27d214ee26b8bbc95be1e322`;
+- desktop/mobile Overview screenshots reviewed;
+- desktop/mobile Quality screenshots reviewed.
+
+Human review findings:
+
+1. Desktop project navigation is stable and clearly separates workspace views.
+2. Overview is concise: readiness, blockers, next action and project facts are visible without the old long-page requirement dump.
+3. Quality owns gate/evidence detail and preserves source/revision provenance.
+4. Mobile navigation is horizontally scrollable rather than stacking a long sidebar.
+5. Mobile content is one column with no blocking horizontal overflow.
+6. Guided project setup remains visually separate from canonical workspace navigation.
+7. Reserved Decisions/Risks/Releases routes truthfully state that canonical modules are not available yet.
+8. No blocking P0/P1 UX defect was observed.
+
+## Result
+
+**P6-003 = COMPLETE**
+
+P6-004 — Decisions / Risks / Technical Debt is the next dependency Work Package.
 
 Production deployment remains unauthorized.
