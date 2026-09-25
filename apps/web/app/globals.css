@@ -733,7 +733,10 @@ input:hover {
   }
 
   .topbar {
+    position: static;
     padding: 0 1rem;
+    background: rgba(247, 249, 253, 0.96);
+    backdrop-filter: none;
   }
 
   .workspace-content {
