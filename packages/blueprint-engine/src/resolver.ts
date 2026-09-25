@@ -163,16 +163,23 @@ function parseSemver(version: string): readonly [number, number, number, string]
 }
 
 function compareSemver(a: string, b: string): number {
-  const av = parseSemver(a);
-  const bv = parseSemver(b);
-  for (let index = 0; index < 3; index += 1) {
-    const diff = av[index] - bv[index];
+  const [aMajor, aMinor, aPatch, aPre] = parseSemver(a);
+  const [bMajor, bMinor, bPatch, bPre] = parseSemver(b);
+
+  const numericDiffs = [
+    aMajor - bMajor,
+    aMinor - bMinor,
+    aPatch - bPatch
+  ];
+
+  for (const diff of numericDiffs) {
     if (diff !== 0) return diff;
   }
-  if (av[3] === bv[3]) return 0;
-  if (!av[3]) return 1;
-  if (!bv[3]) return -1;
-  return av[3].localeCompare(bv[3]);
+
+  if (aPre === bPre) return 0;
+  if (!aPre) return 1;
+  if (!bPre) return -1;
+  return aPre.localeCompare(bPre);
 }
 
 function compareTemplates(a: BlueprintTemplate, b: BlueprintTemplate): number {
