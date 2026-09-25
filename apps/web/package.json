@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@auth/core": "0.41.3",
+    "@blueprint-os/application": "workspace:*",
+    "@blueprint-os/contracts": "workspace:*",
     "@blueprint-os/ui": "workspace:*",
     "next": "16.3.6",
     "react": "19.2.0",
