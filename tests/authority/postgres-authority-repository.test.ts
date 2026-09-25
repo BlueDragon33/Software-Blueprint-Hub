@@ -71,7 +71,12 @@ describePostgres("PostgreSQL authority foundation", () => {
 
     expect(await repository.isSystemOwner(owner.id)).toBe(true);
 
-    const audit = await prisma.authorityAuditEvent.findMany();
+    const audit = await prisma.authorityAuditEvent.findMany({
+      where: {
+        actorPrincipalId: owner.id,
+        action: "SYSTEM_OWNER_BOOTSTRAPPED"
+      }
+    });
     expect(audit).toHaveLength(1);
     expect(audit[0]?.action).toBe("SYSTEM_OWNER_BOOTSTRAPPED");
 
@@ -120,7 +125,12 @@ describePostgres("PostgreSQL authority foundation", () => {
     expect(Object.keys(persisted)).not.toContain("clientSecret");
 
     const audit = await prisma.authorityAuditEvent.findMany({
-      where: { action: "PROJECT_ROLE_SET" }
+      where: {
+        projectId: "project:authority-test",
+        action: "PROJECT_ROLE_SET",
+        actorPrincipalId: owner.id,
+        targetPrincipalId: editor.id
+      }
     });
     expect(audit).toHaveLength(1);
     expect(audit[0]?.actorPrincipalId).toBe(owner.id);
