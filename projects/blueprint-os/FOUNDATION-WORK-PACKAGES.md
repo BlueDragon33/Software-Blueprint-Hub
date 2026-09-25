@@ -1,6 +1,6 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005/006/007/008/009 COMPLETE / FND-010 NEXT**
+Status: **FOUNDATION COMPLETE — FND-001 THROUGH FND-010 COMPLETE / A1 PASS**
 
 The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
@@ -270,18 +270,32 @@ A later red revision or UX regression reopens FND-009.
 
 ## FND-010 — Foundation Gate A1 evidence
 
+Status: **COMPLETE — A1 PASS**
+
 Dependencies: FND-001 through FND-009.
 
 Purpose:
 Run the complete quality contract and decide Foundation Ready from evidence.
 
 Acceptance:
-- CI contract green at exact revision;
-- PostgreSQL migration/integration suite green;
-- resolver contract matrix green;
-- authorization matrix green;
-- Playwright critical flow green;
-- human UX review records no blocking issue;
-- no unresolved P0/P1.
+- [x] CI contract green at exact revision;
+- [x] PostgreSQL migration/integration suite green;
+- [x] resolver contract matrix green;
+- [x] authorization matrix green;
+- [x] Playwright critical flow green;
+- [x] human UX review records no blocking issue;
+- [x] no unresolved P0/P1 issue is recorded at gate review;
+- [x] merged FND-009 foundation revision revalidated successfully on main;
+- [x] A1 candidate review revision revalidated successfully.
 
-Only FND-010 PASS permits broader vertical-slice expansion.
+Gate evidence:
+- merged Foundation revision `f7ebf6531ff243d90c276fc0026363dd2af640a2`;
+- post-merge CI run `36144169524`: SUCCESS;
+- Human UX artifact digest `sha256:fd4118b94d8e56d9ffa80ad29cfe40a476c825dad96b94677ce8c6f177db7198`;
+- A1 candidate revision `5ebb64c73c6ad6d5bd45d7c92589fa1209867ebc`;
+- A1 candidate CI run `36144510640`: SUCCESS;
+- formal review: `FND-010-A1-REVIEW.md`.
+
+**A1 — FOUNDATION READY: PASS**
+
+Broader vertical-slice/product expansion is now permitted only through new dependency-aware Work Packages and later gates. Production deployment is not implied by A1.
