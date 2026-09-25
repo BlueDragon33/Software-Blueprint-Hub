@@ -1,6 +1,7 @@
 import {
   foundationBlueprintTemplatesV1,
   GovernanceApplicationService,
+  KnowledgeLibraryApplicationService,
   ProjectProfileApplicationService,
   ProjectReadinessApplicationService,
   ProjectRegistryApplicationService,
@@ -25,6 +26,7 @@ export interface BlueprintServerRuntime {
   readonly registry: ProjectRegistryApplicationService;
   readonly readiness: ProjectReadinessApplicationService;
   readonly governance: GovernanceApplicationService;
+  readonly knowledge: KnowledgeLibraryApplicationService;
   readonly workQuality: WorkQualityApplicationService;
   readonly prompts: PromptProjectionApplicationService;
 }
@@ -65,6 +67,7 @@ export function createBlueprintServerRuntime(
     workRepository,
     authority
   );
+  const knowledge = new KnowledgeLibraryApplicationService();
   const prompts = new PromptProjectionApplicationService(
     authority,
     profiles,
@@ -78,6 +81,7 @@ export function createBlueprintServerRuntime(
     registry,
     readiness,
     governance,
+    knowledge,
     workQuality,
     prompts
   });
