@@ -3,6 +3,12 @@ import { headers } from "next/headers";
 
 import { getBlueprintServerRuntime } from "../server/runtime";
 
+export interface WebAuthenticatedIdentity {
+  readonly provider: string;
+  readonly providerSubject: string;
+  readonly email: string | null;
+}
+
 export interface WebAuthenticatedActor {
   readonly principalId: string;
 }
@@ -18,7 +24,7 @@ function claimString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-export async function resolveWebActor(): Promise<WebAuthenticatedActor | null> {
+export async function resolveWebIdentity(): Promise<WebAuthenticatedIdentity | null> {
   const secret = process.env.AUTH_SECRET?.trim();
   if (!secret) {
     return null;
@@ -48,12 +54,20 @@ export async function resolveWebActor(): Promise<WebAuthenticatedActor | null> {
     return null;
   }
 
-  const runtime = getBlueprintServerRuntime();
-  const principal = await runtime.authority.resolveIdentity({
+  return Object.freeze({
     provider,
     providerSubject,
     email: claimString(token.email)
   });
+}
 
+export async function resolveWebActor(): Promise<WebAuthenticatedActor | null> {
+  const identity = await resolveWebIdentity();
+  if (!identity) {
+    return null;
+  }
+
+  const runtime = getBlueprintServerRuntime();
+  const principal = await runtime.authority.resolveIdentity(identity);
   return Object.freeze({ principalId: principal.id });
 }
