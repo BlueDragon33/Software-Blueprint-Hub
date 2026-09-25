@@ -1,33 +1,38 @@
 # Project 0001 — Blueprint OS / Software-Blueprint-Hub
 
-Status: **BLUEPRINT SEED / IMPLEMENTATION NOT AUTHORIZED**
+Status: **B0 DESIGN READY — FOUNDATION AUTHORIZED**
 
 ## Product Charter
+
 Blueprint OS is a **Software Engineering Control Center** that transforms a software idea into appropriate engineering depth, architecture, data/security/UX direction, dependency-aware work, quality evidence, release discipline and reusable knowledge.
 
 It is not Bauman-specific and is not merely a document website.
 
 ### V1 must prove
+
 1. Blueprint OS can blueprint itself.
 2. A new project can be registered.
 3. Blueprint Level can be selected/resolved.
 4. Required design modules and gates can be resolved.
 5. Structured blueprint state can be stored.
-6. ADRs, work packages and gate evidence can be represented.
-7. Execution prompts can be generated from structured context.
+6. ADRs, Work Packages and Gate Evidence can be represented.
+7. Execution Prompts can be generated from structured context.
 8. A dashboard can show real blueprint readiness.
 
 ### Initial non-goals
+
 - enterprise PM replacement;
 - every library/navigation surface at once;
 - automatic production deployment by default;
 - prompts inventing architecture without stored state;
 - Bauman learning semantics in Universal Core.
 
-## As-Is / System Context
-At birth there is no application implementation. Source material consists of the master handoff, Bauman reference architecture and this design branch.
+## System Context
 
-Initial conceptual actors:
+Blueprint OS manages engineering blueprint/execution state; it does not automatically own runtime business data of managed projects.
+
+Conceptual actors:
+
 - Project owner/builder
 - Product/architecture designer
 - Implementer
@@ -35,153 +40,88 @@ Initial conceptual actors:
 - Release operator
 - Template/pattern author
 
-One person may hold several roles, but authority concepts remain distinct.
+One human may hold several roles, but authority concepts remain distinct.
 
-Blueprint OS manages engineering blueprint/execution state; it does not automatically own runtime business data of every managed project.
+## Architecture
 
-## Target Architecture Seed
+Primary design baseline:
+- `ARCHITECTURE-V1.md`
+- `../../docs/UNIVERSAL-CONSTITUTION.v0.md`
+- `../../docs/TEMPLATE-RESOLUTION-CONTRACT.v1.md`
+- `../../docs/NFR-CAPACITY-BUDGETS.v1.md`
+
+Dependency direction:
+
 ```
-Web / API Presentation
-        ↓
-Application Services
-        ↓
-Blueprint Domain Core
-        ↓
-Ports / Contracts
-        ↓
-Persistence + Integrations
-```
-
-Candidate bounded contexts:
-1. Project Registry
-2. Profile & Classification
-3. Blueprint Resolution
-4. Constitution & Pattern Library
-5. Decisions / ADR
-6. Roadmap & Dependencies
-7. Work Packages
-8. Quality Gates & Evidence
-9. Risk & Technical Debt
-10. Release & Lessons
-11. Prompt Projection
-12. Template/Plugin Registry
-
-Dependency law:
-Presentation invokes application services; application services orchestrate domain contracts; integrations implement ports; templates contribute declarative rules/data rather than ad-hoc Core mutation.
-
-Framework/database/deployment choices remain deliberately deferred until meta-model and V1 access patterns are reviewed.
-
-## Domain Meta-Model Seed
-Core entities:
-- Project
-- ProjectProfile
-- BlueprintLevel
-- ProjectTypeTemplate
-- Constitution
-- BlueprintModule
-- Pattern
-- ArchitectureDecision
-- Roadmap
-- Wave
-- WorkPackage
-- Dependency
-- QualityGate
-- GateEvidence
-- Risk
-- TechnicalDebt
-- Release
-- LessonLearned
-- PromptTemplate
-- PromptProjection
-
-Key distinctions:
-- template definition vs project instance;
-- blueprint requirement vs completion evidence;
-- work status vs gate status;
-- document projection vs structured canonical state;
-- universal constitution vs domain template;
-- decision record vs implementation task.
-
-## Repository Structure Proposal
-```
-/docs
-  /constitution /architecture /quality /security /operations /governance /audit
-/blueprints
-  /levels /project-types /templates
-/patterns
-  /architecture /ui /security /testing /data /operations
-/projects
-  /blueprint-os /references
-/prompts
-  /templates
-/adr
-/schemas
-/apps
-  /web
-/packages
-  /core /ui /blueprint-engine
-/tests
+Presentation → Application Services → Blueprint Domain Core → Ports → Adapters/Infrastructure
 ```
 
-This structure is proposed, not locked. Runtime folders should not be created merely for appearance before Gate B0.
+## Domain Meta-Model
+
+Core concepts:
+
+Project, ProjectProfile, BlueprintLevel, ProjectTypeTemplate, Constitution, BlueprintModule, Pattern, ArchitectureDecision, Roadmap, Wave, WorkPackage, Dependency, QualityGate, GateEvidence, Risk, TechnicalDebt, Release, LessonLearned, PromptTemplate, PromptProjection.
+
+Machine-readable design seeds:
+- `../../schemas/blueprint-meta-model.v0.json`
+- `../../schemas/vertical-slice.contracts.v1.json`
+
+## Accepted technology ADRs for Foundation
+
+- ADR-0001: Node.js 24 LTS + TypeScript + Next.js App Router + pnpm modular monolith.
+- ADR-0002: PostgreSQL behind repository ports, Prisma ORM v7 baseline.
+- ADR-0003: Auth.js identity/session with Blueprint-owned Owner/Editor/Reviewer/Viewer authorization.
+
+These are Project 0001 implementation decisions, not Universal Constitution.
 
 ## Dependency Roadmap
-- **Phase 0** Repository/reference audit.
-- **Phase 1** Universal constitutions.
-- **Phase 2** Blueprint OS own detailed blueprint.
-- **Phase 3** Meta-model and machine-readable schemas.
-- **Phase 4** Repository/runtime foundation after B0.
-- **Phase 5** First vertical slice.
-- **Phase 6** Professional Web UI.
-- **Phase 7** QA/hardening.
-- **Phase 8** Import Bauman as reference knowledge, never runtime source.
 
-## Gate B0 — Blueprint OS Design Ready
-Status: **CANDIDATE / NOT PASSED**
-
-Already established:
-- [x] Phase 0 reference audit baseline
-- [x] Universal constitution baseline
-- [x] Product Charter seed
-- [x] System context / As-Is seed
-- [x] Target architecture seed
-- [x] Domain meta-model seed
-- [x] Repository structure proposal
-- [x] First vertical slice definition below
-
-Still required:
-- [ ] detailed data architecture
-- [ ] Blueprint OS trust/security model
-- [ ] UI information architecture
-- [ ] operations/deployment blueprint
-- [ ] NFR/capacity budgets
-- [ ] schema/compatibility rules
-- [ ] formal B0 review checklist
-- [ ] contradiction closure
-
-B0 must never be marked PASS automatically.
+- Phase 0 — Repository/reference audit: complete.
+- Phase 1 — Universal constitutions: complete baseline.
+- Phase 2 — Blueprint OS own blueprint: B0-ready baseline complete.
+- Phase 3 — Meta-model/schema baseline: sufficient for Foundation; hardening continues through contract tests.
+- Phase 4 — Repository/runtime Foundation: **authorized next**.
+- Phase 5 — First vertical slice.
+- Phase 6 — Professional Web UI.
+- Phase 7 — QA/hardening.
+- Phase 8 — Bauman reference import.
 
 ## First Vertical Slice
+
 ```
 Create Project
-  ↓
-Capture Project Profile
-  ↓
-Choose/resolve Blueprint Level
-  ↓
-Resolve required Blueprint Modules + Gates
-  ↓
-View blueprint readiness
-  ↓
-Create one dependency-aware Work Package
-  ↓
-Inspect Quality Gate requirements
-  ↓
-Generate one Execution Prompt from structured project state
+→ Capture Project Profile
+→ Resolve Blueprint Level
+→ Resolve Required Modules + Gates
+→ View Readiness
+→ Create dependency-aware Work Package
+→ Inspect Quality Gate
+→ Generate Execution Prompt from structured state
 ```
 
-Must exercise identity, profile, resolution, structured storage, work/dependency model, gate/evidence model, prompt projection, validation/security, coherent UI states and testable release artifact.
+Must exercise identity, profile, template resolution, structured persistence, dependency model, gate/evidence model, prompt projection, validation/security, coherent UI states and a testable release artifact.
 
-Must NOT require all libraries, AI autonomy, Bauman concepts, plugin marketplace or advanced analytics.
+Must not require all libraries, AI autonomy, Bauman-specific concepts, plugin marketplace or advanced analytics.
 
-Architecture failure signal: repeated project-type switch statements, UI-owned domain truth or ad-hoc schema invention.
+## Gate state
+
+### B0 — Blueprint OS Design Ready
+
+**PASS — 2026-09-25**
+
+Evidence:
+- `B0-REVIEW.md`
+- Foundation Work Packages
+- CI/Test Contract
+- runtime/persistence/auth ADRs
+- executable vertical-slice schema
+- deterministic resolver contract
+- NFR/capacity budgets
+
+### Next gate
+
+**A1 / Foundation Ready — NOT READY**
+
+A1 requires actual implementation/test evidence from FND-001 through FND-010.
+
+B0 PASS does not authorize production deployment.
