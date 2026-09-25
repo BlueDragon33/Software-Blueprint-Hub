@@ -1,6 +1,6 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **FOUNDATION IN PROGRESS — FND-001 COMPLETE / FND-002 NEXT**
+Status: **FOUNDATION IN PROGRESS — FND-001/002 COMPLETE / FND-003 NEXT**
 
 The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
@@ -30,7 +30,7 @@ Gate evidence:
 
 ## FND-002 — Executable contracts
 
-Status: **NEXT / READY AFTER FND-001 MERGE**
+Status: **COMPLETE**
 
 Dependencies: FND-001.
 
@@ -38,11 +38,21 @@ Purpose:
 Turn `vertical-slice.contracts.v1.json` into runtime validation and typed contract generation without making framework DTOs canonical.
 
 Acceptance:
-- valid ProjectProfile passes;
-- invalid BlueprintLevel fails;
-- unknown top-level fields fail except explicit `extensions`;
-- contract fixtures are versioned;
-- breaking schema change test requires migration/compatibility evidence.
+- [x] valid ProjectProfile passes;
+- [x] invalid BlueprintLevel fails;
+- [x] unknown top-level fields fail except explicit `extensions`;
+- [x] contract fixtures are versioned;
+- [x] breaking schema change test requires migration/compatibility evidence;
+- [x] generated TypeScript is committed and protected by drift detection;
+- [x] canonical writes can use strict Draft 2020-12 runtime validation with full date-time formats.
+
+Gate evidence:
+- Ajv 2020 runtime validator compiles the canonical schema in strict mode.
+- Versioned fixtures cover valid, invalid level, unknown property, and explicit extension cases.
+- Compatibility regression tests prove newly required fields and removed enum values are breaking.
+- Exact-hash migration evidence is required when the compatibility guard detects a breaking change.
+- CI enforces frozen dependencies, generated-contract drift, schema compatibility, lint, typecheck, architecture boundaries, tests, and production build.
+- A later red revision reopens this package.
 
 ## FND-003 — Persistence and migration foundation
 
