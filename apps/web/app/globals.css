@@ -894,3 +894,260 @@ input:hover {
 @keyframes blueprint-spin {
   to { transform: rotate(360deg); }
 }
+
+
+/* Phase 6 — Project Registry */
+.registry-shell {
+  width: min(100% - 2rem, 76rem);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 5rem) 0 4rem;
+}
+
+.registry-header,
+.project-overview-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.registry-header h1,
+.project-overview-header h1 {
+  margin: 0;
+  max-width: none;
+  font-size: clamp(2.6rem, 7vw, 5.4rem);
+}
+
+.registry-header-actions,
+.project-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.registry-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.registry-state,
+.registry-secondary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: clamp(1.2rem, 3vw, 2rem);
+  border: 1px solid #dfe5ef;
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1rem 2.6rem rgba(32, 47, 83, 0.07);
+}
+
+.registry-state h2,
+.registry-state h1,
+.registry-secondary strong {
+  margin: 0;
+  color: #25314b;
+}
+
+.registry-state p,
+.registry-secondary span {
+  margin: 0.4rem 0 0;
+  color: #6c778b;
+  line-height: 1.55;
+}
+
+.registry-state-icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border-radius: 0.9rem;
+  color: #354bc9;
+  font-size: 1.35rem;
+  background: #eef1ff;
+}
+
+.registry-state-error {
+  border-color: #f0cdd0;
+  background: #fff8f8;
+}
+
+.registry-secondary {
+  margin-top: 1rem;
+  box-shadow: none;
+  background: #f8faff;
+}
+
+.registry-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 2rem 0 1rem;
+}
+
+.registry-section-heading h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.5rem;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.project-card {
+  display: grid;
+  gap: 1.35rem;
+  min-height: 17rem;
+  padding: 1.2rem;
+  border: 1px solid #dfe5ef;
+  border-radius: 1rem;
+  color: inherit;
+  text-decoration: none;
+  background: #fff;
+  box-shadow: 0 0.75rem 2rem rgba(35, 50, 85, 0.06);
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.project-card:hover,
+.project-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: #aebaff;
+  box-shadow: 0 1rem 2.4rem rgba(35, 50, 85, 0.1);
+}
+
+.project-card-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.project-card h3 {
+  margin: 0;
+  color: #25314b;
+  font-size: 1.15rem;
+}
+
+.project-card p {
+  margin: 0.3rem 0 0;
+  color: #778197;
+  font-size: 0.8rem;
+}
+
+.project-level {
+  display: inline-grid;
+  min-width: 2.5rem;
+  height: 2rem;
+  place-items: center;
+  padding: 0 0.6rem;
+  border-radius: 0.65rem;
+  color: #2f43b9;
+  font-weight: 800;
+  background: #eef1ff;
+}
+
+.project-level-large {
+  min-width: 4rem;
+  height: 3.3rem;
+  font-size: 1.15rem;
+}
+
+.project-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: auto 0 0;
+}
+
+.project-meta div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.project-meta dt {
+  color: #8a93a4;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.project-meta dd {
+  margin: 0;
+  color: #46536e;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.project-open {
+  color: #354bc9;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.project-breadcrumbs {
+  display: flex;
+  gap: 0.55rem;
+  margin-bottom: 1.5rem;
+  color: #7a8497;
+  font-size: 0.8rem;
+}
+
+.text-link {
+  color: #354bc9;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.canonical-summary {
+  margin-top: 1.5rem;
+}
+
+.project-page-actions {
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #e5e9f0;
+}
+
+@media (max-width: 980px) {
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .registry-shell {
+    width: min(100% - 1rem, 76rem);
+    padding-top: 1rem;
+  }
+
+  .registry-header,
+  .project-overview-header {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .registry-state,
+  .registry-secondary {
+    grid-template-columns: 1fr;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .registry-header-actions {
+    align-items: stretch;
+  }
+
+  .registry-action {
+    width: 100%;
+  }
+}

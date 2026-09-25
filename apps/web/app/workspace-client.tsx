@@ -282,9 +282,13 @@ export function BlueprintWorkspace() {
         </div>
 
         <nav className="primary-nav" aria-label="Primary navigation">
-          <a className="nav-item nav-item-active" href="#workspace">
+          <a className="nav-item" href="/">
             <span aria-hidden="true">◫</span>
-            Project workspace
+            Projects
+          </a>
+          <a className="nav-item nav-item-active" href="/projects/new">
+            <span aria-hidden="true">＋</span>
+            New project
           </a>
           <a className="nav-item" href="#knowledge">
             <span aria-hidden="true">◇</span>
@@ -303,8 +307,8 @@ export function BlueprintWorkspace() {
         <div className="sidebar-status">
           <span className="status-dot" aria-hidden="true" />
           <div>
-            <strong>Foundation</strong>
-            <span>FND-009 in progress</span>
+            <strong>Phase 6</strong>
+            <span>P6-001 · Project registry</span>
           </div>
         </div>
       </aside>

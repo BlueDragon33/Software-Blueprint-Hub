@@ -1,9 +1,79 @@
-import { expect, test } from "@playwright/test";
+import { encode } from "@auth/core/jwt";
+import { expect, test, type Page } from "@playwright/test";
+
+const e2eAuthSecret = process.env.AUTH_SECRET ?? "";
+
+const registryAlphaName = "Registry Alpha canonical";
+const registryBetaName = "Registry Beta canonical";
+
+async function authenticateRegistryOwner(page: Page): Promise<void> {
+  await page.setExtraHTTPHeaders({ "x-forwarded-proto": "http" });
+  const cookieName = "authjs.session-token";
+  const token = await encode({
+    secret: e2eAuthSecret,
+    salt: cookieName,
+    token: {
+      sub: "p6-e2e-owner",
+      email: "p6-e2e@example.test",
+      blueprintProvider: "github",
+      blueprintProviderSubject: "p6-e2e-owner"
+    }
+  });
+
+  await page.context().addCookies([
+    {
+      name: cookieName,
+      value: token,
+      url: "http://127.0.0.1:3000",
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax"
+    }
+  ]);
+}
+
+test("signed-out root protects the canonical project registry", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Sign in to open your project registry." })
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+  await expect(page.getByText(/does not expose canonical project names/i)).toBeVisible();
+  await page.screenshot({
+    path: `artifacts/p6-001-registry-signed-out-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("System Owner sees canonical multi-project registry and opens a project", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
+  await expect(page.getByText(registryAlphaName, { exact: true })).toBeVisible();
+  await expect(page.getByText(registryBetaName, { exact: true })).toBeVisible();
+  await expect(page.getByText("System Owner", { exact: true }).first()).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p6-001-registry-authenticated-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+
+  await page.getByRole("link", { name: new RegExp(registryBetaName) }).click();
+  await expect(
+    page.getByRole("heading", { name: registryBetaName })
+  ).toBeVisible();
+  await expect(page.getByText("Canonical", { exact: true })).toBeVisible();
+  await expect(page.getByText("B4", { exact: true }).first()).toBeVisible();
+});
 
 test("critical preview journey stays understandable and evidence-honest", async ({
   page
 }, testInfo) => {
-  await page.goto("/");
+  await page.goto("/projects/new");
   await expect(
     page.getByRole("heading", { name: "Build with evidence, not guesswork." })
   ).toBeVisible();
@@ -59,7 +129,7 @@ test("critical preview journey stays understandable and evidence-honest", async 
 });
 
 test("critical preview journey is keyboard-operable", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/projects/new");
 
   const projectName = page.getByLabel("Project name");
   await projectName.focus();
