@@ -1,0 +1,29 @@
+{
+  "id": "profile:blueprint-os-0001",
+  "projectId": "project:blueprint-os-0001",
+  "meta": {
+    "schemaVersion": "1.0.0",
+    "recordVersion": 1,
+    "createdAt": "2026-09-25T08:00:00Z",
+    "updatedAt": "2026-09-25T08:00:00Z"
+  },
+  "name": "Blueprint OS",
+  "projectType": "web-application",
+  "blueprintLevel": "B9",
+  "primaryUsers": ["software-builder"],
+  "jobsToBeDone": ["Turn software intent into an evidence-backed engineering blueprint."],
+  "dataSensitivity": "internal",
+  "persistence": "server",
+  "authentication": "required",
+  "authorization": "role-based",
+  "offlineRequirement": "none",
+  "externalIntegrations": ["github"],
+  "aiUse": "assistive",
+  "extensibilityRequirement": "templates",
+  "expectedLifetime": "long-lived",
+  "expectedScale": "hundreds of projects",
+  "availabilityRequirement": "recoverable web service",
+  "complianceSecuritySensitivity": "standard application security",
+  "deploymentTarget": "managed web platform",
+  "maintenanceModel": "versioned continuous maintenance"
+}

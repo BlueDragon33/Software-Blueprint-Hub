@@ -31,8 +31,23 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for FND-002 bootstrap
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Generate typed contract projection
+        run: pnpm contracts:generate
+
+      - name: Bootstrap generated evidence
+        run: |
+          echo "===BLUEPRINT_PNPM_LOCKFILE_BEGIN==="
+          cat pnpm-lock.yaml
+          echo "===BLUEPRINT_PNPM_LOCKFILE_END==="
+          echo "===BLUEPRINT_GENERATED_TYPES_BEGIN==="
+          cat packages/contracts/src/generated/vertical-slice.ts
+          echo "===BLUEPRINT_GENERATED_TYPES_END==="
+
+      - name: Schema compatibility
+        run: pnpm schema:compat
 
       - name: Lint
         run: pnpm lint
@@ -43,7 +58,7 @@ jobs:
       - name: Architecture boundaries
         run: pnpm check:boundaries
 
-      - name: Unit/contract tests
+      - name: Unit and contract tests
         run: pnpm test
 
       - name: Production build
