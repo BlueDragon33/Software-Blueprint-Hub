@@ -9,11 +9,13 @@ datasource db {
 }
 
 model Project {
-  id          String             @id @db.VarChar(160)
-  createdAt   DateTime           @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime           @updatedAt @db.Timestamptz(6)
-  profile     ProjectProfile?
-  authorities ProjectAuthority[]
+  id           String             @id @db.VarChar(160)
+  createdAt    DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime           @updatedAt @db.Timestamptz(6)
+  profile      ProjectProfile?
+  authorities  ProjectAuthority[]
+  workPackages WorkPackage[]
+  qualityGates QualityGate[]
 }
 
 model ProjectProfile {
@@ -28,6 +30,54 @@ model ProjectProfile {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId, recordVersion])
+}
+
+model WorkPackage {
+  id            String   @id @db.VarChar(160)
+  projectId     String   @db.VarChar(160)
+  schemaVersion String   @db.VarChar(32)
+  recordVersion Int
+  status        String   @db.VarChar(32)
+  document      Json
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+  @@index([projectId, recordVersion])
+}
+
+model QualityGate {
+  id            String         @id @db.VarChar(160)
+  projectId     String         @db.VarChar(160)
+  schemaVersion String         @db.VarChar(32)
+  recordVersion Int
+  status        String         @db.VarChar(32)
+  document      Json
+  createdAt     DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime       @updatedAt @db.Timestamptz(6)
+  evidence      GateEvidence[]
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+  @@index([projectId, recordVersion])
+}
+
+model GateEvidence {
+  id        String   @id @db.VarChar(160)
+  gateId    String   @db.VarChar(160)
+  kind      String   @db.VarChar(32)
+  source    String   @db.VarChar(500)
+  revision  String   @db.VarChar(160)
+  document  Json
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  gate QualityGate @relation(fields: [gateId], references: [id], onDelete: Cascade)
+
+  @@index([gateId, createdAt])
+  @@index([source, revision])
 }
 
 model Principal {
