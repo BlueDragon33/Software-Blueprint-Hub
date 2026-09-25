@@ -199,6 +199,9 @@ importers:
       '@blueprint-os/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@blueprint-os/runtime':
+        specifier: workspace:*
+        version: link:../../packages/runtime
       '@blueprint-os/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -276,6 +279,18 @@ importers:
       '@types/pg':
         specifier: 8.23.1
         version: 8.23.1
+
+  packages/runtime:
+    dependencies:
+      '@blueprint-os/application':
+        specifier: workspace:*
+        version: link:../application
+      '@blueprint-os/core':
+        specifier: workspace:*
+        version: link:../core
+      '@blueprint-os/persistence':
+        specifier: workspace:*
+        version: link:../persistence
 
   packages/ui:
     devDependencies:
