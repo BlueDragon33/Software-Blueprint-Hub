@@ -201,8 +201,9 @@ Gate evidence:
 - PostgreSQL migration adds WorkPackage, QualityGate, and GateEvidence with project/gate foreign keys and provenance indexes.
 - Unit tests cover missing dependency, cycle detection, explainable blockers, ready transition, missing/wrong-gate evidence, and valid PASS evidence.
 - PostgreSQL integration tests prove blocked → ready dependency behavior, WorkPackage completion without gate auto-PASS, reviewer authority, and persisted source/revision evidence.
-- Test fixtures preserve FND-004 one-time Owner bootstrap rather than weakening security for test setup.
-- Exact-head CI run 36129947160 passed frozen install, PostgreSQL migrations/status, contract drift, schema compatibility, lint, typecheck, architecture boundaries, all tests, and production build on revision 49fac3c59d1417b632bfcf2551b210a7c19832ee.
+- Initial evidence revalidation exposed a parallel-test race: the FND-007 fixture depended on global SystemBootstrap state while PostgreSQL test files run concurrently.
+- Root cause was fixed by seeding a project-scoped OWNER role for the FND-007 fixture; global one-time bootstrap semantics remain unchanged and tests no longer delete shared bootstrap state.
+- Exact-head CI run 36130209013 passed frozen install, PostgreSQL migrations/status, contract drift, schema compatibility, lint, typecheck, architecture boundaries, all tests, and production build on revision f74762dd08abf3b33929acb5ea089774bdae2e2e.
 - A later red revision reopens this package.
 
 ## FND-008 — Prompt Projection
