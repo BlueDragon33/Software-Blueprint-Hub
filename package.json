@@ -1,0 +1,25 @@
+{
+  "name": "blueprint-os",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@12.4.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @blueprint-os/web dev",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests",
+    "check:boundaries": "node scripts/check-boundaries.mjs",
+    "ci": "pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "eslint": "10.11.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.1",
+    "vitest": "5.0.0"
+  }
+}
