@@ -15,7 +15,10 @@ model Project {
   profile      ProjectProfile?
   authorities  ProjectAuthority[]
   workPackages WorkPackage[]
-  qualityGates QualityGate[]
+  qualityGates          QualityGate[]
+  architectureDecisions ArchitectureDecision[]
+  risks                 Risk[]
+  technicalDebts        TechnicalDebt[]
 }
 
 model ProjectProfile {
@@ -78,6 +81,60 @@ model GateEvidence {
 
   @@index([gateId, createdAt])
   @@index([source, revision])
+}
+
+
+model ArchitectureDecision {
+  id            String   @id @db.VarChar(160)
+  projectId     String   @db.VarChar(160)
+  schemaVersion String   @db.VarChar(32)
+  recordVersion Int
+  status        String   @db.VarChar(32)
+  document      Json
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+  @@index([projectId, recordVersion])
+}
+
+model Risk {
+  id            String   @id @db.VarChar(160)
+  projectId     String   @db.VarChar(160)
+  schemaVersion String   @db.VarChar(32)
+  recordVersion Int
+  likelihood    String   @db.VarChar(16)
+  impact        String   @db.VarChar(16)
+  status        String   @db.VarChar(32)
+  document      Json
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+  @@index([projectId, likelihood, impact])
+  @@index([projectId, recordVersion])
+}
+
+model TechnicalDebt {
+  id            String   @id @db.VarChar(160)
+  projectId     String   @db.VarChar(160)
+  schemaVersion String   @db.VarChar(32)
+  recordVersion Int
+  severity      String   @db.VarChar(16)
+  status        String   @db.VarChar(32)
+  document      Json
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+  @@index([projectId, severity])
+  @@index([projectId, recordVersion])
 }
 
 model Principal {
