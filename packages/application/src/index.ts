@@ -207,3 +207,5 @@ export * from "./prompt-projection";
 export * from "./foundation-templates";
 
 export * from "./project-registry";
+
+export * from "./project-readiness";
