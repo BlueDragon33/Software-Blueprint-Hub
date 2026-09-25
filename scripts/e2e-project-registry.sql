@@ -36,11 +36,10 @@ DO UPDATE SET
   "ownerPrincipalId" = EXCLUDED."ownerPrincipalId",
   "initializedAt" = NOW();
 
-DELETE FROM "Project"
-WHERE "id" IN (
-  'project:p6-registry-alpha',
-  'project:p6-registry-beta'
-);
+-- E2E runs after unit/integration tests in the same ephemeral database.
+-- Clear canonical project state so registry evidence is deterministic and
+-- contains only the projects seeded below.
+DELETE FROM "Project";
 
 INSERT INTO "Project" ("id", "createdAt", "updatedAt")
 VALUES
