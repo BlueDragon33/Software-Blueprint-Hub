@@ -94,7 +94,7 @@ test("canonical B4 project surfaces truthful readiness without percentages", asy
   ).toBeVisible();
 
   await expect(
-    page.getByText("gate:platform:compatibility", { exact: true })
+    page.getByText("gate:platform:compatibility", { exact: true }).first()
   ).toBeVisible();
 
   await expect(
