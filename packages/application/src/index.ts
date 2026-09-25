@@ -199,3 +199,5 @@ export class ProjectProfileApplicationService {
     });
   }
 }
+
+export * from "./work-quality-service";
