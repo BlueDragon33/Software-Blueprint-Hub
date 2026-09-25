@@ -120,7 +120,6 @@ describePostgres("FND-007 Work Package + Quality Gate integration", () => {
       }
     });
     await prisma.projectAuthority.deleteMany({ where: { projectId } });
-    await prisma.systemBootstrap.deleteMany();
     await prisma.principal.deleteMany({
       where: { providerSubject: { startsWith: "fnd007-" } }
     });
@@ -135,10 +134,24 @@ describePostgres("FND-007 Work Package + Quality Gate integration", () => {
   });
 
   async function ownerActor(): Promise<{ principalId: string }> {
-    const owner = await authority.bootstrapOwner({
+    const owner = await authority.resolveIdentity({
       provider: "github",
       providerSubject: "fnd007-owner"
     });
+    await authorityRepository.setProjectRole(
+      {
+        projectId,
+        principalId: owner.id,
+        role: "OWNER"
+      },
+      {
+        actorPrincipalId: owner.id,
+        targetPrincipalId: owner.id,
+        projectId,
+        action: "TEST_PROJECT_OWNER_SEEDED",
+        detail: { fixture: "fnd007" }
+      }
+    );
     return { principalId: owner.id };
   }
 
