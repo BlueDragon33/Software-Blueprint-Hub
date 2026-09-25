@@ -12,3 +12,6 @@ export interface SourceRevision {
   readonly schemaVersion: string;
   readonly recordVersion: number;
 }
+
+export * from "./generated/vertical-slice";
+export * from "./validation";

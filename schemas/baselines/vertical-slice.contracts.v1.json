@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueprint-os.local/schemas/vertical-slice.contracts.v1.json",
+  "title": "Blueprint OS V1 Vertical Slice Contracts",
+  "type": "object",
+  "$defs": {
+    "Id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 160,
+      "pattern": "^[a-z][a-z0-9-]*:[A-Za-z0-9._:-]+$"
+    },
+    "RecordMeta": {
+      "type": "object",
+      "required": ["schemaVersion", "recordVersion", "createdAt", "updatedAt"],
+      "properties": {
+        "schemaVersion": { "type": "string", "const": "1.0.0" },
+        "recordVersion": { "type": "integer", "minimum": 1 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "ProjectProfile": {
+      "type": "object",
+      "required": [
+        "id", "projectId", "meta", "name", "projectType", "blueprintLevel",
+        "primaryUsers", "jobsToBeDone", "dataSensitivity", "persistence",
+        "authentication", "authorization", "deploymentTarget", "expectedLifetime"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/Id" },
+        "projectId": { "$ref": "#/$defs/Id" },
+        "meta": { "$ref": "#/$defs/RecordMeta" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "projectType": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "blueprintLevel": { "enum": ["B0", "B1", "B2", "B3", "B4", "B5"] },
+        "primaryUsers": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+        },
+        "jobsToBeDone": {
+          "type": "array", "minItems": 1,
+          "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+        },
+        "dataSensitivity": { "enum": ["public", "internal", "confidential", "restricted"] },
+        "persistence": { "enum": ["none", "local", "server", "hybrid"] },
+        "authentication": { "enum": ["none", "optional", "required"] },
+        "authorization": { "enum": ["none", "simple", "role-based", "policy-based"] },
+        "offlineRequirement": { "enum": ["none", "read", "read-write"] },
+        "externalIntegrations": {
+          "type": "array", "uniqueItems": true,
+          "items": { "type": "string", "maxLength": 160 }
+        },
+        "aiUse": { "enum": ["none", "assistive", "core-feature", "agentic"] },
+        "extensibilityRequirement": { "enum": ["none", "configuration", "templates", "plugins"] },
+        "expectedLifetime": { "enum": ["temporary", "months", "years", "long-lived"] },
+        "expectedScale": { "type": "string", "maxLength": 160 },
+        "availabilityRequirement": { "type": "string", "maxLength": 160 },
+        "complianceSecuritySensitivity": { "type": "string", "maxLength": 300 },
+        "deploymentTarget": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "maintenanceModel": { "type": "string", "maxLength": 200 },
+        "extensions": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": false
+    },
+    "ResolvedBlueprint": {
+      "type": "object",
+      "required": [
+        "resolutionId", "resolverVersion", "inputFingerprint", "projectId",
+        "profileRecordVersion", "activatedTemplates", "requiredModules",
+        "requiredGates", "dependencyEdges", "rationale"
+      ],
+      "properties": {
+        "resolutionId": { "$ref": "#/$defs/Id" },
+        "resolverVersion": { "type": "string", "minLength": 1 },
+        "inputFingerprint": { "type": "string", "minLength": 16, "maxLength": 256 },
+        "projectId": { "$ref": "#/$defs/Id" },
+        "profileRecordVersion": { "type": "integer", "minimum": 1 },
+        "activatedTemplates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "version", "authorityLayer"],
+            "properties": {
+              "id": { "$ref": "#/$defs/Id" },
+              "version": { "type": "string", "minLength": 1 },
+              "authorityLayer": {
+                "enum": ["constitution", "blueprint-level", "project-type", "domain-capability", "project-addition"]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "requiredModules": {
+          "type": "array", "uniqueItems": true,
+          "items": { "$ref": "#/$defs/Id" }
+        },
+        "requiredGates": {
+          "type": "array", "uniqueItems": true,
+          "items": { "$ref": "#/$defs/Id" }
+        },
+        "dependencyEdges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "$ref": "#/$defs/Id" },
+              "to": { "$ref": "#/$defs/Id" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "rationale": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["targetId", "sourceId", "reason"],
+            "properties": {
+              "targetId": { "$ref": "#/$defs/Id" },
+              "sourceId": { "$ref": "#/$defs/Id" },
+              "reason": { "type": "string", "minLength": 1, "maxLength": 1000 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 1000 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "WorkPackage": {
+      "type": "object",
+      "required": [
+        "id", "projectId", "title", "purpose", "dependencies",
+        "acceptanceCriteria", "qualityGateIds", "status", "meta"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/Id" },
+        "projectId": { "$ref": "#/$defs/Id" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "purpose": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "dependencies": {
+          "type": "array", "uniqueItems": true,
+          "items": { "$ref": "#/$defs/Id" }
+        },
+        "acceptanceCriteria": {
+          "type": "array", "minItems": 1,
+          "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+        },
+        "qualityGateIds": {
+          "type": "array", "uniqueItems": true,
+          "items": { "$ref": "#/$defs/Id" }
+        },
+        "status": {
+          "enum": ["planned", "blocked", "ready", "in-progress", "testing", "review", "completed", "archived"]
+        },
+        "meta": { "$ref": "#/$defs/RecordMeta" }
+      },
+      "additionalProperties": false
+    },
+    "QualityGate": {
+      "type": "object",
+      "required": ["id", "projectId", "name", "requirements", "status", "evidenceIds", "meta"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Id" },
+        "projectId": { "$ref": "#/$defs/Id" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "requirements": {
+          "type": "array", "minItems": 1,
+          "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+        },
+        "status": { "enum": ["not-ready", "candidate", "pass", "fail"] },
+        "evidenceIds": {
+          "type": "array", "uniqueItems": true,
+          "items": { "$ref": "#/$defs/Id" }
+        },
+        "meta": { "$ref": "#/$defs/RecordMeta" }
+      },
+      "additionalProperties": false
+    },
+    "GateEvidence": {
+      "type": "object",
+      "required": ["id", "gateId", "kind", "source", "revision", "createdAt"],
+      "properties": {
+        "id": { "$ref": "#/$defs/Id" },
+        "gateId": { "$ref": "#/$defs/Id" },
+        "kind": { "enum": ["test", "review", "artifact", "measurement", "approval"] },
+        "source": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "revision": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "PromptProjection": {
+      "type": "object",
+      "required": [
+        "id", "projectId", "sourceRevision", "templateVersion",
+        "generatedAt", "contentHash", "content"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/Id" },
+        "projectId": { "$ref": "#/$defs/Id" },
+        "sourceRevision": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "templateVersion": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "contentHash": { "type": "string", "minLength": 16, "maxLength": 256 },
+        "content": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "projectProfile": { "$ref": "#/$defs/ProjectProfile" },
+    "resolvedBlueprint": { "$ref": "#/$defs/ResolvedBlueprint" },
+    "workPackage": { "$ref": "#/$defs/WorkPackage" },
+    "qualityGate": { "$ref": "#/$defs/QualityGate" },
+    "gateEvidence": { "$ref": "#/$defs/GateEvidence" },
+    "promptProjection": { "$ref": "#/$defs/PromptProjection" }
+  },
+  "additionalProperties": false
+}
