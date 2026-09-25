@@ -1,4 +1,3 @@
-import type { ProjectProfile } from "../../packages/contracts/src";
 import { createBlueprintServerRuntime, closeBlueprintServerRuntime } from "../../packages/runtime/src";
 import {
   createCanonicalProject,
