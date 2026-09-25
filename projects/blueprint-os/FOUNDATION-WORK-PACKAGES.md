@@ -1,6 +1,6 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005/006 COMPLETE / FND-007 NEXT**
+Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005/006/007 COMPLETE / FND-008 NEXT**
 
 The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
@@ -177,17 +177,33 @@ Gate evidence:
 
 ## FND-007 — Work Package + Quality Gate core
 
+Status: **COMPLETE**
+
 Dependencies: FND-003, FND-004, FND-006.
 
 Purpose:
 Represent dependency-aware work, gates and evidence without conflating work completion with gate PASS.
 
 Acceptance:
-- WorkPackage dependency validation;
-- gate PASS impossible without required evidence;
-- work status does not auto-pass gate;
-- evidence includes source/revision;
-- blocked dependency state is explainable.
+- [x] WorkPackage dependency validation rejects missing/self/cyclic dependencies;
+- [x] dependency readiness is explainable with blocker id/status/reason;
+- [x] Quality Gate PASS is impossible without every declared evidence ID being persisted for that gate;
+- [x] evidence retains source + revision provenance;
+- [x] WorkPackage completion does not auto-pass a Quality Gate;
+- [x] Reviewer/Owner authority is required for evidence/review actions;
+- [x] Editor may manage work but cannot submit review evidence;
+- [x] WorkPackage, QualityGate, and GateEvidence persist in PostgreSQL behind repository ports;
+- [x] work/gate updates preserve optimistic recordVersion discipline.
+
+Gate evidence:
+- Pure Core functions implement dependency validation/readiness and PASS evidence invariants without Prisma/Next.js coupling.
+- Application service separates PROJECT_MUTATE work operations from PROJECT_REVIEW evidence/gate decisions.
+- PostgreSQL migration adds WorkPackage, QualityGate, and GateEvidence with project/gate foreign keys and provenance indexes.
+- Unit tests cover missing dependency, cycle detection, explainable blockers, ready transition, missing/wrong-gate evidence, and valid PASS evidence.
+- PostgreSQL integration tests prove blocked → ready dependency behavior, WorkPackage completion without gate auto-PASS, reviewer authority, and persisted source/revision evidence.
+- Test fixtures preserve FND-004 one-time Owner bootstrap rather than weakening security for test setup.
+- Exact-head CI run 36129947160 passed frozen install, PostgreSQL migrations/status, contract drift, schema compatibility, lint, typecheck, architecture boundaries, all tests, and production build on revision 49fac3c59d1417b632bfcf2551b210a7c19832ee.
+- A later red revision reopens this package.
 
 ## FND-008 — Prompt Projection
 
