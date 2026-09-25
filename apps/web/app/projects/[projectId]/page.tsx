@@ -1,9 +1,5 @@
 import Link from "next/link";
 
-import type {
-  EvidenceFreshness,
-  ReadinessState
-} from "@blueprint-os/core";
 import { AppShell } from "@blueprint-os/ui";
 
 import { resolveWebActor } from "../../../src/auth/server-actor";
@@ -14,6 +10,9 @@ export const dynamic = "force-dynamic";
 interface ProjectPageProps {
   readonly params: Promise<{ projectId: string }>;
 }
+
+type ReadinessState = "blocked" | "attention" | "in-progress" | "gate-ready";
+type EvidenceFreshness = "none" | "incomplete" | "recorded-unverified";
 
 function readinessLabel(state: ReadinessState): string {
   if (state === "blocked") return "Blocked";
