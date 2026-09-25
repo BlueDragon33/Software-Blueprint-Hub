@@ -13,6 +13,9 @@ export interface VerticalSliceContracts {
   qualityGate?: QualityGate;
   gateEvidence?: GateEvidence;
   promptProjection?: PromptProjection;
+  architectureDecision?: ArchitectureDecision;
+  risk?: Risk;
+  technicalDebt?: TechnicalDebt;
 }
 /**
  * This interface was referenced by `VerticalSliceContracts`'s JSON-Schema
@@ -147,4 +150,61 @@ export interface PromptProjection {
   generatedAt: string;
   contentHash: string;
   content: string;
+}
+
+/**
+ * This interface was referenced by `VerticalSliceContracts`'s JSON-Schema
+ * via the `definition` "ArchitectureDecision".
+ */
+export interface ArchitectureDecision {
+  id: Id;
+  projectId: Id;
+  title: string;
+  context: string;
+  decision: string;
+  /**
+   * @minItems 1
+   */
+  consequences: [string, ...string[]];
+  status: "proposed" | "accepted" | "superseded" | "deprecated";
+  supersedesId?: Id;
+  source: string;
+  sourceRevision?: string;
+  meta: RecordMeta;
+}
+/**
+ * This interface was referenced by `VerticalSliceContracts`'s JSON-Schema
+ * via the `definition` "Risk".
+ */
+export interface Risk {
+  id: Id;
+  projectId: Id;
+  title: string;
+  description: string;
+  likelihood: "low" | "medium" | "high";
+  impact: "low" | "medium" | "high" | "critical";
+  status: "open" | "mitigating" | "accepted" | "closed";
+  mitigation: string;
+  owner?: string;
+  linkedWorkPackageIds: Id[];
+  source: string;
+  sourceRevision?: string;
+  meta: RecordMeta;
+}
+/**
+ * This interface was referenced by `VerticalSliceContracts`'s JSON-Schema
+ * via the `definition` "TechnicalDebt".
+ */
+export interface TechnicalDebt {
+  id: Id;
+  projectId: Id;
+  title: string;
+  description: string;
+  severity: "low" | "medium" | "high" | "critical";
+  status: "open" | "planned" | "in-progress" | "resolved" | "accepted";
+  remediation: string;
+  linkedWorkPackageIds: Id[];
+  source: string;
+  sourceRevision?: string;
+  meta: RecordMeta;
 }
