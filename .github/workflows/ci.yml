@@ -49,8 +49,8 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Install dependencies for FND-003 bootstrap
-        run: pnpm install --no-frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
         run: pnpm prisma:generate
@@ -63,12 +63,6 @@ jobs:
 
       - name: Verify migration status
         run: pnpm db:migrate:status
-
-      - name: Bootstrap lockfile evidence
-        run: |
-          echo "===BLUEPRINT_PNPM_LOCKFILE_BEGIN==="
-          cat pnpm-lock.yaml
-          echo "===BLUEPRINT_PNPM_LOCKFILE_END==="
 
       - name: Generated contract drift
         run: pnpm contracts:check
