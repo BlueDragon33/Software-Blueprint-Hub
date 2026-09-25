@@ -13,7 +13,25 @@ permissions:
 jobs:
   foundation:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_test
 
     steps:
       - name: Checkout
@@ -34,6 +52,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma Client
+        run: pnpm prisma:generate
+
+      - name: Validate Prisma schema
+        run: pnpm exec prisma validate --config prisma7.config.ts
+
+      - name: Migrate empty PostgreSQL database
+        run: pnpm db:migrate:deploy
+
+      - name: Verify migration status
+        run: pnpm db:migrate:status
+
       - name: Generated contract drift
         run: pnpm contracts:check
 
@@ -49,7 +79,7 @@ jobs:
       - name: Architecture boundaries
         run: pnpm check:boundaries
 
-      - name: Unit and contract tests
+      - name: Unit, contract, and PostgreSQL integration tests
         run: pnpm test
 
       - name: Production build
