@@ -34,7 +34,7 @@ async function authenticateRegistryOwner(page: Page): Promise<void> {
 
 test("signed-out root protects the canonical project registry", async ({ page }, testInfo) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Sign in to open your project registry." })
   ).toBeVisible();
@@ -52,7 +52,7 @@ test("System Owner sees canonical multi-project registry and opens a project", a
   await authenticateRegistryOwner(page);
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Projects" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
   await expect(page.getByText(registryAlphaName, { exact: true })).toBeVisible();
   await expect(page.getByText(registryBetaName, { exact: true })).toBeVisible();
   await expect(page.getByText("System Owner", { exact: true }).first()).toBeVisible();
