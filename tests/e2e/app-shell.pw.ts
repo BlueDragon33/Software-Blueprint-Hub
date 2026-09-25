@@ -35,7 +35,7 @@ test("critical preview journey stays understandable and evidence-honest", async 
     page.getByRole("heading", { name: "PASS is a decision backed by evidence." })
   ).toBeVisible();
 
-  await expect(page.getByText("Human UX review")).toBeVisible();
+  await expect(page.getByText("Human UX review", { exact: true })).toBeVisible();
   await expect(
     page.getByText(/authorized reviewer against an exact revision/)
   ).toBeVisible();
