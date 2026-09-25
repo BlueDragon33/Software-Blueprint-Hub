@@ -193,6 +193,12 @@ importers:
       '@auth/core':
         specifier: 0.41.3
         version: 0.41.3
+      '@blueprint-os/application':
+        specifier: workspace:*
+        version: link:../../packages/application
+      '@blueprint-os/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@blueprint-os/ui':
         specifier: workspace:*
         version: link:../../packages/ui
