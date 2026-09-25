@@ -246,7 +246,6 @@ export async function generatePromptPreviewAction(
 
 
 import { randomUUID } from "node:crypto";
-import { AuthorizationDeniedError, RecordVersionConflictError } from "@blueprint-os/core";
 import { BlueprintResolutionConflictError } from "@blueprint-os/application";
 import { getBlueprintServerRuntime } from "../src/server/runtime";
 import { resolveWebActor, resolveWebIdentity } from "../src/auth/server-actor";
@@ -272,15 +271,28 @@ export type CanonicalActionResult<T> =
       readonly message: string;
     };
 
+function errorCode(error: unknown): string | null {
+  if (
+    error &&
+    typeof error === "object" &&
+    "code" in error &&
+    typeof error.code === "string"
+  ) {
+    return error.code;
+  }
+  return null;
+}
+
 function canonicalFailure(error: unknown): CanonicalActionResult<never> {
-  if (error instanceof AuthorizationDeniedError) {
+  const code = errorCode(error);
+  if (code === "AUTHORIZATION_DENIED") {
     return {
       ok: false,
       kind: "permission",
       message: "Your account does not have authority for this project action."
     };
   }
-  if (error instanceof RecordVersionConflictError) {
+  if (code === "RECORD_VERSION_CONFLICT") {
     return {
       ok: false,
       kind: "conflict",
