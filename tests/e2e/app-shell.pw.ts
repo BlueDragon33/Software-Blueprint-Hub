@@ -47,7 +47,7 @@ test("critical preview journey stays understandable and evidence-honest", async 
   await expect(
     page.getByRole("heading", { name: "Project state becomes an executable handoff." })
   ).toBeVisible();
-  await expect(page.getByText("Deterministic")).toBeVisible();
+  await expect(page.getByText("Deterministic", { exact: true })).toBeVisible();
   await expect(page.locator("pre")).toContainText(
     "Review the first App Shell journey"
   );
