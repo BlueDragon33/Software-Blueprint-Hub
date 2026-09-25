@@ -1,10 +1,12 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **PLANNED / architecture work only until B0 PASS**
+Status: **FOUNDATION IN PROGRESS — FND-001 COMPLETE / FND-002 NEXT**
 
-The packages below close design ambiguity and define the authorized order after B0. IDs are dependency-driven, not a promise to implement everything in one batch.
+The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
 ## FND-001 — Workspace and architecture boundaries
+
+Status: **COMPLETE**
 
 Dependencies: none.
 
@@ -12,15 +14,23 @@ Purpose:
 Establish pnpm workspace, `apps/web`, contract/core/engine/ui package boundaries and dependency rules from ADR-0001.
 
 Acceptance:
-- TypeScript build works from clean checkout.
-- UI cannot import persistence adapter directly.
-- Core package has no Next.js dependency.
-- dependency-boundary check is executable in CI.
+- [x] TypeScript build works from clean CI checkout.
+- [x] UI cannot import persistence adapter directly.
+- [x] Core package has no Next.js dependency.
+- [x] dependency-boundary check is executable in CI.
+- [x] pnpm lockfile is committed and frozen installs are enforced.
+- [x] production Next.js build succeeds under Node 24.
 
 Gate evidence:
-architecture boundary tests + clean build.
+- GitHub Actions CI executes frozen install → lint → typecheck → architecture boundary → tests → production build.
+- Initial missing-lockfile failure was reproduced and root-caused.
+- Lockfile bootstrap was validated, committed, then CI returned to frozen-lockfile mode.
+- GitHub core actions were moved to Node 24-based action runtimes before completion.
+- Final PR-head CI must remain green before merge; a later red revision reopens this package.
 
 ## FND-002 — Executable contracts
+
+Status: **NEXT / READY AFTER FND-001 MERGE**
 
 Dependencies: FND-001.
 
