@@ -1366,3 +1366,11 @@ input:hover {
     width: fit-content;
   }
 }
+
+
+@media (max-width: 700px) {
+  .readiness-panel-heading .status-chip {
+    width: fit-content;
+    justify-self: start;
+  }
+}
