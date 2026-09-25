@@ -11,7 +11,7 @@
     "build": "pnpm -r --if-present build",
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "eslint .",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run --passWithNoTests --fileParallelism=false",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "contracts:generate": "node scripts/generate-contract-types.mjs",
     "contracts:check": "pnpm contracts:generate && git diff --exit-code -- packages/contracts/src/generated/vertical-slice.ts",
