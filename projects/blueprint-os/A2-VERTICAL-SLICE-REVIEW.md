@@ -1,7 +1,7 @@
 # Gate A2 — Vertical Slice Ready Review
 
 Review date: 2026-09-25  
-Status: **CANDIDATE — EXACT-HEAD REVIEW CI REQUIRED**
+Status: **PASS — VERTICAL SLICE READY**
 
 ## Purpose
 
@@ -78,7 +78,7 @@ Preview mode remains explicitly separated from canonical persisted state.
 - [x] FND-009 merge revision: `f7ebf6531ff243d90c276fc0026363dd2af640a2`, run `36144169524`: SUCCESS.
 - [x] A1 merge revision: `8a6e0eb4e4962a92589dbbecd82962c505f839af`, run `36145156871`: SUCCESS.
 - [x] Human UX artifact on merged vertical slice: `sha256:fd4118b94d8e56d9ffa80ad29cfe40a476c825dad96b94677ce8c6f177db7198`.
-- [ ] This A2 candidate review branch has exact-head CI success.
+- [x] A2 candidate review revision `5983559828f10ab81d9dd3105773bcd20b8e13b4` passed CI run `36145569531`.
 
 ## Known limitations that do not block A2
 
@@ -105,8 +105,17 @@ No blocking contradiction is currently identified between:
 
 The PostgreSQL integration test-state race found during FND-009 was root-caused and closed without weakening production authorization.
 
-## Candidate decision
+## Decision
 
-**A2 is eligible to PASS, pending exact-head CI of this review branch.**
+**A2 — VERTICAL SLICE READY: PASS**
 
-Do not authorize broader Phase 6 product expansion until this candidate revision is green and the A2 PASS commit itself is revalidated.
+Candidate evidence:
+- revision: `5983559828f10ab81d9dd3105773bcd20b8e13b4`
+- CI run: `36145569531`
+- result: **SUCCESS**
+
+A2 authorizes controlled Phase 6 product expansion through dependency-aware Work Packages.
+
+A2 does **not** authorize production deployment or bypass later UX, deployment, migration, backup/restore or Product Ready gates.
+
+The final PASS commit must remain green before merge. A later red revision reopens A2.

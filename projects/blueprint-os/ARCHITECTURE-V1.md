@@ -1,6 +1,6 @@
 # Blueprint OS — Architecture V1
 
-Status: **DESIGN BASELINE / B0 CANDIDATE**
+Status: **IMPLEMENTATION BASELINE — A2 VERTICAL SLICE READY**
 
 ## Architectural style
 
@@ -162,8 +162,14 @@ A template cannot:
 - mutate unrelated project state;
 - introduce unversioned Core schema ad hoc.
 
-## First implementation constraint
+## Current evolution constraint
 
-Foundation may begin only after B0 review identifies no unresolved architecture blocker and decomposes the remaining design choices into explicit work packages.
+Foundation and the first end-to-end vertical slice have passed A1 and A2.
 
-Large feature/UI expansion remains prohibited until the first vertical slice proves the contracts.
+Broader product/UI expansion is now permitted only when:
+- work is decomposed into dependency-aware Work Packages;
+- existing contract, authority, migration and source-of-truth boundaries remain intact;
+- critical journeys preserve loading/error/permission/conflict handling;
+- Human UX acceptance and exact-revision CI evidence remain gate conditions.
+
+A2 does not authorize production release by itself.

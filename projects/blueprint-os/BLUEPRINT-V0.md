@@ -1,6 +1,6 @@
 # Project 0001 — Blueprint OS / Software-Blueprint-Hub
 
-Status: **B0 DESIGN READY — FOUNDATION AUTHORIZED**
+Status: **A2 VERTICAL SLICE READY — PHASE 6 PRODUCT EXPANSION AUTHORIZED**
 
 ## Product Charter
 
@@ -80,9 +80,9 @@ These are Project 0001 implementation decisions, not Universal Constitution.
 - Phase 1 — Universal constitutions: complete baseline.
 - Phase 2 — Blueprint OS own blueprint: B0-ready baseline complete.
 - Phase 3 — Meta-model/schema baseline: sufficient for Foundation; hardening continues through contract tests.
-- Phase 4 — Repository/runtime Foundation: **authorized next**.
-- Phase 5 — First vertical slice.
-- Phase 6 — Professional Web UI.
+- Phase 4 — Repository/runtime Foundation: complete; A1 PASS.
+- Phase 5 — First vertical slice: complete; A2 PASS.
+- Phase 6 — Professional Web UI / product expansion: **authorized next**.
 - Phase 7 — QA/hardening.
 - Phase 8 — Bauman reference import.
 
@@ -118,10 +118,30 @@ Evidence:
 - deterministic resolver contract
 - NFR/capacity budgets
 
-### Next gate
+### A1 — Foundation Ready
 
-**A1 / Foundation Ready — NOT READY**
+**PASS — 2026-09-25**
 
-A1 requires actual implementation/test evidence from FND-001 through FND-010.
+Evidence:
+- `FND-010-A1-REVIEW.md`
+- FND-001 through FND-010 completion evidence
+- final A1 PASS revision and CI evidence
 
-B0 PASS does not authorize production deployment.
+### A2 — Vertical Slice Ready
+
+**PASS — 2026-09-25**
+
+Evidence:
+- `A2-VERTICAL-SLICE-REVIEW.md`
+- canonical Project → Blueprint → Work → Gate → Prompt flow
+- PostgreSQL/authority/resolver integration
+- Playwright desktop/mobile evidence
+- Human UX review
+
+### Next phase
+
+**Phase 6 — Professional Web UI / product expansion**
+
+New work must remain dependency-driven and preserve Preview/Canonical authority, evidence truthfulness and exact-revision quality gates.
+
+A2 PASS does not authorize production deployment.
