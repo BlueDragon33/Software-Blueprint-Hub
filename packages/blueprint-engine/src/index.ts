@@ -4,6 +4,8 @@ import type {
 } from "@blueprint-os/contracts";
 import { isBlueprintLevel } from "@blueprint-os/core";
 
+export * from "./resolver";
+
 export interface BlueprintClassification {
   readonly level: BlueprintLevel;
   readonly rationale: readonly string[];
@@ -19,7 +21,7 @@ export function classifyDeclaredProfile(
   return Object.freeze({
     level: profile.blueprintLevel,
     rationale: Object.freeze([
-      "FND-001 preserves the declared level; rule-based resolution is implemented in FND-005."
+      "The declared Blueprint Level is preserved; FND-005 resolves versioned templates deterministically around it."
     ])
   });
 }
