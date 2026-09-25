@@ -1,6 +1,6 @@
 # Blueprint OS — Foundation Work Packages
 
-Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005/006/007/008 COMPLETE / FND-009 NEXT**
+Status: **FOUNDATION IN PROGRESS — FND-001/002/003/004/005/006/007/008/009 COMPLETE / FND-010 NEXT**
 
 The packages below are dependency-driven. Completion means acceptance evidence exists; it does not imply A1/Foundation Ready until FND-010 passes.
 
@@ -236,6 +236,8 @@ Gate evidence:
 
 ## FND-009 — V1 App Shell vertical slice
 
+Status: **COMPLETE**
+
 Dependencies: FND-004, FND-006, FND-007, FND-008.
 
 Purpose:
@@ -244,11 +246,27 @@ Expose the first end-to-end UI:
 `Create Project → Profile → Resolved Blueprint → Work Package → Gate → Execution Prompt`
 
 Acceptance:
-- loading/empty/error/permission/conflict states exist;
-- keyboard path works for critical flow;
-- mobile hierarchy remains usable;
-- no duplicated navigation shell;
-- human UX review completed.
+- [x] loading/empty/error/permission/conflict states exist;
+- [x] keyboard path works through the critical preview flow;
+- [x] mobile hierarchy remains usable;
+- [x] no duplicated navigation shell;
+- [x] Human UX review completed;
+- [x] Preview and Canonical authority are explicitly separated;
+- [x] canonical Project/Profile → Work/Gate → Prompt is persisted and integration-tested;
+- [x] UI cannot manufacture Human UX Gate Evidence;
+- [x] desktop/mobile Playwright journey and screenshot evidence exist.
+
+Gate evidence:
+- `FND-009-HUMAN-UX-REVIEW.md`;
+- reviewed runtime revision `d024a1f7b3225666d1f51b82a8f4a45ec5e09c62`;
+- CI run `36138249525`;
+- Human UX artifact digest `sha256:ccce1b58d27e76da8b9e4ab305d329ae461eeea7cb597a30492e3e8409f7bfcd`;
+- canonical PostgreSQL integration test;
+- Playwright desktop/mobile critical journey;
+- full keyboard-operated preview journey;
+- responsive mobile topbar regression closed before PASS.
+
+A later red revision or UX regression reopens FND-009.
 
 ## FND-010 — Foundation Gate A1 evidence
 

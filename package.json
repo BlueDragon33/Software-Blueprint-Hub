@@ -11,7 +11,7 @@
     "build": "pnpm -r --if-present build",
     "typecheck": "pnpm -r --if-present typecheck",
     "lint": "eslint .",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run --passWithNoTests --fileParallelism=false",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "contracts:generate": "node scripts/generate-contract-types.mjs",
     "contracts:check": "pnpm contracts:generate && git diff --exit-code -- packages/contracts/src/generated/vertical-slice.ts",
@@ -19,7 +19,8 @@
     "prisma:generate": "prisma generate --config prisma7.config.ts",
     "db:migrate:deploy": "prisma migrate deploy --config prisma7.config.ts",
     "db:migrate:status": "prisma migrate status --config prisma7.config.ts",
-    "ci": "pnpm contracts:check && pnpm schema:compat && pnpm prisma:generate && pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm test && pnpm build"
+    "ci": "pnpm contracts:check && pnpm schema:compat && pnpm prisma:generate && pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm test && pnpm build",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
@@ -28,6 +29,7 @@
     "prisma": "7.10.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.1",
-    "vitest": "5.0.0"
+    "vitest": "5.0.0",
+    "@playwright/test": "1.63.0"
   }
 }

@@ -1,0 +1,116 @@
+import { expect, test } from "@playwright/test";
+
+test("critical preview journey stays understandable and evidence-honest", async ({
+  page
+}, testInfo) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Build with evidence, not guesswork." })
+  ).toBeVisible();
+
+  await expect(page.getByText("Preview mode")).toBeVisible();
+  await page.getByLabel("Project name").fill("Human UX Review Project");
+  await page.getByRole("radio", { name: /B2/ }).click();
+
+  await page.getByRole("button", { name: "Resolve blueprint" }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "See the engineering depth this project requires."
+    })
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Turn the blueprint into dependency-aware work."
+    })
+  ).toBeVisible();
+
+  await page
+    .getByLabel("Work package title")
+    .fill("Review the first App Shell journey");
+
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(
+    page.getByRole("heading", { name: "PASS is a decision backed by evidence." })
+  ).toBeVisible();
+
+  await expect(page.getByText("Human UX review", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(/authorized reviewer against an exact revision/)
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Add UX review evidence/i })
+  ).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Generate preview prompt" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Project state becomes an executable handoff." })
+  ).toBeVisible();
+  await expect(page.getByText("Deterministic", { exact: true })).toBeVisible();
+  await expect(page.locator("pre")).toContainText(
+    "Review the first App Shell journey"
+  );
+
+  await page.screenshot({
+    path: `artifacts/fnd009-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("critical preview journey is keyboard-operable", async ({ page }) => {
+  await page.goto("/");
+
+  const projectName = page.getByLabel("Project name");
+  await projectName.focus();
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("Keyboard Review Project");
+
+  const level = page.getByRole("radio", { name: /B2/ });
+  await level.focus();
+  await page.keyboard.press("Space");
+  await expect(level).toBeChecked();
+
+  const resolve = page.getByRole("button", { name: "Resolve blueprint" });
+  await resolve.focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByRole("heading", {
+      name: "See the engineering depth this project requires."
+    })
+  ).toBeVisible();
+
+  const continueFromBlueprint = page.getByRole("button", { name: "Continue" });
+  await continueFromBlueprint.focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByRole("heading", {
+      name: "Turn the blueprint into dependency-aware work."
+    })
+  ).toBeVisible();
+
+  const workTitle = page.getByLabel("Work package title");
+  await workTitle.focus();
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("Keyboard-operated work package");
+
+  const continueFromWork = page.getByRole("button", { name: "Continue" });
+  await continueFromWork.focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByRole("heading", { name: "PASS is a decision backed by evidence." })
+  ).toBeVisible();
+
+  const generate = page.getByRole("button", { name: "Generate preview prompt" });
+  await generate.focus();
+  await page.keyboard.press("Enter");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Project state becomes an executable handoff."
+    })
+  ).toBeVisible();
+  await expect(page.locator("pre")).toContainText(
+    "Keyboard-operated work package"
+  );
+});

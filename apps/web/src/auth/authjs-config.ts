@@ -27,8 +27,20 @@ export function createAuthJsConfig(
 
   return {
     secret,
+    basePath: "/api/auth",
     trustHost: true,
     session: { strategy: "jwt" },
+    callbacks: {
+      jwt({ token, account }) {
+        if (account?.provider) {
+          token.blueprintProvider = account.provider;
+        }
+        if (account?.providerAccountId) {
+          token.blueprintProviderSubject = account.providerAccountId;
+        }
+        return token;
+      }
+    },
     providers: [
       GitHub({
         clientId,
