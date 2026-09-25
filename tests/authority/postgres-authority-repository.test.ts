@@ -19,8 +19,9 @@ describePostgres("PostgreSQL authority foundation", () => {
     await prisma.projectAuthority.deleteMany();
     await prisma.systemBootstrap.deleteMany();
     await prisma.principal.deleteMany();
-    await prisma.projectProfile.deleteMany();
-    await prisma.project.deleteMany();
+    await prisma.project.deleteMany({
+      where: { id: { startsWith: "project:authority-" } }
+    });
   });
 
   afterAll(async () => {
