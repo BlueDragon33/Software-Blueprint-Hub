@@ -152,6 +152,12 @@ The mapping identifies:
 4. Blueprint product/tooling gaps;
 5. no proven Universal Core gap at P8-002.
 
+## Gap & universality analysis
+
+See `BAUMAN-NEXTGEN-GAP-ANALYSIS-v1.md`.
+
+P8-003 concludes that Blueprint OS is sufficiently expressive for this case without Universal Core schema expansion. Remaining work belongs to Reference Case UX, import/provenance tooling and reviewed Pattern promotion.
+
 ## Next
 
-P8-003 evaluates the remaining reference-import gaps and applies a stricter universality test before any Core change is considered.
+P8-004 improves Reference Case inspection UX. P8-005 defines the machine-readable import contract.
