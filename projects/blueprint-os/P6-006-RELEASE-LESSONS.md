@@ -1,6 +1,6 @@
 # P6-006 — Release & Lessons
 
-Status: **IN PROGRESS**
+Status: **COMPLETE — CI/E2E/HUMAN UX EVIDENCE ACCEPTED**
 
 ## Purpose
 
@@ -126,5 +126,73 @@ P6-006 may PASS only when:
 - browser E2E confirms exact revision/evidence/lesson provenance;
 - Human UX review finds no blocking P0/P1 issue;
 - exact-head push and PR CI are green.
+
+Production deployment remains unauthorized.
+
+
+## Completion evidence
+
+Reviewed implementation revision before completion-status commit:
+
+`47c2a2e6a25cff1cc7cfcb60fd962c6b1896fa5d`
+
+Automated evidence:
+
+- push CI run `36207646907`: **SUCCESS**;
+- PR CI run `36207655339`: **SUCCESS**;
+- exact revision passed:
+  - Prisma generation, validation, empty-database migration and migration status;
+  - generated contract drift and additive schema compatibility;
+  - lint, typecheck and architecture boundaries;
+  - unit / authority / PostgreSQL integration tests;
+  - production build;
+  - canonical Project Registry + P6-006 E2E seed;
+  - Playwright workspace journey and screenshot artifact upload.
+
+Release invariants proven by integration coverage:
+
+- released artifacts require project-canonical GateEvidence;
+- evidence must be linked by a canonical QualityGate at PASS;
+- evidence revision must equal the ReleaseRecord exact revision;
+- rolled-back records require rollbackRevision;
+- released artifact identity/evidence cannot be silently rewritten;
+- stale optimistic writes fail;
+- LessonLearned release / Work Package links must remain project-canonical;
+- read-only actors may read but may not create release state.
+
+Browser evidence proves canonical PostgreSQL state renders:
+
+- release version `v1.0.0`;
+- exact revision `revision-p6-006-e2e`;
+- evidence id `evidence:p6-006-release`;
+- production environment and artifact source;
+- explicit rollback plan;
+- Lesson Learned `Release evidence must match the shipped revision`;
+- linked release and Work Package provenance.
+
+Human UX artifact:
+
+- artifact id: `10894521387`;
+- digest: `sha256:48206bda10daa4bbfb829db0a76f747ebb4171b79ad5104a3bf2456ca8d905a5`;
+- desktop Releases & Lessons screenshot reviewed;
+- mobile Releases & Lessons screenshot reviewed.
+
+Human review findings:
+
+1. Release and Lesson Learned registers are visually distinct and easy to scan.
+2. Exact revision, environment, artifact source and release timestamp are prominent.
+3. Rollback plan/revision are explicit rather than hidden in free-form notes.
+4. Linked GateEvidence IDs are visible without implying a readiness percentage.
+5. Lessons Learned preserve observation, impact and action as separate fields.
+6. Release/work links and source revision remain traceable.
+7. Desktop layout is compact; mobile becomes one column without blocking overflow.
+8. Mobile project navigation does not auto-scroll the active Releases & Lessons tab into the initial visible segment. Breadcrumb and content identify the active view, so this remains a non-blocking P6-008 navigation-polish item.
+9. No blocking P0/P1 UX defect was observed.
+
+## Result
+
+**P6-006 = COMPLETE**
+
+P6-007 — Prompt Workspace ergonomics is the next dependency Work Package.
 
 Production deployment remains unauthorized.
