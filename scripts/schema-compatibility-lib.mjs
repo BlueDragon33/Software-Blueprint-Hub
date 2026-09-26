@@ -54,6 +54,26 @@ export function findBreakingChanges(baseline, current) {
       changes.push(`${path}: additionalProperties became false`);
     }
 
+    if (
+      typeof before.pattern === "string" &&
+      typeof after.pattern === "string" &&
+      before.pattern !== after.pattern
+    ) {
+      changes.push(`${path}: pattern changed`);
+    }
+
+    if (
+      typeof before.format === "string" &&
+      typeof after.format === "string" &&
+      before.format !== after.format
+    ) {
+      changes.push(`${path}: format changed`);
+    }
+
+    if (before.uniqueItems !== true && after.uniqueItems === true) {
+      changes.push(`${path}: uniqueItems became true`);
+    }
+
     const tighteningRules = [
       ["minLength", (a, b) => b > a],
       ["minimum", (a, b) => b > a],
@@ -73,6 +93,8 @@ export function findBreakingChanges(baseline, current) {
       }
     }
   }
+
+  compareNode(baseline, current, "#");
 
   const beforeDefs = baseline.$defs ?? {};
   const afterDefs = current.$defs ?? {};
