@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import type { ProjectProfile } from "@blueprint-os/contracts";
-import { AppShell } from "@blueprint-os/ui";
+import { ActionGroup, AppShell, EmptyState, StatusChip } from "@blueprint-os/ui";
 
 export type ProjectWorkspaceView =
   | "overview"
@@ -115,14 +115,14 @@ export function ProjectWorkspaceFrame({
               {profile.projectType} · {profile.projectId}
             </p>
           </div>
-          <div className="project-workspace-header-actions">
+          <ActionGroup className="project-workspace-header-actions">
             <span className="project-level project-level-large">
               {profile.blueprintLevel}
             </span>
             <Link className="secondary-button registry-action" href="/projects/new">
               Guided project setup
             </Link>
-          </div>
+          </ActionGroup>
         </header>
 
         <div className="project-workspace-grid">
@@ -167,15 +167,16 @@ export function ProjectWorkspaceState({ state }: WorkspaceStateProps) {
       <AppShell>
         <main className="registry-shell">
           <Link className="text-link" href="/">← Projects</Link>
-          <section className="registry-state">
-            <div>
-              <h1>Sign in to open this canonical project.</h1>
-              <p>Project metadata is protected by Blueprint-owned authority.</p>
-            </div>
-            <a className="primary-button registry-action" href="/api/auth/signin">
-              Sign in
-            </a>
-          </section>
+          <EmptyState
+            className="registry-state"
+            title="Sign in to open this canonical project."
+            description="Project metadata is protected by Blueprint-owned authority."
+            action={
+              <a className="primary-button registry-action" href="/api/auth/signin">
+                Sign in
+              </a>
+            }
+          />
         </main>
       </AppShell>
     );
@@ -186,12 +187,11 @@ export function ProjectWorkspaceState({ state }: WorkspaceStateProps) {
       <AppShell>
         <main className="registry-shell">
           <Link className="text-link" href="/">← Projects</Link>
-          <section className="registry-state">
-            <div>
-              <h1>Project not found.</h1>
-              <p>No canonical Project Profile exists for this identifier.</p>
-            </div>
-          </section>
+          <EmptyState
+            className="registry-state"
+            title="Project not found."
+            description="No canonical Project Profile exists for this identifier."
+          />
         </main>
       </AppShell>
     );
@@ -231,7 +231,7 @@ export function NotAvailableYet({
       <p className="section-kicker">Canonical module not available yet</p>
       <h2>{title}</h2>
       <p>{description}</p>
-      <span className="status-chip status-chip-neutral">{phase}</span>
+      <StatusChip>{phase}</StatusChip>
     </section>
   );
 }
