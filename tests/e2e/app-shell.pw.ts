@@ -243,6 +243,50 @@ test("canonical project workspace has stable truthful views", async ({
   });
 });
 
+test("Knowledge Library exposes reusable truth without project completion state", async ({
+  page
+}, testInfo) => {
+  await page.goto("/knowledge");
+
+  await expect(
+    page.getByRole("heading", { name: "Knowledge Library", exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Definitions guide projects; they do not claim projects are done."
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Universal Constitution v0", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Template Resolution Contract v1", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("No canonical Patterns published yet.", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("No canonical Anti-patterns published yet.", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("No canonical Reference Cases published yet.", { exact: true })
+  ).toBeVisible();
+
+  await expect(page.getByText(/project complete/i)).toHaveCount(0);
+  await expect(page.getByText(/gate pass/i)).toHaveCount(0);
+
+  await page.screenshot({
+    path: `artifacts/p6-005-knowledge-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
 test("critical preview journey stays understandable and evidence-honest", async ({
   page
 }, testInfo) => {
