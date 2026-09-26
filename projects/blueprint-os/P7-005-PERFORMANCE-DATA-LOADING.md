@@ -106,3 +106,12 @@ Production deployment remains unauthorized.
 - Prompt source collection loads Profile resolution, Work Packages and gate/evidence bundles concurrently.
 - Application regression asserts Quality, Readiness and Prompt perform zero per-gate evidence list reads.
 - PostgreSQL regression asserts batch evidence ordering.
+
+
+### Long-view and repeated-read hardening
+
+- Prompt history is page-bounded to 20 snapshots per request, with one look-ahead row for Next-page detection.
+- Full Prompt provenance remains reachable through Previous/Next history pages; no snapshot is deleted or hidden permanently.
+- The global latest Prompt snapshot remains correct even while browsing older history pages.
+- Prompt Workspace reuses the already-authorized Project Profile resolution from the workspace loader when computing current source revision.
+- Static Knowledge Library sections and ID lookup are precomputed once instead of filter/sort reconstruction on every request.
