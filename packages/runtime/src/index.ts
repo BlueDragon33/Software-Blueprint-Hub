@@ -16,6 +16,7 @@ import {
   PostgresAuthorityRepository,
   PostgresGovernanceRepository,
   PostgresProjectProfileRepository,
+  PostgresPromptProjectionHistoryRepository,
   PostgresReleaseRepository,
   PostgresWorkQualityRepository,
   type BlueprintPrismaClient
@@ -48,6 +49,8 @@ export function createBlueprintServerRuntime(
   const workRepository = new PostgresWorkQualityRepository(prisma);
   const governanceRepository = new PostgresGovernanceRepository(prisma);
   const releaseRepository = new PostgresReleaseRepository(prisma);
+  const promptHistoryRepository =
+    new PostgresPromptProjectionHistoryRepository(prisma);
   const templates = new StaticTemplateCatalog(foundationBlueprintTemplatesV1);
   const profiles = new ProjectProfileApplicationService(
     profileRepository,
@@ -80,7 +83,9 @@ export function createBlueprintServerRuntime(
   const prompts = new PromptProjectionApplicationService(
     authority,
     profiles,
-    workRepository
+    workRepository,
+    undefined,
+    promptHistoryRepository
   );
 
   return Object.freeze({
