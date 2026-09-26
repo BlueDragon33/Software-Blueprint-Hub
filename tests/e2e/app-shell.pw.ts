@@ -453,9 +453,12 @@ test("P7-002 disclosures preserve critical truth and are keyboard operable", asy
     page.getByText("revision-p6-beta-quality", { exact: true }).first()
   ).toBeVisible();
 
-  const qualityDisclosure = page
-    .locator("details.quality-disclosure")
-    .first();
+  const qualityGateCard = page.locator(".workspace-quality-card", {
+    hasText: "gate:quality:evidence"
+  });
+  const qualityDisclosure = qualityGateCard.locator(
+    "details.quality-disclosure"
+  );
   await expect(qualityDisclosure).not.toHaveAttribute("open", "");
   const qualitySummary = qualityDisclosure.locator("summary");
   await qualitySummary.focus();
