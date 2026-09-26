@@ -1,6 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { getBlueprintCompassProjection } from "../../packages/application/src";
 
+function collectObjectKeys(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap(collectObjectKeys);
+  }
+  if (!value || typeof value !== "object") {
+    return [];
+  }
+
+  return Object.entries(value as Readonly<Record<string, unknown>>).flatMap(
+    ([key, child]) => [key, ...collectObjectKeys(child)]
+  );
+}
+
 describe("P9-002 Blueprint Compass projection", () => {
   it("orients work without manufacturing a progress percentage", () => {
     const compass = getBlueprintCompassProjection();
@@ -9,8 +22,12 @@ describe("P9-002 Blueprint Compass projection", () => {
     expect(compass.currentStorey.total).toBe(20);
     expect(compass.currentStorey.number).toBe(compass.activeWork.storey);
     expect(compass.activeWork.status).toBe("active");
-    expect(JSON.stringify(compass)).not.toMatch(
-      /progressPercent|percentage|percentComplete/
+    expect(collectObjectKeys(compass)).not.toEqual(
+      expect.arrayContaining([
+        "progressPercent",
+        "percentage",
+        "percentComplete"
+      ])
     );
   });
 
