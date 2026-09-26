@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-016 COMPLETE / P9-017 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-017 COMPLETE / P9-018 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -313,13 +313,21 @@ Completion evidence:
 - Human UX evidence upload completed successfully.
 
 ### P9-017 — Performance & capacity proof
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Validate current product against documented NFR/capacity budgets with real measurements.
 
+Completion evidence:
+- P9-017 merged in PR #62 as `7a6fa378bb3ae970b167f742a01bebf612b97b26`;
+- exact merged revision passed Development Fast CI and full Release Gate;
+- 500-project Portfolio and 1,000-work-package Evidence Graph synthetic target loads pass documented budgets;
+- over-budget portfolio input fails closed instead of silently increasing capacity;
+- broad CPU ceilings are explicitly regression budgets, not fabricated Production/network latency SLOs;
+- P7-005 batched Gate+Evidence / zero N+1 regressions remain green.
+
 ### P9-018 — Ecosystem dogfood regression
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Run Blueprint OS against itself plus multiple heterogeneous projects and detect semantic leakage.
