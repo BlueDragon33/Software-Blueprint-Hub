@@ -46,9 +46,9 @@ const projection: BlueprintCompassProjection = Object.freeze({
   projectId: "project:blueprint-os",
   phase: "Phase 9 — Compass Construction",
   currentStorey: Object.freeze({
-    number: 19,
+    number: 20,
     total: 20,
-    name: "Ecosystem dogfooding"
+    name: "Compass Acceptance & release orchestration"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
