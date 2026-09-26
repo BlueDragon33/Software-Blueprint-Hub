@@ -278,8 +278,13 @@ test("Knowledge Library exposes reusable truth without project completion state"
     page.getByText("No canonical Reference Cases published yet.", { exact: true })
   ).toBeVisible();
 
-  await expect(page.getByText(/project complete/i)).toHaveCount(0);
-  await expect(page.getByText(/gate pass/i)).toHaveCount(0);
+  const knowledgeCards = page.locator(".knowledge-card");
+  await expect(knowledgeCards.first()).toBeVisible();
+  await expect(knowledgeCards).not.toContainText("project:p6-registry-beta");
+  await expect(knowledgeCards).not.toContainText("Project readiness");
+  await expect(knowledgeCards).not.toContainText("Quality Gate PASS");
+  await expect(page.locator(".knowledge-meta dt", { hasText: "Project" })).toHaveCount(0);
+  await expect(page.locator(".knowledge-meta dt", { hasText: "Gate" })).toHaveCount(0);
 
   await page.screenshot({
     path: `artifacts/p6-005-knowledge-${testInfo.project.name}.png`,
