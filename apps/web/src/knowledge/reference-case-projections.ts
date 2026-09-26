@@ -1,3 +1,5 @@
+import { findReferenceImportManifest } from "@blueprint-os/application";
+
 export interface ReferenceCaseProjectionEntry {
   readonly label: string;
   readonly detail: string;
@@ -20,6 +22,9 @@ export interface ReferenceCaseProjection {
     readonly importedRevision: string;
     readonly manifestRevision: string;
     readonly importedAt: string;
+    readonly manifestPath: string;
+    readonly artifactCount: number;
+    readonly conceptMappingCount: number;
   };
   readonly snapshotNote: string;
   readonly authorityNote: string;
@@ -34,15 +39,27 @@ export interface ReferenceCaseProjection {
   readonly conclusion: string;
 }
 
+const baumanImport = findReferenceImportManifest("bauman-nextgen-v1");
+
+if (!baumanImport) {
+  throw new TypeError(
+    "Validated Reference Import Manifest missing for bauman-nextgen-v1"
+  );
+}
+
 const baumanNextgenV1: ReferenceCaseProjection = Object.freeze({
-  caseId: "bauman-nextgen-v1",
+  caseId: baumanImport.caseId,
   source: Object.freeze({
-    repository: "BlueDragon33/Bauman-master-ai-system",
-    branch: "architecture/bauman-nextgen-blueprint-v1",
-    pullRequest: "#127 — Architecture Blueprint v1 · Bauman Next-Generation Platform",
-    importedRevision: "52b2a581a9c38a7060e95209e94c3087764f6d5f",
-    manifestRevision: "c195f2abc4fe0ee6a6cf3f05aab04e814a07d0b2",
-    importedAt: "2026-09-26"
+    repository: baumanImport.source.repository,
+    branch: baumanImport.source.ref,
+    pullRequest:
+      `#${baumanImport.source.pullRequestNumber} — ${baumanImport.source.pullRequestTitle}`,
+    importedRevision: baumanImport.source.revision,
+    manifestRevision: baumanImport.source.manifestRevision,
+    importedAt: baumanImport.source.importedOn,
+    manifestPath: baumanImport.local.manifestPath,
+    artifactCount: baumanImport.sourceArtifacts.length,
+    conceptMappingCount: baumanImport.conceptMappings.length
   }),
   snapshotNote:
     "This view describes the frozen architecture revision imported into Blueprint OS. Newer Bauman main commits are not silently included.",

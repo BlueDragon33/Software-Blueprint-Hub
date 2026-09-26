@@ -65,6 +65,22 @@ const referenceItems: readonly KnowledgeLibraryItem[] = Object.freeze([
     tags: Object.freeze(["quality", "ci", "evidence"])
   }),
   Object.freeze({
+    id: "knowledge:reference:reference-import-v1",
+    kind: "reference",
+    title: "Reference Import Contract v1",
+    summary:
+      "Fail-closed manifest contract for frozen external architecture/reference snapshots with deterministic identity, exact provenance, semantic aliases and drift policy.",
+    version: "1",
+    status: "implementation-baseline",
+    sourcePath: "docs/REFERENCE-IMPORT-CONTRACT.v1.md",
+    tags: Object.freeze([
+      "reference-import",
+      "provenance",
+      "compatibility",
+      "local-first"
+    ])
+  }),
+  Object.freeze({
     id: "knowledge:reference:nfr-capacity-v1",
     kind: "reference",
     title: "NFR / Capacity Budgets v1",

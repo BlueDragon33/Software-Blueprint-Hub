@@ -1,0 +1,288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueprint-os.local/schemas/reference-import-manifest.v1.json",
+  "title": "Blueprint OS Reference Import Manifest v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "schemaVersion",
+    "id",
+    "caseId",
+    "referenceCaseId",
+    "title",
+    "source",
+    "local",
+    "sourceArtifacts",
+    "conceptMappings",
+    "authority",
+    "driftPolicy",
+    "compatibility"
+  ],
+  "properties": {
+    "schema": {
+      "const": "REFERENCE_IMPORT_MANIFEST_V1"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^reference-import:[a-z0-9][a-z0-9-]*:v[1-9][0-9]*$"
+    },
+    "caseId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*-v[1-9][0-9]*$"
+    },
+    "referenceCaseId": {
+      "type": "string",
+      "pattern": "^knowledge:reference-case:[a-z0-9][a-z0-9-]*-v[1-9][0-9]*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "repository",
+        "ref",
+        "pullRequestNumber",
+        "pullRequestTitle",
+        "revision",
+        "manifestRevision",
+        "importedOn"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "pullRequestNumber": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pullRequestTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "manifestRevision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "importedOn": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "additionalProperties": false
+    },
+    "local": {
+      "type": "object",
+      "required": [
+        "manifestPath",
+        "referenceDocument",
+        "mappingDocument",
+        "gapAnalysisDocument"
+      ],
+      "properties": {
+        "manifestPath": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "referenceDocument": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "mappingDocument": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "gapAnalysisDocument": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      },
+      "additionalProperties": false
+    },
+    "sourceArtifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "role",
+          "classifications"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "role": {
+            "enum": [
+              "architecture-source",
+              "source-manifest",
+              "review-checklist",
+              "adr-template"
+            ]
+          },
+          "classifications": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "already-supported",
+                "pattern-candidate",
+                "project-specific-extension",
+                "product-gap",
+                "core-gap"
+              ]
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "conceptMappings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "sourceConcept",
+          "classification",
+          "namespace",
+          "disposition"
+        ],
+        "properties": {
+          "sourceConcept": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "classification": {
+            "enum": [
+              "already-supported",
+              "pattern-candidate",
+              "project-specific-extension",
+              "product-gap",
+              "core-gap"
+            ]
+          },
+          "namespace": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "blueprintConcept": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "disposition": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "canonicalProjectState",
+        "qualityGateEvidence",
+        "releaseAuthority",
+        "accessAuthority"
+      ],
+      "properties": {
+        "canonicalProjectState": {
+          "const": false
+        },
+        "qualityGateEvidence": {
+          "const": false
+        },
+        "releaseAuthority": {
+          "const": false
+        },
+        "accessAuthority": {
+          "const": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "driftPolicy": {
+      "type": "object",
+      "required": [
+        "snapshotMode",
+        "networkRequiredForCanonicalRead",
+        "updateMode",
+        "currentnessClaimRequiresSourceCheck"
+      ],
+      "properties": {
+        "snapshotMode": {
+          "const": "frozen"
+        },
+        "networkRequiredForCanonicalRead": {
+          "const": false
+        },
+        "updateMode": {
+          "const": "new-observation"
+        },
+        "currentnessClaimRequiresSourceCheck": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "compatibility": {
+      "type": "object",
+      "required": [
+        "strategy",
+        "unknownFields",
+        "breakingChangeRequires"
+      ],
+      "properties": {
+        "strategy": {
+          "const": "additive-first"
+        },
+        "unknownFields": {
+          "const": "reject"
+        },
+        "breakingChangeRequires": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "ADR",
+              "migration-plan",
+              "compatibility-statement"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

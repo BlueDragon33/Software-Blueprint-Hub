@@ -3,10 +3,11 @@
 Breaking canonical schema changes must not be accepted merely because generated
 TypeScript still compiles.
 
-For `vertical-slice.contracts.v1.json`, a breaking change detected against the
-versioned baseline requires:
+For every guarded schema, a breaking change detected against its versioned baseline requires a matching migration-evidence document.
 
-`schemas/migrations/vertical-slice.contracts.v1.md`
+Currently guarded contracts:
+- `vertical-slice.contracts.v1.json` → `schemas/migrations/vertical-slice.contracts.v1.md`;
+- `reference-import-manifest.v1.json` → `schemas/migrations/reference-import-manifest.v1.md`.
 
 with exact lines:
 
