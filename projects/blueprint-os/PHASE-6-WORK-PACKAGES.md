@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 6 Product Expansion Work Packages
 
-Status: **AUTHORIZED AFTER A2 / P6-001–P6-005 COMPLETE / P6-006 NEXT**
+Status: **AUTHORIZED AFTER A2 / P6-001–P6-006 COMPLETE / P6-007 NEXT**
 
 Phase 6 expands the proven vertical slice into a professional multi-project product. Work remains dependency-driven; production deployment is not implied.
 
@@ -64,7 +64,7 @@ Expose Universal Constitutions, patterns, anti-patterns, templates and reference
 
 ## P6-006 — Release & Lessons
 
-Status: **NEXT / AUTHORIZED AFTER P6-005 MERGE**
+Status: **COMPLETE**
 
 Dependencies: P6-003, P6-004.
 
@@ -72,6 +72,8 @@ Purpose:
 Represent releases, exact revision evidence, rollback notes and Lessons Learned as canonical product state.
 
 ## P6-007 — Prompt Workspace ergonomics
+
+Status: **NEXT / AUTHORIZED AFTER P6-006 MERGE**
 
 Dependencies: P6-003.
 

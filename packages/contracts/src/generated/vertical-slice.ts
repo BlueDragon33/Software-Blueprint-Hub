@@ -16,6 +16,8 @@ export interface VerticalSliceContracts {
   architectureDecision?: ArchitectureDecision;
   risk?: Risk;
   technicalDebt?: TechnicalDebt;
+  releaseRecord?: ReleaseRecord;
+  lessonLearned?: LessonLearned;
 }
 /**
  * This interface was referenced by `VerticalSliceContracts`'s JSON-Schema
@@ -205,5 +207,42 @@ export interface TechnicalDebt {
   linkedWorkPackageIds: Id[];
   source: string;
   sourceRevision?: string;
+  meta: RecordMeta;
+}
+/**
+ * This interface was referenced by `VerticalSliceContracts`'s JSON-Schema
+ * via the `definition` "ReleaseRecord".
+ */
+export interface ReleaseRecord {
+  id: Id;
+  projectId: Id;
+  version: string;
+  revision: string;
+  environment: string;
+  artifactSource: string;
+  status: "planned" | "candidate" | "released" | "rolled-back" | "superseded";
+  releasedAt?: string;
+  gateEvidenceIds: Id[];
+  rollbackPlan: string;
+  rollbackRevision?: string;
+  notes?: string;
+  meta: RecordMeta;
+}
+/**
+ * This interface was referenced by `VerticalSliceContracts`'s JSON-Schema
+ * via the `definition` "LessonLearned".
+ */
+export interface LessonLearned {
+  id: Id;
+  projectId: Id;
+  title: string;
+  category: "product" | "architecture" | "data" | "ux" | "security" | "quality" | "operations" | "governance";
+  observation: string;
+  impact: string;
+  action: string;
+  source: string;
+  sourceRevision: string;
+  releaseId?: Id;
+  linkedWorkPackageIds: Id[];
   meta: RecordMeta;
 }
