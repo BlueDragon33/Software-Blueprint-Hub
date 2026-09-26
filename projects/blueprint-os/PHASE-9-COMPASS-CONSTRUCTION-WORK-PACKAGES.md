@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-008 COMPLETE / P9-009 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-009 COMPLETE / P9-010 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -194,13 +194,22 @@ Completion evidence:
 - Production deployment remains a separate explicit action.
 
 ### P9-009 — Provider/plugin boundary
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Define scoped integration contracts for GitHub, deployment providers and future connectors.
 
+Completion evidence:
+- P9-009 merged in PR #50 as `565f05f198364fd10b307bb6f9989f06bb56182a`;
+- exact merged revision passed Development Fast CI and full Release Gate;
+- provider descriptors enforce project scope, capability whitelist and opaque credential references;
+- raw secret-bearing metadata and token-like values fail closed;
+- provider invocation plans are deterministic and audit-fingerprinted;
+- providers retain zero canonical Blueprint, Quality Gate and Production release authority;
+- Production mutations remain blocked pending explicit Release Orchestration authority.
+
 ### P9-010 — Bounded AI copilot
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Add AI proposal/drafting flows whose outputs remain reviewable projections until explicitly accepted through canonical mutation rules.

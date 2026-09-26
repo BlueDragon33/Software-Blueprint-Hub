@@ -46,45 +46,45 @@ const projection: BlueprintCompassProjection = Object.freeze({
   projectId: "project:blueprint-os",
   phase: "Phase 9 — Compass Construction",
   currentStorey: Object.freeze({
-    number: 17,
+    number: 18,
     total: 20,
-    name: "Secure integrations"
+    name: "Bounded AI assistance"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-009",
-    title: "Provider / plugin boundary",
-    storey: 17,
+    id: "P9-010",
+    title: "Bounded AI copilot",
+    storey: 18,
     status: "active",
     reason:
-      "P9-008 passed the full Release Gate, so external providers can now be bounded by explicit scope, capability and credential-reference contracts without inheriting Blueprint authority."
+      "P9-009 established fail-closed provider and credential boundaries, so AI assistance can now be added as review-only proposals with explicit source revision and zero canonical authority."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-008",
-      title: "Observability & incident diagnostics",
-      storey: 16,
-      status: "complete",
-      reason:
-        "Operational diagnostics now passed the full Release Gate with revision/context/correlation visibility and secret redaction."
-    }),
     Object.freeze({
       id: "P9-009",
       title: "Provider / plugin boundary",
       storey: 17,
-      status: "active",
+      status: "complete",
       reason:
-        "External integrations are being constrained by explicit project scope, capability mode, opaque credential references and zero canonical/release authority."
+        "External providers now operate through explicit scope/capability/credential-reference contracts and passed the full Release Gate."
     }),
     Object.freeze({
       id: "P9-010",
       title: "Bounded AI copilot",
       storey: 18,
+      status: "active",
+      reason:
+        "AI output is being constrained to revision-bound, human-review-required proposals with no canonical, Quality Gate or Production authority."
+    }),
+    Object.freeze({
+      id: "P9-011",
+      title: "Multi-project portfolio view",
+      storey: 19,
       status: "next",
       reason:
-        "AI assistance follows only after external provider authority and credential boundaries are explicit and fail-closed."
+        "Cross-project visibility follows only after AI assistance is bounded and cannot merge project authority."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -162,12 +162,18 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "f953c6dce02da341e0fd2471fab5bca079736a94",
       source: "Software-Blueprint-Hub main Release Gate",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-009 Provider / Plugin Boundary full Release Gate",
+      revision: "565f05f198364fd10b307bb6f9989f06bb56182a",
+      source: "Software-Blueprint-Hub PR #50 / main Release Gate",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-009 by proving provider scope, capability, opaque credential-reference and secret-boundary enforcement without authority leakage.",
-    "Start P9-010 Bounded AI Copilot only after P9-009 exact PR-head evidence and Release Gate are green.",
-    "Keep Production release unauthorized until an explicit publish/release decision is made on an exact validated revision."
+    "Complete P9-010 by proving AI proposals are deterministic, revision-bound, secret-safe and human-review-required with zero canonical/release authority.",
+    "Start P9-011 Multi-project Portfolio View only after P9-010 exact PR-head evidence and Release Gate are green.",
+    "Keep Production publish tied to an exact validated revision and a real deployment provider, never to merge alone."
   ]),
   truthNote:
     "This is a checked-in Development Baseline projection. It does not manufacture project completion percentages, Quality Gate PASS state or Production readiness."

@@ -1,6 +1,6 @@
 # P9-009 — Provider / Plugin Boundary
 
-Status: **DEVELOPMENT CANDIDATE**
+Status: **COMPLETE — FULL RELEASE GATE PASS**
 
 ## Purpose
 
