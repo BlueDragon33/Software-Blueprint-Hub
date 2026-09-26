@@ -7,13 +7,11 @@ import { loadProjectWorkspace } from "../../../../src/server/project-workspace";
 
 export const dynamic = "force-dynamic";
 
-interface WorkspaceFutureViewProps {
+interface PageProps {
   readonly params: Promise<{ projectId: string }>;
 }
 
-export default async function WorkspaceFutureView({
-  params
-}: WorkspaceFutureViewProps) {
+export default async function Page({ params }: PageProps) {
   const { projectId } = await params;
   const workspace = await loadProjectWorkspace(projectId);
 
@@ -29,7 +27,7 @@ export default async function WorkspaceFutureView({
       <NotAvailableYet
         title="Releases & Lessons"
         phase="P6-006"
-        description="Exact release revisions, rollback notes and Lessons Learned become canonical in P6-006. This route is intentionally stable now but does not fabricate release history."
+        description="Release records, exact revision evidence, rollback notes and Lessons Learned will be introduced as canonical state in P6-006."
       />
     </ProjectWorkspaceFrame>
   );
