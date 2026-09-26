@@ -245,3 +245,5 @@ export * from "./provider-boundary";
 export * from "./ai-copilot";
 
 export * from "./project-portfolio";
+
+export * from "./quality-evidence-graph";
