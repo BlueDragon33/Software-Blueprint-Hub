@@ -7,13 +7,11 @@ import { loadProjectWorkspace } from "../../../../src/server/project-workspace";
 
 export const dynamic = "force-dynamic";
 
-interface WorkspaceFutureViewProps {
+interface PageProps {
   readonly params: Promise<{ projectId: string }>;
 }
 
-export default async function WorkspaceFutureView({
-  params
-}: WorkspaceFutureViewProps) {
+export default async function Page({ params }: PageProps) {
   const { projectId } = await params;
   const workspace = await loadProjectWorkspace(projectId);
 
@@ -29,7 +27,7 @@ export default async function WorkspaceFutureView({
       <NotAvailableYet
         title="Risks & Technical Debt"
         phase="P6-004"
-        description="Risk and TechnicalDebt records become canonical in P6-004. Until then this workspace view remains an explicit unavailable state rather than a local or decorative checklist."
+        description="Risks and technical debt are reserved for the canonical P6-004 module and are not inferred from unrelated project state."
       />
     </ProjectWorkspaceFrame>
   );
