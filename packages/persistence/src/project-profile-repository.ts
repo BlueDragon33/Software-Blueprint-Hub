@@ -29,6 +29,7 @@ function fromJson(document: Prisma.JsonValue): ProjectProfile {
 }
 
 function fromRow(row: {
+  readonly id: string;
   readonly projectId: string;
   readonly schemaVersion: string;
   readonly recordVersion: number;
@@ -37,6 +38,7 @@ function fromRow(row: {
   const profile = fromJson(row.document);
 
   if (
+    profile.id !== row.id ||
     profile.projectId !== row.projectId ||
     profile.meta.schemaVersion !== row.schemaVersion ||
     profile.meta.recordVersion !== row.recordVersion

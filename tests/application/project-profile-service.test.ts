@@ -243,4 +243,35 @@ describe("ProjectProfileApplicationService", () => {
       first.blueprint.inputFingerprint
     );
   });
+
+  it("rejects ProjectProfile identity mutation before persistence", async () => {
+    const profiles = new MemoryProfiles();
+    const service = new ProjectProfileApplicationService(
+      profiles,
+      new AuthorityService(new MemoryAuthority()),
+      new StaticTemplateCatalog(templates)
+    );
+    const actor = { principalId: "principal:owner" };
+
+    await service.create(actor, profile);
+
+    const renamedIdentity: ProjectProfile = {
+      ...profile,
+      id: "profile:forged-other-project",
+      name: "Identity drift attempt",
+      meta: {
+        ...profile.meta,
+        recordVersion: 2,
+        updatedAt: "2026-09-26T07:50:00Z"
+      }
+    };
+
+    await expect(
+      service.update(actor, renamedIdentity, 1)
+    ).rejects.toThrow(/identity is immutable/);
+
+    expect(profiles.value?.id).toBe(profile.id);
+    expect(profiles.value?.name).toBe(profile.name);
+  });
+
 });

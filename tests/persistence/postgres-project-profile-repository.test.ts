@@ -75,7 +75,8 @@ describePostgres("PostgresProjectProfileRepository", () => {
             "project:rollback-source",
             "project:rollback-target",
             "project:registry-a",
-            "project:registry-b"
+            "project:registry-b",
+            "project:identity-drift"
           ]
         }
       }
@@ -185,4 +186,28 @@ describePostgres("PostgresProjectProfileRepository", () => {
 
     expect(leakedProject).toBeNull();
   });
+
+  it("detects persisted profile identity drift between row and document", async () => {
+    const profile = withIdentity(await loadProfile(), {
+      id: "profile:identity-drift",
+      projectId: "project:identity-drift"
+    });
+
+    await repository.createProjectWithProfile(profile);
+
+    await prisma.projectProfile.update({
+      where: { projectId: profile.projectId },
+      data: {
+        document: {
+          ...profile,
+          id: "profile:forged-identity"
+        }
+      }
+    });
+
+    await expect(
+      repository.findProfileByProjectId(profile.projectId)
+    ).rejects.toThrow(/Persistent profile metadata drift detected/);
+  });
+
 });
