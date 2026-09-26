@@ -1,6 +1,6 @@
 # Project 0001 — Blueprint OS / Software-Blueprint-Hub
 
-Status: **PHASE 7 HARDENING ACCEPTED — PHASE 8 BAUMAN REFERENCE IMPORT ACTIVE**
+Status: **PHASE 8 REFERENCE IMPORT PASS — PHASE 9 COMPASS CONSTRUCTION ACTIVE**
 
 ## Product Charter
 
@@ -84,7 +84,8 @@ These are Project 0001 implementation decisions, not Universal Constitution.
 - Phase 5 — First vertical slice: complete; A2 PASS.
 - Phase 6 — Professional Web UI / product expansion: complete; Product UX Gate PASS.
 - Phase 7 — QA/hardening: complete; Hardening Gate PASS.
-- Phase 8 — Bauman reference import / production-candidate validation: **active**.
+- Phase 8 — Bauman reference import / production-candidate validation: complete; Reference Import Gate PASS — Development Baseline.
+- Phase 9 — Compass Construction / ecosystem reference implementation: **active**.
 
 ## First Vertical Slice
 
@@ -158,12 +159,22 @@ Evidence:
 - mobile, progressive disclosure, accessibility, resilience, performance, authority/security and release-safety hardening
 - exact-revision Release Gate evidence
 
-### Next phase
+### Phase 8 — Reference Import Gate
 
-**Phase 8 — Bauman reference import / production-candidate validation**
+**PASS — DEVELOPMENT BASELINE — 2026-09-26**
 
-Phase 8 uses Bauman as a provenance-safe external Reference Case to test Blueprint OS against a complex real software blueprint. Bauman-specific concepts remain project/reference knowledge unless a separate cross-project universality decision justifies Core changes.
+Evidence:
+- `P8-007-REFERENCE-IMPORT-GATE.md`
+- `PHASE-8-BAUMAN-REFERENCE-WORK-PACKAGES.md`
+- machine-readable Reference Import contract and exact provenance regression
+- no Bauman-specific Universal Core coupling
 
-Source-of-truth: `PHASE-8-BAUMAN-REFERENCE-WORK-PACKAGES.md`.
+### Active phase
 
-Phase 7 PASS authorizes this work but does not authorize Production deployment.
+**Phase 9 — Compass Construction**
+
+Blueprint OS now develops as the ecosystem engineering compass using the dependency-driven 20-storey construction map. The goal is not feature count; it is a complete chain from Constitution and canonical data through planning, quality, knowledge, operations, AI boundaries, dogfooding and professional acceptance.
+
+Source-of-truth: `PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md`.
+
+Phase 8 PASS authorizes Phase 9 Development Mode work. It still does not authorize Production deployment.
