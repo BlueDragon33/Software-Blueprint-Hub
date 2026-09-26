@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-011 COMPLETE / P9-012 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-012 COMPLETE / P9-013 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -239,13 +239,22 @@ Completion evidence:
 - desktop/mobile Playwright evidence proves the Portfolio remains readable and links back to isolated canonical workspaces.
 
 ### P9-012 — Quality evidence graph
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Make gate/evidence/work/release provenance traceable as an explainable dependency graph.
 
+Completion evidence:
+- P9-012 merged in PR #55 as `7dd360aad0a89b7ca687524a639c7fccdda08077`;
+- exact merged revision passed Development Fast CI and the full Release Gate;
+- graph projection deterministically links Work Package → Quality Gate → Gate Evidence → Release Record;
+- cross-project records, duplicate IDs, orphan dependencies, orphan gates/evidence and contradictory gate ownership fail closed;
+- evidence source and exact revision remain inspectable;
+- Quality Evidence Graph UX is read-only and cannot manufacture readiness, PASS a gate or authorize release;
+- full Release Gate covered PostgreSQL migrations, schema/contract drift, source-of-truth, lint, typecheck, architecture boundaries, full tests, production build and Playwright screenshots.
+
 ### P9-013 — Release orchestration
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Prepare exact-revision promotion evidence and environment status without treating merge as deployment.
