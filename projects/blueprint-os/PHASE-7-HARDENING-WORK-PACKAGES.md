@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 7 Hardening Work Packages
 
-Status: **P7-001 COMPLETE / P7-002 IN PROGRESS**
+Status: **P7-001/P7-002 COMPLETE / P7-003 NEXT**
 
 Phase 7 improves usability, accessibility, resilience and operational confidence without weakening the canonical architecture proven in Phases 1–6.
 
@@ -25,7 +25,7 @@ Acceptance:
 
 ## P7-002 — Dense canonical view progressive disclosure
 
-Status: **IN PROGRESS**
+Status: **COMPLETE**
 
 Dependencies: P7-001.
 
@@ -33,6 +33,8 @@ Purpose:
 Reduce mobile scanning cost in Knowledge, Prompt, Quality and Releases/Lessons without hiding provenance or canonical detail.
 
 ## P7-003 — Accessibility hardening
+
+Status: **NEXT / AUTHORIZED AFTER P7-002 MERGE**
 
 Dependencies: P7-001, P7-002.
 
