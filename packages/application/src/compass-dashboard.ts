@@ -48,43 +48,43 @@ const projection: BlueprintCompassProjection = Object.freeze({
   currentStorey: Object.freeze({
     number: 20,
     total: 20,
-    name: "Compass Acceptance & security hardening"
+    name: "Compass Acceptance & data lifecycle"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-014",
-    title: "Security threat-model hardening",
+    id: "P9-015",
+    title: "Data lifecycle & archive",
     storey: 20,
     status: "active",
     reason:
-      "P9-013 passed the full Release Gate while preserving deployment truth; trust zones, credential ownership, escalation paths and destructive operations can now be threat-modelled against the real authority boundaries."
+      "P9-014 passed the full Release Gate with explicit threat boundaries; long-lived retention, archive, deletion, export and migration semantics can now be hardened without implicit destructive mutation."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-013",
-      title: "Release orchestration",
-      storey: 20,
-      status: "complete",
-      reason:
-        "Exact-revision promotion planning passed the full Release Gate without conflating merge, CI or ReleaseRecord state with deployment."
-    }),
     Object.freeze({
       id: "P9-014",
       title: "Security threat-model hardening",
       storey: 20,
-      status: "active",
+      status: "complete",
       reason:
-        "Trust zones, credentials, escalation, destructive operations and abuse cases are now the next dependency-valid hardening layer."
+        "Threat boundaries, credential ownership, escalation paths and destructive operations passed the full Release Gate with no open severe blocker."
     }),
     Object.freeze({
       id: "P9-015",
       title: "Data lifecycle & archive",
       storey: 20,
+      status: "active",
+      reason:
+        "Retention, archive, deletion, export and migration semantics are now the next dependency-valid governance layer."
+    }),
+    Object.freeze({
+      id: "P9-016",
+      title: "Accessibility & adaptive UX audit",
+      storey: 20,
       status: "next",
       reason:
-        "Long-lived retention/deletion/archive semantics follow after threat boundaries are explicit."
+        "Adaptive UX revalidation follows once long-lived data lifecycle behavior is explicit."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -192,11 +192,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "fb7e36544714946c807c549aa11f270c461532e0",
       source: "Software-Blueprint-Hub PR #57 / main Release Gate",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-014 Security Threat-model full Release Gate",
+      revision: "0297d00599fac21956bf65dc2482cbc4cfca2d53",
+      source: "Software-Blueprint-Hub PR #59 / main Release Gate",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-014 by threat-modelling trust zones, credentials, privilege escalation, destructive operations and abuse paths against explicit mitigations.",
-    "Start P9-015 Data Lifecycle & Archive only after P9-014 exact PR-head evidence and full Release Gate are green.",
+    "Complete P9-015 by proving retention, archive, deletion, export and migration plans remain project-isolated, held when required and non-destructive until explicit execution.",
+    "Start P9-016 Accessibility & Adaptive UX Audit only after P9-015 exact PR-head evidence and full Release Gate are green.",
     "Production publish remains blocked until a real deployment provider is connected and explicit external execution succeeds."
   ]),
   truthNote:
