@@ -1,11 +1,11 @@
 import { AppShell } from "@blueprint-os/ui";
 
-import { BlueprintWorkspace } from "../../workspace-client";
+import { ProjectBootstrapFactory } from "./project-bootstrap-factory";
 
 export default function NewProjectPage() {
   return (
     <AppShell>
-      <BlueprintWorkspace />
+      <ProjectBootstrapFactory />
     </AppShell>
   );
 }
