@@ -46,45 +46,45 @@ const projection: BlueprintCompassProjection = Object.freeze({
   projectId: "project:blueprint-os",
   phase: "Phase 9 — Compass Construction",
   currentStorey: Object.freeze({
-    number: 14,
+    number: 15,
     total: 20,
-    name: "Project bootstrap factory"
+    name: "Reusable pattern governance"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-005",
-    title: "Project bootstrap factory",
-    storey: 14,
+    id: "P9-006",
+    title: "Pattern promotion governance",
+    storey: 15,
     status: "active",
     reason:
-      "P9-004 made lifecycle contradictions fail closed, so the system may now automate idea-to-blueprint bootstrap without weakening source-of-truth discipline."
+      "P9-005 established deterministic project bootstrap; reusable knowledge may now be governed from reviewed multi-project evidence without polluting Universal Core."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-004",
-      title: "Source-of-truth contradiction detector",
-      storey: 13,
-      status: "complete",
-      reason:
-        "Fast CI now fails closed when roadmap, Compass, README, Blueprint or management-contract lifecycle truth contradicts."
-    }),
     Object.freeze({
       id: "P9-005",
       title: "Project bootstrap factory",
       storey: 14,
-      status: "active",
+      status: "complete",
       reason:
-        "New software ideas can now be converted into reviewable Project Profile, resolved Blueprint and dependency-aware bootstrap plans."
+        "Project ideas now produce deterministic, validated, dependency-aware bootstrap previews without silent canonical mutation."
     }),
     Object.freeze({
       id: "P9-006",
       title: "Pattern promotion governance",
       storey: 15,
+      status: "active",
+      reason:
+        "Pattern and Anti-pattern promotion requires distinct multi-project evidence plus explicit human review."
+    }),
+    Object.freeze({
+      id: "P9-007",
+      title: "Export / backup / restore",
+      storey: 16,
       status: "next",
       reason:
-        "Reusable pattern promotion follows only after project bootstrap semantics are stable and evidence-producing."
+        "Portable canonical state follows only after reusable knowledge governance is evidence-safe."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -138,11 +138,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "e03857831987afda72efb24d4246345dbb77716a",
       source: "Software-Blueprint-Hub PR #40",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-005 Project Bootstrap Factory",
+      revision: "32e082f4a7e28c4ac7df510fa51a8ed8e98c4e41",
+      source: "Software-Blueprint-Hub PR #41",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-005 by producing deterministic reviewable bootstrap plans without silent persistence.",
-    "Start P9-006 Pattern Promotion Governance only after P9-005 exact PR-head evidence is green.",
+    "Complete P9-006 by proving one-project evidence cannot publish reusable knowledge and reviewed multi-project evidence can produce provenance-safe publication records.",
+    "Start P9-007 Export / Backup / Restore only after P9-006 exact PR-head evidence is green.",
     "Keep Production release unauthorized while Phase 9 remains Development Mode."
   ]),
   truthNote:

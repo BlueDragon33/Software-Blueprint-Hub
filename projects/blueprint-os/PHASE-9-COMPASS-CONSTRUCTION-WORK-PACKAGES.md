@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-004 COMPLETE / P9-005 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-005 COMPLETE / P9-006 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -138,13 +138,21 @@ Completion evidence:
 - Production authority remains explicitly not authorized.
 
 ### P9-005 — Project bootstrap factory
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Turn a new idea into a validated Project Profile, resolved Blueprint Level, modules, gates and first dependency-aware roadmap.
 
+Completion evidence:
+- P9-005 merged in PR #41 as `32e082f4a7e28c4ac7df510fa51a8ed8e98c4e41`;
+- Bootstrap intent is normalized and Blueprint Level can only be raised, never weakened, by explicit risk/complexity signals;
+- generated Project Profile and Blueprint are deterministic, validated and preview-only;
+- dependency-aware bootstrap roadmap is produced without silent canonical mutation;
+- responsive `/projects/new` Bootstrap Factory requires explicit creation confirmation;
+- exact PR-head Development Fast CI passed before merge; Production remains not authorized.
+
 ### P9-006 — Pattern promotion governance
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Create reviewed promotion from repeated project evidence to Pattern/Anti-pattern records without one-project Core pollution.
