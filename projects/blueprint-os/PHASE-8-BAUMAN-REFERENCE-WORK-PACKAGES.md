@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 8 Bauman Reference Import Work Packages
 
-Status: **P8-001 COMPLETE / P8-002 NEXT — PHASE 8 ACTIVE**
+Status: **P8-001 COMPLETE / P8-002 READY FOR PR VALIDATION — PHASE 8 ACTIVE**
 
 Phase 8 uses the Bauman next-generation architecture dossier as a real external reference case to prove that Blueprint OS can absorb a complex software blueprint without making Universal Core Bauman-specific.
 
@@ -41,11 +41,11 @@ Completion evidence:
 - exact PR-head Development Fast CI run `36231537211`: **SUCCESS** on completion candidate `d1148461453eba1e81a041dca3946edd6541ea3a`;
 - Development policy contradiction fixed: Phase 8 branches now receive Fast CI and the standalone Release Gate workflow is manual-only;
 - full release validation is intentionally not claimed in Development Mode;
-- the documentation-only completion-status revision must receive final Fast CI revalidation before merge.
+- final completion head `3b3b0fcdc51e33d23204828c2ccd494f245862e2` passed push Fast CI `36231566095` and PR Fast CI `36231569534` before PR #30 merged as `0620c57f17bcdc80cff95fe8538e155f60744d55`.
 
 ## P8-002 — Bauman → Blueprint concept mapping
 
-Status: **NEXT**
+Status: **READY FOR PR VALIDATION**
 
 Dependencies: P8-001.
 
@@ -56,6 +56,13 @@ Acceptance:
 - each imported concept is classified as already-supported, reusable pattern candidate, project-specific extension, or genuine Core gap;
 - no one-project feature is promoted to Universal Core by name matching alone;
 - unresolved semantic gaps are explicit and dependency-linked.
+
+Implementation:
+- mapping baseline: `docs/reference-cases/BAUMAN-NEXTGEN-MAPPING-v1.md`;
+- semantic collision guards explicitly separate Bauman academic Evidence from Blueprint `GateEvidence`, Bauman learner-output Project from Blueprint software Project, mastery from readiness, Content Registry from Knowledge Library, and Bauman runtime roles from Blueprint authority roles;
+- existing concepts, pattern candidates, project-specific extensions and Blueprint product gaps are classified;
+- no genuine Universal Core gap is claimed at P8-002;
+- machine-readable import/drift/aliasing gaps are carried to P8-003/P8-005 rather than forcing premature Core changes.
 
 ## P8-003 — Reference gap and universality analysis
 
