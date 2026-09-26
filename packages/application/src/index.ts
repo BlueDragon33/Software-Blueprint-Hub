@@ -213,3 +213,5 @@ export * from "./project-readiness";
 export * from "./governance-service";
 
 export * from "./knowledge-library";
+
+export * from "./release-service";
