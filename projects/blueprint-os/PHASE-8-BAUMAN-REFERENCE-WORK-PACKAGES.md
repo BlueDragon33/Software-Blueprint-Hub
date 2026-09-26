@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 8 Bauman Reference Import Work Packages
 
-Status: **P8-001–P8-004 DEVELOPMENT BASELINE COMPLETE / P8-005 NEXT — PHASE 8 ACTIVE**
+Status: **P8-001–P8-005 DEVELOPMENT BASELINE COMPLETE / P8-006 ACTIVE — PHASE 8 ACTIVE**
 
 Phase 8 uses the Bauman next-generation architecture dossier as a real external reference case to prove that Blueprint OS can absorb a complex software blueprint without making Universal Core Bauman-specific.
 
