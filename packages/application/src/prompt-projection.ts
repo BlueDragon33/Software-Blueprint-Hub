@@ -45,6 +45,15 @@ export interface PromptProjectionSource {
   readonly evidence: readonly GateEvidence[];
 }
 
+export interface PromptHistoryPage {
+  readonly page: number;
+  readonly pageSize: number;
+  readonly items: readonly PromptProjection[];
+  readonly latest: PromptProjection | null;
+  readonly hasPrevious: boolean;
+  readonly hasNext: boolean;
+}
+
 export interface ProjectionClock {
   now(): string;
 }
@@ -277,6 +286,60 @@ export class PromptProjectionApplicationService {
     ]);
   }
 
+  async historyPage(
+    actor: AuthenticatedActor | null,
+    projectId: string,
+    page = 1,
+    pageSize = 20
+  ): Promise<PromptHistoryPage> {
+    await this.authority.require(actor, projectId, "PROJECT_READ");
+
+    if (!Number.isInteger(page) || page < 1) {
+      throw new TypeError("Prompt history page must be a positive integer");
+    }
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
+      throw new TypeError("Prompt history pageSize must be an integer from 1 to 100");
+    }
+
+    if (!this.historyRepository) {
+      return Object.freeze({
+        page,
+        pageSize,
+        items: Object.freeze([]),
+        latest: null,
+        hasPrevious: page > 1,
+        hasNext: false
+      });
+    }
+
+    const offset = (page - 1) * pageSize;
+    const pagePromise = this.historyRepository.listByProject(projectId, {
+      limit: pageSize + 1,
+      offset
+    });
+    const latestPromise =
+      page === 1
+        ? Promise.resolve<readonly PromptProjection[]>([])
+        : this.historyRepository.listByProject(projectId, {
+            limit: 1,
+            offset: 0
+          });
+
+    const [rows, latestRows] = await Promise.all([pagePromise, latestPromise]);
+    const items = Object.freeze(rows.slice(0, pageSize));
+    const latest =
+      page === 1 ? (items[0] ?? null) : (latestRows[0] ?? null);
+
+    return Object.freeze({
+      page,
+      pageSize,
+      items,
+      latest,
+      hasPrevious: page > 1,
+      hasNext: rows.length > pageSize
+    });
+  }
+
   async currentSourceRevision(
     actor: AuthenticatedActor | null,
     projectId: string
@@ -286,34 +349,49 @@ export class PromptProjectionApplicationService {
     );
   }
 
+  async currentSourceRevisionFromProfile(
+    actor: AuthenticatedActor | null,
+    projectId: string,
+    profileResolution: PromptProfileResolution
+  ): Promise<string> {
+    if (profileResolution.profile.projectId !== projectId) {
+      throw new TypeError(
+        `Preloaded Project Profile belongs to ${profileResolution.profile.projectId}, not ${projectId}`
+      );
+    }
+
+    return promptSourceRevision(
+      await this.collectSource(actor, projectId, profileResolution)
+    );
+  }
+
   private async collectSource(
     actor: AuthenticatedActor | null,
-    projectId: string
+    projectId: string,
+    preloadedProfile?: PromptProfileResolution
   ): Promise<PromptProjectionSource> {
     await this.authority.require(actor, projectId, "PROJECT_READ");
-    const profileResolution = await this.profiles.read(actor, projectId);
+
+    const [profileResolution, workPackages, gateBundles] =
+      await Promise.all([
+        preloadedProfile
+          ? Promise.resolve(preloadedProfile)
+          : this.profiles.read(actor, projectId),
+        this.workQuality.listWorkPackagesByProject(projectId),
+        this.workQuality.listQualityGateEvidenceByProject(projectId)
+      ]);
+
     if (!profileResolution) {
       throw new TypeError(`Unknown project ${projectId}`);
     }
-
-    const [workPackages, qualityGates] = await Promise.all([
-      this.workQuality.listWorkPackagesByProject(projectId),
-      this.workQuality.listQualityGatesByProject(projectId)
-    ]);
-
-    const evidenceNested = await Promise.all(
-      qualityGates.map((gate) =>
-        this.workQuality.listGateEvidenceByGate(gate.id)
-      )
-    );
 
     return {
       profile: profileResolution.profile,
       blueprint: profileResolution.blueprint,
       templateVersions: profileResolution.templateVersions,
       workPackages,
-      qualityGates,
-      evidence: evidenceNested.flat()
+      qualityGates: gateBundles.map((item) => item.gate),
+      evidence: gateBundles.flatMap((item) => item.evidence)
     };
   }
 }

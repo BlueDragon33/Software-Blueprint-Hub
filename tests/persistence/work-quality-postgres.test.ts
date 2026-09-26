@@ -230,6 +230,31 @@ describePostgres("FND-007 Work Package + Quality Gate integration", () => {
     expect(storedGate?.evidenceIds).toEqual([]);
   });
 
+  it("loads project gates and evidence in one batch with newest evidence first", async () => {
+    const actor = await ownerActor();
+    await service.createQualityGate(actor, initialGate);
+
+    const newerEvidence: GateEvidence = {
+      ...evidence,
+      id: "evidence:fnd007-newer",
+      source: "github-actions:36130000001",
+      revision: "revision-fnd007-newer",
+      createdAt: "2026-09-25T18:34:00+07:00"
+    };
+
+    await service.addGateEvidence(actor, evidence);
+    await service.addGateEvidence(actor, newerEvidence);
+
+    const bundles = await repository.listQualityGateEvidenceByProject(projectId);
+
+    expect(bundles).toHaveLength(1);
+    expect(bundles[0]?.gate.id).toBe(initialGate.id);
+    expect(bundles[0]?.evidence.map((item) => item.id)).toEqual([
+      newerEvidence.id,
+      evidence.id
+    ]);
+  });
+
   it("requires reviewer authority and real source/revision evidence before PASS", async () => {
     const owner = await ownerActor();
     const editor = await editorActor(owner);

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { StatusChip } from "@blueprint-os/ui";
 import {
   ProjectWorkspaceFrame,
@@ -10,29 +11,48 @@ export const dynamic = "force-dynamic";
 
 interface PromptPageProps {
   readonly params: Promise<{ projectId: string }>;
+  readonly searchParams: Promise<{
+    historyPage?: string | string[];
+  }>;
+}
+
+function positivePage(value: string | string[] | undefined): number {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const parsed = raw ? Number.parseInt(raw, 10) : 1;
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1;
 }
 
 function shortHash(value: string): string {
   return value.length > 24 ? value.slice(0, 24) + "…" : value;
 }
 
-export default async function PromptPage({ params }: PromptPageProps) {
-  const { projectId } = await params;
+export default async function PromptPage({
+  params,
+  searchParams
+}: PromptPageProps) {
+  const [{ projectId }, query] = await Promise.all([params, searchParams]);
+  const historyPageNumber = positivePage(query.historyPage);
   const workspace = await loadProjectWorkspace(projectId);
 
   if (workspace.state !== "ready") {
     return <ProjectWorkspaceState state={workspace.state} />;
   }
 
-  const [history, currentSourceRevision] = await Promise.all([
-    workspace.runtime.prompts.history(workspace.actor, workspace.projectId),
-    workspace.runtime.prompts.currentSourceRevision(
+  const [historyPage, currentSourceRevision] = await Promise.all([
+    workspace.runtime.prompts.historyPage(
       workspace.actor,
-      workspace.projectId
+      workspace.projectId,
+      historyPageNumber
+    ),
+    workspace.runtime.prompts.currentSourceRevisionFromProfile(
+      workspace.actor,
+      workspace.projectId,
+      workspace.project
     )
   ]);
 
-  const latest = history[0] ?? null;
+  const history = historyPage.items;
+  const latest = historyPage.latest;
   const latestIsStale = latest
     ? latest.sourceRevision !== currentSourceRevision
     : false;
@@ -170,7 +190,9 @@ export default async function PromptPage({ params }: PromptPageProps) {
             <p className="section-kicker">History</p>
             <h3>Prompt Projection snapshots</h3>
           </div>
-          <StatusChip>{history.length} snapshots</StatusChip>
+          <StatusChip>
+            Page {historyPage.page} · {history.length} shown
+          </StatusChip>
         </div>
 
         {history.length === 0 ? (
@@ -182,7 +204,7 @@ export default async function PromptPage({ params }: PromptPageProps) {
             <summary>
               Show Prompt history
               <span>
-                {history.length} snapshots · latest {history[0]?.generatedAt}
+                {history.length} on this page · latest {latest?.generatedAt}
               </span>
             </summary>
             <div className="canonical-disclosure-body">
@@ -210,6 +232,35 @@ export default async function PromptPage({ params }: PromptPageProps) {
             </div>
           </details>
         )}
+
+        {(historyPage.hasPrevious || historyPage.hasNext) ? (
+          <nav
+            className="prompt-history-pagination"
+            aria-label="Prompt history pages"
+          >
+            {historyPage.hasPrevious ? (
+              <Link
+                className="secondary-button registry-action"
+                href={"?historyPage=" + (historyPage.page - 1)}
+              >
+                Previous history page
+              </Link>
+            ) : <span />}
+
+            <span aria-live="polite">
+              History page {historyPage.page}
+            </span>
+
+            {historyPage.hasNext ? (
+              <Link
+                className="secondary-button registry-action"
+                href={"?historyPage=" + (historyPage.page + 1)}
+              >
+                Next history page
+              </Link>
+            ) : <span />}
+          </nav>
+        ) : null}
       </section>
     </ProjectWorkspaceFrame>
   );

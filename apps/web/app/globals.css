@@ -3040,3 +3040,35 @@ textarea:focus-visible,
     width: 100%;
   }
 }
+
+
+/* P7-005 — bounded Prompt history navigation */
+.prompt-history-pagination {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.prompt-history-pagination > :last-child {
+  justify-self: end;
+}
+
+.prompt-history-pagination > span {
+  color: #6f7b91;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .prompt-history-pagination {
+    grid-template-columns: 1fr;
+  }
+
+  .prompt-history-pagination > *,
+  .prompt-history-pagination > :last-child {
+    width: 100%;
+    justify-self: stretch;
+  }
+}

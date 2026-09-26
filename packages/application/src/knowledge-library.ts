@@ -166,32 +166,38 @@ const sectionDefinitions: readonly Omit<KnowledgeLibrarySection, "items">[] =
     })
   ]);
 
+const knowledgeItems: readonly KnowledgeLibraryItem[] = Object.freeze([
+  ...referenceItems,
+  ...templateItems
+]);
+
+const knowledgeSections: readonly KnowledgeLibrarySection[] = Object.freeze(
+  sectionDefinitions.map((section) =>
+    Object.freeze({
+      ...section,
+      items: Object.freeze(
+        knowledgeItems
+          .filter((item) => item.kind === section.kind)
+          .sort(
+            (a, b) =>
+              a.title.localeCompare(b.title) ||
+              a.version.localeCompare(b.version)
+          )
+      )
+    })
+  )
+);
+
+const knowledgeById = new Map(
+  knowledgeItems.map((item) => [item.id, item] as const)
+);
+
 export class KnowledgeLibraryApplicationService {
   list(): readonly KnowledgeLibrarySection[] {
-    const items = [...referenceItems, ...templateItems];
-
-    return Object.freeze(
-      sectionDefinitions.map((section) =>
-        Object.freeze({
-          ...section,
-          items: Object.freeze(
-            items
-              .filter((item) => item.kind === section.kind)
-              .sort(
-                (a, b) =>
-                  a.title.localeCompare(b.title) ||
-                  a.version.localeCompare(b.version)
-              )
-          )
-        })
-      )
-    );
+    return knowledgeSections;
   }
 
   find(id: string): KnowledgeLibraryItem | null {
-    const item = [...referenceItems, ...templateItems].find(
-      (candidate) => candidate.id === id
-    );
-    return item ?? null;
+    return knowledgeById.get(id) ?? null;
   }
 }

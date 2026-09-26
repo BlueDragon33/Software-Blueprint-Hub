@@ -252,7 +252,9 @@ test("canonical project workspace has stable truthful views", async ({
     await expect(
       page.getByText(/This prompt matches the current canonical source revision/)
     ).toBeVisible();
-    await expect(page.getByText("2 snapshots", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Page 1 · 2 shown", { exact: true })
+    ).toBeVisible();
   } else {
     await expect(
       page.getByText(/^(Fresh|Stale)$/).first()

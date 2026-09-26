@@ -71,6 +71,8 @@ class MemoryWorkQuality implements WorkQualityRepository {
   work: WorkPackage[] = [];
   gates: QualityGate[] = [];
   evidence: GateEvidence[] = [];
+  batchEvidenceReads = 0;
+  perGateEvidenceReads = 0;
 
   async createWorkPackage(value: WorkPackage): Promise<WorkPackage> {
     this.work.push(value);
@@ -106,6 +108,16 @@ class MemoryWorkQuality implements WorkQualityRepository {
     return value;
   }
 
+  async listQualityGateEvidenceByProject(id: string) {
+    this.batchEvidenceReads += 1;
+    return this.gates
+      .filter((gate) => gate.projectId === id)
+      .map((gate) => ({
+        gate,
+        evidence: this.evidence.filter((item) => item.gateId === gate.id)
+      }));
+  }
+
   async createGateEvidence(value: GateEvidence): Promise<GateEvidence> {
     this.evidence.push(value);
     return value;
@@ -116,6 +128,7 @@ class MemoryWorkQuality implements WorkQualityRepository {
   }
 
   async listGateEvidenceByGate(gateId: string): Promise<readonly GateEvidence[]> {
+    this.perGateEvidenceReads += 1;
     return this.evidence.filter((item) => item.gateId === gateId);
   }
 }
@@ -123,8 +136,9 @@ class MemoryWorkQuality implements WorkQualityRepository {
 describe("ProjectReadinessApplicationService", () => {
   it("enforces PROJECT_READ before aggregating readiness", async () => {
     const authorityRepository = new MemoryAuthority();
+    const workQuality = new MemoryWorkQuality();
     const service = new ProjectReadinessApplicationService(
-      new MemoryWorkQuality(),
+      workQuality,
       new AuthorityService(authorityRepository)
     );
 
@@ -150,5 +164,7 @@ describe("ProjectReadinessApplicationService", () => {
 
     expect(result.projectId).toBe(projectId);
     expect(result.gateSummary.missingRequired).toBe(1);
+    expect(workQuality.batchEvidenceReads).toBe(1);
+    expect(workQuality.perGateEvidenceReads).toBe(0);
   });
 });

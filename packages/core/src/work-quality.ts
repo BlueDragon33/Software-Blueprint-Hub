@@ -4,6 +4,11 @@ import type {
   WorkPackage
 } from "@blueprint-os/contracts";
 
+export interface QualityGateEvidenceBundle {
+  readonly gate: QualityGate;
+  readonly evidence: readonly GateEvidence[];
+}
+
 export interface WorkPackageBlocker {
   readonly dependencyId: string;
   readonly status: "missing" | WorkPackage["status"];
@@ -45,6 +50,9 @@ export interface WorkQualityRepository {
   createQualityGate(gate: QualityGate): Promise<QualityGate>;
   findQualityGateById(id: string): Promise<QualityGate | null>;
   listQualityGatesByProject(projectId: string): Promise<readonly QualityGate[]>;
+  listQualityGateEvidenceByProject(
+    projectId: string
+  ): Promise<readonly QualityGateEvidenceBundle[]>;
   updateQualityGate(
     gate: QualityGate,
     expectedRecordVersion: number

@@ -136,6 +136,32 @@ export class PostgresWorkQualityRepository implements WorkQualityRepository {
     });
   }
 
+  async listQualityGateEvidenceByProject(
+    projectId: string
+  ) {
+    const rows = await this.prisma.qualityGate.findMany({
+      where: { projectId },
+      orderBy: { id: "asc" },
+      include: {
+        evidence: {
+          orderBy: [{ createdAt: "desc" }, { id: "asc" }]
+        }
+      }
+    });
+
+    return rows.map((row) => {
+      assertValid<QualityGate>("QualityGate", row.document);
+      const evidence = row.evidence.map((item) => {
+        assertValid<GateEvidence>("GateEvidence", item.document);
+        return item.document;
+      });
+      return Object.freeze({
+        gate: row.document,
+        evidence: Object.freeze(evidence)
+      });
+    });
+  }
+
   async updateQualityGate(
     gate: QualityGate,
     expectedRecordVersion: number
