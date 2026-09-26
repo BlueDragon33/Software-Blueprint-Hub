@@ -127,7 +127,7 @@ These are useful cross-project signals for later P8 mapping, but they remain ref
 | Subject/content package factory | Project-specific extension model with possible reusable patterns |
 | Bauman production secrets/control ownership | Project-specific operational constraint |
 
-P8-002 must perform the formal concept mapping before any new Core contract is proposed.
+P8-002 formal mapping is recorded in `BAUMAN-NEXTGEN-MAPPING-v1.md`. No Bauman-specific domain concept is authorized for Universal Core promotion by that mapping.
 
 ## Blueprint OS authority rule
 
@@ -141,10 +141,17 @@ It must never be used to infer:
 - access authority;
 - Quality Gate PASS.
 
+## Mapping
+
+See `BAUMAN-NEXTGEN-MAPPING-v1.md` for the formal source-concept classification and semantic collision guards.
+
+The mapping identifies:
+1. already-supported Blueprint invariants/concepts;
+2. reusable Pattern candidates;
+3. Bauman-specific runtime/domain extensions;
+4. Blueprint product/tooling gaps;
+5. no proven Universal Core gap at P8-002.
+
 ## Next
 
-P8-002 maps the source dossier to existing Blueprint OS concepts and identifies:
-1. already-supported concepts;
-2. reusable pattern candidates;
-3. project-specific extensions;
-4. genuine Core gaps.
+P8-003 evaluates the remaining reference-import gaps and applies a stricter universality test before any Core change is considered.
