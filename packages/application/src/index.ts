@@ -237,3 +237,5 @@ export * from "./project-bootstrap";
 export * from "./pattern-governance";
 
 export * from "./canonical-portability";
+
+export * from "./operational-diagnostics";
