@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 8 Bauman Reference Import Work Packages
 
-Status: **P8-001/P8-002/P8-003 COMPLETE / P8-004 NEXT — PHASE 8 ACTIVE**
+Status: **P8-001/P8-002/P8-003 COMPLETE / P8-004 READY FOR PR VALIDATION — PHASE 8 ACTIVE**
 
 Phase 8 uses the Bauman next-generation architecture dossier as a real external reference case to prove that Blueprint OS can absorb a complex software blueprint without making Universal Core Bauman-specific.
 
@@ -94,7 +94,7 @@ Implementation:
 
 ## P8-004 — Reference Case product UX
 
-Status: **NEXT**
+Status: **READY FOR PR VALIDATION**
 
 Dependencies: P8-001, P8-002.
 
@@ -106,6 +106,17 @@ Acceptance:
 - mapping/gap detail uses progressive disclosure;
 - mobile/keyboard behavior follows Phase 7 hardening rules;
 - no imported reference state looks like project readiness.
+
+Implementation:
+- Knowledge Library Reference Case cards now expose a dedicated `Inspect reference case` route derived from stable Reference Case identity;
+- `/knowledge/reference-cases/[caseId]` presents source provenance before mapping/gap detail;
+- the Bauman view exposes exact repository, branch, PR, imported revision, manifest revision, import date and local source path as a frozen read-only snapshot;
+- concept classifications, semantic collision guards and gap analysis use native keyboard-operable progressive disclosure;
+- responsive layout collapses four-column summary → two columns → one column while preserving provenance readability;
+- no readiness card, PASS styling or canonical project status is reused on the Reference Case detail surface;
+- stale Playwright coverage that expected an empty Reference Case catalog was fixed;
+- P8-004 Playwright coverage now encodes desktop/mobile screenshots, closed-by-default disclosures and keyboard activation;
+- full Playwright execution remains explicit Release Mode evidence and is not claimed by Development Fast CI.
 
 ## P8-005 — Machine-readable reference import contract
 
