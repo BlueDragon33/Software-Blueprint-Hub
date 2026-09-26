@@ -1,6 +1,6 @@
 # P9-014 — Security Threat-model Hardening
 
-Status: **DEVELOPMENT CANDIDATE**
+Status: **COMPLETE — FULL RELEASE GATE PASS**
 
 ## Purpose
 
@@ -37,3 +37,11 @@ P9-014 may complete only when the checked-in Blueprint OS threat model:
 - contains explicit mitigation owner and evidence for every mitigated high/critical threat;
 - keeps provider/AI/Production authority hard-false;
 - passes exact PR-head Fast CI and full Release Gate.
+
+
+## Completion evidence
+
+- implementation merged in PR #59 at `0297d00599fac21956bf65dc2482cbc4cfca2d53`;
+- exact merged revision passed Fast CI and the full Release Gate including Playwright/Human UX evidence;
+- checked-in baseline contains zero open high/critical threat and zero publish blocker;
+- Production publish remains blocked by the separate deployment-provider boundary.
