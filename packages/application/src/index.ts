@@ -243,3 +243,5 @@ export * from "./operational-diagnostics";
 export * from "./provider-boundary";
 
 export * from "./ai-copilot";
+
+export * from "./project-portfolio";
