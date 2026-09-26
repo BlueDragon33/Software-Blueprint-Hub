@@ -54,37 +54,37 @@ const projection: BlueprintCompassProjection = Object.freeze({
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-018",
-    title: "Ecosystem dogfood regression",
+    id: "P9-019",
+    title: "Human professional review",
     storey: 20,
     status: "active",
     reason:
-      "P9-017 passed explicit capacity budgets and the full Release Gate; Blueprint OS can now prove itself against heterogeneous project classes and detect cross-project semantic leakage."
+      "P9-018 passed ecosystem dogfood and full Release Gate; the remaining product gate is an explicit human professional review decision against exact evidence."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-017",
-      title: "Performance & capacity proof",
-      storey: 20,
-      status: "complete",
-      reason:
-        "Documented synthetic capacity targets and full Release Gate passed without inventing Production latency claims."
-    }),
     Object.freeze({
       id: "P9-018",
       title: "Ecosystem dogfood regression",
       storey: 20,
-      status: "active",
+      status: "complete",
       reason:
-        "Blueprint OS now exercises itself and heterogeneous projects while checking identity and semantic isolation."
+        "Self-dogfood and heterogeneous project classes passed identity and semantic-isolation regression with full Release Gate evidence."
     }),
     Object.freeze({
       id: "P9-019",
       title: "Human professional review",
       storey: 20,
+      status: "active",
+      reason:
+        "Automated and AI-assisted review evidence is ready; explicit human sign-off remains the required blocker."
+    }),
+    Object.freeze({
+      id: "P9-020",
+      title: "Compass Acceptance Gate",
+      storey: 20,
       status: "next",
       reason:
-        "Human professional review follows only after multi-project dogfood proves no structural leakage."
+        "Final acceptance cannot start until P9-019 has an explicit human professional decision."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -216,11 +216,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "7a6fa378bb3ae970b167f742a01bebf612b97b26",
       source: "Software-Blueprint-Hub PR #62 / main Release Gate",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-018 Ecosystem Dogfood full Release Gate",
+      revision: "6da60278e4ef03a95f137eae1902a4054de66120",
+      source: "Software-Blueprint-Hub PR #63 / workflow 36252022005",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-018 by dogfooding Blueprint OS plus heterogeneous project classes and proving semantic/identity isolation.",
-    "Start P9-019 Human Professional Review only after P9-018 exact PR-head evidence and full Release Gate are green.",
+    "Record an explicit human professional review decision against the exact P9-019 review candidate.",
+    "Start P9-020 Compass Acceptance Gate only after human sign-off is recorded without unresolved P0/P1 findings.",
     "Production publish remains blocked until a real deployment provider is connected and explicit external execution succeeds."
   ]),
   truthNote:
