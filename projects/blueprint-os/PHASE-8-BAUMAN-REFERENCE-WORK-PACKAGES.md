@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 8 Bauman Reference Import Work Packages
 
-Status: **P8-001 READY FOR PR VALIDATION — PHASE 8 ACTIVE**
+Status: **P8-001 COMPLETE / P8-002 NEXT — PHASE 8 ACTIVE**
 
 Phase 8 uses the Bauman next-generation architecture dossier as a real external reference case to prove that Blueprint OS can absorb a complex software blueprint without making Universal Core Bauman-specific.
 
@@ -17,7 +17,7 @@ Phase 8 is also the first production-candidate validation phase after the accept
 
 ## P8-001 — Provenance-safe Bauman reference intake
 
-Status: **READY FOR PR VALIDATION**
+Status: **COMPLETE**
 
 Dependencies: Phase 7 Hardening Gate PASS.
 
@@ -33,17 +33,19 @@ Acceptance:
 - Development Fast CI passes on the exact PR head; full PostgreSQL/build/Playwright Release Gate remains manual Release Mode evidence.
 
 
-Implementation evidence before PR validation:
+Completion evidence:
 - imported Bauman architecture head: `52b2a581a9c38a7060e95209e94c3087764f6d5f`;
 - local Reference Case: `docs/reference-cases/BAUMAN-NEXTGEN-v1.md`;
 - Knowledge Library stable ID: `knowledge:reference-case:bauman-nextgen-v1`;
 - Development Fast CI push run `36231426802`: **SUCCESS** on revision `ccd8c3144cfaf13bfedcfef7dde6523080aa000e`;
+- exact PR-head Development Fast CI run `36231537211`: **SUCCESS** on completion candidate `d1148461453eba1e81a041dca3946edd6541ea3a`;
 - Development policy contradiction fixed: Phase 8 branches now receive Fast CI and the standalone Release Gate workflow is manual-only;
-- full release validation is intentionally not claimed in Development Mode.
+- full release validation is intentionally not claimed in Development Mode;
+- the documentation-only completion-status revision must receive final Fast CI revalidation before merge.
 
 ## P8-002 — Bauman → Blueprint concept mapping
 
-Status: **PLANNED**
+Status: **NEXT**
 
 Dependencies: P8-001.
 
