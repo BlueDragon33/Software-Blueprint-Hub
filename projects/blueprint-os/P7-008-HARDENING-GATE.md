@@ -1,6 +1,6 @@
 # P7-008 — Phase 7 Hardening Gate
 
-Status: **IN PROGRESS**
+Status: **PASS — PHASE 7 HARDENING BASELINE ACCEPTED**
 
 ## Purpose
 
@@ -144,8 +144,72 @@ P7-008 = PASS only when:
 6. Human UX review finds no blocking contradiction or P0/P1 defect;
 7. Production deployment remains a separate explicit authorization decision.
 
-## Gate state
+## Gate evidence
 
-Evidence pending on this branch.
+Reviewed candidate revision before completion-status commit:
 
-Production deployment remains unauthorized.
+`50e6694c676377a67e19287780ca86e5b8dc8600`
+
+Automated evidence:
+
+- Development Fast CI push run `36230018357`: **SUCCESS**;
+- Development Fast CI PR run `36230032674`: **SUCCESS**;
+- Release Gate CI PR run `36230034249`: **SUCCESS**;
+- exact release checkout verification: PASS;
+- PostgreSQL migration/status: PASS;
+- generated contract drift/schema compatibility: PASS;
+- lint/typecheck/architecture boundaries: PASS;
+- unit/contract/authority/PostgreSQL integration tests: PASS;
+- production build: PASS;
+- canonical E2E seed: PASS;
+- Playwright desktop/mobile: PASS;
+- Release Gate evidence manifest generation/upload: PASS.
+
+Release Gate artifact:
+
+- artifact id: `10902442482`;
+- artifact name: `release-gate-evidence-50e6694c676377a67e19287780ca86e5b8dc8600`;
+- digest: `sha256:1882a2949c0ae51058854d4e967ff3ed93499639cb4cbace6c9fdefcc54c94d1`.
+
+Manifest verification:
+
+- certified revision = `50e6694c676377a67e19287780ca86e5b8dc8600`;
+- workflow = `Release Gate CI`;
+- run id = `36230034249`;
+- event = `pull_request`;
+- `productionDeploymentAuthorized` = `false`;
+- no Preview/Production deployment or live rollback claim is made.
+
+## Human UX review
+
+Representative exact-head evidence reviewed:
+
+- Project Workspace Overview mobile;
+- Quality/accessibility mobile;
+- progressive-disclosure Releases & Lessons mobile;
+- Prompt Workspace mobile;
+- forbidden/recovery mobile;
+- Release & Lessons desktop/mobile continuity.
+
+Findings:
+
+1. Active Project Workspace route remains visibly contextual on mobile.
+2. Overview keeps readiness, blocker and next action hierarchy clear without cosmetic percentage.
+3. Progressive disclosure keeps critical status, exact revision and provenance visible before expansion.
+4. Quality keeps gate status and evidence source/revision readable and textually distinct.
+5. Prompt remains explicitly derived/read-only; Fresh refers to deterministic source revision rather than gate PASS.
+6. Forbidden state exposes no protected project metadata and does not offer misleading transient retry or Preview fallback.
+7. Release/Lessons retains exact revision, gate evidence and rollback/provenance discoverability.
+8. Reviewed mobile surfaces remain single-column without blocking page-level horizontal overflow.
+9. No source-of-truth contradiction across P7-001 through P7-007 was observed.
+10. No blocking P0/P1 Human UX, authority, resilience or release-safety defect was observed.
+
+## Result
+
+**P7-008 = PASS**
+
+**Phase 7 Hardening baseline = ACCEPTED**
+
+Phase 8 / production-candidate planning may begin.
+
+Production deployment remains separately unauthorized and requires an explicit Release Mode / deployment decision.
