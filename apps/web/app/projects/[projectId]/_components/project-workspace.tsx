@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { ProjectProfile } from "@blueprint-os/contracts";
 import { ActionGroup, AppShell, EmptyState, StatusChip } from "@blueprint-os/ui";
 
+import { RetryCurrentView } from "../../../_components/retry-current-view";
 import { ProjectWorkspaceNav } from "./project-workspace-nav";
 
 export type ProjectWorkspaceView =
@@ -144,7 +145,7 @@ export function ProjectWorkspaceFrame({
 }
 
 interface WorkspaceStateProps {
-  readonly state: "signed-out" | "not-found" | "unavailable";
+  readonly state: "signed-out" | "not-found" | "forbidden" | "unavailable";
 }
 
 export function ProjectWorkspaceState({ state }: WorkspaceStateProps) {
@@ -183,18 +184,55 @@ export function ProjectWorkspaceState({ state }: WorkspaceStateProps) {
     );
   }
 
+  if (state === "forbidden") {
+    return (
+      <AppShell>
+        <main className="registry-shell">
+          <Link className="text-link" href="/">← Projects</Link>
+          <section
+            className="registry-state registry-state-error runtime-recovery-state"
+            role="alert"
+            aria-labelledby="project-forbidden-title"
+          >
+            <span className="registry-state-icon" aria-hidden="true">!</span>
+            <div>
+              <p className="section-kicker">Authority protected</p>
+              <h1 id="project-forbidden-title">
+                You do not have access to this project.
+              </h1>
+              <p>
+                Blueprint OS did not expose project metadata and did not replace
+                the canonical project with preview state.
+              </p>
+            </div>
+            <Link className="secondary-button registry-action" href="/">
+              Back to readable projects
+            </Link>
+          </section>
+        </main>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <main className="registry-shell">
         <Link className="text-link" href="/">← Projects</Link>
-        <section className="registry-state registry-state-error" role="alert">
+        <section
+          className="registry-state registry-state-error runtime-recovery-state"
+          role="alert"
+          aria-labelledby="project-runtime-title"
+        >
+          <span className="registry-state-icon" aria-hidden="true">!</span>
           <div>
-            <h1>Project cannot be opened.</h1>
+            <p className="section-kicker">Canonical runtime unavailable</p>
+            <h1 id="project-runtime-title">Project state could not be loaded.</h1>
             <p>
-              The project may be outside your authority scope or the trusted
-              runtime may be unavailable.
+              Your identity remains intact. No preview or cached project state
+              was substituted for the failed canonical read.
             </p>
           </div>
+          <RetryCurrentView />
         </section>
       </main>
     </AppShell>

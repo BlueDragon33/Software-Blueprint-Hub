@@ -6,17 +6,21 @@ const e2eAuthSecret = process.env.AUTH_SECRET ?? "";
 const registryAlphaName = "Registry Alpha canonical";
 const registryBetaName = "Registry Beta canonical";
 
-async function authenticateRegistryOwner(page: Page): Promise<void> {
+async function authenticatePrincipal(
+  page: Page,
+  subject: string,
+  email: string
+): Promise<void> {
   await page.setExtraHTTPHeaders({ "x-forwarded-proto": "http" });
   const cookieName = "authjs.session-token";
   const token = await encode({
     secret: e2eAuthSecret,
     salt: cookieName,
     token: {
-      sub: "p6-e2e-owner",
-      email: "p6-e2e@example.test",
+      sub: subject,
+      email,
       blueprintProvider: "github",
-      blueprintProviderSubject: "p6-e2e-owner"
+      blueprintProviderSubject: subject
     }
   });
 
@@ -30,6 +34,22 @@ async function authenticateRegistryOwner(page: Page): Promise<void> {
       sameSite: "Lax"
     }
   ]);
+}
+
+async function authenticateRegistryOwner(page: Page): Promise<void> {
+  return authenticatePrincipal(
+    page,
+    "p6-e2e-owner",
+    "p6-e2e@example.test"
+  );
+}
+
+async function authenticateNoAccessUser(page: Page): Promise<void> {
+  return authenticatePrincipal(
+    page,
+    "p7-e2e-no-access",
+    "p7-no-access@example.test"
+  );
 }
 
 test("signed-out root protects the canonical project registry", async ({ page }, testInfo) => {
@@ -68,6 +88,40 @@ test("System Owner sees canonical multi-project registry and opens a project", a
   ).toBeVisible();
   await expect(page.getByText("Canonical", { exact: true })).toBeVisible();
   await expect(page.getByText("B4", { exact: true }).first()).toBeVisible();
+});
+
+test("P7-004 forbidden project reads stay distinct from runtime outages", async ({
+  page
+}, testInfo) => {
+  await authenticateNoAccessUser(page);
+  await page.goto("/projects/project%3Ap6-registry-beta");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "You do not have access to this project."
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText(/did not expose project metadata/i)
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("button", { name: /Retry canonical read/i })
+  ).toHaveCount(0);
+
+  await expect(
+    page.getByText(/Preview mode|Build with evidence, not guesswork/i)
+  ).toHaveCount(0);
+
+  await expect(
+    page.getByRole("link", { name: "Back to readable projects" })
+  ).toHaveAttribute("href", "/");
+
+  await page.screenshot({
+    path: `artifacts/p7-004-forbidden-${testInfo.project.name}.png`,
+    fullPage: true
+  });
 });
 
 test("canonical B4 project surfaces truthful readiness without percentages", async ({

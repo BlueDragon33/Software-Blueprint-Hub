@@ -1,8 +1,10 @@
 import Link from "next/link";
 
+import type { KnowledgeLibrarySection } from "@blueprint-os/application";
 import { AppShell, EmptyState, SectionHeading, StatusChip } from "@blueprint-os/ui";
 
 import { getBlueprintServerRuntime } from "../../src/server/runtime";
+import { RetryCurrentView } from "../_components/retry-current-view";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +13,42 @@ function kindLabel(kind: string): string {
 }
 
 export default function KnowledgeLibraryPage() {
-  const sections = getBlueprintServerRuntime().knowledge.list();
+  let sections: readonly KnowledgeLibrarySection[];
+
+  try {
+    sections = getBlueprintServerRuntime().knowledge.list();
+  } catch {
+    return (
+      <AppShell>
+        <main className="knowledge-shell">
+          <div className="knowledge-breadcrumbs">
+            <Link className="text-link" href="/">Projects</Link>
+            <span aria-hidden="true">/</span>
+            <span>Knowledge Library</span>
+          </div>
+
+          <section
+            className="registry-state registry-state-error runtime-recovery-state"
+            role="alert"
+            aria-labelledby="knowledge-runtime-title"
+          >
+            <span className="registry-state-icon" aria-hidden="true">!</span>
+            <div>
+              <p className="section-kicker">Canonical runtime unavailable</p>
+              <h1 id="knowledge-runtime-title">
+                Knowledge Library could not be loaded.
+              </h1>
+              <p>
+                Reusable definitions were not replaced by cached or project
+                state. Retry the same canonical read.
+              </p>
+            </div>
+            <RetryCurrentView label="Retry Knowledge Library" />
+          </section>
+        </main>
+      </AppShell>
+    );
+  }
 
   const populated = sections.reduce(
     (total, section) => total + section.items.length,
