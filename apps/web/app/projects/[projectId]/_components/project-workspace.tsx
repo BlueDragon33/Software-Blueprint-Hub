@@ -13,6 +13,7 @@ export type ProjectWorkspaceView =
   | "blueprint"
   | "roadmap"
   | "quality"
+  | "evidence-graph"
   | "prompt"
   | "decisions"
   | "risks-debt"
@@ -56,6 +57,12 @@ export const projectWorkspaceViews: readonly WorkspaceViewDefinition[] =
       label: "Quality",
       suffix: "/quality",
       description: "Quality Gates and evidence"
+    },
+    {
+      id: "evidence-graph",
+      label: "Evidence Graph",
+      suffix: "/evidence-graph",
+      description: "Work, gate, evidence and release provenance"
     },
     {
       id: "prompt",
