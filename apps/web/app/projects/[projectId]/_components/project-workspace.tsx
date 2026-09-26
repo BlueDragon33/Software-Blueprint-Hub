@@ -190,7 +190,7 @@ export function ProjectWorkspaceState({ state }: WorkspaceStateProps) {
         <main className="registry-shell">
           <Link className="text-link" href="/">← Projects</Link>
           <section
-            className="registry-state registry-state-error"
+            className="registry-state registry-state-error runtime-recovery-state"
             role="alert"
             aria-labelledby="project-forbidden-title"
           >
