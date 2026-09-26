@@ -45,6 +45,15 @@ export interface PromptProjectionSource {
   readonly evidence: readonly GateEvidence[];
 }
 
+export interface PromptHistoryPage {
+  readonly page: number;
+  readonly pageSize: number;
+  readonly items: readonly PromptProjection[];
+  readonly latest: PromptProjection | null;
+  readonly hasPrevious: boolean;
+  readonly hasNext: boolean;
+}
+
 export interface ProjectionClock {
   now(): string;
 }
@@ -275,6 +284,60 @@ export class PromptProjectionApplicationService {
     return Object.freeze([
       ...(await this.historyRepository.listByProject(projectId))
     ]);
+  }
+
+  async historyPage(
+    actor: AuthenticatedActor | null,
+    projectId: string,
+    page = 1,
+    pageSize = 20
+  ): Promise<PromptHistoryPage> {
+    await this.authority.require(actor, projectId, "PROJECT_READ");
+
+    if (!Number.isInteger(page) || page < 1) {
+      throw new TypeError("Prompt history page must be a positive integer");
+    }
+    if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) {
+      throw new TypeError("Prompt history pageSize must be an integer from 1 to 100");
+    }
+
+    if (!this.historyRepository) {
+      return Object.freeze({
+        page,
+        pageSize,
+        items: Object.freeze([]),
+        latest: null,
+        hasPrevious: page > 1,
+        hasNext: false
+      });
+    }
+
+    const offset = (page - 1) * pageSize;
+    const pagePromise = this.historyRepository.listByProject(projectId, {
+      limit: pageSize + 1,
+      offset
+    });
+    const latestPromise =
+      page === 1
+        ? Promise.resolve<readonly PromptProjection[]>([])
+        : this.historyRepository.listByProject(projectId, {
+            limit: 1,
+            offset: 0
+          });
+
+    const [rows, latestRows] = await Promise.all([pagePromise, latestPromise]);
+    const items = Object.freeze(rows.slice(0, pageSize));
+    const latest =
+      page === 1 ? (items[0] ?? null) : (latestRows[0] ?? null);
+
+    return Object.freeze({
+      page,
+      pageSize,
+      items,
+      latest,
+      hasPrevious: page > 1,
+      hasNext: rows.length > pageSize
+    });
   }
 
   async currentSourceRevision(
