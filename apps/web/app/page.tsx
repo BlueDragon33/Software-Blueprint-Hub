@@ -38,6 +38,16 @@ function SignedOutRegistry() {
         </section>
 
         <section className="registry-secondary">
+          <strong>Need reusable engineering guidance?</strong>
+          <span>
+            The Knowledge Library is read-only reusable knowledge, separate from project truth.
+          </span>
+          <Link className="secondary-button registry-action" href="/knowledge">
+            Open Knowledge Library
+          </Link>
+        </section>
+
+        <section className="registry-secondary">
           <strong>Need to explore the workflow first?</strong>
           <span>
             Preview mode remains read-only and cannot create project truth.
@@ -101,6 +111,9 @@ export default async function HomePage() {
           </div>
           <div className="registry-header-actions">
             <span className="environment-badge">Canonical</span>
+            <Link className="secondary-button registry-action" href="/knowledge">
+              Knowledge Library
+            </Link>
             <Link className="primary-button registry-action" href="/projects/new">
               New project
             </Link>
