@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 7 Hardening Work Packages
 
-Status: **P7-001 THROUGH P7-007 COMPLETE / P7-008 NEXT**
+Status: **P7-001 THROUGH P7-007 COMPLETE / P7-008 IN PROGRESS**
 
 Phase 7 improves usability, accessibility, resilience and operational confidence without weakening the canonical architecture proven in Phases 1–6.
 
@@ -79,7 +79,7 @@ Strengthen exact-revision release checks, operational evidence, rollback verific
 
 ## P7-008 — Phase 7 Hardening Gate
 
-Status: **NEXT / AUTHORIZED AFTER P7-007 MERGE**
+Status: **IN PROGRESS**
 
 Dependencies: active Phase 7 scope.
 
