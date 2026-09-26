@@ -1,0 +1,56 @@
+{
+  "schema": "application-management.contract/v1",
+  "protocol": "blueprint-os-compass-metadata-v1",
+  "contractVersion": 1,
+  "application": {
+    "id": "software-blueprint-hub",
+    "name": "Software Blueprint Hub",
+    "shortName": "Blueprint OS",
+    "category": "Kỹ thuật",
+    "tier": "client",
+    "repository": "BlueDragon33/Software-Blueprint-Hub",
+    "version": "0.9-development"
+  },
+  "capabilities": {
+    "webLaunch": false,
+    "deviceRegistry": false,
+    "deviceApproval": false,
+    "deviceBlock": false,
+    "deviceUnblock": false,
+    "deviceEditPermission": false,
+    "deviceIdempotentCommands": false,
+    "optimisticConcurrency": false,
+    "sessions": false,
+    "audit": false,
+    "contentReview": false,
+    "payments": false,
+    "reports": true
+  },
+  "endpoints": {},
+  "boundary": {
+    "canonicalBlueprintStateInControlPlane": false,
+    "constitutionAuthorityInControlPlane": false,
+    "qualityGateAuthorityInControlPlane": false,
+    "promptMutationAuthorityInControlPlane": false,
+    "releaseAuthorityInControlPlane": false,
+    "crossProjectBusinessDataInControlPlane": false
+  },
+  "readiness": {
+    "foundation": "pass",
+    "verticalSlice": "pass",
+    "productUx": "pass",
+    "hardening": "pass",
+    "referenceImport": "pass-development-baseline",
+    "applicationManagementMetadata": "available",
+    "productionDeployment": "not-authorized"
+  },
+  "policy": {
+    "remoteAdminReady": false,
+    "productionRuntimeReady": false,
+    "metadataOnly": true,
+    "applicationManagementMayInventOperations": false,
+    "applicationManagementMayMutateCanonicalBlueprintState": false,
+    "applicationManagementMayPassQualityGates": false,
+    "applicationManagementMayAuthorizeProductionRelease": false
+  }
+}
