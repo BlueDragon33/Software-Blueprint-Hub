@@ -2905,3 +2905,56 @@ input:hover {
     padding-bottom: 0.7rem;
   }
 }
+
+
+/* P7-002 quality provenance preview */
+.canonical-provenance-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #e7eaf0;
+  border-radius: 0.78rem;
+  background: #fff;
+}
+
+.canonical-provenance-preview > div {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.canonical-provenance-preview > div:last-child {
+  text-align: right;
+}
+
+.canonical-provenance-preview strong {
+  color: #33405a;
+  font-size: 0.74rem;
+}
+
+.canonical-provenance-preview span,
+.canonical-provenance-preview small {
+  color: #748097;
+  font: 0.7rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+.workspace-work-card-heading > .status-chip {
+  width: fit-content;
+}
+
+@media (max-width: 800px) {
+  .canonical-provenance-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .canonical-provenance-preview > div:last-child {
+    text-align: left;
+  }
+
+  .workspace-work-card-heading > .status-chip {
+    justify-self: start;
+  }
+}
