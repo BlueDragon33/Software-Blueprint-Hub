@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 7 Hardening Work Packages
 
-Status: **AUTHORIZED AFTER PHASE 6 UX GATE / P7-001 IN PROGRESS**
+Status: **P7-001 COMPLETE / P7-002 NEXT**
 
 Phase 7 improves usability, accessibility, resilience and operational confidence without weakening the canonical architecture proven in Phases 1–6.
 
@@ -8,7 +8,7 @@ Production deployment is not implied.
 
 ## P7-001 — Mobile Project Workspace navigation context
 
-Status: **IN PROGRESS**
+Status: **COMPLETE**
 
 Dependencies: Phase 6 Product UX Gate PASS.
 
@@ -24,6 +24,8 @@ Acceptance:
 - browser E2E proves far-right routes are visibly active on mobile.
 
 ## P7-002 — Dense canonical view progressive disclosure
+
+Status: **NEXT / AUTHORIZED AFTER P7-001 MERGE**
 
 Dependencies: P7-001.
 
