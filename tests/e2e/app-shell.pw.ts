@@ -166,7 +166,7 @@ test("canonical project workspace has stable truthful views", async ({
     })
   ).toBeVisible();
   await expect(
-    page.getByText("revision-p6-beta-quality", { exact: true })
+    page.getByText("revision-p6-beta-quality", { exact: true }).first()
   ).toBeVisible();
 
   await page.screenshot({
@@ -450,7 +450,7 @@ test("P7-002 disclosures preserve critical truth and are keyboard operable", asy
 
   await page.goto("/projects/project%3Ap6-registry-beta/quality");
   await expect(
-    page.getByText("revision-p6-beta-quality", { exact: true })
+    page.getByText("revision-p6-beta-quality", { exact: true }).first()
   ).toBeVisible();
 
   const qualityDisclosure = page
