@@ -3683,3 +3683,174 @@ textarea:focus-visible,
     display: grid;
   }
 }
+
+
+/* P9-003 — 20-storey architecture projection */
+.compass-architecture {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+  padding: 1.15rem;
+  border: 1px solid rgba(45, 61, 104, 0.12);
+  border-radius: 1.15rem;
+  background: #fff;
+  box-shadow: 0 0.8rem 2.2rem rgba(39, 53, 93, 0.06);
+}
+
+.compass-architecture-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.compass-architecture-heading > div {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 56rem;
+}
+
+.compass-architecture-heading h2,
+.compass-architecture-heading p {
+  margin: 0;
+}
+
+.compass-architecture-heading p:not(.section-kicker) {
+  color: #68758c;
+  line-height: 1.55;
+}
+
+.compass-building {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.compass-storey-row {
+  border: 1px solid #e2e7f0;
+  border-radius: 0.82rem;
+  background: #fbfcff;
+  overflow: clip;
+}
+
+.compass-storey-row[data-state="accepted-baseline"] {
+  border-left: 4px solid #8290b5;
+}
+
+.compass-storey-row[data-state="active"] {
+  border-color: #8d9cea;
+  border-left: 4px solid #5368d7;
+  background: #f7f8ff;
+  box-shadow: 0 0.45rem 1.2rem rgba(70, 89, 177, 0.1);
+}
+
+.compass-storey-row > summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem 0.85rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.compass-storey-row > summary::-webkit-details-marker {
+  display: none;
+}
+
+.compass-storey-number {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  place-items: center;
+  border-radius: 0.62rem;
+  color: #405077;
+  background: #edf1f8;
+  font-size: 0.77rem;
+  font-weight: 850;
+}
+
+.compass-storey-row[data-state="active"] .compass-storey-number {
+  color: #fff;
+  background: #5368d7;
+}
+
+.compass-storey-copy {
+  display: grid;
+  gap: 0.16rem;
+  min-width: 0;
+}
+
+.compass-storey-copy strong {
+  color: #34425d;
+  font-size: 0.8rem;
+}
+
+.compass-storey-copy small {
+  color: #8791a3;
+  font-size: 0.67rem;
+  overflow-wrap: anywhere;
+}
+
+.compass-storey-detail {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0 0.85rem 0.85rem 3.95rem;
+}
+
+.compass-storey-detail > p {
+  margin: 0;
+  color: #647188;
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.compass-storey-detail dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.compass-storey-detail dl > div {
+  padding: 0.7rem;
+  border-radius: 0.7rem;
+  background: #f1f4f9;
+}
+
+.compass-storey-detail dt {
+  color: #8a94a6;
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.compass-storey-detail dd {
+  margin: 0.3rem 0 0;
+  color: #4f5e78;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .compass-architecture-heading {
+    display: grid;
+  }
+
+  .compass-storey-row > summary {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .compass-storey-row > summary .bp-status-chip {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .compass-storey-detail {
+    padding-left: 0.85rem;
+  }
+
+  .compass-storey-detail dl {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,5 +1,6 @@
 import { AppShell } from "@blueprint-os/ui";
 import { SystemCompass } from "../_components/system-compass";
+import { CompassArchitectureMap } from "../_components/compass-architecture-map";
 
 export const dynamic = "force-static";
 
@@ -18,6 +19,7 @@ export default function CompassPage() {
           <span className="environment-badge">Development baseline</span>
         </header>
         <SystemCompass />
+        <CompassArchitectureMap />
       </main>
     </AppShell>
   );

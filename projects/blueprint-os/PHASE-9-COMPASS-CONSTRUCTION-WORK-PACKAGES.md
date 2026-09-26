@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001 COMPLETE / P9-002 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-002 COMPLETE / P9-003 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -102,13 +102,19 @@ Completion evidence:
 - App Manage integration remains metadata-only with no canonical Blueprint/Gate/Release authority.
 
 ### P9-002 — Compass dashboard
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Create the primary orientation surface showing current phase, active Work Package, blocked dependencies, open risks, gate state, exact evidence revision and next valid actions.
 
+Completion evidence:
+- P9-002 merged in PR #38 as `8d1ce6059eb66d91d432cafb0751fb6ab3c3aa63`;
+- `/compass` and the Projects registry expose the same checked-in Compass projection;
+- the projection carries exact evidence revisions, open risks and dependency-valid next actions;
+- no synthetic completion percentage or Production readiness is generated.
+
 ### P9-003 — 20-storey architecture projection
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Represent the construction map as structured, inspectable state derived from existing blueprint/work/gate truth rather than a decorative roadmap.
