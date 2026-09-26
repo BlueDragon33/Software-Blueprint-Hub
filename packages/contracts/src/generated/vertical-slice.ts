@@ -209,7 +209,6 @@ export interface TechnicalDebt {
   sourceRevision?: string;
   meta: RecordMeta;
 }
-
 /**
  * This interface was referenced by `VerticalSliceContracts`'s JSON-Schema
  * via the `definition` "ReleaseRecord".
