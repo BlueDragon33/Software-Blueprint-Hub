@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 7 Hardening Work Packages
 
-Status: **P7-001/P7-002/P7-003/P7-004/P7-005/P7-006 COMPLETE / P7-007 IN PROGRESS**
+Status: **P7-001 THROUGH P7-007 COMPLETE / P7-008 NEXT**
 
 Phase 7 improves usability, accessibility, resilience and operational confidence without weakening the canonical architecture proven in Phases 1–6.
 
@@ -70,7 +70,7 @@ Expand negative-path and cross-project regression coverage for read/mutate/revie
 
 ## P7-007 — Release safety and observability hardening
 
-Status: **IN PROGRESS**
+Status: **COMPLETE**
 
 Dependencies: P7-004, P7-006.
 
@@ -78,6 +78,8 @@ Purpose:
 Strengthen exact-revision release checks, operational evidence, rollback verification and observability contracts.
 
 ## P7-008 — Phase 7 Hardening Gate
+
+Status: **NEXT / AUTHORIZED AFTER P7-007 MERGE**
 
 Dependencies: active Phase 7 scope.
 
