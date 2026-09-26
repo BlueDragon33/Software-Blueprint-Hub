@@ -278,6 +278,29 @@ test("canonical project workspace has stable truthful views", async ({
     page.getByText("release:p6-006-beta-v1", { exact: true }).first()
   ).toBeVisible();
 
+  if (testInfo.project.name === "mobile-chromium") {
+    const activeReleaseLink = page
+      .getByRole("navigation", { name: "Project workspace views" })
+      .getByRole("link", { name: /Releases & Lessons/ });
+
+    await expect(activeReleaseLink).toHaveAttribute("aria-current", "page");
+
+    const activeTabVisible = await activeReleaseLink.evaluate((element) => {
+      const shell = element.closest(".project-workspace-nav-shell");
+      if (!(shell instanceof HTMLElement)) return false;
+
+      const activeBox = element.getBoundingClientRect();
+      const shellBox = shell.getBoundingClientRect();
+
+      return (
+        activeBox.left >= shellBox.left - 1 &&
+        activeBox.right <= shellBox.right + 1
+      );
+    });
+
+    expect(activeTabVisible).toBe(true);
+  }
+
   await page.screenshot({
     path: `artifacts/p6-006-releases-lessons-${testInfo.project.name}.png`,
     fullPage: true

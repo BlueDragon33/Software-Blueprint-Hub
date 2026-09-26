@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import type { ProjectProfile } from "@blueprint-os/contracts";
 import { ActionGroup, AppShell, EmptyState, StatusChip } from "@blueprint-os/ui";
 
+import { ProjectWorkspaceNav } from "./project-workspace-nav";
+
 export type ProjectWorkspaceView =
   | "overview"
   | "profile"
@@ -127,27 +129,11 @@ export function ProjectWorkspaceFrame({
 
         <div className="project-workspace-grid">
           <aside className="project-workspace-nav-shell">
-            <nav
-              className="project-workspace-nav"
-              aria-label="Project workspace views"
-            >
-              {projectWorkspaceViews.map((view) => (
-                <Link
-                  className={
-                    "project-workspace-nav-item" +
-                    (view.id === active
-                      ? " project-workspace-nav-item-active"
-                      : "")
-                  }
-                  href={root + view.suffix}
-                  key={view.id}
-                  aria-current={view.id === active ? "page" : undefined}
-                >
-                  <strong>{view.label}</strong>
-                  <span>{view.description}</span>
-                </Link>
-              ))}
-            </nav>
+            <ProjectWorkspaceNav
+              root={root}
+              active={active}
+              views={projectWorkspaceViews}
+            />
           </aside>
 
           <div className="project-workspace-content">{children}</div>
