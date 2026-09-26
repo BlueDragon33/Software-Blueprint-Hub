@@ -4104,3 +4104,98 @@ textarea:focus-visible,
     width: 100%;
   }
 }
+
+
+/* Phase 9 — Incident Diagnostics */
+.diagnostics-page {
+  max-width: 92rem;
+}
+
+.diagnostics-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.diagnostics-surface {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.diagnostics-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.diagnostics-detail-grid div {
+  min-width: 0;
+  padding: 0.85rem;
+  border: 1px solid var(--bp-color-border);
+  border-radius: var(--bp-radius-md);
+  background: var(--bp-color-bg-subtle);
+}
+
+.diagnostics-detail-grid dt {
+  color: var(--bp-color-fg-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.diagnostics-detail-grid dd {
+  margin: 0.35rem 0 0;
+  overflow-wrap: anywhere;
+  color: var(--bp-color-fg-strong);
+  font-weight: 700;
+}
+
+.diagnostics-message {
+  padding: 1rem;
+  border-left: 0.25rem solid #6876bf;
+  border-radius: 0.6rem;
+  background: #f7f8ff;
+}
+
+.diagnostics-message p {
+  margin: 0.35rem 0 0;
+  color: var(--bp-color-fg-default);
+}
+
+.diagnostics-code {
+  overflow-x: auto;
+  margin: 0;
+  padding: 1rem;
+  border-radius: var(--bp-radius-md);
+  color: #e9edf7;
+  background: #1d2433;
+}
+
+.diagnostics-guidance {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--bp-color-fg-default);
+}
+
+.runtime-incident-reference {
+  margin-top: 0.75rem !important;
+  font-size: 0.78rem;
+}
+
+.runtime-incident-reference code {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 800px) {
+  .diagnostics-metrics,
+  .diagnostics-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
