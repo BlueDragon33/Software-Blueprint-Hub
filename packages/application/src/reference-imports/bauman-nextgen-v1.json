@@ -1,0 +1,298 @@
+{
+  "schema": "REFERENCE_IMPORT_MANIFEST_V1",
+  "schemaVersion": "1.0.0",
+  "id": "reference-import:bauman-nextgen:v1",
+  "caseId": "bauman-nextgen-v1",
+  "referenceCaseId": "knowledge:reference-case:bauman-nextgen-v1",
+  "title": "Bauman Next-Generation Platform",
+  "source": {
+    "repository": "BlueDragon33/Bauman-master-ai-system",
+    "ref": "architecture/bauman-nextgen-blueprint-v1",
+    "pullRequestNumber": 127,
+    "pullRequestTitle": "Architecture Blueprint v1 · Bauman Next-Generation Platform",
+    "revision": "52b2a581a9c38a7060e95209e94c3087764f6d5f",
+    "manifestRevision": "c195f2abc4fe0ee6a6cf3f05aab04e814a07d0b2",
+    "importedOn": "2026-09-26"
+  },
+  "local": {
+    "manifestPath": "packages/application/src/reference-imports/bauman-nextgen-v1.json",
+    "referenceDocument": "docs/reference-cases/BAUMAN-NEXTGEN-v1.md",
+    "mappingDocument": "docs/reference-cases/BAUMAN-NEXTGEN-MAPPING-v1.md",
+    "gapAnalysisDocument": "docs/reference-cases/BAUMAN-NEXTGEN-GAP-ANALYSIS-v1.md"
+  },
+  "sourceArtifacts": [
+    {
+      "path": "docs/architecture/00-PRODUCT-CHARTER.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/01-AS-IS-ARCHITECTURE.md",
+      "role": "architecture-source",
+      "classifications": [
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/02-TARGET-SYSTEM-ARCHITECTURE.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "pattern-candidate",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/03-PLATFORM-FOUNDATION.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "pattern-candidate"
+      ]
+    },
+    {
+      "path": "docs/architecture/04-DOMAIN-DATA-CONTRACTS.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/05-EXTENSION-CONTENT-ARCHITECTURE.md",
+      "role": "architecture-source",
+      "classifications": [
+        "pattern-candidate",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/06-REAL-LEARNING-ARCHITECTURE.md",
+      "role": "architecture-source",
+      "classifications": [
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/07-UI-UX-ARCHITECTURE.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/08-SECURITY-TRUST-MODEL.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "pattern-candidate",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/09-RUNTIME-DEPLOYMENT-TOPOLOGY.md",
+      "role": "architecture-source",
+      "classifications": [
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/10-QUALITY-ATTRIBUTES-AND-GATES.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/11-OBSERVABILITY-OPERATIONS.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "pattern-candidate"
+      ]
+    },
+    {
+      "path": "docs/architecture/12-MIGRATION-STRATEGY.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "pattern-candidate"
+      ]
+    },
+    {
+      "path": "docs/architecture/13-EVOLUTION-GOVERNANCE.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "pattern-candidate"
+      ]
+    },
+    {
+      "path": "docs/architecture/14-MASTER-DEPENDENCY-ROADMAP.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/15-ARCHITECTURE-READY-GATE.md",
+      "role": "architecture-source",
+      "classifications": [
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/16-API-INTEGRATION-ARCHITECTURE.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "pattern-candidate",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/17-NONFUNCTIONAL-CAPACITY-BUDGETS.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/18-DATA-LIFECYCLE-PRIVACY.md",
+      "role": "architecture-source",
+      "classifications": [
+        "already-supported",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/19-CRITICAL-SEQUENCE-FLOWS.md",
+      "role": "architecture-source",
+      "classifications": [
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/20-BLUEPRINT-REVIEW-CHECKLIST.md",
+      "role": "review-checklist",
+      "classifications": [
+        "already-supported",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/BLUEPRINT_MANIFEST.v1.json",
+      "role": "source-manifest",
+      "classifications": [
+        "already-supported",
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "role": "architecture-source",
+      "classifications": [
+        "project-specific-extension"
+      ]
+    },
+    {
+      "path": "docs/architecture/adr/0000-template.md",
+      "role": "adr-template",
+      "classifications": [
+        "already-supported"
+      ]
+    }
+  ],
+  "conceptMappings": [
+    {
+      "sourceConcept": "Canonical durable identity",
+      "classification": "already-supported",
+      "namespace": "bauman.architecture.identity",
+      "blueprintConcept": "Universal Constitution / Data",
+      "disposition": "Use Blueprint durable-identity law; do not import Bauman ID kinds into Universal Core."
+    },
+    {
+      "sourceConcept": "Evidence",
+      "classification": "project-specific-extension",
+      "namespace": "bauman.academic.evidence",
+      "disposition": "Keep learner/academic evidence separate from Blueprint engineering GateEvidence."
+    },
+    {
+      "sourceConcept": "Project",
+      "classification": "project-specific-extension",
+      "namespace": "bauman.learning-output.project",
+      "disposition": "Keep learner-output Project separate from the Blueprint managed software Project."
+    },
+    {
+      "sourceConcept": "Mastery",
+      "classification": "project-specific-extension",
+      "namespace": "bauman.academic.mastery",
+      "disposition": "Academic mastery cannot map to engineering readiness or Quality Gate state."
+    },
+    {
+      "sourceConcept": "Content Registry",
+      "classification": "pattern-candidate",
+      "namespace": "bauman.runtime.content-registry",
+      "disposition": "Treat provenance-aware registry behavior as a reusable candidate; do not merge runtime content authority into Blueprint Knowledge Library."
+    },
+    {
+      "sourceConcept": "Capability Registry",
+      "classification": "pattern-candidate",
+      "namespace": "bauman.runtime.capability-registry",
+      "disposition": "Retain as runtime architecture/pattern candidate; Blueprint itself does not become each product's capability registry."
+    },
+    {
+      "sourceConcept": "Learner / Reviewer / Publisher / Admin / Plugin / AI roles",
+      "classification": "project-specific-extension",
+      "namespace": "bauman.runtime.authorization",
+      "disposition": "Keep runtime roles inside Bauman authority model; do not expand Blueprint project roles by name."
+    },
+    {
+      "sourceConcept": "Device Gate",
+      "classification": "project-specific-extension",
+      "namespace": "bauman.runtime.device-gate",
+      "disposition": "Preserve as source-specific protected-access architecture, not a Universal Core requirement."
+    },
+    {
+      "sourceConcept": "A0–A5 construction gates",
+      "classification": "project-specific-extension",
+      "namespace": "bauman.delivery.quality-gates",
+      "blueprintConcept": "QualityGate template family",
+      "disposition": "Represent as project-specific gate templates without a global Blueprint enum."
+    },
+    {
+      "sourceConcept": "Import Center",
+      "classification": "product-gap",
+      "namespace": "bauman.authoring.import-center",
+      "disposition": "Use as evidence for Blueprint reference-import tooling needs, not as a Core domain entity."
+    }
+  ],
+  "authority": {
+    "canonicalProjectState": false,
+    "qualityGateEvidence": false,
+    "releaseAuthority": false,
+    "accessAuthority": false
+  },
+  "driftPolicy": {
+    "snapshotMode": "frozen",
+    "networkRequiredForCanonicalRead": false,
+    "updateMode": "new-observation",
+    "currentnessClaimRequiresSourceCheck": true
+  },
+  "compatibility": {
+    "strategy": "additive-first",
+    "unknownFields": "reject",
+    "breakingChangeRequires": [
+      "ADR",
+      "migration-plan",
+      "compatibility-statement"
+    ]
+  }
+}
