@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-012 COMPLETE / P9-013 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-013 COMPLETE / P9-014 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -254,13 +254,22 @@ Completion evidence:
 - full Release Gate covered PostgreSQL migrations, schema/contract drift, source-of-truth, lint, typecheck, architecture boundaries, full tests, production build and Playwright screenshots.
 
 ### P9-013 — Release orchestration
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Prepare exact-revision promotion evidence and environment status without treating merge as deployment.
 
+Completion evidence:
+- P9-013 merged in PR #57 as `fb7e36544714946c807c549aa11f270c461532e0`;
+- exact merged revision passed Development Fast CI and the full Release Gate;
+- promotion plans require canonical candidate ReleaseRecord plus exact-revision evidence from PASS gates;
+- stale evidence, non-PASS gates and invalid provider scope/capability fail closed;
+- missing deployment provider remains an explicit blocker instead of becoming a fake deploy success;
+- mergeIsDeployment, deploymentObserved and productionDeploymentAuthorized remain false until explicit external execution succeeds;
+- Vercel provider discovery returned no accessible team/project, so Production publish remains truthfully blocked rather than fabricated.
+
 ### P9-014 — Security threat-model hardening
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Review trust zones, credential ownership, escalation paths, destructive operations and abuse cases.
