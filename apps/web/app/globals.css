@@ -391,18 +391,18 @@ h2 {
 }
 
 .status-chip-info {
-  color: #3551c7;
-  background: #e8edff;
+  color: var(--bp-color-info-fg);
+  background: var(--bp-color-info-bg);
 }
 
 .status-chip-success {
-  color: #16704f;
-  background: #dff5ea;
+  color: var(--bp-color-success-fg);
+  background: var(--bp-color-success-bg);
 }
 
 .status-chip-warning {
-  color: #956100;
-  background: #fff1c9;
+  color: var(--bp-color-warning-fg);
+  background: var(--bp-color-warning-bg);
 }
 
 .status-chip-neutral {
@@ -627,15 +627,15 @@ input:hover {
 
 .primary-button {
   color: #fff;
-  border: 1px solid #394ed3;
-  background: linear-gradient(145deg, #3147c9, #596ae9);
+  border: 1px solid var(--bp-color-primary);
+  background: linear-gradient(145deg, var(--bp-color-primary-strong), #596ae9);
   box-shadow: 0 0.45rem 1rem rgba(58, 75, 192, 0.2);
 }
 
 .secondary-button {
   color: #43506b;
-  border: 1px solid #d8dfeb;
-  background: #fff;
+  border: 1px solid var(--bp-color-border);
+  background: var(--bp-color-bg-surface);
 }
 
 .primary-button:disabled,
@@ -2525,5 +2525,262 @@ input:hover {
   .prompt-history-row .status-chip {
     grid-column: 2;
     width: fit-content;
+  }
+}
+
+
+/* P6-008 — Blueprint Design System foundation */
+:root {
+  --bp-color-bg-canvas: #eef2f8;
+  --bp-color-bg-surface: #ffffff;
+  --bp-color-bg-subtle: #f8faff;
+  --bp-color-bg-emphasis: #eef1ff;
+  --bp-color-fg-strong: #25314b;
+  --bp-color-fg-default: #526078;
+  --bp-color-fg-muted: #7a8498;
+  --bp-color-border: #dfe5ef;
+  --bp-color-border-soft: #e7eaf0;
+  --bp-color-primary: #4255d7;
+  --bp-color-primary-strong: #3147c9;
+  --bp-color-info-fg: #3551c7;
+  --bp-color-info-bg: #e8edff;
+  --bp-color-success-fg: #16704f;
+  --bp-color-success-bg: #dff5ea;
+  --bp-color-warning-fg: #956100;
+  --bp-color-warning-bg: #fff1c9;
+  --bp-color-danger-fg: #8f3038;
+  --bp-color-danger-bg: #fff6f6;
+  --bp-radius-sm: 0.72rem;
+  --bp-radius-md: 0.9rem;
+  --bp-radius-lg: 1.1rem;
+  --bp-shadow-raised: 0 1rem 2.6rem rgba(32, 47, 83, 0.08);
+  --bp-shadow-soft: 0 0.75rem 2rem rgba(35, 50, 85, 0.06);
+  --bp-space-1: 0.25rem;
+  --bp-space-2: 0.5rem;
+  --bp-space-3: 0.75rem;
+  --bp-space-4: 1rem;
+  --bp-space-5: 1.25rem;
+  --bp-space-6: 1.5rem;
+  --bp-space-8: 2rem;
+  --bp-content-wide: 82rem;
+  --bp-content-standard: 76rem;
+  --bp-focus-ring: 3px solid rgba(74, 95, 255, 0.36);
+}
+
+.bp-status-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 1.7rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.bp-status-chip--neutral {
+  color: #657087;
+  background: #eef1f5;
+}
+
+.bp-status-chip--info {
+  color: var(--bp-color-info-fg);
+  background: var(--bp-color-info-bg);
+}
+
+.bp-status-chip--success {
+  color: var(--bp-color-success-fg);
+  background: var(--bp-color-success-bg);
+}
+
+.bp-status-chip--warning {
+  color: var(--bp-color-warning-fg);
+  background: var(--bp-color-warning-bg);
+}
+
+.bp-status-chip--danger {
+  color: var(--bp-color-danger-fg);
+  background: var(--bp-color-danger-bg);
+}
+
+.bp-surface {
+  border: 1px solid var(--bp-color-border);
+  border-radius: var(--bp-radius-lg);
+  background: var(--bp-color-bg-surface);
+}
+
+.bp-surface--default {
+  box-shadow: var(--bp-shadow-soft);
+}
+
+.bp-surface--subtle {
+  background: var(--bp-color-bg-subtle);
+}
+
+.bp-surface--emphasis {
+  border-color: #c7d0ff;
+  background: var(--bp-color-bg-emphasis);
+}
+
+.bp-surface--danger {
+  color: var(--bp-color-danger-fg);
+  border-color: #f0cdd0;
+  background: var(--bp-color-danger-bg);
+}
+
+.bp-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--bp-space-4);
+}
+
+.bp-section-heading__copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.bp-kicker {
+  margin: 0;
+  color: #6876bf;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.bp-section-heading h2 {
+  margin: 0;
+}
+
+.bp-section-heading__description {
+  max-width: 52rem;
+  margin: 0.35rem 0 0;
+  color: var(--bp-color-fg-default);
+  line-height: 1.55;
+}
+
+.bp-section-heading__aside {
+  flex: 0 0 auto;
+}
+
+.bp-metric-card {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: var(--bp-space-4);
+  border: 1px solid #e2e7ef;
+  border-radius: var(--bp-radius-md);
+  background: #fafbfe;
+}
+
+.bp-metric-card__label,
+.bp-metric-card__detail {
+  color: var(--bp-color-fg-muted);
+  font-size: 0.75rem;
+}
+
+.bp-metric-card__value {
+  color: var(--bp-color-fg-strong);
+  font-size: clamp(1.2rem, 2.8vw, 1.7rem);
+}
+
+.bp-empty-state {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--bp-space-4);
+  padding: clamp(1.2rem, 3vw, 2rem);
+  border: 1px dashed var(--bp-color-border);
+  border-radius: var(--bp-radius-lg);
+  color: var(--bp-color-fg-muted);
+  background: #fbfcfe;
+}
+
+.bp-empty-state__icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border-radius: var(--bp-radius-md);
+  color: #354bc9;
+  background: var(--bp-color-bg-emphasis);
+}
+
+.bp-empty-state__copy {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.bp-empty-state__copy strong {
+  color: var(--bp-color-fg-strong);
+}
+
+.bp-empty-state__copy span {
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.bp-action-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--bp-space-3);
+}
+
+.bp-action-group--start {
+  justify-content: flex-start;
+}
+
+.bp-action-group--end {
+  justify-content: flex-end;
+}
+
+.bp-action-group--space-between {
+  justify-content: space-between;
+}
+
+@media (max-width: 700px) {
+  .bp-section-heading,
+  .bp-empty-state {
+    grid-template-columns: 1fr;
+  }
+
+  .bp-section-heading {
+    display: grid;
+    align-items: start;
+  }
+
+  .bp-section-heading__aside {
+    justify-self: start;
+  }
+
+  .bp-empty-state__action {
+    width: 100%;
+  }
+
+  .bp-action-group {
+    align-items: stretch;
+  }
+
+  .bp-action-group > a,
+  .bp-action-group > button {
+    flex: 1 1 auto;
+  }
+}
+
+
+/* P6-008 workspace heading contract: status/aside controls remain compact. */
+.workspace-view-heading > .status-chip,
+.workspace-view-heading > .bp-status-chip {
+  width: fit-content;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .workspace-view-heading > .status-chip,
+  .workspace-view-heading > .bp-status-chip {
+    justify-self: start;
   }
 }
