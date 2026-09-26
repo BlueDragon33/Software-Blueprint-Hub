@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 6 Product Expansion Work Packages
 
-Status: **AUTHORIZED / P6-001 THROUGH P6-007 COMPLETE / P6-008 NEXT**
+Status: **AUTHORIZED / P6-001 THROUGH P6-007 COMPLETE / P6-008 IN PROGRESS**
 
 Phase 6 expands the proven vertical slice into a professional multi-project product. Work remains dependency-driven; production deployment is not implied.
 
@@ -82,7 +82,7 @@ Add copy/export/history/staleness affordances to Prompt Projection while preserv
 
 ## P6-008 — Professional Design System hardening
 
-Status: **NEXT / AUTHORIZED AFTER P6-007 MERGE**
+Status: **IN PROGRESS**
 
 Dependencies: P6-001 through P6-007 may contribute requirements; implementation is incremental.
 
