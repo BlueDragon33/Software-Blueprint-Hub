@@ -1,6 +1,6 @@
 # P7-006 — Authority and security regression hardening
 
-Status: **IN PROGRESS**
+Status: **COMPLETE — FAST CI / RELEASE GATE / HUMAN UX ACCEPTED**
 
 ## Purpose
 
@@ -64,5 +64,57 @@ P7-006 must prove:
 ## Gate
 
 P7-006 may PASS only when no P0/P1 authority contradiction remains and all exact-revision automated evidence is green.
+
+Production deployment remains unauthorized.
+
+
+## Completion evidence
+
+Reviewed implementation revision before completion-status commit:
+
+`eafb203f304c525655290d41f53105116009930e`
+
+Automated evidence:
+
+- Development Fast CI push run `36227877258`: **SUCCESS**;
+- Development Fast CI PR run `36227887661`: **SUCCESS**;
+- Release Gate CI PR run `36227920811`: **SUCCESS**;
+- exhaustive role × action authority regression: PASS;
+- cross-project denial for every project-scoped action: PASS;
+- unauthenticated project enumeration fail-closed regression: PASS;
+- Editor / Reviewer / Viewer ROLE_MANAGE denial: PASS;
+- ProjectProfile identity immutability regression: PASS;
+- PostgreSQL row/document ProjectProfile identity drift detection: PASS;
+- existing governance / release / work-quality / prompt / registry regressions remain green;
+- production build and browser E2E remain green.
+
+Human UX artifact:
+
+- artifact id: `10901039495`;
+- digest: `sha256:8a6691db8e010caa25d672f2f4a697798e8e371f584cd2cb8d972339538ebfc9`;
+- workflow head SHA: `eafb203f304c525655290d41f53105116009930e`.
+
+Human review findings:
+
+1. Forbidden project state does not expose canonical project metadata.
+2. Forbidden state does not substitute preview/cached project truth.
+3. Desktop hierarchy makes the authority boundary and recovery action explicit.
+4. Mobile layout remains single-column, readable and free of blocking horizontal overflow.
+5. "Back to readable projects" provides a clear recovery path.
+6. No blocking P0/P1 UX defect was observed.
+
+## Security hardening result
+
+P7-006 also closes a concrete identity-integrity gap:
+
+- ProjectProfile `id` is now immutable after creation;
+- update rejects attempts to replace the profile identity while retaining project authority;
+- persistence reads detect row/document identity drift.
+
+## Result
+
+**P7-006 = COMPLETE**
+
+P7-007 — Release safety and observability hardening is next.
 
 Production deployment remains unauthorized.
