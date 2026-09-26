@@ -48,43 +48,43 @@ const projection: BlueprintCompassProjection = Object.freeze({
   currentStorey: Object.freeze({
     number: 20,
     total: 20,
-    name: "Compass Acceptance & release orchestration"
+    name: "Compass Acceptance & security hardening"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-013",
-    title: "Release orchestration",
+    id: "P9-014",
+    title: "Security threat-model hardening",
     storey: 20,
     status: "active",
     reason:
-      "P9-012 passed the full Release Gate with exact provenance visibility; release promotion can now be prepared as an explicit exact-revision plan without confusing merge evidence with deployment."
+      "P9-013 passed the full Release Gate while preserving deployment truth; trust zones, credential ownership, escalation paths and destructive operations can now be threat-modelled against the real authority boundaries."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-012",
-      title: "Quality evidence graph",
-      storey: 19,
-      status: "complete",
-      reason:
-        "Quality provenance passed the full Release Gate with exact evidence/revision visibility and no synthetic readiness."
-    }),
     Object.freeze({
       id: "P9-013",
       title: "Release orchestration",
       storey: 20,
-      status: "active",
+      status: "complete",
       reason:
-        "Exact-revision release promotion planning is now the next dependency-valid capability."
+        "Exact-revision promotion planning passed the full Release Gate without conflating merge, CI or ReleaseRecord state with deployment."
     }),
     Object.freeze({
       id: "P9-014",
       title: "Security threat-model hardening",
       storey: 20,
+      status: "active",
+      reason:
+        "Trust zones, credentials, escalation, destructive operations and abuse cases are now the next dependency-valid hardening layer."
+    }),
+    Object.freeze({
+      id: "P9-015",
+      title: "Data lifecycle & archive",
+      storey: 20,
       status: "next",
       reason:
-        "Threat-model hardening follows after release authority and promotion boundaries are explicit."
+        "Long-lived retention/deletion/archive semantics follow after threat boundaries are explicit."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -186,12 +186,18 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "7dd360aad0a89b7ca687524a639c7fccdda08077",
       source: "Software-Blueprint-Hub PR #55 / main Release Gate",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-013 Release Orchestration full Release Gate",
+      revision: "fb7e36544714946c807c549aa11f270c461532e0",
+      source: "Software-Blueprint-Hub PR #57 / main Release Gate",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-013 by preparing exact-revision promotion plans with explicit environment/provider/evidence preconditions.",
-    "Start P9-014 Security Threat-model Hardening only after P9-013 exact PR-head evidence and full Release Gate are green.",
-    "Production publish remains blocked until a real deployment provider is connected and an explicit deployment action succeeds; merge/release evidence alone is not deployment."
+    "Complete P9-014 by threat-modelling trust zones, credentials, privilege escalation, destructive operations and abuse paths against explicit mitigations.",
+    "Start P9-015 Data Lifecycle & Archive only after P9-014 exact PR-head evidence and full Release Gate are green.",
+    "Production publish remains blocked until a real deployment provider is connected and explicit external execution succeeds."
   ]),
   truthNote:
     "This is a checked-in Development Baseline projection. It does not manufacture project completion percentages, Quality Gate PASS state or Production readiness."
