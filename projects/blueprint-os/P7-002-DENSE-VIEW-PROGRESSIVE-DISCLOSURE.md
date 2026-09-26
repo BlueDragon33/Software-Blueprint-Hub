@@ -91,3 +91,13 @@ P7-002 may PASS only when:
 - exact-head CI + Human UX review PASS.
 
 Production deployment remains unauthorized.
+
+
+## CI execution model
+
+Phase 7 uses two evidence cadences:
+
+- **Development Fast CI** runs on development pushes and pull-request synchronization to catch repository/configuration regressions quickly.
+- **Release Gate CI** runs for Ready pull requests and subsequent Ready-PR synchronizations. It executes the full PostgreSQL migration, contracts, lint/typecheck, architecture, unit/integration, production build and Playwright/Human UX evidence path.
+
+P7-002 completion requires the Release Gate result for the exact completion revision; Fast CI alone is not completion evidence.
