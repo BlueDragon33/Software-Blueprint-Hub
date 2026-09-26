@@ -255,3 +255,5 @@ export * from "./security-threat-model";
 export * from "./data-lifecycle";
 
 export * from "./adaptive-ux-audit";
+
+export * from "./performance-capacity";
