@@ -10,15 +10,13 @@ import {
   explainWorkPackageReadiness,
   validateWorkPackageDependencies,
   type AuthenticatedActor,
+  type QualityGateEvidenceBundle,
   type WorkPackageReadiness,
   type WorkQualityRepository
 } from "@blueprint-os/core";
 
 
-export interface QualityGateReadModel {
-  readonly gate: QualityGate;
-  readonly evidence: readonly GateEvidence[];
-}
+export type QualityGateReadModel = QualityGateEvidenceBundle;
 
 function assertValid(
   name: "WorkPackage" | "QualityGate" | "GateEvidence",
@@ -92,19 +90,7 @@ export class WorkQualityApplicationService {
     projectId: string
   ): Promise<readonly QualityGateReadModel[]> {
     await this.authority.require(actor, projectId, "PROJECT_READ");
-    const gates = await this.repository.listQualityGatesByProject(projectId);
-    return Object.freeze(
-      await Promise.all(
-        gates.map(async (gate) =>
-          Object.freeze({
-            gate,
-            evidence: Object.freeze([
-              ...(await this.repository.listGateEvidenceByGate(gate.id))
-            ])
-          })
-        )
-      )
-    );
+    return this.repository.listQualityGateEvidenceByProject(projectId);
   }
 
   async readiness(
