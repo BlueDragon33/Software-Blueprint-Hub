@@ -2958,3 +2958,43 @@ input:hover {
     justify-self: start;
   }
 }
+
+
+/* P7-003 — Accessibility hardening */
+.bp-skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1000;
+  transform: translateY(-180%);
+  padding: 0.65rem 0.85rem;
+  border: 2px solid var(--bp-color-primary, #394ed3);
+  border-radius: 0.65rem;
+  color: #172033;
+  background: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 0.75rem 2rem rgba(23, 32, 51, 0.18);
+}
+
+.bp-skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+summary,
+select,
+textarea,
+[tabindex]:not([tabindex="-1"]) {
+  outline-offset: 3px;
+}
+
+summary:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 3px solid rgba(74, 95, 255, 0.48);
+}
+
+#main-content:focus {
+  outline: none;
+}

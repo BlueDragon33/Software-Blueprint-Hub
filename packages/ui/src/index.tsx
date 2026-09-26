@@ -9,7 +9,16 @@ export interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  return <div data-blueprint-shell="v1">{children}</div>;
+  return (
+    <div data-blueprint-shell="v1">
+      <a className="bp-skip-link" href="#main-content">
+        Skip to main content
+      </a>
+      <div id="main-content" tabIndex={-1}>
+        {children}
+      </div>
+    </div>
+  );
 }
 
 export type StatusTone =
