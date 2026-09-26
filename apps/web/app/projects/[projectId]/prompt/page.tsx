@@ -1,3 +1,4 @@
+import { StatusChip } from "@blueprint-os/ui";
 import {
   ProjectWorkspaceFrame,
   ProjectWorkspaceState
@@ -51,18 +52,17 @@ export default async function PromptPage({ params }: PromptPageProps) {
             substitute for Profile, Blueprint, Work or Quality state.
           </p>
         </div>
-        <span
-          className={
-            "status-chip " +
-            (latest
+        <StatusChip
+          tone={
+            latest
               ? latestIsStale
-                ? "status-chip-warning"
-                : "status-chip-success"
-              : "status-chip-neutral")
+                ? "warning"
+                : "success"
+              : "neutral"
           }
         >
           {latest ? (latestIsStale ? "Stale" : "Fresh") : "Not generated"}
-        </span>
+        </StatusChip>
       </section>
 
       <section className="prompt-workspace-summary">
@@ -103,9 +103,7 @@ export default async function PromptPage({ params }: PromptPageProps) {
                   : "Fresh means the deterministic source revision matches now; it does not mean every Quality Gate is PASS."}
               </p>
             </div>
-            <span className="status-chip status-chip-neutral">
-              {latest.templateVersion}
-            </span>
+            <StatusChip>{latest.templateVersion}</StatusChip>
           </section>
 
           <section className="workspace-section">
@@ -114,9 +112,7 @@ export default async function PromptPage({ params }: PromptPageProps) {
                 <p className="section-kicker">Projection</p>
                 <h3>Execution prompt</h3>
               </div>
-              <span className="status-chip status-chip-neutral">
-                {latest.id}
-              </span>
+              <StatusChip>{latest.id}</StatusChip>
             </div>
 
             <dl className="prompt-workspace-metadata">
@@ -166,9 +162,7 @@ export default async function PromptPage({ params }: PromptPageProps) {
             <p className="section-kicker">History</p>
             <h3>Prompt Projection snapshots</h3>
           </div>
-          <span className="status-chip status-chip-neutral">
-            {history.length} snapshots
-          </span>
+          <StatusChip>{history.length} snapshots</StatusChip>
         </div>
 
         {history.length === 0 ? (
@@ -190,16 +184,9 @@ export default async function PromptPage({ params }: PromptPageProps) {
                     <span>{shortHash(item.contentHash)}</span>
                     <small>{shortHash(item.sourceRevision)}</small>
                   </div>
-                  <span
-                    className={
-                      "status-chip " +
-                      (stale
-                        ? "status-chip-warning"
-                        : "status-chip-success")
-                    }
-                  >
+                  <StatusChip tone={stale ? "warning" : "success"}>
                     {stale ? "Stale" : "Current"}
-                  </span>
+                  </StatusChip>
                 </article>
               );
             })}
