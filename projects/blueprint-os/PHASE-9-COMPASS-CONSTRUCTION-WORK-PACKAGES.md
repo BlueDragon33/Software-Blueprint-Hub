@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-007 COMPLETE / P9-008 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-008 COMPLETE / P9-009 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -180,13 +180,21 @@ Completion evidence:
 - exact PR-head Development Fast CI passed before merge; Production remains not authorized.
 
 ### P9-008 — Observability & incident diagnostics
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Expose release revision, operation correlation, bounded context, structured error category and recovery guidance without secret leakage.
 
+Completion evidence:
+- P9-008 merged in PR #44 and subsequently hardened by Release Gate repair PRs #45–#49;
+- exact main revision `f953c6dce02da341e0fd2471fab5bca079736a94` passed both Development Fast CI and the full Release Gate;
+- full Release Gate covered PostgreSQL migrations, generated-contract drift, schema compatibility, source-of-truth, lint, typecheck, architecture boundaries, 148 tests, production build and Playwright UX journeys;
+- diagnostics preserve revision/context/operation/correlation while redacting secret-bearing keys and token-like values;
+- Product Bootstrap Factory Playwright journeys were updated so release evidence follows the current product, not the retired wizard;
+- Production deployment remains a separate explicit action.
+
 ### P9-009 — Provider/plugin boundary
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Define scoped integration contracts for GitHub, deployment providers and future connectors.
