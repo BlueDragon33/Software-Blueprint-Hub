@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 6 Product Expansion Work Packages
 
-Status: **AUTHORIZED / P6-001 THROUGH P6-007 COMPLETE / P6-008 IN PROGRESS**
+Status: **P6-001 THROUGH P6-008 COMPLETE / P6-009 NEXT**
 
 Phase 6 expands the proven vertical slice into a professional multi-project product. Work remains dependency-driven; production deployment is not implied.
 
@@ -90,6 +90,8 @@ Purpose:
 Extract repeated shell/layout/status/form/dialog/table patterns into stable UI contracts and tokens. Prevent card pile-up and CSS override debt.
 
 ## P6-009 — Phase 6 Product UX Gate
+
+Status: **NEXT / AUTHORIZED AFTER P6-008 MERGE**
 
 Dependencies: P6-001 through active Phase 6 product scope.
 
