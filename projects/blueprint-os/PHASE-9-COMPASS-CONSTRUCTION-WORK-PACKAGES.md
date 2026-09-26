@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001 COMPLETE / P9-002 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -82,7 +82,7 @@ Full product/UX/security/reliability/source-of-truth review at an exact revision
 ## Phase 9 work packages
 
 ### P9-001 — Application Management contract & core registration
-Status: **ACTIVE**
+Status: **COMPLETE**
 
 Purpose:
 Make Blueprint OS visible in Application Management as a real managed core application without giving the control-plane canonical engineering authority.
@@ -96,8 +96,13 @@ Acceptance:
 - Application Management registry points to a dedicated Blueprint OS management surface;
 - stale “design bootstrap only” status is removed from current source-of-truth.
 
+Completion evidence:
+- Blueprint OS contract merged in PR #37 as `c12c5517b4e80a59bb8636b98394682b1ae71ce4`;
+- Application Management registration + `/apps/software-blueprint-hub` merged in PR #183 as `0c482e4f88478d55bd6198938934af708f907dc7`;
+- App Manage integration remains metadata-only with no canonical Blueprint/Gate/Release authority.
+
 ### P9-002 — Compass dashboard
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Create the primary orientation surface showing current phase, active Work Package, blocked dependencies, open risks, gate state, exact evidence revision and next valid actions.
