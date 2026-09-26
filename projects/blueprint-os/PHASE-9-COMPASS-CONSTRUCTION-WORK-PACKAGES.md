@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-017 COMPLETE / P9-018 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-018 COMPLETE / P9-019 ACTIVE — HUMAN PROFESSIONAL REVIEW**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -327,13 +327,21 @@ Completion evidence:
 - P7-005 batched Gate+Evidence / zero N+1 regressions remain green.
 
 ### P9-018 — Ecosystem dogfood regression
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Run Blueprint OS against itself plus multiple heterogeneous projects and detect semantic leakage.
 
+Completion evidence:
+- P9-018 merged in PR #63 as `6da60278e4ef03a95f137eae1902a4054de66120`;
+- exact merged revision passed Fast CI and full Release Gate in workflow run `36252022005`;
+- heterogeneous B2/B3/B4/B5 project classes passed through the same Bootstrap Factory;
+- duplicate identity and semantic-sentinel leakage fail closed;
+- dogfood projection retains zero canonical mutation, cross-project merge and Production release authority;
+- Production publish remains separate and unauthorized without an external provider.
+
 ### P9-019 — Human professional review
-Status: **PLANNED**
+Status: **ACTIVE / REVIEW CANDIDATE — HUMAN SIGN-OFF REQUIRED**
 
 Purpose:
 Conduct end-to-end professional UX/product review after engineering gates are green.

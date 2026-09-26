@@ -259,3 +259,5 @@ export * from "./adaptive-ux-audit";
 export * from "./performance-capacity";
 
 export * from "./ecosystem-dogfood";
+
+export * from "./professional-review";
