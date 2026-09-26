@@ -2,7 +2,7 @@ name: Development Fast CI
 
 on:
   push:
-    branches: [main, "foundation/**", "phase6/**", "phase7/**", "phase8/**"]
+    branches: [main, "foundation/**", "phase6/**", "phase7/**", "phase8/**", "phase9/**"]
   pull_request:
   workflow_dispatch:
 
@@ -33,6 +33,10 @@ jobs:
           test -d apps
           test -d packages/persistence/prisma/migrations
           node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))"
+      - name: Source-of-truth contradiction gate
+        run: node scripts/check-source-of-truth.mjs
+      - name: Source-of-truth detector self-test
+        run: node --test tests/source-truth/source-truth-detector.test.mjs
       - name: Development mode
         run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
 
@@ -97,6 +101,12 @@ jobs:
 
       - name: Schema compatibility
         run: pnpm schema:compat
+
+      - name: Source-of-truth contradiction gate
+        run: pnpm check:truth
+
+      - name: Source-of-truth detector self-test
+        run: pnpm test:truth
 
       - name: Lint
         run: pnpm lint
