@@ -1,6 +1,6 @@
 # P9-011 — Multi-project Portfolio View
 
-Status: **DEVELOPMENT CANDIDATE**
+Status: **COMPLETE — FULL RELEASE GATE PASS**
 
 ## Purpose
 
@@ -50,3 +50,11 @@ P9-011 may complete only when:
 - desktop/mobile UX remains inspectable and keyboard-safe;
 - exact PR-head Fast CI passes;
 - full Release Gate passes before completion.
+
+## Completion evidence
+
+- PR #53 merged as `548813aaa458a769ca00d3b74a36a0b4cb032252`.
+- Development Fast CI: **SUCCESS**.
+- Full Release Gate on exact merged revision: **SUCCESS**.
+- Playwright covered signed-out privacy plus authority-filtered desktop/mobile portfolio UX.
+- Production publish remains a separate provider action.
