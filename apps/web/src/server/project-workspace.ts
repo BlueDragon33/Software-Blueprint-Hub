@@ -5,11 +5,13 @@ import {
   resolveWebActor,
   type WebAuthenticatedActor
 } from "../auth/server-actor";
+import { classifyCanonicalReadFailure } from "./runtime-state";
 import { getBlueprintServerRuntime } from "./runtime";
 
 export type ProjectWorkspaceLoadResult =
   | Readonly<{ state: "signed-out"; projectId: string }>
   | Readonly<{ state: "not-found"; projectId: string }>
+  | Readonly<{ state: "forbidden"; projectId: string }>
   | Readonly<{ state: "unavailable"; projectId: string }>
   | Readonly<{
       state: "ready";
@@ -44,7 +46,10 @@ export async function loadProjectWorkspace(
       runtime,
       project
     });
-  } catch {
-    return Object.freeze({ state: "unavailable", projectId });
+  } catch (error) {
+    return Object.freeze({
+      state: classifyCanonicalReadFailure(error),
+      projectId
+    });
   }
 }
