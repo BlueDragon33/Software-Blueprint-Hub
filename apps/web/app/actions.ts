@@ -1,9 +1,12 @@
 "use server";
 
 import {
+  createProjectBootstrapPlan,
   createPromptProjection,
   foundationBlueprintTemplatesV1,
-  resolveFoundationBlueprintPreview
+  resolveFoundationBlueprintPreview,
+  type ProjectBootstrapIntent,
+  type ProjectBootstrapPlan
 } from "@blueprint-os/application";
 import type {
   GateEvidence,
@@ -128,6 +131,35 @@ export async function resolveBlueprintPreviewAction(
           a.id.localeCompare(b.id) || a.version.localeCompare(b.version)
       )
   };
+}
+
+
+export type ProjectBootstrapPreviewResult =
+  | { readonly ok: true; readonly plan: ProjectBootstrapPlan }
+  | {
+      readonly ok: false;
+      readonly kind: "validation" | "conflict";
+      readonly message: string;
+    };
+
+export async function createProjectBootstrapPreviewAction(
+  input: ProjectBootstrapIntent
+): Promise<ProjectBootstrapPreviewResult> {
+  try {
+    return {
+      ok: true,
+      plan: createProjectBootstrapPlan(input)
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      kind: error instanceof TypeError ? "validation" : "conflict",
+      message:
+        error instanceof Error
+          ? error.message
+          : "The bootstrap factory could not resolve this project intent."
+    };
+  }
 }
 
 export interface PromptPreviewInput {
@@ -378,6 +410,66 @@ export async function createCanonicalProjectAction(
         blueprint: state.blueprint,
         templateVersions: state.templateVersions,
         ids
+      }
+    };
+  } catch (error) {
+    return canonicalFailure(error);
+  }
+}
+
+
+export async function createCanonicalProjectFromBootstrapAction(
+  input: ProjectBootstrapIntent
+): Promise<CanonicalActionResult<{
+  profile: ProjectProfile;
+  blueprint: ResolvedBlueprint;
+  templateVersions: readonly { readonly id: string; readonly version: string }[];
+  bootstrapPlan: ProjectBootstrapPlan;
+}>> {
+  const actor = await resolveWebActor();
+  if (!actor) {
+    return {
+      ok: false,
+      kind: "authentication",
+      message:
+        "Sign in before confirming a Bootstrap Plan into canonical project state."
+    };
+  }
+
+  try {
+    const bootstrapPlan = createProjectBootstrapPlan(input);
+    const ids = newCanonicalIds();
+    const now = new Date().toISOString();
+    const canonicalProfile: ProjectProfile = {
+      ...structuredClone(bootstrapPlan.profile),
+      id: ids.profileId,
+      projectId: ids.projectId,
+      meta: {
+        schemaVersion: "1.0.0",
+        recordVersion: 1,
+        createdAt: now,
+        updatedAt: now
+      },
+      extensions: {
+        ...(bootstrapPlan.profile.extensions ?? {}),
+        bootstrapPreviewFingerprint: bootstrapPlan.intentFingerprint,
+        bootstrapConfirmedAt: now
+      }
+    };
+
+    const runtime = getBlueprintServerRuntime();
+    const resolution = await runtime.profiles.create(
+      actor,
+      canonicalProfile
+    );
+
+    return {
+      ok: true,
+      value: {
+        profile: resolution.profile,
+        blueprint: resolution.blueprint,
+        templateVersions: resolution.templateVersions,
+        bootstrapPlan
       }
     };
   } catch (error) {
