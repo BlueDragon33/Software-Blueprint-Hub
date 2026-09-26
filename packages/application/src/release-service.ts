@@ -69,6 +69,7 @@ export class ReleaseLessonsApplicationService {
 
     await this.assertReleaseEvidence(value);
     this.assertReleaseLifecycle(value);
+    await this.assertRollbackTarget(value);
 
     return this.repository.createRelease(value);
   }
@@ -109,6 +110,7 @@ export class ReleaseLessonsApplicationService {
 
     await this.assertReleaseEvidence(value);
     this.assertReleaseLifecycle(value);
+    await this.assertRollbackTarget(value);
 
     return this.repository.updateRelease(value, expectedRecordVersion);
   }
@@ -158,6 +160,41 @@ export class ReleaseLessonsApplicationService {
     if (value.status === "rolled-back" && !value.rollbackRevision?.trim()) {
       throw new TypeError(
         "Rolled-back ReleaseRecord requires rollbackRevision"
+      );
+    }
+  }
+
+  private async assertRollbackTarget(value: ReleaseRecord): Promise<void> {
+    if (value.status !== "rolled-back") {
+      return;
+    }
+
+    const rollbackRevision = value.rollbackRevision?.trim();
+    if (!rollbackRevision) {
+      return;
+    }
+
+    if (rollbackRevision === value.revision) {
+      throw new TypeError(
+        "Rollback revision must differ from the release revision being rolled back"
+      );
+    }
+
+    const history = await this.repository.listReleasesByProject(
+      value.projectId
+    );
+    const target = history.find(
+      (release) =>
+        release.id !== value.id &&
+        release.revision === rollbackRevision &&
+        (release.status === "released" ||
+          release.status === "rolled-back" ||
+          release.status === "superseded")
+    );
+
+    if (!target) {
+      throw new TypeError(
+        `Rollback revision ${rollbackRevision} is not a canonical previously released revision in this project`
       );
     }
   }

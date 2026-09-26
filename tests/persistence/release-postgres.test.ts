@@ -223,6 +223,42 @@ describePostgres("P6-006 Release & Lessons PostgreSQL + authority integration", 
     return { principalId: viewer.id };
   }
 
+  async function seedRollbackTarget(
+    owner: { principalId: string }
+  ): Promise<void> {
+    const previousRevision = "revision-p6-006-previous";
+    const previousEvidence: GateEvidence = {
+      ...evidence,
+      id: "evidence:p7-007-rollback-target",
+      revision: previousRevision,
+      createdAt: "2026-09-26T00:42:30Z"
+    };
+
+    await workRepository.createGateEvidence(previousEvidence);
+    await workRepository.updateQualityGate(
+      {
+        ...gate,
+        evidenceIds: [evidence.id, previousEvidence.id],
+        meta: {
+          ...gate.meta,
+          recordVersion: 2,
+          updatedAt: "2026-09-26T00:42:45Z"
+        }
+      },
+      1
+    );
+
+    await service.createRelease(owner, {
+      ...release(),
+      id: "release:p7-007-rollback-target",
+      version: "v0.9.0",
+      revision: previousRevision,
+      gateEvidenceIds: [previousEvidence.id],
+      releasedAt: "2026-09-26T00:43:30Z",
+      notes: "Canonical rollback target fixture."
+    });
+  }
+
   it("persists an exact-revision release and linked lesson", async () => {
     const owner = await ownerActor();
     await service.createRelease(owner, release());
@@ -279,6 +315,7 @@ describePostgres("P6-006 Release & Lessons PostgreSQL + authority integration", 
 
   it("keeps released identity immutable and rejects stale optimistic updates", async () => {
     const owner = await ownerActor();
+    await seedRollbackTarget(owner);
     const initial = release();
     await service.createRelease(owner, initial);
 
@@ -307,6 +344,38 @@ describePostgres("P6-006 Release & Lessons PostgreSQL + authority integration", 
         1
       )
     ).rejects.toBeInstanceOf(RecordVersionConflictError);
+  });
+
+  it("requires rollbackRevision to identify a canonical prior released revision", async () => {
+    const owner = await ownerActor();
+
+    await expect(
+      service.createRelease(owner, {
+        ...release("rolled-back"),
+        id: "release:p7-007-unknown-rollback",
+        rollbackRevision: "revision:not-canonical"
+      })
+    ).rejects.toThrow(/not a canonical previously released revision/);
+
+    await expect(
+      service.createRelease(owner, {
+        ...release("rolled-back"),
+        id: "release:p7-007-self-rollback",
+        rollbackRevision: revision
+      })
+    ).rejects.toThrow(/must differ from the release revision/);
+
+    await seedRollbackTarget(owner);
+
+    await expect(
+      service.createRelease(owner, {
+        ...release("rolled-back"),
+        id: "release:p7-007-valid-rollback"
+      })
+    ).resolves.toMatchObject({
+      rollbackRevision: "revision-p6-006-previous",
+      status: "rolled-back"
+    });
   });
 
   it("rejects lessons linked outside canonical release/work state", async () => {
