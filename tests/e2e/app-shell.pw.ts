@@ -794,3 +794,62 @@ test("critical preview journey is keyboard-operable", async ({ page }) => {
     page.getByText(/requires an authenticated, authorized actor/)
   ).toBeVisible();
 });
+
+
+test("P9-011 signed-out portfolio protects canonical project metadata", async ({
+  page
+}, testInfo) => {
+  await page.goto("/portfolio");
+
+  await expect(
+    page.getByRole("heading", { name: "Portfolio", exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Sign in to open your authority-filtered portfolio."
+    })
+  ).toBeVisible();
+  await expect(page.getByText(registryAlphaName, { exact: true })).toHaveCount(0);
+  await expect(page.getByText(registryBetaName, { exact: true })).toHaveCount(0);
+
+  await page.screenshot({
+    path: `artifacts/p9-011-portfolio-signed-out-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("P9-011 portfolio shows only authority-filtered registry metadata without combined readiness", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/portfolio");
+
+  await expect(
+    page.getByRole("heading", { name: "Portfolio", exact: true })
+  ).toBeVisible();
+  await expect(page.getByText(registryAlphaName, { exact: true })).toBeVisible();
+  await expect(page.getByText(registryBetaName, { exact: true })).toBeVisible();
+  await expect(page.getByText("Authority filtered", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("No combined readiness", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText(/does not merge project authority, readiness, Quality Gate state/i)
+  ).toBeVisible();
+
+  const portfolio = page.locator("main.portfolio-page");
+  await expect(portfolio).not.toContainText(/Quality Gate PASS/i);
+  await expect(portfolio).not.toContainText(/% complete/i);
+  await expect(portfolio).not.toContainText(/global readiness/i);
+
+  const beta = page.getByRole("link", { name: new RegExp(registryBetaName) });
+  await expect(beta).toHaveAttribute(
+    "href",
+    "/projects/project%3Ap6-registry-beta"
+  );
+
+  await page.screenshot({
+    path: `artifacts/p9-011-portfolio-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
