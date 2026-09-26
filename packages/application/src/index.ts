@@ -235,3 +235,5 @@ export * from "./compass-architecture";
 export * from "./project-bootstrap";
 
 export * from "./pattern-governance";
+
+export * from "./canonical-portability";
