@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 8 Bauman Reference Import Work Packages
 
-Status: **P8-001–P8-005 DEVELOPMENT BASELINE COMPLETE / P8-006 ACTIVE — PHASE 8 ACTIVE**
+Status: **P8-001–P8-007 DEVELOPMENT BASELINE COMPLETE — PHASE 8 PASS**
 
 Phase 8 uses the Bauman next-generation architecture dossier as a real external reference case to prove that Blueprint OS can absorb a complex software blueprint without making Universal Core Bauman-specific.
 
@@ -122,7 +122,7 @@ Implementation:
 
 ## P8-005 — Machine-readable reference import contract
 
-Status: **NEXT**
+Status: **COMPLETE**
 
 Dependencies: P8-002, P8-003.
 
@@ -136,9 +136,18 @@ Acceptance:
 - no network fetch is required for canonical runtime reads;
 - validation fails closed on missing provenance.
 
+Completion evidence:
+- canonical schema: `schemas/reference-import-manifest.v1.json`;
+- validated local manifest: `packages/application/src/reference-imports/bauman-nextgen-v1.json`;
+- fail-closed application loader: `packages/application/src/reference-imports.ts`;
+- schema baseline and compatibility guard protect breaking changes;
+- exact PR-head Development Fast CI passed on PR #34 head `71b4938d40ed7116426a7d753b3d9793f190a78a`;
+- PR #34 merged to `main` as `9bd77b2741a9b7b89d0b744c4dfc90df092b2e2d`;
+- full Release Gate and Production deployment remain explicitly unclaimed.
+
 ## P8-006 — Bauman production-candidate regression
 
-Status: **PLANNED**
+Status: **COMPLETE**
 
 Dependencies: P8-003, P8-004, P8-005.
 
@@ -151,9 +160,16 @@ Acceptance:
 - no Bauman import mutates unrelated canonical projects;
 - exact-revision Development/Release evidence can be produced without claiming deployment.
 
+Completion evidence:
+- cross-boundary regression: `tests/application/bauman-reference-regression.test.ts`;
+- exact PR-head Development Fast CI passed on `810a60f84c57872be100c8f7fbca2820e6cc7585`;
+- PR #35 merged to `main` as `023b0cb4f7cd0149b8f41f158483f1cdedee8f04`;
+- Reference Import reads do not mutate unrelated canonical Project, Prompt or Quality state;
+- full Release Gate and Production deployment remain explicitly unclaimed.
+
 ## P8-007 — Phase 8 Reference Import Gate
 
-Status: **PLANNED**
+Status: **PASS — DEVELOPMENT BASELINE**
 
 Dependencies: P8-001 through P8-006.
 
@@ -161,5 +177,11 @@ Purpose:
 Decide whether Blueprint OS has proven safe reference import and production-candidate behavior on a complex real project.
 
 PASS requires no P0/P1 defect, no source-of-truth contradiction, no provenance loss, no accidental Bauman-specific Core coupling, and exact-revision gate evidence.
+
+Gate evidence document: `projects/blueprint-os/P8-007-REFERENCE-IMPORT-GATE.md`.
+
+Automated isolation coverage: `tests/architecture/reference-core-coupling.test.ts`.
+
+Candidate exact PR-head Fast CI passed on `befceb6223293b866d6b5eb19b34231a26566bac` in PR #36. The final PASS revision must also pass Fast CI before merge.
 
 A PASS still does not authorize Production deployment.
