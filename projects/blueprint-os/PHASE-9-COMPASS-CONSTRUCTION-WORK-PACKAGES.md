@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-015 COMPLETE / P9-016 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-016 COMPLETE / P9-017 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -299,13 +299,21 @@ Completion evidence:
 - Data Lifecycle workspace exposes the policy without destructive controls.
 
 ### P9-016 — Accessibility & adaptive UX audit
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Revalidate desktop/tablet/mobile, keyboard, focus, contrast, reduced motion and dense-view behavior.
 
+Completion evidence:
+- P9-016 merged in PR #61 as `38960d4312de41063859c0bc6544dbd3600278fb`;
+- exact merged revision passed Development Fast CI and full Release Gate;
+- Release Gate now executes desktop, tablet/iPad-class and mobile Playwright projects;
+- current Data Lifecycle workspace passed reduced-motion, overflow, focus, active-route and responsive-navigation checks;
+- existing keyboard/skip-link/textual-status accessibility regressions remained green;
+- Human UX evidence upload completed successfully.
+
 ### P9-017 — Performance & capacity proof
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Validate current product against documented NFR/capacity budgets with real measurements.

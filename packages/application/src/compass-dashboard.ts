@@ -48,43 +48,43 @@ const projection: BlueprintCompassProjection = Object.freeze({
   currentStorey: Object.freeze({
     number: 20,
     total: 20,
-    name: "Compass Acceptance & adaptive UX audit"
+    name: "Compass Acceptance & performance capacity proof"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-016",
-    title: "Accessibility & adaptive UX audit",
+    id: "P9-017",
+    title: "Performance & capacity proof",
     storey: 20,
     status: "active",
     reason:
-      "P9-015 passed the full Release Gate; the current Phase 9 product can now be re-audited across desktop, tablet and mobile with keyboard, focus, reduced-motion and overflow evidence."
+      "P9-016 passed the full Release Gate across desktop, tablet and mobile; current architecture can now be measured against explicit capacity and regression budgets."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-015",
-      title: "Data lifecycle & archive",
-      storey: 20,
-      status: "complete",
-      reason:
-        "Retention, archive, export, migration and deletion laws passed the full Release Gate without adding destructive authority."
-    }),
     Object.freeze({
       id: "P9-016",
       title: "Accessibility & adaptive UX audit",
       storey: 20,
-      status: "active",
+      status: "complete",
       reason:
-        "Desktop, tablet and mobile must now prove keyboard, focus, reduced-motion, overflow and dense-view behavior against the current product."
+        "Desktop, tablet and mobile adaptive UX passed full Release Gate including Playwright and Human UX evidence."
     }),
     Object.freeze({
       id: "P9-017",
       title: "Performance & capacity proof",
       storey: 20,
+      status: "active",
+      reason:
+        "Capacity budgets and deterministic CPU regression ceilings must now be proven against synthetic target loads."
+    }),
+    Object.freeze({
+      id: "P9-018",
+      title: "Ecosystem dogfood regression",
+      storey: 20,
       status: "next",
       reason:
-        "Measured performance/capacity proof follows after adaptive UX behavior is green on all target viewports."
+        "Cross-project dogfooding follows only after current architecture proves explicit capacity bounds."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -204,11 +204,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "5a664f608b07623a2a89b4d2078c37ddaedd7e43",
       source: "Software-Blueprint-Hub PR #60 / main Release Gate",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-016 Accessibility & Adaptive UX full Release Gate",
+      revision: "38960d4312de41063859c0bc6544dbd3600278fb",
+      source: "Software-Blueprint-Hub PR #61 / main Release Gate",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-016 by passing desktop, tablet and mobile accessibility/adaptive Playwright evidence against the current product.",
-    "Start P9-017 Performance & Capacity Proof only after P9-016 exact PR-head evidence and full Release Gate are green.",
+    "Complete P9-017 with explicit capacity budgets, synthetic target-load proof and preserved P7-005 N+1 protections.",
+    "Start P9-018 Ecosystem Dogfood Regression only after P9-017 exact PR-head evidence and full Release Gate are green.",
     "Production publish remains blocked until a real deployment provider is connected and explicit external execution succeeds."
   ]),
   truthNote:
