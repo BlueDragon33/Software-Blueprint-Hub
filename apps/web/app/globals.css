@@ -3407,3 +3407,279 @@ textarea:focus-visible,
     align-items: flex-start;
   }
 }
+
+
+/* Phase 9 — System Compass */
+.compass-page {
+  max-width: 92rem;
+}
+
+.system-compass {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+  padding: 1.15rem;
+  border: 1px solid rgba(58, 78, 138, 0.14);
+  border-radius: 1.15rem;
+  background: linear-gradient(145deg, rgba(247, 249, 255, 0.98), rgba(255, 255, 255, 0.98));
+  box-shadow: 0 0.8rem 2.2rem rgba(39, 53, 93, 0.08);
+}
+
+.system-compass-header,
+.system-compass-panel-heading,
+.system-compass-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.system-compass-header h2,
+.system-compass-current h3,
+.system-compass-panel h3 {
+  margin: 0;
+  color: #24324d;
+}
+
+.system-compass-header > div:first-child,
+.system-compass-current > div:last-child,
+.system-compass-panel-heading > div {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.system-compass-header > div:first-child {
+  max-width: 52rem;
+}
+
+.system-compass-header p:not(.section-kicker),
+.system-compass-current p:not(.section-kicker),
+.system-compass-panel p,
+.system-compass-footer p {
+  margin: 0;
+  color: #66728a;
+  line-height: 1.55;
+}
+
+.system-compass-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.system-compass-current {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 0.95rem;
+  background: #eef2ff;
+}
+
+.system-compass-storey {
+  display: grid;
+  min-width: 5rem;
+  min-height: 5rem;
+  place-items: center;
+  align-content: center;
+  border-radius: 0.85rem;
+  color: #fff;
+  background: linear-gradient(145deg, #334bc7, #6677ec);
+  box-shadow: 0 0.55rem 1.2rem rgba(51, 75, 199, 0.2);
+}
+
+.system-compass-storey span {
+  font-size: 1.65rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.system-compass-storey small {
+  margin-top: 0.3rem;
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.system-compass-sequence {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.system-compass-sequence article {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 0.65rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.78rem;
+  border: 1px solid #e2e7f0;
+  border-radius: 0.82rem;
+  background: #fff;
+}
+
+.system-compass-sequence article[data-status="active"] {
+  border-color: #aeb9f5;
+  background: #f7f8ff;
+}
+
+.system-compass-sequence article > div {
+  display: grid;
+}
+
+.system-compass-sequence article small {
+  color: #8a94a7;
+  font-size: 0.64rem;
+}
+
+.system-compass-sequence article strong {
+  color: #354563;
+  font-size: 0.8rem;
+}
+
+.system-compass-sequence article > span {
+  min-width: 0;
+  color: #5c6880;
+  font-size: 0.75rem;
+}
+
+.system-compass-sequence .bp-status-chip {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.system-compass-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.system-compass-panel {
+  min-width: 0;
+  padding: 0.95rem;
+  border: 1px solid #e1e6ef;
+  border-radius: 0.9rem;
+  background: #fbfcff;
+}
+
+.system-compass-panel-heading {
+  margin-bottom: 0.75rem;
+}
+
+.system-compass-note {
+  padding: 0.7rem;
+  border-radius: 0.72rem;
+  background: #f0f3f9;
+  font-size: 0.78rem;
+}
+
+.system-compass-risk-list,
+.system-compass-evidence-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.system-compass-risk-list > div,
+.system-compass-evidence-list > div {
+  padding: 0.7rem;
+  border-radius: 0.7rem;
+  background: #fff;
+}
+
+.system-compass-risk-list strong,
+.system-compass-evidence-list strong {
+  color: #3e4c68;
+  font-size: 0.77rem;
+}
+
+.system-compass-risk-list p {
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+}
+
+.system-compass-evidence-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.system-compass-evidence-list span {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.system-compass-evidence-list small {
+  color: #8993a5;
+  font-size: 0.67rem;
+}
+
+.system-compass-evidence-list code {
+  align-self: center;
+  color: #44558b;
+  font-size: 0.68rem;
+  overflow-wrap: anywhere;
+}
+
+.system-compass-next-list {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #5f6c84;
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.system-compass-footer {
+  align-items: center;
+  padding-top: 0.2rem;
+}
+
+.system-compass-footer p {
+  max-width: 62rem;
+  font-size: 0.7rem;
+}
+
+.system-compass-compact .system-compass-detail-grid {
+  display: none;
+}
+
+@media (max-width: 820px) {
+  .system-compass-header,
+  .system-compass-footer {
+    display: grid;
+  }
+
+  .system-compass-badges {
+    justify-content: flex-start;
+  }
+
+  .system-compass-sequence,
+  .system-compass-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .system-compass {
+    padding: 0.85rem;
+  }
+
+  .system-compass-current {
+    grid-template-columns: 1fr;
+  }
+
+  .system-compass-storey {
+    min-width: 4.25rem;
+    min-height: 4.25rem;
+    justify-self: start;
+  }
+
+  .system-compass-evidence-list > div {
+    display: grid;
+  }
+}
