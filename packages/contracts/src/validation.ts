@@ -2,6 +2,7 @@ import type { ErrorObject, ValidateFunction } from "ajv";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 
+import referenceImportSchemaJson from "../../../schemas/reference-import-manifest.v1.json";
 import canonicalSchema from "../../../schemas/vertical-slice.contracts.v1.json";
 
 export type VerticalSliceContractName =
@@ -34,6 +35,7 @@ interface CanonicalSchemaShape {
 }
 
 const schema = canonicalSchema as typeof canonicalSchema & CanonicalSchemaShape;
+const referenceImportSchema = referenceImportSchemaJson as typeof referenceImportSchemaJson & CanonicalSchemaShape;
 
 const ajv = new Ajv2020({
   allErrors: true,
@@ -43,6 +45,7 @@ const ajv = new Ajv2020({
 
 addFormats(ajv, { mode: "full" });
 ajv.addSchema(schema);
+ajv.addSchema(referenceImportSchema);
 
 const validators = new Map<VerticalSliceContractName, ValidateFunction>();
 
@@ -88,4 +91,18 @@ export function validateContract(
 
 export function validateProjectProfile(value: unknown): ContractValidationResult {
   return validateContract("ProjectProfile", value);
+}
+
+const referenceImportValidator =
+  ajv.getSchema(referenceImportSchema.$id) ?? ajv.compile(referenceImportSchema);
+
+export function validateReferenceImportManifest(
+  value: unknown
+): ContractValidationResult {
+  const valid = referenceImportValidator(value);
+
+  return Object.freeze({
+    valid: Boolean(valid),
+    errors: Object.freeze(normalizeErrors(referenceImportValidator.errors))
+  });
 }
