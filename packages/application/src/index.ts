@@ -151,6 +151,16 @@ export class ProjectProfileApplicationService {
     await this.authority.require(actor, profile.projectId, "PROJECT_MUTATE");
     assertValidProfile(profile);
 
+    const current = await this.profiles.findProfileByProjectId(profile.projectId);
+    if (!current) {
+      throw new TypeError(`Unknown ProjectProfile for ${profile.projectId}`);
+    }
+    if (current.id !== profile.id) {
+      throw new TypeError(
+        `ProjectProfile identity is immutable; expected ${current.id}, received ${profile.id}`
+      );
+    }
+
     const resolved = await this.resolve(profile);
     const stored = await this.profiles.updateProfile(
       profile,
