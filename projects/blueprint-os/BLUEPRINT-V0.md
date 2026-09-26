@@ -82,9 +82,9 @@ These are Project 0001 implementation decisions, not Universal Constitution.
 - Phase 3 — Meta-model/schema baseline: sufficient for Foundation; hardening continues through contract tests.
 - Phase 4 — Repository/runtime Foundation: complete; A1 PASS.
 - Phase 5 — First vertical slice: complete; A2 PASS.
-- Phase 6 — Professional Web UI / product expansion: **authorized next**.
-- Phase 7 — QA/hardening.
-- Phase 8 — Bauman reference import.
+- Phase 6 — Professional Web UI / product expansion: complete; Product UX Gate PASS.
+- Phase 7 — QA/hardening: complete; Hardening Gate PASS.
+- Phase 8 — Bauman reference import / production-candidate validation: **active**.
 
 ## First Vertical Slice
 
@@ -138,10 +138,32 @@ Evidence:
 - Playwright desktop/mobile evidence
 - Human UX review
 
+### Phase 6 — Product UX Gate
+
+**PASS — 2026-09-26**
+
+Evidence:
+- `P6-009-PRODUCT-UX-GATE.md`
+- Phase 6 Work Packages
+- coherent Project Registry / Workspace / Knowledge / Prompt / Governance / Release surfaces
+- desktop/mobile Human UX evidence
+
+### Phase 7 — Hardening Gate
+
+**PASS — 2026-09-26**
+
+Evidence:
+- `P7-008-HARDENING-GATE.md`
+- `PHASE-7-HARDENING-WORK-PACKAGES.md`
+- mobile, progressive disclosure, accessibility, resilience, performance, authority/security and release-safety hardening
+- exact-revision Release Gate evidence
+
 ### Next phase
 
-**Phase 6 — Professional Web UI / product expansion**
+**Phase 8 — Bauman reference import / production-candidate validation**
 
-New work must remain dependency-driven and preserve Preview/Canonical authority, evidence truthfulness and exact-revision quality gates.
+Phase 8 uses Bauman as a provenance-safe external Reference Case to test Blueprint OS against a complex real software blueprint. Bauman-specific concepts remain project/reference knowledge unless a separate cross-project universality decision justifies Core changes.
 
-A2 PASS does not authorize production deployment.
+Source-of-truth: `PHASE-8-BAUMAN-REFERENCE-WORK-PACKAGES.md`.
+
+Phase 7 PASS authorizes this work but does not authorize Production deployment.
