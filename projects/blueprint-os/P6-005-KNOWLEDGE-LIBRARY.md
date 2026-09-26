@@ -1,6 +1,6 @@
 # P6-005 — Knowledge Library
 
-Status: **IN PROGRESS**
+Status: **COMPLETE — CI/E2E/HUMAN UX EVIDENCE ACCEPTED**
 
 ## Purpose
 
@@ -106,5 +106,47 @@ P6-005 may PASS only when:
 - `/knowledge` browser journey passes desktop/mobile;
 - Human UX review finds no blocking P0/P1 issue;
 - exact-head push and PR CI are green.
+
+Production deployment remains unauthorized.
+
+
+## Completion evidence
+
+Reviewed implementation revision before completion-status commit:
+
+`6d42a5306afa36212806584c024a70aaf649de94`
+
+Automated evidence:
+
+- push CI run `36204513441`: **SUCCESS**;
+- PR CI run `36204515551`: **SUCCESS**;
+- application tests confirm reusable items contain no projectId, readiness or gate status;
+- browser E2E verifies existing canonical reusable sources are visible;
+- browser E2E verifies Pattern / Anti-pattern / Reference Case empty states remain empty;
+- browser E2E verifies reusable cards contain no project-instance id/readiness/Gate PASS state;
+- desktop/mobile screenshot artifact uploaded.
+
+Human UX artifact:
+
+- artifact id: `10892803075`;
+- digest: `sha256:4a737dbf8251ca39953392efd3af4b1ccac2e9b39ed3b42e4ba0362b693f7412`.
+
+Human review findings:
+
+1. Reusable-vs-project authority boundary is explained before the catalog.
+2. Source path, version, baseline status and authority layer are scannable.
+3. Template definitions remain visually distinct from project completion state.
+4. Empty Pattern / Anti-pattern / Reference Case sections are explicit rather than fabricated.
+5. Desktop uses a readable two-column template/reference catalog.
+6. Mobile becomes a single-column catalog without horizontal page overflow.
+7. Category navigation and final actions remain usable on mobile.
+8. Mobile catalog is intentionally long because all published items remain visible; density may be optimized later without changing truth semantics.
+9. No blocking P0/P1 UX defect was observed.
+
+## Result
+
+**P6-005 = COMPLETE**
+
+P6-006 — Release & Lessons is the next dependency Work Package.
 
 Production deployment remains unauthorized.
