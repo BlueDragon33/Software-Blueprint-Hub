@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 7 Hardening Work Packages
 
-Status: **P7-001/P7-002/P7-003/P7-004/P7-005 COMPLETE / P7-006 NEXT**
+Status: **P7-001/P7-002/P7-003/P7-004/P7-005 COMPLETE / P7-006 IN PROGRESS**
 
 Phase 7 improves usability, accessibility, resilience and operational confidence without weakening the canonical architecture proven in Phases 1–6.
 
@@ -61,7 +61,7 @@ Reduce unnecessary server/client work and long-view rendering cost while preserv
 
 ## P7-006 — Authority and security regression hardening
 
-Status: **NEXT / AUTHORIZED AFTER P7-005 MERGE**
+Status: **IN PROGRESS**
 
 Dependencies: Phase 6 authority baseline.
 
