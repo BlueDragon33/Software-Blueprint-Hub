@@ -222,9 +222,30 @@ test("canonical project workspace has stable truthful views", async ({
 
   await page.getByRole("link", { name: /Releases & Lessons/ }).click();
   await expect(
-    page.getByRole("heading", { name: "Releases & Lessons" })
+    page.getByRole("heading", {
+      name: "Exact revisions, rollback history and reusable learning"
+    })
   ).toBeVisible();
-  await expect(page.getByText("P6-006", { exact: true })).toBeVisible();
+  await expect(page.getByText("v1.0.0", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("revision-p6-006-e2e", { exact: true }).first()
+  ).toBeVisible();
+  await expect(
+    page.getByText("evidence:p6-006-release", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Release evidence must match the shipped revision", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("release:p6-006-beta-v1", { exact: true }).first()
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p6-006-releases-lessons-${testInfo.project.name}.png`,
+    fullPage: true
+  });
 
   await page.getByRole("link", { name: /Overview/ }).click();
   await expect(
