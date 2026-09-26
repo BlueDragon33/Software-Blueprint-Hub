@@ -30,7 +30,7 @@ jobs:
           test -f package.json
           test -f prisma7.config.ts
           test -d prisma
-          test -d app
+          test -d apps
           node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))"
       - name: Development mode
         run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
