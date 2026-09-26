@@ -779,6 +779,167 @@
         }
       },
       "additionalProperties": false
+    },
+    "ReleaseRecord": {
+      "type": "object",
+      "required": [
+        "id",
+        "projectId",
+        "version",
+        "revision",
+        "environment",
+        "artifactSource",
+        "status",
+        "gateEvidenceIds",
+        "rollbackPlan",
+        "meta"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "projectId": {
+          "$ref": "#/$defs/Id"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "environment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "artifactSource": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "status": {
+          "enum": [
+            "planned",
+            "candidate",
+            "released",
+            "rolled-back",
+            "superseded"
+          ]
+        },
+        "releasedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "gateEvidenceIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "rollbackPlan": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "rollbackRevision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "meta": {
+          "$ref": "#/$defs/RecordMeta"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LessonLearned": {
+      "type": "object",
+      "required": [
+        "id",
+        "projectId",
+        "title",
+        "category",
+        "observation",
+        "impact",
+        "action",
+        "source",
+        "sourceRevision",
+        "linkedWorkPackageIds",
+        "meta"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "projectId": {
+          "$ref": "#/$defs/Id"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "category": {
+          "enum": [
+            "product",
+            "architecture",
+            "data",
+            "ux",
+            "security",
+            "quality",
+            "operations",
+            "governance"
+          ]
+        },
+        "observation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "impact": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "sourceRevision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "releaseId": {
+          "$ref": "#/$defs/Id"
+        },
+        "linkedWorkPackageIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/Id"
+          }
+        },
+        "meta": {
+          "$ref": "#/$defs/RecordMeta"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "properties": {
@@ -808,6 +969,12 @@
     },
     "technicalDebt": {
       "$ref": "#/$defs/TechnicalDebt"
+    },
+    "releaseRecord": {
+      "$ref": "#/$defs/ReleaseRecord"
+    },
+    "lessonLearned": {
+      "$ref": "#/$defs/LessonLearned"
     }
   },
   "additionalProperties": false
