@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import type { KnowledgeLibraryItem } from "@blueprint-os/application";
 import { AppShell, StatusChip } from "@blueprint-os/ui";
 
 import { findReferenceCaseProjection } from "../../../../src/knowledge/reference-case-projections";
@@ -23,7 +24,7 @@ export default async function ReferenceCasePage({
     notFound();
   }
 
-  let item;
+  let item: KnowledgeLibraryItem | null;
 
   try {
     item = getBlueprintServerRuntime().knowledge.find(
