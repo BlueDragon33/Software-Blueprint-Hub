@@ -36,10 +36,22 @@ jobs:
     env:
       DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_test
       AUTH_SECRET: p6-e2e-auth-secret-2026-blueprint-os-registry
+      RELEASE_GATE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
 
     steps:
-      - name: Checkout
+      - name: Checkout exact release revision
         uses: actions/checkout@v5
+        with:
+          ref: ${{ env.RELEASE_GATE_REVISION }}
+
+      - name: Verify exact release revision checkout
+        shell: bash
+        run: |
+          actual="$(git rev-parse HEAD)"
+          if [ "$actual" != "$RELEASE_GATE_REVISION" ]; then
+            echo "Expected release revision $RELEASE_GATE_REVISION but checked out $actual" >&2
+            exit 1
+          fi
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -98,11 +110,14 @@ jobs:
       - name: App Shell E2E + screenshots
         run: pnpm test:e2e
 
-      - name: Upload Human UX evidence
+      - name: Generate Release Gate evidence manifest
+        run: node scripts/release-gate-evidence.mjs artifacts/release-gate-evidence.json
+
+      - name: Upload Human UX and operational evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: release-gate-human-ux-${{ github.sha }}
+          name: release-gate-evidence-${{ env.RELEASE_GATE_REVISION }}
           path: |
             artifacts/
             playwright-report/
