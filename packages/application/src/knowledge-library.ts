@@ -189,6 +189,7 @@ const sectionDefinitions: readonly Omit<KnowledgeLibrarySection, "items">[] =
 
 const knowledgeItems: readonly KnowledgeLibraryItem[] = Object.freeze([
   ...referenceItems,
+  ...referenceCaseItems,
   ...templateItems
 ]);
 
