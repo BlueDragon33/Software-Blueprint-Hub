@@ -1,4 +1,11 @@
 import type { BlueprintServerRuntime } from "@blueprint-os/runtime";
+import {
+  EmptyState,
+  MetricCard,
+  SectionHeading,
+  StatusChip,
+  type StatusTone
+} from "@blueprint-os/ui";
 
 type ReadinessSnapshot = Awaited<
   ReturnType<BlueprintServerRuntime["readiness"]["read"]>
@@ -14,11 +21,11 @@ function readinessLabel(state: ReadinessState): string {
   return "In progress";
 }
 
-function readinessChipClass(state: ReadinessState): string {
-  if (state === "blocked") return "status-chip-warning";
-  if (state === "gate-ready") return "status-chip-success";
-  if (state === "attention") return "status-chip-info";
-  return "status-chip-neutral";
+function readinessTone(state: ReadinessState): StatusTone {
+  if (state === "blocked") return "warning";
+  if (state === "gate-ready") return "success";
+  if (state === "attention") return "info";
+  return "neutral";
 }
 
 function evidenceLabel(freshness: EvidenceFreshness): string {
@@ -27,11 +34,11 @@ function evidenceLabel(freshness: EvidenceFreshness): string {
   return "Revision recorded · currentness unverified";
 }
 
-function gateStatusClass(status: string): string {
-  if (status === "pass") return "status-chip-success";
-  if (status === "fail" || status === "missing") return "status-chip-warning";
-  if (status === "candidate") return "status-chip-info";
-  return "status-chip-neutral";
+function gateStatusTone(status: string): StatusTone {
+  if (status === "pass") return "success";
+  if (status === "fail" || status === "missing") return "warning";
+  if (status === "candidate") return "info";
+  return "neutral";
 }
 
 function shortRevision(revision: string | null): string | null {
@@ -58,62 +65,69 @@ export function ReadinessOverview({
             Blueprint OS does not manufacture a progress percentage.
           </p>
         </div>
-        <span
-          className={"status-chip " + readinessChipClass(readiness.state)}
-        >
+        <StatusChip tone={readinessTone(readiness.state)}>
           {readinessLabel(readiness.state)}
-        </span>
+        </StatusChip>
       </section>
 
       <section
         className="readiness-metrics"
         aria-label="Canonical readiness summary"
       >
-        <article className="readiness-metric">
-          <span>Required gates</span>
-          <strong>
-            {readiness.gateSummary.passRequired} /{" "}
-            {readiness.gateSummary.required} PASS
-          </strong>
-          <small>
-            {readiness.gateSummary.missingRequired > 0
+        <MetricCard
+          className="readiness-metric"
+          label="Required gates"
+          value={
+            <>
+              {readiness.gateSummary.passRequired} /{" "}
+              {readiness.gateSummary.required} PASS
+            </>
+          }
+          detail={
+            readiness.gateSummary.missingRequired > 0
               ? readiness.gateSummary.missingRequired +
                 " required gate records missing"
               : readiness.gateSummary.trackedRequired +
-                " required gates tracked"}
-          </small>
-        </article>
-        <article className="readiness-metric">
-          <span>Canonical work</span>
-          <strong>{readiness.workSummary.blocked} blocked</strong>
-          <small>
-            {readiness.workSummary.completed} of {readiness.workSummary.total}{" "}
-            completed
-          </small>
-        </article>
-        <article className="readiness-metric">
-          <span>Linked evidence</span>
-          <strong>{readiness.evidenceSummary.linked}</strong>
-          <small>{evidenceLabel(readiness.evidenceSummary.freshness)}</small>
-        </article>
+                " required gates tracked"
+          }
+        />
+        <MetricCard
+          className="readiness-metric"
+          label="Canonical work"
+          value={readiness.workSummary.blocked + " blocked"}
+          detail={
+            readiness.workSummary.completed +
+            " of " +
+            readiness.workSummary.total +
+            " completed"
+          }
+        />
+        <MetricCard
+          className="readiness-metric"
+          label="Linked evidence"
+          value={readiness.evidenceSummary.linked}
+          detail={evidenceLabel(readiness.evidenceSummary.freshness)}
+        />
       </section>
 
       <section className="readiness-detail-grid">
         <article className="readiness-panel">
-          <div className="readiness-panel-heading">
-            <div>
-              <p className="section-kicker">Active gates</p>
-              <h2>What still needs attention</h2>
-            </div>
-            <span className="status-chip status-chip-neutral">
-              {readiness.gateSummary.activeTracked} active
-            </span>
-          </div>
+          <SectionHeading
+            className="readiness-panel-heading"
+            kicker="Active gates"
+            title="What still needs attention"
+            aside={
+              <StatusChip>
+                {readiness.gateSummary.activeTracked} active
+              </StatusChip>
+            }
+          />
 
           {readiness.activeGates.length === 0 ? (
-            <div className="readiness-empty">
-              No active canonical gates are recorded.
-            </div>
+            <EmptyState
+              className="readiness-empty"
+              title="No active canonical gates are recorded."
+            />
           ) : (
             <div className="readiness-gate-list">
               {readiness.activeGates.slice(0, 8).map((gate) => (
@@ -128,15 +142,11 @@ export function ReadinessOverview({
                         : evidenceLabel(gate.evidenceFreshness)}
                     </small>
                   </div>
-                  <span
-                    className={
-                      "status-chip " + gateStatusClass(gate.status)
-                    }
-                  >
+                  <StatusChip tone={gateStatusTone(gate.status)}>
                     {gate.status === "missing"
                       ? "Missing"
                       : gate.status.replace("-", " ")}
-                  </span>
+                  </StatusChip>
                 </div>
               ))}
             </div>
@@ -157,20 +167,18 @@ export function ReadinessOverview({
           </article>
 
           <article className="readiness-panel">
-            <div className="readiness-panel-heading">
-              <div>
-                <p className="section-kicker">Blocked work</p>
-                <h2>Dependency blockers</h2>
-              </div>
-              <span className="status-chip status-chip-neutral">
-                {readiness.blockedWork.length}
-              </span>
-            </div>
+            <SectionHeading
+              className="readiness-panel-heading"
+              kicker="Blocked work"
+              title="Dependency blockers"
+              aside={<StatusChip>{readiness.blockedWork.length}</StatusChip>}
+            />
 
             {readiness.blockedWork.length === 0 ? (
-              <div className="readiness-empty">
-                No Work Package is blocked by an unfinished dependency.
-              </div>
+              <EmptyState
+                className="readiness-empty"
+                title="No Work Package is blocked by an unfinished dependency."
+              />
             ) : (
               <div className="readiness-blocker-list">
                 {readiness.blockedWork.slice(0, 6).map((work) => (
