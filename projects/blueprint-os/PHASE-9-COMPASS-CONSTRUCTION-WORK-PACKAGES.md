@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-002 COMPLETE / P9-003 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-003 COMPLETE / P9-004 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -114,13 +114,19 @@ Completion evidence:
 - no synthetic completion percentage or Production readiness is generated.
 
 ### P9-003 — 20-storey architecture projection
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Represent the construction map as structured, inspectable state derived from existing blueprint/work/gate truth rather than a decorative roadmap.
 
+Completion evidence:
+- P9-003 merged in PR #39 as `eb7f936b0e67dce8e9d614e41520ff982b02487e`;
+- twenty storeys are structured definitions with explicit lower-storey dependencies;
+- accepted/active/planned state is derived from the current Compass storey instead of stored as decorative completion flags;
+- the full map is keyboard-native and inspectable on `/compass`.
+
 ### P9-004 — Source-of-truth contradiction detector
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Automate detection of stale README/roadmap/gate statements, invalid phase transitions and conflicting lifecycle claims.

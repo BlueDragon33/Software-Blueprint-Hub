@@ -46,54 +46,54 @@ const projection: BlueprintCompassProjection = Object.freeze({
   projectId: "project:blueprint-os",
   phase: "Phase 9 — Compass Construction",
   currentStorey: Object.freeze({
-    number: 12,
+    number: 13,
     total: 20,
-    name: "Compass architecture"
+    name: "Self-audit & drift detection"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-003",
-    title: "20-storey architecture projection",
-    storey: 12,
+    id: "P9-004",
+    title: "Source-of-truth contradiction detector",
+    storey: 13,
     status: "active",
     reason:
-      "P9-002 established the truthful orientation surface, so the next valid step is a structured dependency-derived construction map."
+      "P9-003 made the construction structure inspectable; the next valid step is making contradictory lifecycle claims fail closed."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-001",
-      title: "Application Management contract & core registration",
-      storey: 11,
-      status: "complete",
-      reason:
-        "Blueprint OS publishes a metadata-only contract and Application Management now registers the app without canonical authority."
-    }),
-    Object.freeze({
-      id: "P9-002",
-      title: "Compass dashboard",
-      storey: 12,
-      status: "complete",
-      reason:
-        "The System Compass is now a first-class orientation surface with exact evidence and no synthetic progress percentage."
-    }),
     Object.freeze({
       id: "P9-003",
       title: "20-storey architecture projection",
       storey: 12,
+      status: "complete",
+      reason:
+        "All twenty storeys are now structured, dependency-linked and resolved from the Compass rather than decorative status flags."
+    }),
+    Object.freeze({
+      id: "P9-004",
+      title: "Source-of-truth contradiction detector",
+      storey: 13,
       status: "active",
       reason:
-        "Structured storey inspection is now the dependency-valid active Work Package."
+        "Checked-in roadmap, Compass, README, Blueprint and management-contract truth must now agree automatically."
+    }),
+    Object.freeze({
+      id: "P9-005",
+      title: "Project bootstrap factory",
+      storey: 14,
+      status: "next",
+      reason:
+        "New-project automation is allowed only after source-of-truth drift becomes fail-closed."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
   risks: Object.freeze([
     Object.freeze({
       id: "R-P9-DRIFT",
-      title: "Source-of-truth drift is not yet automatically detected",
+      title: "Source-of-truth drift must remain fail-closed as Phase 9 advances",
       treatment:
-        "P9-004 will add contradiction detection across roadmap, README, gates and runtime projections."
+        "P9-004 wires contradiction detection into Fast CI; future Work Packages must update roadmap and Compass together."
     }),
     Object.freeze({
       id: "R-P9-RELEASE",
@@ -126,11 +126,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "8d1ce6059eb66d91d432cafb0751fb6ab3c3aa63",
       source: "Software-Blueprint-Hub PR #38",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-003 20-storey architecture projection",
+      revision: "eb7f936b0e67dce8e9d614e41520ff982b02487e",
+      source: "Software-Blueprint-Hub PR #39",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-003 by proving the 20 storeys are structured and dependency-derived.",
-    "Start P9-004 contradiction detection only after the P9-003 exact PR head is green.",
+    "Complete P9-004 by making checked-in truth contradictions fail Fast CI.",
+    "Start P9-005 Project Bootstrap Factory only after the P9-004 exact PR head is green.",
     "Keep Production release unauthorized while Phase 9 remains Development Mode."
   ]),
   truthNote:
