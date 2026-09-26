@@ -231,3 +231,5 @@ export * from "./reference-imports";
 export * from "./compass-dashboard";
 
 export * from "./compass-architecture";
+
+export * from "./project-bootstrap";
