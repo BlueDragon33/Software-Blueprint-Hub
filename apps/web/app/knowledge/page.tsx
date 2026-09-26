@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { KnowledgeLibrarySection } from "@blueprint-os/application";
+import type { KnowledgeLibraryItem, KnowledgeLibrarySection } from "@blueprint-os/application";
 import { AppShell, EmptyState, SectionHeading, StatusChip } from "@blueprint-os/ui";
 
 import { getBlueprintServerRuntime } from "../../src/server/runtime";
@@ -10,6 +10,17 @@ export const dynamic = "force-dynamic";
 
 function kindLabel(kind: string): string {
   return kind.replaceAll("-", " ");
+}
+
+function referenceCaseHref(item: KnowledgeLibraryItem): string | null {
+  const prefix = "knowledge:reference-case:";
+
+  if (item.kind !== "reference-case" || !item.id.startsWith(prefix)) {
+    return null;
+  }
+
+  const caseId = item.id.slice(prefix.length);
+  return caseId ? `/knowledge/reference-cases/${encodeURIComponent(caseId)}` : null;
 }
 
 export default function KnowledgeLibraryPage() {
@@ -126,51 +137,65 @@ export default function KnowledgeLibraryPage() {
                 />
               ) : (
                 <div className="knowledge-grid">
-                  {section.items.map((item) => (
-                    <article className="knowledge-card" key={item.id}>
-                      <div className="knowledge-card-heading">
-                        <div>
-                          <span className="knowledge-kind">
-                            {kindLabel(item.kind)}
-                          </span>
-                          <h3>{item.title}</h3>
-                        </div>
-                        <StatusChip>v{item.version}</StatusChip>
-                      </div>
+                  {section.items.map((item) => {
+                    const caseHref = referenceCaseHref(item);
 
-                      <p>{item.summary}</p>
-
-                      <details className="canonical-disclosure knowledge-disclosure">
-                        <summary>
-                          Provenance & tags
-                          <span>{item.authorityLayer ?? "reference"}</span>
-                        </summary>
-
-                        <div className="canonical-disclosure-body">
-                          <dl className="knowledge-meta">
-                            <div>
-                              <dt>Status</dt>
-                              <dd>{item.status.replaceAll("-", " ")}</dd>
-                            </div>
-                            <div>
-                              <dt>Authority</dt>
-                              <dd>{item.authorityLayer ?? "reference"}</dd>
-                            </div>
-                            <div className="knowledge-meta-span">
-                              <dt>Source</dt>
-                              <dd>{item.sourcePath}</dd>
-                            </div>
-                          </dl>
-
-                          <div className="knowledge-tags">
-                            {item.tags.map((tag) => (
-                              <span key={tag}>{tag}</span>
-                            ))}
+                    return (
+                      <article className="knowledge-card" key={item.id}>
+                        <div className="knowledge-card-heading">
+                          <div>
+                            <span className="knowledge-kind">
+                              {kindLabel(item.kind)}
+                            </span>
+                            <h3>{item.title}</h3>
                           </div>
+                          <StatusChip>v{item.version}</StatusChip>
                         </div>
-                      </details>
-                    </article>
-                  ))}
+
+                        <p>{item.summary}</p>
+
+                        {caseHref ? (
+                          <Link
+                            className="knowledge-card-action"
+                            href={caseHref}
+                          >
+                            Inspect reference case
+                            <span aria-hidden="true">→</span>
+                          </Link>
+                        ) : null}
+
+                        <details className="canonical-disclosure knowledge-disclosure">
+                          <summary>
+                            Provenance & tags
+                            <span>{item.authorityLayer ?? "reference"}</span>
+                          </summary>
+
+                          <div className="canonical-disclosure-body">
+                            <dl className="knowledge-meta">
+                              <div>
+                                <dt>Status</dt>
+                                <dd>{item.status.replaceAll("-", " ")}</dd>
+                              </div>
+                              <div>
+                                <dt>Authority</dt>
+                                <dd>{item.authorityLayer ?? "reference"}</dd>
+                              </div>
+                              <div className="knowledge-meta-span">
+                                <dt>Source</dt>
+                                <dd>{item.sourcePath}</dd>
+                              </div>
+                            </dl>
+
+                            <div className="knowledge-tags">
+                              {item.tags.map((tag) => (
+                                <span key={tag}>{tag}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </details>
+                      </article>
+                    );
+                  })}
                 </div>
               )}
             </section>
