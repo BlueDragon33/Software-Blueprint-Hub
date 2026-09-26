@@ -5,6 +5,7 @@ import { ActionGroup, AppShell, EmptyState, StatusChip } from "@blueprint-os/ui"
 import { resolveWebActor } from "../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../src/server/runtime";
 import { RetryCurrentView } from "./_components/retry-current-view";
+import { SystemCompass } from "./_components/system-compass";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ function SignedOutRegistry() {
               actually authorized to read.
             </p>
           </div>
-          <span className="environment-badge">Phase 6</span>
+          <Link className="environment-badge" href="/compass">Phase 9 · Compass</Link>
         </header>
 
         <section className="registry-state" aria-labelledby="sign-in-title">
@@ -120,6 +121,9 @@ export default async function HomePage() {
           </div>
           <ActionGroup className="registry-header-actions">
             <span className="environment-badge">Canonical</span>
+            <Link className="secondary-button registry-action" href="/compass">
+              System Compass
+            </Link>
             <Link className="secondary-button registry-action" href="/knowledge">
               Knowledge Library
             </Link>
@@ -128,6 +132,8 @@ export default async function HomePage() {
             </Link>
           </ActionGroup>
         </header>
+
+        <SystemCompass compact />
 
         {items.length === 0 ? (
           <EmptyState
