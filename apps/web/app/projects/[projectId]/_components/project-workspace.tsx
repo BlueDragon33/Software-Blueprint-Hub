@@ -15,6 +15,7 @@ export type ProjectWorkspaceView =
   | "quality"
   | "evidence-graph"
   | "release-orchestration"
+  | "security"
   | "prompt"
   | "decisions"
   | "risks-debt"
@@ -70,6 +71,12 @@ export const projectWorkspaceViews: readonly WorkspaceViewDefinition[] =
       label: "Release Orchestration",
       suffix: "/release-orchestration",
       description: "Exact-revision promotion preconditions and deployment blockers"
+    },
+    {
+      id: "security",
+      label: "Security",
+      suffix: "/security",
+      description: "Trust zones, threats, mitigations and publish blockers"
     },
     {
       id: "prompt",
