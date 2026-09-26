@@ -19,6 +19,8 @@ model Project {
   architectureDecisions ArchitectureDecision[]
   risks                 Risk[]
   technicalDebts        TechnicalDebt[]
+  releases              ReleaseRecord[]
+  lessons               LessonLearned[]
 }
 
 model ProjectProfile {
@@ -135,6 +137,47 @@ model TechnicalDebt {
   @@index([projectId, status])
   @@index([projectId, severity])
   @@index([projectId, recordVersion])
+}
+
+
+model ReleaseRecord {
+  id            String   @id @db.VarChar(160)
+  projectId     String   @db.VarChar(160)
+  schemaVersion String   @db.VarChar(32)
+  recordVersion Int
+  version       String   @db.VarChar(120)
+  revision      String   @db.VarChar(160)
+  environment   String   @db.VarChar(120)
+  status        String   @db.VarChar(32)
+  document      Json
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  lessons LessonLearned[]
+
+  @@index([projectId, status])
+  @@index([projectId, revision])
+  @@index([projectId, recordVersion])
+}
+
+model LessonLearned {
+  id            String   @id @db.VarChar(160)
+  projectId     String   @db.VarChar(160)
+  releaseId     String?  @db.VarChar(160)
+  schemaVersion String   @db.VarChar(32)
+  recordVersion Int
+  category      String   @db.VarChar(32)
+  document      Json
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  release ReleaseRecord? @relation(fields: [releaseId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, category])
+  @@index([projectId, recordVersion])
+  @@index([releaseId])
 }
 
 model Principal {
