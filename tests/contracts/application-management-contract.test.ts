@@ -2,10 +2,19 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
+interface ApplicationManagementContract {
+  readonly schema: string;
+  readonly application: Readonly<Record<string, unknown>>;
+  readonly policy: Readonly<Record<string, boolean>>;
+  readonly boundary: Readonly<Record<string, boolean>>;
+  readonly readiness: Readonly<Record<string, string>>;
+  readonly capabilities: Readonly<Record<string, boolean>>;
+}
+
 const repoRoot = process.cwd();
 const contract = JSON.parse(
   readFileSync(join(repoRoot, "control/application-management.contract.json"), "utf8")
-) as Record<string, any>;
+) as ApplicationManagementContract;
 
 describe("P9-001 Application Management contract", () => {
   it("publishes deterministic Blueprint OS metadata identity", () => {
