@@ -349,14 +349,34 @@ export class PromptProjectionApplicationService {
     );
   }
 
+  async currentSourceRevisionFromProfile(
+    actor: AuthenticatedActor | null,
+    projectId: string,
+    profileResolution: PromptProfileResolution
+  ): Promise<string> {
+    if (profileResolution.profile.projectId !== projectId) {
+      throw new TypeError(
+        `Preloaded Project Profile belongs to ${profileResolution.profile.projectId}, not ${projectId}`
+      );
+    }
+
+    return promptSourceRevision(
+      await this.collectSource(actor, projectId, profileResolution)
+    );
+  }
+
   private async collectSource(
     actor: AuthenticatedActor | null,
-    projectId: string
+    projectId: string,
+    preloadedProfile?: PromptProfileResolution
   ): Promise<PromptProjectionSource> {
     await this.authority.require(actor, projectId, "PROJECT_READ");
+
     const [profileResolution, workPackages, gateBundles] =
       await Promise.all([
-        this.profiles.read(actor, projectId),
+        preloadedProfile
+          ? Promise.resolve(preloadedProfile)
+          : this.profiles.read(actor, projectId),
         this.workQuality.listWorkPackagesByProject(projectId),
         this.workQuality.listQualityGateEvidenceByProject(projectId)
       ]);
