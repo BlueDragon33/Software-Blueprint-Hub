@@ -249,3 +249,5 @@ export * from "./project-portfolio";
 export * from "./quality-evidence-graph";
 
 export * from "./release-orchestration";
+
+export * from "./security-threat-model";
