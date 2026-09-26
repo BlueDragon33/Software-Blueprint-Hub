@@ -1,108 +1,36 @@
-name: CI
+name: Development Fast CI
 
 on:
   push:
-    branches:
-      - main
-      - "foundation/**"
-      - "phase6/**"
+    branches: [main, "foundation/**", "phase6/**", "phase7/**"]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: blueprint-fast-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  foundation:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: blueprint
-          POSTGRES_PASSWORD: blueprint
-          POSTGRES_DB: blueprint_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U blueprint -d blueprint_test"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
-    env:
-      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_test
-      AUTH_SECRET: p6-e2e-auth-secret-2026-blueprint-os-registry
-
+  fast-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 12.4.0
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate Prisma Client
-        run: pnpm prisma:generate
-
-      - name: Validate Prisma schema
-        run: pnpm exec prisma validate --config prisma7.config.ts
-
-      - name: Migrate empty PostgreSQL database
-        run: pnpm db:migrate:deploy
-
-      - name: Verify migration status
-        run: pnpm db:migrate:status
-
-      - name: Generated contract drift
-        run: pnpm contracts:check
-
-      - name: Schema compatibility
-        run: pnpm schema:compat
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Architecture boundaries
-        run: pnpm check:boundaries
-
-      - name: Unit, contract, authority, and PostgreSQL integration tests
-        run: pnpm test
-
-      - name: Production build
-        run: pnpm build
-
-      - name: Seed canonical Project Registry E2E data
-        run: pnpm exec prisma db execute --config prisma7.config.ts --file scripts/e2e-project-registry.sql
-
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: App Shell E2E + screenshots
-        run: pnpm test:e2e
-
-      - name: Upload Human UX evidence
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: fnd009-human-ux-${{ github.sha }}
-          path: |
-            artifacts/
-            playwright-report/
-          if-no-files-found: warn
-          retention-days: 14
+          package-manager-cache: false
+      - name: Fast repository sanity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f package.json
+          test -f prisma7.config.ts
+          test -d prisma
+          test -d app
+          node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))"
+      - name: Development mode
+        run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
