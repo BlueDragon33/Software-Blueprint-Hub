@@ -300,6 +300,67 @@ test("canonical project workspace has stable truthful views", async ({
   });
 });
 
+test("Phase 6 Product UX Gate traverses the canonical product without dead ends", async ({
+  page
+}) => {
+  await authenticateRegistryOwner(page);
+
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Projects", exact: true })
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: new RegExp(registryBetaName) }).click();
+  await expect(
+    page.getByRole("heading", { name: registryBetaName })
+  ).toBeVisible();
+
+  const workspaceNav = page.getByRole("navigation", {
+    name: "Project workspace views"
+  });
+
+  const journey = [
+    ["Overview", /Readiness is blocked by canonical engineering state/],
+    ["Profile", /Canonical Project Profile/],
+    ["Blueprint", /Resolved engineering requirements/],
+    ["Roadmap", /Dependency-aware Work Packages/],
+    ["Quality", /Quality Gates and revision-specific evidence/],
+    ["Prompt", /Derived execution projection/],
+    ["Decisions", /Architecture Decisions/],
+    ["Risks & Debt", /Risks & Technical Debt/],
+    ["Releases & Lessons", /Exact revisions, rollback history and reusable learning/]
+  ] as const;
+
+  for (const [label, heading] of journey) {
+    const link = workspaceNav.getByRole("link", { name: new RegExp(label) });
+    await link.click();
+    await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+    await expect(
+      page.getByRole("navigation", { name: "Project workspace views" })
+        .getByRole("link", { name: new RegExp(label) })
+    ).toHaveAttribute("aria-current", "page");
+    await expect(page.getByText("Project cannot be opened.")).toHaveCount(0);
+  }
+
+  await page.goto("/knowledge");
+  await expect(
+    page.getByRole("heading", { name: "Knowledge Library", exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Reusable definitions are never project completion state/)
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: "Use knowledge in guided setup" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Build with evidence, not guesswork." })
+  ).toBeVisible();
+  await expect(page.getByText("Preview mode")).toBeVisible();
+
+  await expect(
+    page.getByText(/Not Found|Project cannot be opened|temporarily unavailable/)
+  ).toHaveCount(0);
+});
+
 test("Knowledge Library exposes reusable truth without project completion state", async ({
   page
 }, testInfo) => {
