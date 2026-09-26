@@ -2,7 +2,7 @@ name: Development Fast CI
 
 on:
   push:
-    branches: [main, "foundation/**", "phase6/**", "phase7/**"]
+    branches: [main, "foundation/**", "phase6/**", "phase7/**", "phase8/**"]
   pull_request:
   workflow_dispatch:
 

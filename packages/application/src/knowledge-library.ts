@@ -99,6 +99,27 @@ const referenceItems: readonly KnowledgeLibraryItem[] = Object.freeze([
   })
 ]);
 
+const referenceCaseItems: readonly KnowledgeLibraryItem[] = Object.freeze([
+  Object.freeze({
+    id: "knowledge:reference-case:bauman-nextgen-v1",
+    kind: "reference-case",
+    title: "Bauman Next-Generation Platform",
+    summary:
+      "Complex learning-platform architecture reference used to test Blueprint OS extensibility, provenance, authority and evidence semantics without importing Bauman-specific domain rules into Universal Core.",
+    version: "1",
+    status: "design-baseline",
+    sourcePath: "docs/reference-cases/BAUMAN-NEXTGEN-v1.md",
+    authorityLayer: "reference",
+    tags: Object.freeze([
+      "bauman",
+      "learning-platform",
+      "reference-case",
+      "architecture",
+      "provenance"
+    ])
+  })
+]);
+
 const templateItems: readonly KnowledgeLibraryItem[] = Object.freeze(
   foundationBlueprintTemplatesV1.map((template) =>
     Object.freeze({
@@ -162,12 +183,13 @@ const sectionDefinitions: readonly Omit<KnowledgeLibrarySection, "items">[] =
       kind: "reference-case",
       label: "Reference Cases",
       description:
-        "Reusable case knowledge. No canonical Reference Case records have been published yet."
+        "Versioned real-project architecture cases used for comparison, mapping and gap analysis without becoming project completion state."
     })
   ]);
 
 const knowledgeItems: readonly KnowledgeLibraryItem[] = Object.freeze([
   ...referenceItems,
+  ...referenceCaseItems,
   ...templateItems
 ]);
 

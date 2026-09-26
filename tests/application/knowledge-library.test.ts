@@ -25,12 +25,29 @@ describe("KnowledgeLibraryApplicationService", () => {
     expect(references?.items.length).toBeGreaterThan(1);
   });
 
-  it("does not fabricate patterns anti-patterns or reference cases", () => {
+  it("does not fabricate unpublished patterns or anti-patterns", () => {
     const sections = new KnowledgeLibraryApplicationService().list();
 
-    for (const kind of ["pattern", "anti-pattern", "reference-case"] as const) {
+    for (const kind of ["pattern", "anti-pattern"] as const) {
       expect(sections.find((section) => section.kind === kind)?.items).toEqual([]);
     }
+  });
+
+  it("publishes the Bauman architecture as a provenance-safe reference case", () => {
+    const library = new KnowledgeLibraryApplicationService();
+    const item = library.find("knowledge:reference-case:bauman-nextgen-v1");
+
+    expect(item).toMatchObject({
+      kind: "reference-case",
+      version: "1",
+      status: "design-baseline",
+      sourcePath: "docs/reference-cases/BAUMAN-NEXTGEN-v1.md",
+      authorityLayer: "reference"
+    });
+    expect(item?.tags).toContain("provenance");
+    expect(item).not.toHaveProperty("projectId");
+    expect(item).not.toHaveProperty("gateStatus");
+    expect(item).not.toHaveProperty("readiness");
   });
 
   it("keeps reusable knowledge separate from project completion state", () => {

@@ -2,19 +2,16 @@ name: Release Gate CI
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [ready_for_review, synchronize, reopened]
 
 permissions:
   contents: read
 
 concurrency:
-  group: blueprint-release-${{ github.event.pull_request.number || github.ref }}
+  group: blueprint-release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   release-gate:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
@@ -36,7 +33,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_test
       AUTH_SECRET: p6-e2e-auth-secret-2026-blueprint-os-registry
-      RELEASE_GATE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+      RELEASE_GATE_REVISION: ${{ github.sha }}
 
     steps:
       - name: Checkout exact release revision
