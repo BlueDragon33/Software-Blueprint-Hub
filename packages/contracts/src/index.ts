@@ -14,4 +14,5 @@ export interface SourceRevision {
 }
 
 export * from "./generated/vertical-slice";
+export * from "./reference-import";
 export * from "./validation";
