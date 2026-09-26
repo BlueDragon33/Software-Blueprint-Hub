@@ -22,6 +22,9 @@ export interface ReferenceCaseProjection {
     readonly importedRevision: string;
     readonly manifestRevision: string;
     readonly importedAt: string;
+    readonly manifestPath: string;
+    readonly artifactCount: number;
+    readonly conceptMappingCount: number;
   };
   readonly snapshotNote: string;
   readonly authorityNote: string;
@@ -53,7 +56,10 @@ const baumanNextgenV1: ReferenceCaseProjection = Object.freeze({
       `#${baumanImport.source.pullRequestNumber} — ${baumanImport.source.pullRequestTitle}`,
     importedRevision: baumanImport.source.revision,
     manifestRevision: baumanImport.source.manifestRevision,
-    importedAt: baumanImport.source.importedOn
+    importedAt: baumanImport.source.importedOn,
+    manifestPath: baumanImport.local.manifestPath,
+    artifactCount: baumanImport.sourceArtifacts.length,
+    conceptMappingCount: baumanImport.conceptMappings.length
   }),
   snapshotNote:
     "This view describes the frozen architecture revision imported into Blueprint OS. Newer Bauman main commits are not silently included.",
