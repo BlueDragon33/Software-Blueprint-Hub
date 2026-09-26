@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AuthenticationRequiredError,
   AuthorityService,
   AuthorizationDeniedError,
   OwnerBootstrapConflictError,
@@ -256,3 +257,113 @@ describe("Blueprint-owned authority matrix", () => {
     ).rejects.toBeInstanceOf(OwnerBootstrapConflictError);
   });
 });
+
+describe("P7-006 exhaustive authority regression", () => {
+  const actions = [
+    "PROJECT_READ",
+    "PROJECT_MUTATE",
+    "PROJECT_REVIEW",
+    "PROJECT_ADMIN",
+    "ROLE_MANAGE"
+  ] as const;
+
+  const expectedByRole = {
+    OWNER: new Set(actions),
+    EDITOR: new Set(["PROJECT_READ", "PROJECT_MUTATE"]),
+    REVIEWER: new Set(["PROJECT_READ", "PROJECT_REVIEW"]),
+    VIEWER: new Set(["PROJECT_READ"])
+  } as const;
+
+  async function roleActor(role: ProjectRole) {
+    const repository = new MemoryAuthorityRepository();
+    const service = new AuthorityService(repository);
+    const owner = await service.bootstrapOwner({
+      provider: "github",
+      providerSubject: `p7-owner-${role.toLowerCase()}`
+    });
+    const actor = await service.resolveIdentity({
+      provider: "github",
+      providerSubject: `p7-${role.toLowerCase()}`
+    });
+    await service.grantProjectRole(
+      { principalId: owner.id },
+      {
+        projectId: "project:p7-secure-a",
+        principalId: actor.id,
+        role
+      }
+    );
+    return { service, actor: { principalId: actor.id } };
+  }
+
+  for (const role of ["OWNER", "EDITOR", "REVIEWER", "VIEWER"] as const) {
+    it(`${role} has exactly the documented action set`, async () => {
+      const { service, actor } = await roleActor(role);
+
+      for (const action of actions) {
+        await expect(
+          service.can(actor, "project:p7-secure-a", action)
+        ).resolves.toBe(expectedByRole[role].has(action as never));
+      }
+    });
+  }
+
+  it("never carries a project-scoped role into another project", async () => {
+    const { service, actor } = await roleActor("OWNER");
+
+    for (const action of actions) {
+      await expect(
+        service.can(actor, "project:p7-secure-b", action)
+      ).resolves.toBe(false);
+      await expect(
+        service.require(actor, "project:p7-secure-b", action)
+      ).rejects.toBeInstanceOf(AuthorizationDeniedError);
+    }
+  });
+
+  it("keeps System Owner authority global without creating project roles", async () => {
+    const repository = new MemoryAuthorityRepository();
+    const service = new AuthorityService(repository);
+    const owner = await service.bootstrapOwner({
+      provider: "github",
+      providerSubject: "p7-system-owner"
+    });
+    const actor = { principalId: owner.id };
+
+    for (const action of actions) {
+      await expect(
+        service.can(actor, "project:p7-unassigned", action)
+      ).resolves.toBe(true);
+    }
+
+    await expect(service.readableProjectScope(actor)).resolves.toEqual({
+      kind: "all"
+    });
+  });
+
+  it("fails closed for unauthenticated project enumeration", async () => {
+    const service = new AuthorityService(new MemoryAuthorityRepository());
+
+    await expect(service.readableProjectScope(null)).rejects.toBeInstanceOf(
+      AuthenticationRequiredError
+    );
+  });
+
+  it("does not let Editor, Reviewer or Viewer grant roles", async () => {
+    for (const role of ["EDITOR", "REVIEWER", "VIEWER"] as const) {
+      const { service, actor } = await roleActor(role);
+
+      await expect(
+        service.grantProjectRole(actor, {
+          projectId: "project:p7-secure-a",
+          principalId: "principal:target",
+          role: "VIEWER"
+        })
+      ).rejects.toMatchObject({
+        action: "ROLE_MANAGE",
+        projectId: "project:p7-secure-a"
+      });
+    }
+  });
+});
+
