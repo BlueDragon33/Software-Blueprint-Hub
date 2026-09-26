@@ -14,6 +14,7 @@ export type ProjectWorkspaceView =
   | "roadmap"
   | "quality"
   | "evidence-graph"
+  | "release-orchestration"
   | "prompt"
   | "decisions"
   | "risks-debt"
@@ -63,6 +64,12 @@ export const projectWorkspaceViews: readonly WorkspaceViewDefinition[] =
       label: "Evidence Graph",
       suffix: "/evidence-graph",
       description: "Work, gate, evidence and release provenance"
+    },
+    {
+      id: "release-orchestration",
+      label: "Release Orchestration",
+      suffix: "/release-orchestration",
+      description: "Exact-revision promotion preconditions and deployment blockers"
     },
     {
       id: "prompt",
