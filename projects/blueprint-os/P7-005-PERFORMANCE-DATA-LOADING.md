@@ -95,3 +95,14 @@ P7-005 may PASS only when:
 - Human UX review shows no loading-state or content regression.
 
 Production deployment remains unauthorized.
+
+
+## Implemented so far
+
+- PostgreSQL batch read returns QualityGate + GateEvidence in one project-scoped query.
+- Evidence inside each gate is ordered newest-first.
+- Quality workspace consumes the batch read directly.
+- Readiness consumes Work Packages + gate/evidence bundles concurrently.
+- Prompt source collection loads Profile resolution, Work Packages and gate/evidence bundles concurrently.
+- Application regression asserts Quality, Readiness and Prompt perform zero per-gate evidence list reads.
+- PostgreSQL regression asserts batch evidence ordering.
