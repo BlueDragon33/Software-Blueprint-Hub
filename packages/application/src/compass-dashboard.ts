@@ -54,37 +54,37 @@ const projection: BlueprintCompassProjection = Object.freeze({
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-007",
-    title: "Export / backup / restore",
+    id: "P9-008",
+    title: "Observability & incident diagnostics",
     storey: 16,
     status: "active",
     reason:
-      "P9-006 established evidence-safe reusable knowledge governance; canonical project state may now become portable with integrity-checked restore previews."
+      "P9-007 made canonical state portable and restore-testable; operational failures can now be correlated by revision, bounded context and operation without leaking secrets."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-006",
-      title: "Pattern promotion governance",
-      storey: 15,
-      status: "complete",
-      reason:
-        "Reusable knowledge promotion now requires distinct multi-project evidence and explicit human review."
-    }),
     Object.freeze({
       id: "P9-007",
       title: "Export / backup / restore",
       storey: 16,
-      status: "active",
+      status: "complete",
       reason:
-        "Canonical project state is being made portable with deterministic integrity checks and restore previews."
+        "Canonical project state now has deterministic integrity-checked backups and restore previews."
     }),
     Object.freeze({
       id: "P9-008",
       title: "Observability & incident diagnostics",
       storey: 16,
+      status: "active",
+      reason:
+        "Operational failures are being made correlation-safe, revision-aware and secret-redacted."
+    }),
+    Object.freeze({
+      id: "P9-009",
+      title: "Provider/plugin boundary",
+      storey: 17,
       status: "next",
       reason:
-        "Operational diagnostics follows once backup/restore integrity and portability are proven."
+        "External provider boundaries follow only after operational failures can be diagnosed without leaking authority or secrets."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -150,11 +150,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "caba8047a700da1c163de764021703f7bc554173",
       source: "Software-Blueprint-Hub PR #42",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-007 Export / Backup / Restore",
+      revision: "6293dbb04a6ba4137a57dd887bbe35ceaa585d9c",
+      source: "Software-Blueprint-Hub PR #43",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-007 by proving deterministic export integrity, cross-project isolation and restore-testable previews without silent persistence.",
-    "Start P9-008 Observability & Incident Diagnostics only after P9-007 exact PR-head evidence is green.",
+    "Complete P9-008 by proving correlation, revision/context visibility, secret redaction and recovery guidance across incident diagnostics.",
+    "Start P9-009 Provider / Plugin Boundary only after P9-008 exact PR-head evidence is green.",
     "Keep Production release unauthorized while Phase 9 remains Development Mode."
   ]),
   truthNote:
