@@ -3,6 +3,7 @@
 import { AppShell } from "@blueprint-os/ui";
 
 export default function GlobalErrorBoundary({
+  error,
   reset
 }: {
   readonly error: Error & { digest?: string };
@@ -24,6 +25,11 @@ export default function GlobalErrorBoundary({
               Blueprint OS did not replace canonical data with preview or cached
               state. Retry the same route when the trusted runtime is available.
             </p>
+            {error.digest ? (
+              <p className="runtime-incident-reference">
+                Incident reference: <code>{error.digest}</code>
+              </p>
+            ) : null}
           </div>
           <button
             className="primary-button"
