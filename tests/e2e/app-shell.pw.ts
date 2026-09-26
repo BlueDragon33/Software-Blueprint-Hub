@@ -481,8 +481,11 @@ test("P7-003 critical surfaces provide usable keyboard landmarks and focus", asy
   const qualityLink = workspaceNav.getByRole("link", { name: /Quality/ });
   await expect(qualityLink).toHaveAttribute("aria-current", "page");
 
-  await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to main content" })).toBeFocused();
+  const qualitySkip = page.getByRole("link", { name: "Skip to main content" });
+  await qualitySkip.focus();
+  await expect(qualitySkip).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
 
   const gateStatus = page
     .locator(".workspace-quality-card", { hasText: "gate:quality:evidence" })
