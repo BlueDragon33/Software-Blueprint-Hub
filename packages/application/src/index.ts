@@ -241,3 +241,5 @@ export * from "./canonical-portability";
 export * from "./operational-diagnostics";
 
 export * from "./provider-boundary";
+
+export * from "./ai-copilot";
