@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import type { KnowledgeLibrarySection } from "@blueprint-os/application";
 import { AppShell, EmptyState, SectionHeading, StatusChip } from "@blueprint-os/ui";
 
 import { getBlueprintServerRuntime } from "../../src/server/runtime";
@@ -12,7 +13,7 @@ function kindLabel(kind: string): string {
 }
 
 export default function KnowledgeLibraryPage() {
-  let sections;
+  let sections: readonly KnowledgeLibrarySection[];
 
   try {
     sections = getBlueprintServerRuntime().knowledge.list();
