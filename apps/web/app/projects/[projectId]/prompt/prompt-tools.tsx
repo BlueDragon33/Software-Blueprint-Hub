@@ -1,6 +1,7 @@
 "use client";
 
 import type { PromptProjection } from "@blueprint-os/contracts";
+import { ActionGroup } from "@blueprint-os/ui";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
@@ -64,7 +65,7 @@ export function PromptTools({
   }
 
   return (
-    <div className="prompt-workspace-tools">
+    <ActionGroup className="prompt-workspace-tools">
       <button
         type="button"
         className="primary-button"
@@ -92,6 +93,6 @@ export function PromptTools({
       {feedback ? (
         <span className="prompt-tool-feedback" role="status">{feedback}</span>
       ) : null}
-    </div>
+    </ActionGroup>
   );
 }
