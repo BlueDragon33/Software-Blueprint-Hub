@@ -25,7 +25,7 @@ export default async function Page({ params }: PageProps) {
       active="decisions"
     >
       <NotAvailableYet
-        title="Decisions"
+        title="Architecture Decisions"
         phase="P6-004"
         description="Architecture decisions will become a canonical module with authority, provenance and version discipline."
       />
