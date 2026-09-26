@@ -291,29 +291,24 @@ export class PromptProjectionApplicationService {
     projectId: string
   ): Promise<PromptProjectionSource> {
     await this.authority.require(actor, projectId, "PROJECT_READ");
-    const profileResolution = await this.profiles.read(actor, projectId);
+    const [profileResolution, workPackages, gateBundles] =
+      await Promise.all([
+        this.profiles.read(actor, projectId),
+        this.workQuality.listWorkPackagesByProject(projectId),
+        this.workQuality.listQualityGateEvidenceByProject(projectId)
+      ]);
+
     if (!profileResolution) {
       throw new TypeError(`Unknown project ${projectId}`);
     }
-
-    const [workPackages, qualityGates] = await Promise.all([
-      this.workQuality.listWorkPackagesByProject(projectId),
-      this.workQuality.listQualityGatesByProject(projectId)
-    ]);
-
-    const evidenceNested = await Promise.all(
-      qualityGates.map((gate) =>
-        this.workQuality.listGateEvidenceByGate(gate.id)
-      )
-    );
 
     return {
       profile: profileResolution.profile,
       blueprint: profileResolution.blueprint,
       templateVersions: profileResolution.templateVersions,
       workPackages,
-      qualityGates,
-      evidence: evidenceNested.flat()
+      qualityGates: gateBundles.map((item) => item.gate),
+      evidence: gateBundles.flatMap((item) => item.evidence)
     };
   }
 }
