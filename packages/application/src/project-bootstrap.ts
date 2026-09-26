@@ -134,6 +134,12 @@ function normalizeIntent(intent: ProjectBootstrapIntent): ProjectBootstrapIntent
     throw new TypeError("Deployment target is required");
   }
 
+  const expectedScale = intent.expectedScale?.trim();
+  const availabilityRequirement = intent.availabilityRequirement?.trim();
+  const complianceSecuritySensitivity =
+    intent.complianceSecuritySensitivity?.trim();
+  const maintenanceModel = intent.maintenanceModel?.trim();
+
   return {
     ...intent,
     name: intent.name.trim(),
@@ -142,12 +148,12 @@ function normalizeIntent(intent: ProjectBootstrapIntent): ProjectBootstrapIntent
     jobsToBeDone,
     externalIntegrations: normalizedList(intent.externalIntegrations),
     deploymentTarget: intent.deploymentTarget.trim(),
-    expectedScale: intent.expectedScale?.trim() || undefined,
-    availabilityRequirement:
-      intent.availabilityRequirement?.trim() || undefined,
-    complianceSecuritySensitivity:
-      intent.complianceSecuritySensitivity?.trim() || undefined,
-    maintenanceModel: intent.maintenanceModel?.trim() || undefined
+    ...(expectedScale ? { expectedScale } : {}),
+    ...(availabilityRequirement ? { availabilityRequirement } : {}),
+    ...(complianceSecuritySensitivity
+      ? { complianceSecuritySensitivity }
+      : {}),
+    ...(maintenanceModel ? { maintenanceModel } : {})
   };
 }
 
@@ -155,7 +161,11 @@ function maxLevel(
   a: ProjectProfile["blueprintLevel"],
   b: ProjectProfile["blueprintLevel"]
 ): ProjectProfile["blueprintLevel"] {
-  return levels[Math.max(levels.indexOf(a), levels.indexOf(b))];
+  const selected = levels[Math.max(levels.indexOf(a), levels.indexOf(b))];
+  if (!selected) {
+    throw new TypeError("Unsupported Blueprint Level comparison");
+  }
+  return selected;
 }
 
 export function recommendBlueprintLevel(
@@ -284,10 +294,18 @@ function profileFromIntent(
     aiUse: normalized.aiUse,
     extensibilityRequirement: normalized.extensibilityRequirement,
     expectedLifetime: normalized.expectedLifetime,
-    expectedScale: normalized.expectedScale,
-    availabilityRequirement: normalized.availabilityRequirement,
-    complianceSecuritySensitivity:
-      normalized.complianceSecuritySensitivity,
+    ...(normalized.expectedScale
+      ? { expectedScale: normalized.expectedScale }
+      : {}),
+    ...(normalized.availabilityRequirement
+      ? { availabilityRequirement: normalized.availabilityRequirement }
+      : {}),
+    ...(normalized.complianceSecuritySensitivity
+      ? {
+          complianceSecuritySensitivity:
+            normalized.complianceSecuritySensitivity
+        }
+      : {}),
     deploymentTarget: normalized.deploymentTarget,
     maintenanceModel:
       normalized.maintenanceModel ?? "versioned continuous maintenance",
