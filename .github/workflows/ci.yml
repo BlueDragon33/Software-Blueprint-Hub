@@ -19,9 +19,6 @@ jobs:
     timeout-minutes: 3
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
       - name: Fast repository sanity
         shell: bash
         run: |
