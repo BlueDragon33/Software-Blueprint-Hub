@@ -48,43 +48,43 @@ const projection: BlueprintCompassProjection = Object.freeze({
   currentStorey: Object.freeze({
     number: 20,
     total: 20,
-    name: "Compass Acceptance & performance capacity proof"
+    name: "Compass Acceptance & ecosystem dogfood"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-017",
-    title: "Performance & capacity proof",
+    id: "P9-018",
+    title: "Ecosystem dogfood regression",
     storey: 20,
     status: "active",
     reason:
-      "P9-016 passed the full Release Gate across desktop, tablet and mobile; current architecture can now be measured against explicit capacity and regression budgets."
+      "P9-017 passed explicit capacity budgets and the full Release Gate; Blueprint OS can now prove itself against heterogeneous project classes and detect cross-project semantic leakage."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-016",
-      title: "Accessibility & adaptive UX audit",
-      storey: 20,
-      status: "complete",
-      reason:
-        "Desktop, tablet and mobile adaptive UX passed full Release Gate including Playwright and Human UX evidence."
-    }),
     Object.freeze({
       id: "P9-017",
       title: "Performance & capacity proof",
       storey: 20,
-      status: "active",
+      status: "complete",
       reason:
-        "Capacity budgets and deterministic CPU regression ceilings must now be proven against synthetic target loads."
+        "Documented synthetic capacity targets and full Release Gate passed without inventing Production latency claims."
     }),
     Object.freeze({
       id: "P9-018",
       title: "Ecosystem dogfood regression",
       storey: 20,
+      status: "active",
+      reason:
+        "Blueprint OS now exercises itself and heterogeneous projects while checking identity and semantic isolation."
+    }),
+    Object.freeze({
+      id: "P9-019",
+      title: "Human professional review",
+      storey: 20,
       status: "next",
       reason:
-        "Cross-project dogfooding follows only after current architecture proves explicit capacity bounds."
+        "Human professional review follows only after multi-project dogfood proves no structural leakage."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -210,11 +210,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "38960d4312de41063859c0bc6544dbd3600278fb",
       source: "Software-Blueprint-Hub PR #61 / main Release Gate",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-017 Performance & Capacity full Release Gate",
+      revision: "7a6fa378bb3ae970b167f742a01bebf612b97b26",
+      source: "Software-Blueprint-Hub PR #62 / main Release Gate",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-017 with explicit capacity budgets, synthetic target-load proof and preserved P7-005 N+1 protections.",
-    "Start P9-018 Ecosystem Dogfood Regression only after P9-017 exact PR-head evidence and full Release Gate are green.",
+    "Complete P9-018 by dogfooding Blueprint OS plus heterogeneous project classes and proving semantic/identity isolation.",
+    "Start P9-019 Human Professional Review only after P9-018 exact PR-head evidence and full Release Gate are green.",
     "Production publish remains blocked until a real deployment provider is connected and explicit external execution succeeds."
   ]),
   truthNote:
