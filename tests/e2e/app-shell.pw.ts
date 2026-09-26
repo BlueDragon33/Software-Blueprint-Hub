@@ -92,7 +92,7 @@ test("System Owner sees canonical multi-project registry and opens a project", a
 
 test("P7-004 forbidden project reads stay distinct from runtime outages", async ({
   page
-}) => {
+}, testInfo) => {
   await authenticateNoAccessUser(page);
   await page.goto("/projects/project%3Ap6-registry-beta");
 
@@ -117,6 +117,11 @@ test("P7-004 forbidden project reads stay distinct from runtime outages", async 
   await expect(
     page.getByRole("link", { name: "Back to readable projects" })
   ).toHaveAttribute("href", "/");
+
+  await page.screenshot({
+    path: `artifacts/p7-004-forbidden-${testInfo.project.name}.png`,
+    fullPage: true
+  });
 });
 
 test("canonical B4 project surfaces truthful readiness without percentages", async ({
