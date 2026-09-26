@@ -227,3 +227,5 @@ export * from "./knowledge-library";
 export * from "./release-service";
 
 export * from "./reference-imports";
+
+export * from "./compass-dashboard";
