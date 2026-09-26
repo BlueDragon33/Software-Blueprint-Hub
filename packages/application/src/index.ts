@@ -229,3 +229,5 @@ export * from "./release-service";
 export * from "./reference-imports";
 
 export * from "./compass-dashboard";
+
+export * from "./compass-architecture";
