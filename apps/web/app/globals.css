@@ -4199,3 +4199,218 @@ textarea:focus-visible,
     grid-template-columns: 1fr;
   }
 }
+
+
+/* P9-011 — Multi-project Portfolio */
+.portfolio-page {
+  max-width: 92rem;
+}
+
+.portfolio-boundary {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.8fr) minmax(0, 1.2fr);
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #dfe5ef;
+  border-radius: 1rem;
+  background: #f7f9ff;
+}
+
+.portfolio-boundary > div {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.portfolio-boundary strong {
+  color: #354563;
+}
+
+.portfolio-boundary > p {
+  margin: 0;
+  color: #66728a;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.portfolio-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.portfolio-metrics article {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.95rem;
+  border: 1px solid #e1e6ef;
+  border-radius: 0.9rem;
+  background: #fff;
+  box-shadow: 0 0.6rem 1.5rem rgba(39, 53, 93, 0.05);
+}
+
+.portfolio-metrics span {
+  color: #7d889d;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.portfolio-metrics strong {
+  color: #34425d;
+  font-size: 1.15rem;
+  overflow-wrap: anywhere;
+}
+
+.portfolio-distributions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.3rem;
+}
+
+.portfolio-distribution {
+  padding: 0.9rem;
+  border: 1px solid #e1e6ef;
+  border-radius: 0.9rem;
+  background: #fff;
+}
+
+.portfolio-distribution-list {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.portfolio-distribution-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  padding: 0.62rem 0.7rem;
+  border-radius: 0.68rem;
+  background: #f7f9fc;
+}
+
+.portfolio-distribution-list span {
+  min-width: 0;
+  color: #5d6980;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.portfolio-distribution-list strong {
+  flex: 0 0 auto;
+  color: #4156bd;
+  font-size: 0.82rem;
+}
+
+.portfolio-project-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.portfolio-project-row {
+  display: grid;
+  grid-template-columns: minmax(15rem, 1fr) minmax(20rem, 1.2fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.9rem;
+  border: 1px solid #e1e6ef;
+  border-radius: 0.9rem;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.portfolio-project-row:hover {
+  border-color: #b9c3eb;
+  box-shadow: 0 0.7rem 1.6rem rgba(58, 74, 135, 0.08);
+  transform: translateY(-1px);
+}
+
+.portfolio-project-row:focus-visible {
+  outline: 3px solid rgba(74, 95, 207, 0.3);
+  outline-offset: 2px;
+}
+
+.portfolio-project-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.portfolio-project-primary > div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.portfolio-project-primary strong {
+  color: #34425d;
+  overflow-wrap: anywhere;
+}
+
+.portfolio-project-primary small {
+  color: #7f899c;
+  font-size: 0.7rem;
+}
+
+.portfolio-project-row dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.portfolio-project-row dl > div {
+  min-width: 0;
+}
+
+.portfolio-project-row dt {
+  color: #8a94a6;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.portfolio-project-row dd {
+  margin: 0.2rem 0 0;
+  color: #56647d;
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 980px) {
+  .portfolio-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portfolio-project-row {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-project-row .project-open {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 760px) {
+  .portfolio-boundary,
+  .portfolio-distributions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .portfolio-metrics,
+  .portfolio-project-row dl {
+    grid-template-columns: 1fr;
+  }
+}
