@@ -2,8 +2,6 @@ name: Release Gate CI
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [ready_for_review, synchronize, reopened]
 
 permissions:
   contents: read
@@ -14,7 +12,6 @@ concurrency:
 
 jobs:
   release-gate:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 
