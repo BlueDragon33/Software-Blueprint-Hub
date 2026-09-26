@@ -3854,3 +3854,253 @@ textarea:focus-visible,
     grid-template-columns: 1fr;
   }
 }
+
+
+/* P9-005 — Project Bootstrap Factory */
+.bootstrap-shell {
+  width: min(96rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.25rem 0 2.5rem;
+}
+
+.bootstrap-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 24rem);
+  gap: 1rem;
+  align-items: stretch;
+  margin-bottom: 1rem;
+}
+
+.bootstrap-hero > div:first-child,
+.bootstrap-guardrail,
+.bootstrap-form-card,
+.bootstrap-plan-card {
+  border: 1px solid #e1e6ef;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 0.75rem 2rem rgba(39, 53, 93, 0.06);
+}
+
+.bootstrap-hero > div:first-child {
+  padding: 1.2rem;
+}
+
+.bootstrap-hero h1,
+.bootstrap-hero p {
+  margin: 0;
+}
+
+.bootstrap-hero .lede {
+  margin-top: 0.55rem;
+  max-width: 58rem;
+  color: #647188;
+  line-height: 1.58;
+}
+
+.bootstrap-guardrail {
+  display: grid;
+  gap: 0.4rem;
+  align-content: center;
+  padding: 1rem;
+  background: #f7f8ff;
+}
+
+.bootstrap-guardrail strong {
+  color: #34425d;
+}
+
+.bootstrap-guardrail span {
+  color: #69758b;
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.bootstrap-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(22rem, 0.85fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.bootstrap-form-card,
+.bootstrap-plan-card {
+  padding: 1rem;
+}
+
+.bootstrap-plan-card {
+  position: sticky;
+  top: 1rem;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.bootstrap-form-card textarea,
+.bootstrap-form-card select {
+  width: 100%;
+  min-height: 2.7rem;
+  border: 1px solid #d9dfeb;
+  border-radius: 0.7rem;
+  background: #fff;
+  color: #34425d;
+  font: inherit;
+}
+
+.bootstrap-form-card textarea {
+  min-height: 5rem;
+  padding: 0.7rem;
+  resize: vertical;
+}
+
+.bootstrap-form-card select {
+  padding: 0 0.7rem;
+}
+
+.bootstrap-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.bootstrap-level {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.8rem;
+  align-items: center;
+  padding: 0.9rem;
+  border-radius: 0.85rem;
+  background: #eef2ff;
+}
+
+.bootstrap-level span,
+.bootstrap-level small {
+  color: #69758b;
+  font-size: 0.7rem;
+}
+
+.bootstrap-level strong {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  color: #4056c7;
+  font-size: 2rem;
+}
+
+.bootstrap-level small {
+  grid-column: 1;
+}
+
+.bootstrap-reasons {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bootstrap-reasons p {
+  margin: 0;
+  padding: 0.65rem 0.7rem;
+  border-left: 3px solid #8796e6;
+  background: #fafbff;
+  color: #657187;
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.bootstrap-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.bootstrap-roadmap {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.bootstrap-roadmap-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.bootstrap-roadmap-heading strong {
+  color: #3b4964;
+  font-size: 0.78rem;
+}
+
+.bootstrap-roadmap-heading small {
+  color: #8a94a7;
+  font-size: 0.66rem;
+}
+
+.bootstrap-roadmap-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.65rem;
+  border: 1px solid #e5e9f1;
+  border-radius: 0.72rem;
+  background: #fbfcff;
+}
+
+.bootstrap-roadmap-row > div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.bootstrap-roadmap-row strong {
+  color: #46536d;
+  font-size: 0.73rem;
+  text-transform: capitalize;
+}
+
+.bootstrap-roadmap-row small {
+  color: #8a94a5;
+  font-size: 0.65rem;
+}
+
+.bootstrap-boundary {
+  padding: 0.8rem;
+  border-radius: 0.78rem;
+  background: #fff8e8;
+}
+
+.bootstrap-boundary strong {
+  color: #6c5426;
+  font-size: 0.75rem;
+}
+
+.bootstrap-boundary p {
+  margin: 0.35rem 0 0;
+  color: #786848;
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 980px) {
+  .bootstrap-layout,
+  .bootstrap-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .bootstrap-plan-card {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .bootstrap-shell {
+    width: min(100% - 1rem, 96rem);
+  }
+
+  .bootstrap-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .bootstrap-actions {
+    display: grid;
+  }
+
+  .bootstrap-actions > * {
+    width: 100%;
+  }
+}
