@@ -150,8 +150,7 @@ The mapping exposes product/tooling gaps without yet proving Core gaps:
 4. **Pattern promotion workflow** — candidate reusable patterns need review criteria before becoming published Knowledge Patterns.
 5. **Reference Case detail UX** — complex mappings/gaps need inspectable progressive disclosure rather than a flat catalog card.
 
-P8-003 decides which gaps are product/tooling/template concerns and whether any genuine Core change is justified.
-P8-005 owns the machine-readable import contract.
+P8-003 analysis is recorded in `BAUMAN-NEXTGEN-GAP-ANALYSIS-v1.md`: no Universal Core schema expansion is justified by the Bauman case. P8-004 owns Reference Case UX and P8-005 owns the machine-readable import/provenance/alias/drift contract.
 
 ## P8-002 result
 
