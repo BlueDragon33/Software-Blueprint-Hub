@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 8 Bauman Reference Import Work Packages
 
-Status: **P8-001 COMPLETE / P8-002 READY FOR PR VALIDATION — PHASE 8 ACTIVE**
+Status: **P8-001/P8-002 COMPLETE / P8-003 NEXT — PHASE 8 ACTIVE**
 
 Phase 8 uses the Bauman next-generation architecture dossier as a real external reference case to prove that Blueprint OS can absorb a complex software blueprint without making Universal Core Bauman-specific.
 
@@ -45,7 +45,7 @@ Completion evidence:
 
 ## P8-002 — Bauman → Blueprint concept mapping
 
-Status: **READY FOR PR VALIDATION**
+Status: **COMPLETE**
 
 Dependencies: P8-001.
 
@@ -62,11 +62,14 @@ Implementation:
 - semantic collision guards explicitly separate Bauman academic Evidence from Blueprint `GateEvidence`, Bauman learner-output Project from Blueprint software Project, mastery from readiness, Content Registry from Knowledge Library, and Bauman runtime roles from Blueprint authority roles;
 - existing concepts, pattern candidates, project-specific extensions and Blueprint product gaps are classified;
 - no genuine Universal Core gap is claimed at P8-002;
-- machine-readable import/drift/aliasing gaps are carried to P8-003/P8-005 rather than forcing premature Core changes.
+- machine-readable import/drift/aliasing gaps are carried to P8-003/P8-005 rather than forcing premature Core changes;
+- branch Development Fast CI `36231714502`: **SUCCESS** on implementation head `baa6fb76796e3f586f5f218488f60b869b1bc465`;
+- exact PR-head Development Fast CI `36231734659`: **SUCCESS** on the same implementation head;
+- no Production deployment or full Release Gate is claimed.
 
 ## P8-003 — Reference gap and universality analysis
 
-Status: **PLANNED**
+Status: **NEXT**
 
 Dependencies: P8-002.
 
