@@ -113,55 +113,65 @@ export default async function ReleaseLessonsPage({
                   </div>
                 </div>
 
-                <div className="governance-detail-grid">
+                <div className="canonical-release-critical">
                   <div>
                     <strong>Exact revision</strong>
                     <span>{item.revision}</span>
                   </div>
-                  <div>
-                    <strong>Artifact source</strong>
-                    <span>{item.artifactSource}</span>
-                  </div>
-                  <div>
-                    <strong>Released at</strong>
-                    <span>{item.releasedAt ?? "Not released yet"}</span>
-                  </div>
-                  <div>
-                    <strong>Rollback revision</strong>
-                    <span>{item.rollbackRevision ?? "Not rolled back"}</span>
-                  </div>
-                  <div className="governance-detail-span">
-                    <strong>Rollback plan</strong>
-                    <span>{item.rollbackPlan}</span>
+                  <div className="governance-linked-work">
+                    <strong>Gate evidence</strong>
+                    {item.gateEvidenceIds.length ? (
+                      <div className="workspace-chip-list">
+                        {item.gateEvidenceIds.map((id) => (
+                          <span
+                            className="status-chip status-chip-neutral"
+                            key={id}
+                          >
+                            {id}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span>No release evidence linked yet.</span>
+                    )}
                   </div>
                 </div>
 
-                <div className="governance-linked-work">
-                  <strong>Gate evidence</strong>
-                  {item.gateEvidenceIds.length ? (
-                    <div className="workspace-chip-list">
-                      {item.gateEvidenceIds.map((id) => (
-                        <span
-                          className="status-chip status-chip-neutral"
-                          key={id}
-                        >
-                          {id}
-                        </span>
-                      ))}
+                <details className="canonical-disclosure release-disclosure">
+                  <summary>
+                    Rollback & provenance
+                    <span>{item.rollbackRevision ?? item.artifactSource}</span>
+                  </summary>
+                  <div className="canonical-disclosure-body">
+                    <div className="governance-detail-grid">
+                      <div>
+                        <strong>Artifact source</strong>
+                        <span>{item.artifactSource}</span>
+                      </div>
+                      <div>
+                        <strong>Released at</strong>
+                        <span>{item.releasedAt ?? "Not released yet"}</span>
+                      </div>
+                      <div>
+                        <strong>Rollback revision</strong>
+                        <span>{item.rollbackRevision ?? "Not rolled back"}</span>
+                      </div>
+                      <div className="governance-detail-span">
+                        <strong>Rollback plan</strong>
+                        <span>{item.rollbackPlan}</span>
+                      </div>
                     </div>
-                  ) : (
-                    <span>No release evidence linked yet.</span>
-                  )}
-                </div>
 
-                {item.notes ? (
-                  <p className="governance-link-note">{item.notes}</p>
-                ) : null}
+                    {item.notes ? (
+                      <p className="governance-link-note">{item.notes}</p>
+                    ) : null}
 
-                <footer className="governance-record-footer">
-                  <span>Record v{item.meta.recordVersion}</span>
-                  <span>Updated {item.meta.updatedAt}</span>
-                </footer>
+                    <footer className="governance-record-footer">
+                      <span>Record v{item.meta.recordVersion}</span>
+                      <span>Updated {item.meta.updatedAt}</span>
+                    </footer>
+                  </div>
+                </details>
               </article>
             ))}
           </div>
@@ -194,55 +204,64 @@ export default async function ReleaseLessonsPage({
                   </span>
                 </div>
 
-                <div className="governance-record-body">
-                  <div>
-                    <strong>Observation</strong>
-                    <p>{item.observation}</p>
-                  </div>
-                  <div>
-                    <strong>Impact</strong>
-                    <p>{item.impact}</p>
-                  </div>
+                <div className="canonical-lesson-primary">
+                  <strong>Action</strong>
+                  <span>{item.action}</span>
                 </div>
 
-                <div className="governance-detail-grid">
-                  <div className="governance-detail-span">
-                    <strong>Action</strong>
-                    <span>{item.action}</span>
-                  </div>
-                  <div>
-                    <strong>Linked release</strong>
-                    <span>{item.releaseId ?? "No release link"}</span>
-                  </div>
-                  <div>
-                    <strong>Source revision</strong>
+                <details className="canonical-disclosure lesson-disclosure">
+                  <summary>
+                    Observation, impact & provenance
                     <span>{item.sourceRevision}</span>
-                  </div>
-                </div>
-
-                <div className="governance-linked-work">
-                  <strong>Linked Work Packages</strong>
-                  {item.linkedWorkPackageIds.length ? (
-                    <div className="workspace-chip-list">
-                      {item.linkedWorkPackageIds.map((id) => (
-                        <span
-                          className="status-chip status-chip-neutral"
-                          key={id}
-                        >
-                          {id}
-                        </span>
-                      ))}
+                  </summary>
+                  <div className="canonical-disclosure-body">
+                    <div className="governance-record-body">
+                      <div>
+                        <strong>Observation</strong>
+                        <p>{item.observation}</p>
+                      </div>
+                      <div>
+                        <strong>Impact</strong>
+                        <p>{item.impact}</p>
+                      </div>
                     </div>
-                  ) : (
-                    <span>None</span>
-                  )}
-                </div>
 
-                <footer className="governance-record-footer">
-                  <span>Record v{item.meta.recordVersion}</span>
-                  <span>Source {item.source}</span>
-                  <span>Updated {item.meta.updatedAt}</span>
-                </footer>
+                    <div className="governance-detail-grid">
+                      <div>
+                        <strong>Linked release</strong>
+                        <span>{item.releaseId ?? "No release link"}</span>
+                      </div>
+                      <div>
+                        <strong>Source revision</strong>
+                        <span>{item.sourceRevision}</span>
+                      </div>
+                    </div>
+
+                    <div className="governance-linked-work">
+                      <strong>Linked Work Packages</strong>
+                      {item.linkedWorkPackageIds.length ? (
+                        <div className="workspace-chip-list">
+                          {item.linkedWorkPackageIds.map((id) => (
+                            <span
+                              className="status-chip status-chip-neutral"
+                              key={id}
+                            >
+                              {id}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span>None</span>
+                      )}
+                    </div>
+
+                    <footer className="governance-record-footer">
+                      <span>Record v{item.meta.recordVersion}</span>
+                      <span>Source {item.source}</span>
+                      <span>Updated {item.meta.updatedAt}</span>
+                    </footer>
+                  </div>
+                </details>
               </article>
             ))}
           </div>
