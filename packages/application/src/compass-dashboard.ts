@@ -46,45 +46,45 @@ const projection: BlueprintCompassProjection = Object.freeze({
   projectId: "project:blueprint-os",
   phase: "Phase 9 — Compass Construction",
   currentStorey: Object.freeze({
-    number: 15,
+    number: 16,
     total: 20,
-    name: "Reusable pattern governance"
+    name: "Operational resilience"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-006",
-    title: "Pattern promotion governance",
-    storey: 15,
+    id: "P9-007",
+    title: "Export / backup / restore",
+    storey: 16,
     status: "active",
     reason:
-      "P9-005 established deterministic project bootstrap; reusable knowledge may now be governed from reviewed multi-project evidence without polluting Universal Core."
+      "P9-006 established evidence-safe reusable knowledge governance; canonical project state may now become portable with integrity-checked restore previews."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-005",
-      title: "Project bootstrap factory",
-      storey: 14,
-      status: "complete",
-      reason:
-        "Project ideas now produce deterministic, validated, dependency-aware bootstrap previews without silent canonical mutation."
-    }),
     Object.freeze({
       id: "P9-006",
       title: "Pattern promotion governance",
       storey: 15,
-      status: "active",
+      status: "complete",
       reason:
-        "Pattern and Anti-pattern promotion requires distinct multi-project evidence plus explicit human review."
+        "Reusable knowledge promotion now requires distinct multi-project evidence and explicit human review."
     }),
     Object.freeze({
       id: "P9-007",
       title: "Export / backup / restore",
       storey: 16,
+      status: "active",
+      reason:
+        "Canonical project state is being made portable with deterministic integrity checks and restore previews."
+    }),
+    Object.freeze({
+      id: "P9-008",
+      title: "Observability & incident diagnostics",
+      storey: 16,
       status: "next",
       reason:
-        "Portable canonical state follows only after reusable knowledge governance is evidence-safe."
+        "Operational diagnostics follows once backup/restore integrity and portability are proven."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -144,11 +144,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "32e082f4a7e28c4ac7df510fa51a8ed8e98c4e41",
       source: "Software-Blueprint-Hub PR #41",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-006 Pattern Promotion Governance",
+      revision: "caba8047a700da1c163de764021703f7bc554173",
+      source: "Software-Blueprint-Hub PR #42",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-006 by proving one-project evidence cannot publish reusable knowledge and reviewed multi-project evidence can produce provenance-safe publication records.",
-    "Start P9-007 Export / Backup / Restore only after P9-006 exact PR-head evidence is green.",
+    "Complete P9-007 by proving deterministic export integrity, cross-project isolation and restore-testable previews without silent persistence.",
+    "Start P9-008 Observability & Incident Diagnostics only after P9-007 exact PR-head evidence is green.",
     "Keep Production release unauthorized while Phase 9 remains Development Mode."
   ]),
   truthNote:

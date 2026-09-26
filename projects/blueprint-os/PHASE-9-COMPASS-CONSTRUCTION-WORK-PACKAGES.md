@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-005 COMPLETE / P9-006 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-006 COMPLETE / P9-007 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -152,13 +152,21 @@ Completion evidence:
 - exact PR-head Development Fast CI passed before merge; Production remains not authorized.
 
 ### P9-006 — Pattern promotion governance
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Create reviewed promotion from repeated project evidence to Pattern/Anti-pattern records without one-project Core pollution.
 
+Completion evidence:
+- P9-006 merged in PR #42 as `caba8047a700da1c163de764021703f7bc554173`;
+- one-project evidence fails closed and cannot publish reusable knowledge;
+- distinct multi-project evidence becomes review-candidate only;
+- explicit human approval is required before a provenance-hashed publication record exists;
+- proposals do not silently mutate Universal Core or Knowledge Library;
+- exact PR-head Development Fast CI passed before merge; Production remains not authorized.
+
 ### P9-007 — Export / backup / restore
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Make canonical project state portable and restore-testable before Production authorization.
