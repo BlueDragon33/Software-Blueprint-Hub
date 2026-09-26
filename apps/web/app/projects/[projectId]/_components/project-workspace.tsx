@@ -16,6 +16,7 @@ export type ProjectWorkspaceView =
   | "evidence-graph"
   | "release-orchestration"
   | "security"
+  | "data-lifecycle"
   | "prompt"
   | "decisions"
   | "risks-debt"
@@ -77,6 +78,12 @@ export const projectWorkspaceViews: readonly WorkspaceViewDefinition[] =
       label: "Security",
       suffix: "/security",
       description: "Trust zones, threats, mitigations and publish blockers"
+    },
+    {
+      id: "data-lifecycle",
+      label: "Data Lifecycle",
+      suffix: "/data-lifecycle",
+      description: "Retention, archive, export, migration and deletion policy"
     },
     {
       id: "prompt",
