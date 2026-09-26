@@ -247,3 +247,5 @@ export * from "./ai-copilot";
 export * from "./project-portfolio";
 
 export * from "./quality-evidence-graph";
+
+export * from "./release-orchestration";
