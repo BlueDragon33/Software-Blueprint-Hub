@@ -251,3 +251,5 @@ export * from "./quality-evidence-graph";
 export * from "./release-orchestration";
 
 export * from "./security-threat-model";
+
+export * from "./data-lifecycle";

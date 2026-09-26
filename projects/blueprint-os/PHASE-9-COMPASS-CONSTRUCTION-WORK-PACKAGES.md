@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-013 COMPLETE / P9-014 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-014 COMPLETE / P9-015 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -269,13 +269,22 @@ Completion evidence:
 - Vercel provider discovery returned no accessible team/project, so Production publish remains truthfully blocked rather than fabricated.
 
 ### P9-014 — Security threat-model hardening
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Review trust zones, credential ownership, escalation paths, destructive operations and abuse cases.
 
+Completion evidence:
+- P9-014 merged in PR #59 as `0297d00599fac21956bf65dc2482cbc4cfca2d53`;
+- exact merged revision passed Development Fast CI and full Release Gate;
+- threat model requires explicit trust zones and mandatory threat-category coverage;
+- high/critical threats require mitigation evidence and cannot be silently accepted;
+- missing categories and open severe threats become publish blockers;
+- provider, AI and Production authority expansion remain hard-false;
+- Security workspace exposes threats, mitigations and evidence without secret leakage.
+
 ### P9-015 — Data lifecycle & archive
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Define retention, deletion, archive, export and migration semantics for long-lived engineering records.
