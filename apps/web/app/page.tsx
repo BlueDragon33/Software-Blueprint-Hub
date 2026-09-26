@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AppShell } from "@blueprint-os/ui";
+import { ActionGroup, AppShell, EmptyState, StatusChip } from "@blueprint-os/ui";
 
 import { resolveWebActor } from "../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../src/server/runtime";
@@ -109,7 +109,7 @@ export default async function HomePage() {
               the guided Blueprint flow.
             </p>
           </div>
-          <div className="registry-header-actions">
+          <ActionGroup className="registry-header-actions">
             <span className="environment-badge">Canonical</span>
             <Link className="secondary-button registry-action" href="/knowledge">
               Knowledge Library
@@ -117,23 +117,21 @@ export default async function HomePage() {
             <Link className="primary-button registry-action" href="/projects/new">
               New project
             </Link>
-          </div>
+          </ActionGroup>
         </header>
 
         {items.length === 0 ? (
-          <section className="registry-state" aria-labelledby="empty-title">
-            <span className="registry-state-icon" aria-hidden="true">＋</span>
-            <div>
-              <h2 id="empty-title">No readable projects yet.</h2>
-              <p>
-                Create the first canonical project, or ask a project Owner to
-                grant your account a role.
-              </p>
-            </div>
-            <Link className="primary-button registry-action" href="/projects/new">
-              Create project
-            </Link>
-          </section>
+          <EmptyState
+            className="registry-state"
+            icon="＋"
+            title="No readable projects yet."
+            description="Create the first canonical project, or ask a project Owner to grant your account a role."
+            action={
+              <Link className="primary-button registry-action" href="/projects/new">
+                Create project
+              </Link>
+            }
+          />
         ) : (
           <section aria-labelledby="project-list-title">
             <div className="registry-section-heading">
@@ -143,9 +141,7 @@ export default async function HomePage() {
                   {items.length} {items.length === 1 ? "project" : "projects"}
                 </h2>
               </div>
-              <span className="status-chip status-chip-neutral">
-                Authority filtered
-              </span>
+              <StatusChip>Authority filtered</StatusChip>
             </div>
 
             <div className="project-grid">
@@ -157,9 +153,9 @@ export default async function HomePage() {
                 >
                   <div className="project-card-topline">
                     <span className="project-level">{item.blueprintLevel}</span>
-                    <span className="status-chip status-chip-neutral">
+                    <StatusChip>
                       {item.access === "SYSTEM_OWNER" ? "System Owner" : item.access}
-                    </span>
+                    </StatusChip>
                   </div>
                   <div>
                     <h3>{item.name}</h3>
