@@ -2769,3 +2769,18 @@ input:hover {
     flex: 1 1 auto;
   }
 }
+
+
+/* P6-008 workspace heading contract: status/aside controls remain compact. */
+.workspace-view-heading > .status-chip,
+.workspace-view-heading > .bp-status-chip {
+  width: fit-content;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .workspace-view-heading > .status-chip,
+  .workspace-view-heading > .bp-status-chip {
+    justify-self: start;
+  }
+}
