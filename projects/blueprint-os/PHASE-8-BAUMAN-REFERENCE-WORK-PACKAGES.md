@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 8 Bauman Reference Import Work Packages
 
-Status: **P8-001/P8-002 COMPLETE / P8-003 NEXT — PHASE 8 ACTIVE**
+Status: **P8-001/P8-002 COMPLETE / P8-003 READY FOR PR VALIDATION — PHASE 8 ACTIVE**
 
 Phase 8 uses the Bauman next-generation architecture dossier as a real external reference case to prove that Blueprint OS can absorb a complex software blueprint without making Universal Core Bauman-specific.
 
@@ -69,7 +69,7 @@ Implementation:
 
 ## P8-003 — Reference gap and universality analysis
 
-Status: **NEXT**
+Status: **READY FOR PR VALIDATION**
 
 Dependencies: P8-002.
 
@@ -80,6 +80,14 @@ Acceptance:
 - gaps distinguish contract insufficiency from missing template/library content;
 - proposed universal changes require cross-project rationale;
 - project-specific needs remain extension/template data where possible.
+
+Implementation:
+- analysis baseline: `docs/reference-cases/BAUMAN-NEXTGEN-GAP-ANALYSIS-v1.md`;
+- an eight-factor universality promotion test now prevents one-project concepts from entering Universal Core without cross-project, ownership, authority, lifecycle, migration and evidence justification;
+- remaining gaps are classified as Reference import tooling, Knowledge governance, Product UX, reusable Pattern/Template candidates, or Bauman-specific domain extensions;
+- academic Evidence/Mastery, Bauman runtime roles, Device Gate, A0–A5 names and Content Registry semantics are explicitly rejected from Universal Core promotion;
+- current Blueprint Core/meta-model is judged sufficiently expressive for the Bauman case at engineering-governance level;
+- P8-004 owns Reference Case UX and P8-005 owns machine-readable provenance/alias/drift contracts.
 
 ## P8-004 — Reference Case product UX
 
