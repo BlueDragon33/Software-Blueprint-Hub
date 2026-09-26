@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 8 Bauman Reference Import Work Packages
 
-Status: **P8-001 IN PROGRESS — PHASE 8 ACTIVE**
+Status: **P8-001 READY FOR PR VALIDATION — PHASE 8 ACTIVE**
 
 Phase 8 uses the Bauman next-generation architecture dossier as a real external reference case to prove that Blueprint OS can absorb a complex software blueprint without making Universal Core Bauman-specific.
 
@@ -17,7 +17,7 @@ Phase 8 is also the first production-candidate validation phase after the accept
 
 ## P8-001 — Provenance-safe Bauman reference intake
 
-Status: **IN PROGRESS**
+Status: **READY FOR PR VALIDATION**
 
 Dependencies: Phase 7 Hardening Gate PASS.
 
@@ -28,9 +28,18 @@ Acceptance:
 - a local normalized Reference Case document records source repository, branch, PR and exact architecture revision;
 - Knowledge Library exposes the case under `reference-case`;
 - Reference Case remains separate from projectId, readiness, gate status and release status;
-- tests prove stable ID/provenance and preserve empty Pattern/Anti-pattern truthfulness;
+- automated test coverage encodes stable ID/provenance, project-state separation, and empty unpublished Pattern/Anti-pattern truthfulness;
 - Blueprint roadmap/source-of-truth reflects completed Phase 6/7 and active Phase 8;
-- Development Fast CI passes on the exact PR head.
+- Development Fast CI passes on the exact PR head; full PostgreSQL/build/Playwright Release Gate remains manual Release Mode evidence.
+
+
+Implementation evidence before PR validation:
+- imported Bauman architecture head: `52b2a581a9c38a7060e95209e94c3087764f6d5f`;
+- local Reference Case: `docs/reference-cases/BAUMAN-NEXTGEN-v1.md`;
+- Knowledge Library stable ID: `knowledge:reference-case:bauman-nextgen-v1`;
+- Development Fast CI push run `36231426802`: **SUCCESS** on revision `ccd8c3144cfaf13bfedcfef7dde6523080aa000e`;
+- Development policy contradiction fixed: Phase 8 branches now receive Fast CI and the standalone Release Gate workflow is manual-only;
+- full release validation is intentionally not claimed in Development Mode.
 
 ## P8-002 — Bauman → Blueprint concept mapping
 
