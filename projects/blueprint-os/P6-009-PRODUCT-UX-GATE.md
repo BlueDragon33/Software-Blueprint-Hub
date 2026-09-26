@@ -1,6 +1,6 @@
 # P6-009 — Phase 6 Product UX Gate
 
-Status: **IN PROGRESS**
+Status: **PASS — PHASE 6 PRODUCT UX BASELINE ACCEPTED**
 
 ## Purpose
 
@@ -145,3 +145,88 @@ P6-009 = PASS only when:
 5. production deployment remains a separate authorization decision.
 
 A PASS here authorizes Phase 7 hardening work. It does **not** authorize production deployment.
+
+
+## Gate evidence
+
+Reviewed candidate implementation revision before completion-status commit:
+
+`136544f89388bfbf457f3d2a0494102bbf747adf`
+
+Automated evidence:
+
+- push CI run `36213954156`: **SUCCESS**;
+- PR CI run `36213966078`: **SUCCESS**;
+- PostgreSQL migration/status: PASS;
+- generated contract drift/schema compatibility: PASS;
+- lint/typecheck/architecture boundaries: PASS;
+- unit/authority/PostgreSQL integration tests: PASS;
+- production build: PASS;
+- canonical E2E seed: PASS;
+- Playwright desktop/mobile: PASS;
+- Phase 6 cross-product traversal: PASS.
+
+The cross-product traversal verifies one authenticated journey across:
+
+Registry → Overview → Profile → Blueprint → Roadmap → Quality → Prompt → Decisions → Risks & Debt → Releases & Lessons → Knowledge Library → guided preview.
+
+It asserts the canonical routes remain reachable, current workspace navigation remains valid, and no dead-end/unavailable state appears during the journey.
+
+## Human UX artifact
+
+- artifact id: `10896403920`;
+- digest: `sha256:ce8e4a7a05f22d6a3e06b86fb0c90cbefcdaf54977a1cb9901a58b6c3aed91de`;
+- exact artifact revision: `136544f89388bfbf457f3d2a0494102bbf747adf`.
+
+Reviewed desktop/mobile evidence includes:
+
+- signed-out and authenticated Registry;
+- Readiness / Overview;
+- Quality;
+- Prompt Workspace;
+- Decisions;
+- Risks & Debt;
+- Releases & Lessons;
+- Knowledge Library;
+- guided vertical-slice flow.
+
+## Human UX findings
+
+1. Product identity remains coherent from Registry into canonical Project Workspace.
+2. Workspace terminology is stable across Profile, Blueprint, Roadmap, Quality, Prompt, Decisions, Risks & Debt, and Releases & Lessons.
+3. Readiness remains evidence-backed and percentage-free.
+4. Quality and Prompt semantics do not contradict one another: Prompt Fresh/Stale is source-revision freshness, not Quality Gate PASS.
+5. Governance records keep lifecycle/provenance separate from work completion.
+6. Release history exposes exact revision, evidence, rollback and reusable Lessons Learned.
+7. Knowledge Library remains reusable reference truth and does not impersonate project completion state.
+8. Signed-out Registry protects canonical project metadata.
+9. Guided preview remains explicitly non-canonical and keyboard-operable.
+10. Desktop hierarchy is stable across reviewed surfaces.
+11. Mobile layouts avoid blocking horizontal page overflow and keep primary actions usable.
+12. No blocking contradiction or P0/P1 defect was observed.
+
+## Residual hardening items
+
+These do not block the Phase 6 gate but should be carried into Phase 7:
+
+- **P2 — mobile workspace navigation visibility:** the horizontally scrollable project navigation does not automatically center or reveal the active far-right tab after route navigation. Breadcrumbs preserve current context, but active-tab discoverability can be improved.
+- **P2 — dense canonical views:** Knowledge, Prompt and Release/Lessons pages are long on narrow screens. Content is readable and operable, but Phase 7 should improve progressive disclosure without hiding provenance.
+
+## Source-of-truth contradiction fixed during gate
+
+P6-009 found and corrected a real documentation contradiction:
+
+- Phase 6 summary said P6-008 was COMPLETE;
+- the P6-008 section still said IN PROGRESS.
+
+The Phase 6 Work Package source-of-truth now agrees.
+
+## Result
+
+**P6-009 = PASS**
+
+**Phase 6 Product UX baseline = ACCEPTED**
+
+Phase 7 hardening may begin.
+
+Production deployment remains unauthorized and requires a separate explicit release/deployment authorization.
