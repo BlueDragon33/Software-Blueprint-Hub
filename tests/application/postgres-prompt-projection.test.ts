@@ -19,6 +19,7 @@ import {
   createPrismaClient,
   PostgresAuthorityRepository,
   PostgresProjectProfileRepository,
+  PostgresPromptProjectionHistoryRepository,
   PostgresWorkQualityRepository
 } from "../../packages/persistence/src";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
@@ -135,6 +136,8 @@ describePostgres("FND-008 persisted Prompt Projection flow", () => {
   const authority = new AuthorityService(authorityRepository);
   const profileRepository = new PostgresProjectProfileRepository(prisma);
   const workQualityRepository = new PostgresWorkQualityRepository(prisma);
+  const promptHistoryRepository =
+    new PostgresPromptProjectionHistoryRepository(prisma);
   const profiles = new ProjectProfileApplicationService(
     profileRepository,
     authority,
@@ -148,10 +151,12 @@ describePostgres("FND-008 persisted Prompt Projection flow", () => {
     authority,
     profiles,
     workQualityRepository,
-    { now: () => "2026-09-25T18:46:00+07:00" }
+    { now: () => "2026-09-25T18:46:00+07:00" },
+    promptHistoryRepository
   );
 
   beforeEach(async () => {
+    await prisma.promptProjectionSnapshot.deleteMany({ where: { projectId } });
     await prisma.gateEvidence.deleteMany({
       where: { gate: { projectId } }
     });
@@ -221,7 +226,7 @@ describePostgres("FND-008 persisted Prompt Projection flow", () => {
       1
     );
 
-    const first = await prompts.generate(actor, projectId);
+    const first = await prompts.generateAndRecord(actor, projectId);
 
     expect(first.sourceRevision).toMatch(/^sha256:[a-f0-9]{64}$/);
     expect(first.contentHash).toMatch(/^sha256:[a-f0-9]{64}$/);
@@ -236,11 +241,16 @@ describePostgres("FND-008 persisted Prompt Projection flow", () => {
 
     const currentRevision =
       await prompts.currentSourceRevision(actor, projectId);
-    const second = await prompts.generate(actor, projectId);
+    const second = await prompts.generateAndRecord(actor, projectId);
 
     expect(currentRevision).toBe(second.sourceRevision);
     expect(currentRevision).not.toBe(first.sourceRevision);
     expect(isPromptProjectionStale(first, currentRevision)).toBe(true);
     expect(second.contentHash).not.toBe(first.contentHash);
+
+    const history = await prompts.history(actor, projectId);
+    expect(history).toHaveLength(2);
+    expect(history.map((item) => item.contentHash)).toContain(first.contentHash);
+    expect(history.map((item) => item.contentHash)).toContain(second.contentHash);
   });
 });

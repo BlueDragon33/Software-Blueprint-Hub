@@ -570,3 +570,38 @@ VALUES (
   '2026-09-26T00:53:00Z'::timestamptz,
   '2026-09-26T00:53:00Z'::timestamptz
 );
+
+
+-- P6-007 derived Prompt Projection history fixture.
+-- This snapshot is intentionally stale. Prompt Workspace must compare it with
+-- the current canonical source revision and never treat age alone as freshness.
+INSERT INTO "PromptProjectionSnapshot" (
+  "snapshotKey",
+  "projectId",
+  "projectionId",
+  "sourceRevision",
+  "templateVersion",
+  "contentHash",
+  "generatedAt",
+  "document",
+  "createdAt"
+)
+VALUES (
+  'project:p6-registry-beta|prompt-projection:p6-007-stale|2026-09-26T00:20:00.000Z',
+  'project:p6-registry-beta',
+  'prompt-projection:p6-007-stale',
+  'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+  'execution-prompt:v1',
+  'sha256:1111111111111111111111111111111111111111111111111111111111111111',
+  '2026-09-26T00:20:00Z',
+  '{
+    "id":"prompt-projection:p6-007-stale",
+    "projectId":"project:p6-registry-beta",
+    "sourceRevision":"sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "templateVersion":"execution-prompt:v1",
+    "generatedAt":"2026-09-26T00:20:00.000Z",
+    "contentHash":"sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "content":"# Historical Blueprint OS Execution Prompt\n\nThis fixture is intentionally stale.\n"
+  }'::jsonb,
+  '2026-09-26T00:20:00Z'::timestamptz
+);

@@ -174,6 +174,42 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
+  await page.getByRole("link", { name: /^Prompt/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Derived execution projection" })
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Export .md" })).toBeEnabled();
+  await expect(
+    page.getByRole("heading", { name: "Prompt Projection snapshots" })
+  ).toBeVisible();
+
+  if (testInfo.project.name === "desktop-chromium") {
+    await expect(page.getByText("Stale", { exact: true }).first()).toBeVisible();
+    await expect(
+      page.getByText(/Canonical state has changed since this prompt was generated/)
+    ).toBeVisible();
+    await expect(
+      page.getByText("2026-09-26T00:20:00.000Z", { exact: true }).first()
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Regenerate" }).click();
+    await expect(page.getByText("Fresh", { exact: true }).first()).toBeVisible();
+    await expect(
+      page.getByText(/This prompt matches the current canonical source revision/)
+    ).toBeVisible();
+    await expect(page.getByText("2 snapshots", { exact: true })).toBeVisible();
+  } else {
+    await expect(
+      page.getByText(/^(Fresh|Stale)$/).first()
+    ).toBeVisible();
+  }
+
+  await page.screenshot({
+    path: `artifacts/p6-007-prompt-workspace-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+
   await page.getByRole("link", { name: /Decisions/ }).click();
   await expect(
     page.getByRole("heading", { name: "Architecture Decisions" })

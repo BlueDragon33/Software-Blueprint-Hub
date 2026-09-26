@@ -12,6 +12,7 @@ import { validateContract } from "@blueprint-os/contracts";
 import {
   AuthorityService,
   type AuthenticatedActor,
+  type PromptProjectionHistoryRepository,
   type WorkQualityRepository
 } from "@blueprint-os/core";
 
@@ -238,7 +239,8 @@ export class PromptProjectionApplicationService {
     private readonly authority: AuthorityService,
     private readonly profiles: ProjectProfileReader,
     private readonly workQuality: WorkQualityRepository,
-    private readonly clock: ProjectionClock = systemClock
+    private readonly clock: ProjectionClock = systemClock,
+    private readonly historyRepository?: PromptProjectionHistoryRepository
   ) {}
 
   async generate(
@@ -247,6 +249,32 @@ export class PromptProjectionApplicationService {
   ): Promise<PromptProjection> {
     const source = await this.collectSource(actor, projectId);
     return createPromptProjection(source, this.clock.now());
+  }
+
+  async generateAndRecord(
+    actor: AuthenticatedActor | null,
+    projectId: string
+  ): Promise<PromptProjection> {
+    if (!this.historyRepository) {
+      throw new Error("Prompt Projection history repository is not configured");
+    }
+
+    const projection = await this.generate(actor, projectId);
+    return this.historyRepository.record(projection);
+  }
+
+  async history(
+    actor: AuthenticatedActor | null,
+    projectId: string
+  ): Promise<readonly PromptProjection[]> {
+    await this.authority.require(actor, projectId, "PROJECT_READ");
+    if (!this.historyRepository) {
+      return Object.freeze([]);
+    }
+
+    return Object.freeze([
+      ...(await this.historyRepository.listByProject(projectId))
+    ]);
   }
 
   async currentSourceRevision(

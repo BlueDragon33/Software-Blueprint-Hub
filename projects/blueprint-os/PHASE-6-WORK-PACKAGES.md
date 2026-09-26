@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 6 Product Expansion Work Packages
 
-Status: **AUTHORIZED AFTER A2 / P6-001–P6-006 COMPLETE / P6-007 NEXT**
+Status: **AUTHORIZED / P6-001 THROUGH P6-007 COMPLETE / P6-008 NEXT**
 
 Phase 6 expands the proven vertical slice into a professional multi-project product. Work remains dependency-driven; production deployment is not implied.
 
@@ -73,7 +73,7 @@ Represent releases, exact revision evidence, rollback notes and Lessons Learned 
 
 ## P6-007 — Prompt Workspace ergonomics
 
-Status: **NEXT / AUTHORIZED AFTER P6-006 MERGE**
+Status: **COMPLETE**
 
 Dependencies: P6-003.
 
@@ -81,6 +81,8 @@ Purpose:
 Add copy/export/history/staleness affordances to Prompt Projection while preserving the rule that prompts are projections, never source-of-truth.
 
 ## P6-008 — Professional Design System hardening
+
+Status: **NEXT / AUTHORIZED AFTER P6-007 MERGE**
 
 Dependencies: P6-001 through P6-007 may contribute requirements; implementation is incremental.
 

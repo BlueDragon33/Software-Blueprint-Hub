@@ -10,6 +10,7 @@ export * from "./work-quality";
 export * from "./project-readiness";
 export * from "./governance";
 export * from "./release";
+export * from "./prompt-history";
 
 export interface RegisteredProject {
   readonly id: ProjectId;
