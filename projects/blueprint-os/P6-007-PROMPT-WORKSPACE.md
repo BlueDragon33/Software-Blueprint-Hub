@@ -1,6 +1,6 @@
 # P6-007 — Prompt Workspace ergonomics
 
-Status: **IN PROGRESS**
+Status: **COMPLETE — CI/E2E/HUMAN UX EVIDENCE ACCEPTED**
 
 ## Purpose
 
@@ -94,5 +94,55 @@ P6-007 may PASS only when:
 - browser E2E proves stale → regenerate → fresh + history growth;
 - Human UX review has no blocking P0/P1;
 - exact-head push and PR CI are green.
+
+Production deployment remains unauthorized.
+
+
+## Completion evidence
+
+Reviewed implementation revision before completion-status commit:
+
+`93062f0e73d7886b983dcbdfa599d9d2a613ee79`
+
+Automated evidence:
+
+- push CI run `36210073724`: **SUCCESS**;
+- PR CI run `36210076344`: **SUCCESS**;
+- migration-safe PromptProjectionSnapshot persistence passed;
+- PostgreSQL prompt history regression passed;
+- production build passed;
+- browser E2E passed;
+- desktop stateful stale → regenerate → fresh flow passed;
+- mobile read-only/responsive Prompt surface passed without mutating shared fixture state.
+
+Race-condition fix:
+
+- earlier CI failure was caused by desktop and mobile Playwright projects mutating the same Prompt history fixture;
+- canonical product behavior was correct;
+- stateful regeneration is now owned by the desktop browser project only;
+- mobile validates the same Prompt Workspace without introducing shared-database mutation;
+- no assertion was weakened for the desktop stale → fresh acceptance path.
+
+Human UX artifact:
+
+- artifact id: `10895406253`;
+- digest: `sha256:a59cd6e47f3d6f4c28cd90e3a9995079982133ab5d439d87bd52495472c66665`.
+
+Human review findings:
+
+1. Prompt Workspace clearly labels the projection as derived/read-only.
+2. Fresh/Stale describes source-revision alignment only and does not imply Quality Gate PASS.
+3. Regenerate, Copy and Export are visible and logically grouped.
+4. Current source revision, projection metadata and history provenance are distinguishable.
+5. Desktop history shows the new Current snapshot and preserved Stale predecessor.
+6. Mobile controls stack cleanly, prompt content remains readable and history remains inspectable.
+7. Project workspace navigation remains horizontally scrollable on mobile as established by P6-003.
+8. No blocking P0/P1 UX defect was observed.
+
+## Result
+
+**P6-007 = COMPLETE**
+
+P6-008 — Professional Design System hardening is the next active dependency work package.
 
 Production deployment remains unauthorized.
