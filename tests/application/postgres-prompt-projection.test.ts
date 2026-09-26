@@ -248,9 +248,27 @@ describePostgres("FND-008 persisted Prompt Projection flow", () => {
     expect(isPromptProjectionStale(first, currentRevision)).toBe(true);
     expect(second.contentHash).not.toBe(first.contentHash);
 
+    const third = await promptHistoryRepository.record({
+      ...second,
+      generatedAt: "2026-09-25T18:47:00+07:00"
+    });
+
     const history = await prompts.history(actor, projectId);
-    expect(history).toHaveLength(2);
+    expect(history).toHaveLength(3);
     expect(history.map((item) => item.contentHash)).toContain(first.contentHash);
     expect(history.map((item) => item.contentHash)).toContain(second.contentHash);
+
+    const pageOne = await prompts.historyPage(actor, projectId, 1, 2);
+    const pageTwo = await prompts.historyPage(actor, projectId, 2, 2);
+
+    expect(pageOne.items).toHaveLength(2);
+    expect(pageOne.latest?.generatedAt).toBe(third.generatedAt);
+    expect(pageOne.hasPrevious).toBe(false);
+    expect(pageOne.hasNext).toBe(true);
+
+    expect(pageTwo.items).toHaveLength(1);
+    expect(pageTwo.latest?.generatedAt).toBe(third.generatedAt);
+    expect(pageTwo.hasPrevious).toBe(true);
+    expect(pageTwo.hasNext).toBe(false);
   });
 });
