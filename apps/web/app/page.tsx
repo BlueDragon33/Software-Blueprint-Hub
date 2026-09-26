@@ -4,6 +4,7 @@ import { ActionGroup, AppShell, EmptyState, StatusChip } from "@blueprint-os/ui"
 
 import { resolveWebActor } from "../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../src/server/runtime";
+import { RetryCurrentView } from "./_components/retry-current-view";
 
 export const dynamic = "force-dynamic";
 
@@ -82,15 +83,23 @@ export default async function HomePage() {
             </div>
             <span className="environment-badge">Canonical</span>
           </header>
-          <section className="registry-state registry-state-error" role="alert">
+          <section
+            className="registry-state registry-state-error runtime-recovery-state"
+            role="alert"
+            aria-labelledby="registry-runtime-title"
+          >
             <span className="registry-state-icon" aria-hidden="true">!</span>
             <div>
-              <h2>Project registry is temporarily unavailable.</h2>
+              <p className="section-kicker">Canonical runtime unavailable</p>
+              <h2 id="registry-runtime-title">
+                Project registry is temporarily unavailable.
+              </h2>
               <p>
                 Your account remains signed in. No project data was exposed or
-                replaced by preview state.
+                replaced by preview or cached state.
               </p>
             </div>
+            <RetryCurrentView label="Retry project registry" />
           </section>
         </main>
       </AppShell>
