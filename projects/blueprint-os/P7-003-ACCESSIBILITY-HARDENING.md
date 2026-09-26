@@ -1,6 +1,6 @@
 # P7-003 — Accessibility hardening
 
-Status: **IN PROGRESS**
+Status: **COMPLETE — RELEASE GATE / HUMAN UX ACCEPTED**
 
 ## Purpose
 
@@ -95,5 +95,67 @@ P7-003 may PASS only when:
 - current-route semantics remain intact;
 - critical keyboard flows remain green;
 - Human UX review finds no blocking accessibility regression.
+
+Production deployment remains unauthorized.
+
+
+## Completion evidence
+
+Reviewed implementation revision before completion-status commits:
+
+`9feaf71a7a05b7133829bb9b1ff6f06b95cf56c4`
+
+Fast CI:
+
+- push run `36220817012`: **SUCCESS**;
+- PR run `36220819370`: **SUCCESS**.
+
+Release Gate:
+
+- workflow run `36220819400`: **SUCCESS**.
+
+Full gate passed:
+
+- PostgreSQL migration and migration status;
+- generated contract drift and schema compatibility;
+- lint and typecheck;
+- architecture boundaries;
+- unit, contract, authority and PostgreSQL integration tests;
+- production build;
+- canonical E2E seed;
+- Playwright desktop/mobile suites;
+- Human UX evidence upload.
+
+Artifact:
+
+- id: `10899162037`;
+- digest: `sha256:e20d378ada2b24c3326a93a4ce0919d2ee59309d6f521505ffdd1f8475e55250`.
+
+Browser accessibility evidence:
+
+1. the AppShell skip link is first-focusable on a neutral critical surface;
+2. activating the skip link transfers focus to the stable main-content target;
+3. no positive `tabindex` exists on the tested critical surfaces;
+4. semantic disclosure summaries expose a visible focus outline;
+5. Project Workspace navigation retains a named landmark and `aria-current="page"`;
+6. critical gate status remains visible as text;
+7. existing keyboard guided-setup and semantic disclosure journeys remain green.
+
+Human UX review:
+
+1. the accessibility hardening introduces no persistent visual clutter because the skip link is only revealed on keyboard focus;
+2. mobile Quality remains readable without horizontal overflow;
+3. active Project Workspace context remains obvious;
+4. PASS / candidate / not-ready state remains textually distinguishable rather than color-only;
+5. semantic disclosures remain compact and understandable;
+6. no blocking P0/P1 accessibility or UX regression was observed.
+
+The initial Release Gate run `36220666557` failed only because the second skip-link assertion assumed a single Tab after a mobile route-navigation focus side effect. The test was corrected to verify the same skip-link behavior without depending on route-restoration focus state. Product semantics were not weakened.
+
+## Result
+
+**P7-003 = COMPLETE**
+
+P7-004 — Runtime resilience and recovery UX is the next dependency Work Package.
 
 Production deployment remains unauthorized.
