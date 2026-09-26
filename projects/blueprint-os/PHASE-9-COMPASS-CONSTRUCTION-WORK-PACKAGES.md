@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-010 COMPLETE / P9-011 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-011 COMPLETE / P9-012 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -224,13 +224,22 @@ Completion evidence:
 - explicit human acceptance is required before any canonical mutation path.
 
 ### P9-011 — Multi-project portfolio view
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Provide cross-project visibility without merging project authority or business data.
 
+Completion evidence:
+- P9-011 merged in PR #53 as `548813aaa458a769ca00d3b74a36a0b4cb032252`;
+- exact merged revision passed Development Fast CI and full Release Gate;
+- Portfolio consumes the same authority-filtered Project Registry as the canonical Projects surface;
+- only safe registry metadata is aggregated; duplicate project identity fails closed;
+- cross-project/canonical mutation, aggregated readiness and business-data inclusion remain hard-false;
+- signed-out Playwright coverage proves canonical project names remain hidden;
+- desktop/mobile Playwright evidence proves the Portfolio remains readable and links back to isolated canonical workspaces.
+
 ### P9-012 — Quality evidence graph
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Make gate/evidence/work/release provenance traceable as an explainable dependency graph.

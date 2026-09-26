@@ -54,37 +54,37 @@ const projection: BlueprintCompassProjection = Object.freeze({
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-011",
-    title: "Multi-project portfolio view",
+    id: "P9-012",
+    title: "Quality evidence graph",
     storey: 19,
     status: "active",
     reason:
-      "P9-010 passed the full Release Gate, so cross-project visibility can now be added while preserving strict per-project authority and data separation."
+      "P9-011 passed the full Release Gate with portfolio isolation, so Quality Gate, evidence, work and release provenance can now be made explainably traceable without creating synthetic readiness."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-010",
-      title: "Bounded AI copilot",
-      storey: 18,
-      status: "complete",
-      reason:
-        "AI assistance now produces revision-bound, human-review-required proposals with no canonical, Quality Gate or Production authority."
-    }),
     Object.freeze({
       id: "P9-011",
       title: "Multi-project portfolio view",
       storey: 19,
-      status: "active",
+      status: "complete",
       reason:
-        "Cross-project visibility is the next valid step, but project authority and business data must remain isolated."
+        "Authority-filtered portfolio visibility passed the full Release Gate without merging readiness, business data or project authority."
     }),
     Object.freeze({
       id: "P9-012",
       title: "Quality evidence graph",
       storey: 19,
+      status: "active",
+      reason:
+        "Gate, evidence, work and release provenance is the next dependency-valid visibility layer."
+    }),
+    Object.freeze({
+      id: "P9-013",
+      title: "Release orchestration",
+      storey: 20,
       status: "next",
       reason:
-        "Cross-project quality evidence visualization follows only after portfolio isolation is explicit and regression-tested."
+        "Release promotion may be orchestrated only after quality evidence relationships are explainable at exact revisions."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -174,11 +174,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "cd55737bd82c47838e92108a3d778de5f9bde162",
       source: "Software-Blueprint-Hub PR #51 / main Release Gate",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-011 Multi-project Portfolio full Release Gate",
+      revision: "548813aaa458a769ca00d3b74a36a0b4cb032252",
+      source: "Software-Blueprint-Hub PR #53 / main Release Gate",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-011 by proving cross-project visibility cannot merge project authority, business data or readiness state.",
-    "Start P9-012 Quality Evidence Graph only after P9-011 exact PR-head evidence is green.",
+    "Complete P9-012 by making gate/evidence/work/release provenance explainable without manufacturing readiness or PASS.",
+    "Start P9-013 Release Orchestration only after P9-012 exact PR-head evidence and full Release Gate are green.",
     "Production publish remains blocked until a real deployment provider is connected; merge/release evidence alone is not deployment."
   ]),
   truthNote:
