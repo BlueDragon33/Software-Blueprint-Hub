@@ -153,7 +153,19 @@ export default async function ReferenceCasePage({
               <dd>{projection.source.importedAt}</dd>
             </div>
             <div>
-              <dt>Local source</dt>
+              <dt>Classified source artifacts</dt>
+              <dd>{projection.source.artifactCount}</dd>
+            </div>
+            <div>
+              <dt>Semantic mappings</dt>
+              <dd>{projection.source.conceptMappingCount}</dd>
+            </div>
+            <div className="reference-case-provenance-wide">
+              <dt>Machine-readable import manifest</dt>
+              <dd>{projection.source.manifestPath}</dd>
+            </div>
+            <div className="reference-case-provenance-wide">
+              <dt>Local reference document</dt>
               <dd>{item.sourcePath}</dd>
             </div>
           </dl>
