@@ -44,9 +44,10 @@ export default async function PromptPage({
       workspace.projectId,
       historyPageNumber
     ),
-    workspace.runtime.prompts.currentSourceRevision(
+    workspace.runtime.prompts.currentSourceRevisionFromProfile(
       workspace.actor,
-      workspace.projectId
+      workspace.projectId,
+      workspace.project
     )
   ]);
 
