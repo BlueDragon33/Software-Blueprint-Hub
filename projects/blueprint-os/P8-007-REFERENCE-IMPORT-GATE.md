@@ -1,6 +1,6 @@
 # P8-007 — Phase 8 Reference Import Gate
 
-Status: **DEVELOPMENT GATE CANDIDATE**
+Status: **PASS — DEVELOPMENT BASELINE**
 
 This gate decides whether Blueprint OS has demonstrated safe import and inspection of a complex external reference architecture without converting external project semantics into Universal Core authority or canonical project completion state.
 
@@ -32,6 +32,6 @@ Evidence is restricted to the exact Blueprint OS revision evaluated by this gate
 
 ## Decision rule
 
-The gate may be recorded as **PASS — DEVELOPMENT BASELINE** only after the exact PR head passes Development Fast CI and the PR remains clean/mergeable.
+The candidate revision `befceb6223293b866d6b5eb19b34231a26566bac` passed exact PR-head Development Fast CI in PR #36 (run `36233832944`). The final PASS revision must also pass Development Fast CI before merge.
 
 A Development PASS means the Reference Import architecture is accepted as a development baseline. It does not imply Production deployment, hosted release verification, PostgreSQL release migration validation, or Playwright Release Mode completion.
