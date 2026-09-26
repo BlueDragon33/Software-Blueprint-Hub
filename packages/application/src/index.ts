@@ -257,3 +257,5 @@ export * from "./data-lifecycle";
 export * from "./adaptive-ux-audit";
 
 export * from "./performance-capacity";
+
+export * from "./ecosystem-dogfood";
