@@ -124,6 +124,9 @@ export default async function HomePage() {
             <Link className="secondary-button registry-action" href="/compass">
               System Compass
             </Link>
+            <Link className="secondary-button registry-action" href="/portfolio">
+              Portfolio
+            </Link>
             <Link className="secondary-button registry-action" href="/knowledge">
               Knowledge Library
             </Link>
