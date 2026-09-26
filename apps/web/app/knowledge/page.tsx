@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AppShell } from "@blueprint-os/ui";
+import { AppShell, EmptyState, SectionHeading, StatusChip } from "@blueprint-os/ui";
 
 import { getBlueprintServerRuntime } from "../../src/server/runtime";
 
@@ -38,7 +38,7 @@ export default function KnowledgeLibraryPage() {
             </p>
           </div>
           <div className="knowledge-header-meta">
-            <span className="environment-badge">Read-only catalog</span>
+            <StatusChip>Read-only catalog</StatusChip>
             <strong>{populated} published items</strong>
           </div>
         </header>
@@ -72,25 +72,21 @@ export default function KnowledgeLibraryPage() {
               key={section.kind}
               aria-labelledby={section.kind + "-heading"}
             >
-              <div className="knowledge-section-heading">
-                <div>
-                  <p className="section-kicker">{kindLabel(section.kind)}</p>
-                  <h2 id={section.kind + "-heading"}>{section.label}</h2>
-                  <p>{section.description}</p>
-                </div>
-                <span className="status-chip status-chip-neutral">
-                  {section.items.length} published
-                </span>
-              </div>
+              <SectionHeading
+                className="knowledge-section-heading"
+                kicker={kindLabel(section.kind)}
+                title={section.label}
+                titleId={section.kind + "-heading"}
+                description={section.description}
+                aside={<StatusChip>{section.items.length} published</StatusChip>}
+              />
 
               {section.items.length === 0 ? (
-                <div className="knowledge-empty">
-                  <strong>No canonical {section.label} published yet.</strong>
-                  <span>
-                    Blueprint OS leaves this category empty instead of
-                    manufacturing reusable knowledge that has not been reviewed.
-                  </span>
-                </div>
+                <EmptyState
+                  className="knowledge-empty"
+                  title={<>No canonical {section.label} published yet.</>}
+                  description="Blueprint OS leaves this category empty instead of manufacturing reusable knowledge that has not been reviewed."
+                />
               ) : (
                 <div className="knowledge-grid">
                   {section.items.map((item) => (
@@ -102,9 +98,7 @@ export default function KnowledgeLibraryPage() {
                           </span>
                           <h3>{item.title}</h3>
                         </div>
-                        <span className="status-chip status-chip-neutral">
-                          v{item.version}
-                        </span>
+                        <StatusChip>v{item.version}</StatusChip>
                       </div>
 
                       <p>{item.summary}</p>
