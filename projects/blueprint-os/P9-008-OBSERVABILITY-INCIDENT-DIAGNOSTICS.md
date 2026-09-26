@@ -1,6 +1,6 @@
 # P9-008 — Observability & Incident Diagnostics
 
-Status: **RELEASE-GATE CANDIDATE**
+Status: **COMPLETE — FULL RELEASE GATE PASS**
 
 ## Purpose
 
@@ -73,5 +73,5 @@ P9-008 may complete only when:
 
 - PR: #44
 - Fast CI on `162a6a1f3a6b57d99b2cdc7afc7d1490314a548d`: **SUCCESS**
-- Full Release Gate: pending candidate revision below
-- Production deployment: **NOT AUTHORIZED BY THIS GATE**
+- Full Release Gate on `f953c6dce02da341e0fd2471fab5bca079736a94`: **SUCCESS**
+- Production deployment: **SEPARATE EXPLICIT ACTION — NOT IMPLIED BY THIS GATE**
