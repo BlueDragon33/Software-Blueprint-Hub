@@ -1,6 +1,6 @@
 # P9-012 — Quality Evidence Graph
 
-Status: **DEVELOPMENT CANDIDATE**
+Status: **COMPLETE — FULL RELEASE GATE PASS**
 
 ## Purpose
 
@@ -41,3 +41,11 @@ P9-012 may complete only when:
 - Work/Gate/Evidence/Release edges are explainable;
 - project Quality UX can open the graph without losing canonical boundary;
 - full Release Gate and Playwright evidence pass on the exact merged revision.
+
+
+## Completion evidence
+
+- implementation merged in PR #55 at `7dd360aad0a89b7ca687524a639c7fccdda08077`;
+- exact merged revision passed Fast CI and the full Release Gate;
+- full Release Gate passed PostgreSQL migration/status, generated contract drift, schema compatibility, source-of-truth checks, lint, typecheck, architecture boundaries, unit/integration tests, production build, canonical E2E seed, Playwright Chromium, App Shell E2E and Human UX evidence upload;
+- Production deployment is not implied by this PASS.
