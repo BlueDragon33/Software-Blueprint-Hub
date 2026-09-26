@@ -472,7 +472,10 @@ test("Knowledge Library exposes reusable truth without project completion state"
   ).toBeVisible();
 
   await expect(
-    page.getByText("No canonical Reference Cases published yet.", { exact: true })
+    page.getByText("Bauman Next-Generation Platform", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Inspect reference case" })
   ).toBeVisible();
 
   const knowledgeCards = page.locator(".knowledge-card");
@@ -495,6 +498,67 @@ test("Knowledge Library exposes reusable truth without project completion state"
 
   await page.screenshot({
     path: `artifacts/p6-005-knowledge-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("P8-004 Reference Case keeps provenance visible and deep detail progressive", async ({
+  page
+}, testInfo) => {
+  await page.goto("/knowledge/reference-cases/bauman-nextgen-v1");
+
+  await expect(
+    page.getByRole("heading", { name: "Bauman Next-Generation Platform" })
+  ).toBeVisible();
+  await expect(page.getByText("Reference only", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Exact imported source" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("BlueDragon33/Bauman-master-ai-system", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("52b2a581a9c38a7060e95209e94c3087764f6d5f", {
+      exact: true
+    })
+  ).toBeVisible();
+
+  await expect(page.locator(".readiness-card")).toHaveCount(0);
+  await expect(page.locator(".status-chip-success")).toHaveCount(0);
+
+  const disclosures = page.locator("details.reference-case-disclosure");
+  await expect(disclosures).toHaveCount(3);
+  await expect(disclosures.nth(0)).not.toHaveAttribute("open", "");
+  await expect(disclosures.nth(1)).not.toHaveAttribute("open", "");
+  await expect(disclosures.nth(2)).not.toHaveAttribute("open", "");
+
+  const collisionSummary = disclosures
+    .filter({ hasText: "Semantic collision guards" })
+    .locator("summary");
+  await collisionSummary.focus();
+  await expect(collisionSummary).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(
+    disclosures.filter({ hasText: "Semantic collision guards" })
+  ).toHaveAttribute("open", "");
+  await expect(
+    page.getByText("Academic Evidence ≠ GateEvidence", { exact: true })
+  ).toBeVisible();
+
+  const gapDisclosure = disclosures.filter({
+    hasText: "Gap & universality analysis"
+  });
+  await gapDisclosure.locator("summary").focus();
+  await page.keyboard.press("Space");
+  await expect(gapDisclosure).toHaveAttribute("open", "");
+  await expect(
+    gapDisclosure.getByText("Structured Reference Case provenance", {
+      exact: true
+    })
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p8-004-reference-case-${testInfo.project.name}.png`,
     fullPage: true
   });
 });
