@@ -451,3 +451,122 @@ VALUES
   '2026-09-25T23:37:00Z'::timestamptz,
   '2026-09-25T23:37:00Z'::timestamptz
 );
+
+
+-- P6-006 canonical release + lesson fixture.
+INSERT INTO "QualityGate" (
+  "id","projectId","schemaVersion","recordVersion","status","document","createdAt","updatedAt"
+)
+VALUES (
+  'gate:p6-006-release-evidence',
+  'project:p6-registry-beta',
+  '1.0.0',
+  1,
+  'pass',
+  '{
+    "id":"gate:p6-006-release-evidence",
+    "projectId":"project:p6-registry-beta",
+    "name":"P6-006 exact release evidence",
+    "requirements":["Release evidence must target the exact shipped revision."],
+    "status":"pass",
+    "evidenceIds":["evidence:p6-006-release"],
+    "meta":{
+      "schemaVersion":"1.0.0",
+      "recordVersion":1,
+      "createdAt":"2026-09-26T00:50:00Z",
+      "updatedAt":"2026-09-26T00:50:00Z"
+    }
+  }'::jsonb,
+  '2026-09-26T00:50:00Z'::timestamptz,
+  '2026-09-26T00:50:00Z'::timestamptz
+);
+
+INSERT INTO "GateEvidence" (
+  "id","gateId","kind","source","revision","document","createdAt"
+)
+VALUES (
+  'evidence:p6-006-release',
+  'gate:p6-006-release-evidence',
+  'test',
+  'github-actions:p6-006-e2e',
+  'revision-p6-006-e2e',
+  '{
+    "id":"evidence:p6-006-release",
+    "gateId":"gate:p6-006-release-evidence",
+    "kind":"test",
+    "source":"github-actions:p6-006-e2e",
+    "revision":"revision-p6-006-e2e",
+    "createdAt":"2026-09-26T00:51:00Z"
+  }'::jsonb,
+  '2026-09-26T00:51:00Z'::timestamptz
+);
+
+INSERT INTO "ReleaseRecord" (
+  "id","projectId","schemaVersion","recordVersion","version","revision",
+  "environment","status","document","createdAt","updatedAt"
+)
+VALUES (
+  'release:p6-006-beta-v1',
+  'project:p6-registry-beta',
+  '1.0.0',
+  1,
+  'v1.0.0',
+  'revision-p6-006-e2e',
+  'production',
+  'released',
+  '{
+    "id":"release:p6-006-beta-v1",
+    "projectId":"project:p6-registry-beta",
+    "version":"v1.0.0",
+    "revision":"revision-p6-006-e2e",
+    "environment":"production",
+    "artifactSource":"github-actions:p6-006-e2e/deployment",
+    "status":"released",
+    "releasedAt":"2026-09-26T00:52:00Z",
+    "gateEvidenceIds":["evidence:p6-006-release"],
+    "rollbackPlan":"Restore revision-p6-006-previous and rerun health verification.",
+    "notes":"Release history keeps exact artifact identity separate from Lessons Learned.",
+    "meta":{
+      "schemaVersion":"1.0.0",
+      "recordVersion":1,
+      "createdAt":"2026-09-26T00:52:00Z",
+      "updatedAt":"2026-09-26T00:52:00Z"
+    }
+  }'::jsonb,
+  '2026-09-26T00:52:00Z'::timestamptz,
+  '2026-09-26T00:52:00Z'::timestamptz
+);
+
+INSERT INTO "LessonLearned" (
+  "id","projectId","releaseId","schemaVersion","recordVersion","category",
+  "document","createdAt","updatedAt"
+)
+VALUES (
+  'lesson:p6-006-beta-release',
+  'project:p6-registry-beta',
+  'release:p6-006-beta-v1',
+  '1.0.0',
+  1,
+  'operations',
+  '{
+    "id":"lesson:p6-006-beta-release",
+    "projectId":"project:p6-registry-beta",
+    "title":"Release evidence must match the shipped revision",
+    "category":"operations",
+    "observation":"A release record is trustworthy only when gate evidence targets the same exact revision.",
+    "impact":"Prevents deployment history from overstating what was actually verified.",
+    "action":"Keep PASS-linked exact-revision evidence mandatory for released artifacts.",
+    "source":"blueprint-os:p6-006-e2e",
+    "sourceRevision":"revision-p6-006-e2e",
+    "releaseId":"release:p6-006-beta-v1",
+    "linkedWorkPackageIds":["work-package:p6-beta-dashboard"],
+    "meta":{
+      "schemaVersion":"1.0.0",
+      "recordVersion":1,
+      "createdAt":"2026-09-26T00:53:00Z",
+      "updatedAt":"2026-09-26T00:53:00Z"
+    }
+  }'::jsonb,
+  '2026-09-26T00:53:00Z'::timestamptz,
+  '2026-09-26T00:53:00Z'::timestamptz
+);
