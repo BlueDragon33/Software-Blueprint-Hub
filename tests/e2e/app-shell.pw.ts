@@ -853,3 +853,53 @@ test("P9-011 portfolio shows only authority-filtered registry metadata without c
     fullPage: true
   });
 });
+
+
+test("P9-016 adaptive audit covers current workspace without overflow and honors reduced motion", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/projects/project%3Ap6-registry-beta/data-lifecycle");
+
+  const nav = page.getByRole("navigation", { name: "Project workspace views" });
+  const lifecycle = nav.getByRole("link", { name: /Data Lifecycle/ });
+  await expect(lifecycle).toHaveAttribute("aria-current", "page");
+
+  const pageHasOverflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
+  expect(pageHasOverflow).toBe(false);
+
+  const reducedMotion = await page.evaluate(() => {
+    const probe = document.querySelector(".state-spinner") ?? document.body;
+    const style = getComputedStyle(probe);
+    return {
+      animation: style.animationName,
+      transition: style.transitionDuration,
+      scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior
+    };
+  });
+  expect(reducedMotion.animation === "none" || reducedMotion.animation === "").toBe(true);
+  expect(reducedMotion.transition === "0s" || reducedMotion.transition === "").toBe(true);
+  expect(reducedMotion.scrollBehavior).toBe("auto");
+
+  await lifecycle.focus();
+  await expect(lifecycle).toBeFocused();
+
+  if (testInfo.project.name !== "desktop-chromium") {
+    const visible = await lifecycle.evaluate((element) => {
+      const shell = element.closest(".project-workspace-nav-shell");
+      if (!(shell instanceof HTMLElement)) return false;
+      const item = element.getBoundingClientRect();
+      const bounds = shell.getBoundingClientRect();
+      return item.left >= bounds.left - 1 && item.right <= bounds.right + 1;
+    });
+    expect(visible).toBe(true);
+  }
+
+  await page.screenshot({
+    path: `artifacts/p9-016-data-lifecycle-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});

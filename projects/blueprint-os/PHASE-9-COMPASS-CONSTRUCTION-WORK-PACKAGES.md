@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 9 Compass Construction Work Packages
 
-Status: **P9-001–P9-014 COMPLETE / P9-015 ACTIVE — COMPASS CONSTRUCTION**
+Status: **P9-001–P9-015 COMPLETE / P9-016 ACTIVE — COMPASS CONSTRUCTION**
 
 Phase 9 turns Blueprint OS from a proven software-engineering control center into the ecosystem's **engineering compass**: the product that other applications can use as the reference implementation for architecture depth, source-of-truth discipline, UX quality, verification, release safety and long-term maintainability.
 
@@ -284,13 +284,22 @@ Completion evidence:
 - Security workspace exposes threats, mitigations and evidence without secret leakage.
 
 ### P9-015 — Data lifecycle & archive
-Status: **ACTIVE / DEVELOPMENT CANDIDATE**
+Status: **COMPLETE**
 
 Purpose:
 Define retention, deletion, archive, export and migration semantics for long-lived engineering records.
 
+Completion evidence:
+- P9-015 merged in PR #60 as `5a664f608b07623a2a89b4d2078c37ddaedd7e43`;
+- exact merged revision passed Development Fast CI and full Release Gate;
+- retention/archive/export/migration/deletion rules are explicit by record kind;
+- legal hold and release-evidence dependency block destructive actions;
+- allowed deletion still requires verified export and explicit confirmation;
+- lifecycle evaluation remains preview-only with zero destructive/Production authority;
+- Data Lifecycle workspace exposes the policy without destructive controls.
+
 ### P9-016 — Accessibility & adaptive UX audit
-Status: **PLANNED**
+Status: **ACTIVE / DEVELOPMENT CANDIDATE**
 
 Purpose:
 Revalidate desktop/tablet/mobile, keyboard, focus, contrast, reduced motion and dense-view behavior.
