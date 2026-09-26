@@ -431,9 +431,14 @@ test("Phase 6 Product UX Gate traverses the canonical product without dead ends"
 
   await page.getByRole("link", { name: "Use knowledge in guided setup" }).click();
   await expect(
-    page.getByRole("heading", { name: "Build with evidence, not guesswork." })
+    page.getByRole("heading", {
+      name: "From software idea to an evidence-ready engineering starting point."
+    })
   ).toBeVisible();
-  await expect(page.getByText("Preview mode")).toBeVisible();
+  await expect(page.getByText("Preview first", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Generate Bootstrap Plan" })
+  ).toBeVisible();
 
   await expect(
     page.getByText(/Not Found|Project cannot be opened|temporarily unavailable/)
@@ -714,52 +719,40 @@ test("critical preview journey stays understandable and evidence-honest", async 
 }, testInfo) => {
   await page.goto("/projects/new");
   await expect(
-    page.getByRole("heading", { name: "Build with evidence, not guesswork." })
+    page.getByRole("heading", {
+      name: "From software idea to an evidence-ready engineering starting point."
+    })
   ).toBeVisible();
 
-  await expect(page.getByText("Preview mode")).toBeVisible();
+  await expect(page.getByText("Preview first", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(/Nothing here writes canonical project state/)
+  ).toBeVisible();
+
   await page.getByLabel("Project name").fill("Human UX Review Project");
-  await page.getByRole("radio", { name: /B2/ }).click();
+  await page.getByLabel("Data sensitivity").selectOption("restricted");
+  await page.getByLabel("Authorization").selectOption("policy-based");
+  await page.getByLabel("Criticality").selectOption("critical");
 
-  await page.getByRole("button", { name: "Resolve blueprint" }).click();
+  await page.getByRole("button", { name: "Generate Bootstrap Plan" }).click();
+
   await expect(
-    page.getByRole("heading", {
-      name: "See the engineering depth this project requires."
-    })
+    page.getByRole("heading", { name: "Review before persistence." })
   ).toBeVisible();
+  await expect(page.getByText("Deterministic preview", { exact: true })).toBeVisible();
+  await expect(page.getByText("Recommended minimum", { exact: true })).toBeVisible();
+  await expect(page.locator(".bootstrap-level strong")).toHaveText("B5");
 
-  await page.getByRole("button", { name: "Continue" }).click();
   await expect(
-    page.getByRole("heading", {
-      name: "Turn the blueprint into dependency-aware work."
-    })
+    page.getByText("Dependency-aware starting roadmap", { exact: true })
   ).toBeVisible();
-
-  await page
-    .getByLabel("Work package title")
-    .fill("Review the first App Shell journey");
-
-  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByText("Authority boundary", { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "PASS is a decision backed by evidence." })
-  ).toBeVisible();
-
-  await expect(page.getByText("Human UX review", { exact: true })).toBeVisible();
-  await expect(
-    page.getByText(/authorized reviewer against an exact revision/)
+    page.getByText(/cannot PASS a Quality Gate, authorize Production, or write canonical state/)
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: /Add UX review evidence/i })
-  ).toHaveCount(0);
-
-  await page.getByRole("button", { name: "Generate preview prompt" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Project state becomes an executable handoff." })
+    page.getByRole("button", { name: "Confirm & create canonical project" })
   ).toBeVisible();
-  await expect(page.getByText("Deterministic", { exact: true })).toBeVisible();
-  await expect(page.locator("pre")).toContainText(
-    "Review the first App Shell journey"
-  );
 
   await page.screenshot({
     path: `artifacts/fnd009-${testInfo.project.name}.png`,
@@ -769,6 +762,38 @@ test("critical preview journey stays understandable and evidence-honest", async 
 
 test("critical preview journey is keyboard-operable", async ({ page }) => {
   await page.goto("/projects/new");
+
+  const projectName = page.getByLabel("Project name");
+  await projectName.focus();
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("Keyboard Review Project");
+  await expect(projectName).toHaveValue("Keyboard Review Project");
+
+  const criticality = page.getByLabel("Criticality");
+  await criticality.focus();
+  await page.keyboard.press("End");
+  await expect(criticality).toHaveValue("critical");
+
+  const generate = page.getByRole("button", { name: "Generate Bootstrap Plan" });
+  await generate.focus();
+  await expect(generate).toBeFocused();
+  await page.keyboard.press("Enter");
+
+  await expect(
+    page.getByRole("heading", { name: "Review before persistence." })
+  ).toBeVisible();
+  await expect(page.getByText("Deterministic preview", { exact: true })).toBeVisible();
+
+  const confirm = page.getByRole("button", {
+    name: "Confirm & create canonical project"
+  });
+  await confirm.focus();
+  await expect(confirm).toBeFocused();
+
+  await expect(
+    page.getByText(/requires an authenticated, authorized actor/)
+  ).toBeVisible();
+});
 
   const projectName = page.getByLabel("Project name");
   await projectName.focus();
