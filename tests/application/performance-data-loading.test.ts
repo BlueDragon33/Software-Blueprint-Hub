@@ -198,8 +198,11 @@ class CountingWorkQualityRepository implements WorkQualityRepository {
   }
 }
 
-const profileReader: ProjectProfileReader = {
+class CountingProfileReader implements ProjectProfileReader {
+  reads = 0;
+
   async read() {
+    this.reads += 1;
     return {
       profile,
       blueprint,
@@ -208,11 +211,12 @@ const profileReader: ProjectProfileReader = {
       ]
     };
   }
-};
+}
 
 describe("P7-005 performance data-loading contract", () => {
   it("keeps Quality, Readiness and Prompt on the batch gate/evidence path", async () => {
     const repository = new CountingWorkQualityRepository();
+    const profileReader = new CountingProfileReader();
     const authority = new AuthorityService(new OwnerAuthorityRepository());
     const actor = { principalId: "principal:p7-005-owner" };
 
@@ -235,12 +239,23 @@ describe("P7-005 performance data-loading contract", () => {
       blueprint.requiredGates
     );
     const revision = await prompts.currentSourceRevision(actor, projectId);
+    const preloadedRevision =
+      await prompts.currentSourceRevisionFromProfile(actor, projectId, {
+        profile,
+        blueprint,
+        templateVersions: [
+          { id: "template:constitution:base", version: "1.0.0" }
+        ]
+      });
+
+    expect(preloadedRevision).toBe(revision);
+    expect(profileReader.reads).toBe(1);
 
     expect(gateModels[0]?.evidence[0]?.id).toBe(evidence.id);
     expect(snapshot.activeGates[0]?.id).toBe(gate.id);
     expect(revision).toMatch(/^sha256:[a-f0-9]{64}$/);
 
-    expect(repository.batchReads).toBe(3);
+    expect(repository.batchReads).toBe(4);
     expect(repository.perGateEvidenceReads).toBe(0);
     expect(repository.gateListReads).toBe(0);
   });
