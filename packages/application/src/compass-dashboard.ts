@@ -46,45 +46,45 @@ const projection: BlueprintCompassProjection = Object.freeze({
   projectId: "project:blueprint-os",
   phase: "Phase 9 — Compass Construction",
   currentStorey: Object.freeze({
-    number: 13,
+    number: 14,
     total: 20,
-    name: "Self-audit & drift detection"
+    name: "Project bootstrap factory"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-004",
-    title: "Source-of-truth contradiction detector",
-    storey: 13,
+    id: "P9-005",
+    title: "Project bootstrap factory",
+    storey: 14,
     status: "active",
     reason:
-      "P9-003 made the construction structure inspectable; the next valid step is making contradictory lifecycle claims fail closed."
+      "P9-004 made lifecycle contradictions fail closed, so the system may now automate idea-to-blueprint bootstrap without weakening source-of-truth discipline."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-003",
-      title: "20-storey architecture projection",
-      storey: 12,
-      status: "complete",
-      reason:
-        "All twenty storeys are now structured, dependency-linked and resolved from the Compass rather than decorative status flags."
-    }),
     Object.freeze({
       id: "P9-004",
       title: "Source-of-truth contradiction detector",
       storey: 13,
-      status: "active",
+      status: "complete",
       reason:
-        "Checked-in roadmap, Compass, README, Blueprint and management-contract truth must now agree automatically."
+        "Fast CI now fails closed when roadmap, Compass, README, Blueprint or management-contract lifecycle truth contradicts."
     }),
     Object.freeze({
       id: "P9-005",
       title: "Project bootstrap factory",
       storey: 14,
+      status: "active",
+      reason:
+        "New software ideas can now be converted into reviewable Project Profile, resolved Blueprint and dependency-aware bootstrap plans."
+    }),
+    Object.freeze({
+      id: "P9-006",
+      title: "Pattern promotion governance",
+      storey: 15,
       status: "next",
       reason:
-        "New-project automation is allowed only after source-of-truth drift becomes fail-closed."
+        "Reusable pattern promotion follows only after project bootstrap semantics are stable and evidence-producing."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -132,11 +132,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "eb7f936b0e67dce8e9d614e41520ff982b02487e",
       source: "Software-Blueprint-Hub PR #39",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-004 Source-of-truth contradiction detector",
+      revision: "e03857831987afda72efb24d4246345dbb77716a",
+      source: "Software-Blueprint-Hub PR #40",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-004 by making checked-in truth contradictions fail Fast CI.",
-    "Start P9-005 Project Bootstrap Factory only after the P9-004 exact PR head is green.",
+    "Complete P9-005 by producing deterministic reviewable bootstrap plans without silent persistence.",
+    "Start P9-006 Pattern Promotion Governance only after P9-005 exact PR-head evidence is green.",
     "Keep Production release unauthorized while Phase 9 remains Development Mode."
   ]),
   truthNote:
