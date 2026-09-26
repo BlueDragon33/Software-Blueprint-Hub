@@ -48,18 +48,18 @@ const projection: BlueprintCompassProjection = Object.freeze({
   currentStorey: Object.freeze({
     number: 12,
     total: 20,
-    name: "Compass dashboard"
+    name: "Compass architecture"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-002",
-    title: "Compass dashboard",
+    id: "P9-003",
+    title: "20-storey architecture projection",
     storey: 12,
     status: "active",
     reason:
-      "P9-001 established the ecosystem management boundary, so the next valid construction step is the orientation surface."
+      "P9-002 established the truthful orientation surface, so the next valid step is a structured dependency-derived construction map."
   }),
   workSequence: Object.freeze([
     Object.freeze({
@@ -74,17 +74,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       id: "P9-002",
       title: "Compass dashboard",
       storey: 12,
-      status: "active",
+      status: "complete",
       reason:
-        "The system needs one truthful orientation surface before the 20-storey architecture projection is expanded."
+        "The System Compass is now a first-class orientation surface with exact evidence and no synthetic progress percentage."
     }),
     Object.freeze({
       id: "P9-003",
       title: "20-storey architecture projection",
       storey: 12,
-      status: "next",
+      status: "active",
       reason:
-        "Structured storey inspection follows only after the dashboard orientation contract is stable."
+        "Structured storey inspection is now the dependency-valid active Work Package."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -120,11 +120,17 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "0c482e4f88478d55bd6198938934af708f907dc7",
       source: "Application-Management PR #183",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-002 System Compass dashboard",
+      revision: "8d1ce6059eb66d91d432cafb0751fb6ab3c3aa63",
+      source: "Software-Blueprint-Hub PR #38",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-002 with a truthful orientation surface and regression coverage.",
-    "Start P9-003 only after the P9-002 exact PR head is green.",
+    "Complete P9-003 by proving the 20 storeys are structured and dependency-derived.",
+    "Start P9-004 contradiction detection only after the P9-003 exact PR head is green.",
     "Keep Production release unauthorized while Phase 9 remains Development Mode."
   ]),
   truthNote:
