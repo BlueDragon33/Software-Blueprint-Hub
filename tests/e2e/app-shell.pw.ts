@@ -443,6 +443,61 @@ test("Knowledge Library exposes reusable truth without project completion state"
   });
 });
 
+test("P7-003 critical surfaces provide usable keyboard landmarks and focus", async ({
+  page
+}, testInfo) => {
+  await page.goto("/knowledge");
+
+  await page.keyboard.press("Tab");
+  const skip = page.getByRole("link", { name: "Skip to main content" });
+  await expect(skip).toBeFocused();
+  await expect(skip).toBeVisible();
+
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+
+  await expect(page.locator('[tabindex]:not([tabindex="-1"]):not([tabindex="0"])')).toHaveCount(0);
+
+  const disclosureSummary = page.locator("details.knowledge-disclosure summary").first();
+  await disclosureSummary.focus();
+  const focusStyle = await disclosureSummary.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      outlineStyle: style.outlineStyle,
+      outlineWidth: style.outlineWidth
+    };
+  });
+  expect(focusStyle.outlineStyle).not.toBe("none");
+  expect(focusStyle.outlineWidth).not.toBe("0px");
+
+  await authenticateRegistryOwner(page);
+  await page.goto("/projects/project%3Ap6-registry-beta/quality");
+
+  const workspaceNav = page.getByRole("navigation", {
+    name: "Project workspace views"
+  });
+  await expect(workspaceNav).toBeVisible();
+
+  const qualityLink = workspaceNav.getByRole("link", { name: /Quality/ });
+  await expect(qualityLink).toHaveAttribute("aria-current", "page");
+
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Skip to main content" })).toBeFocused();
+
+  const gateStatus = page
+    .locator(".workspace-quality-card", { hasText: "gate:quality:evidence" })
+    .getByText(/candidate|pass|fail|not-ready/i)
+    .first();
+  await expect(gateStatus).toBeVisible();
+
+  if (testInfo.project.name === "mobile-chromium") {
+    await page.screenshot({
+      path: "artifacts/p7-003-accessibility-mobile.png",
+      fullPage: true
+    });
+  }
+});
+
 test("P7-002 disclosures preserve critical truth and are keyboard operable", async ({
   page
 }, testInfo) => {
