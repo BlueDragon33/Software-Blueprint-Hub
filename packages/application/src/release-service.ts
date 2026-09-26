@@ -190,6 +190,18 @@ export class ReleaseLessonsApplicationService {
         );
       }
 
+      if (gate.status !== "pass") {
+        throw new TypeError(
+          `GateEvidence ${evidenceId} belongs to gate ${gate.id} which is ${gate.status}, not PASS`
+        );
+      }
+
+      if (!gate.evidenceIds.includes(evidenceId)) {
+        throw new TypeError(
+          `GateEvidence ${evidenceId} is not linked by canonical gate ${gate.id}`
+        );
+      }
+
       if (evidence.revision !== value.revision) {
         throw new TypeError(
           `GateEvidence ${evidenceId} targets revision ${evidence.revision}, not release revision ${value.revision}`
