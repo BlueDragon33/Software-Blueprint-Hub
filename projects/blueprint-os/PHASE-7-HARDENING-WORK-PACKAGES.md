@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 7 Hardening Work Packages
 
-Status: **P7-001/P7-002/P7-003 COMPLETE / P7-004 IN PROGRESS**
+Status: **P7-001/P7-002/P7-003/P7-004 COMPLETE / P7-005 NEXT**
 
 Phase 7 improves usability, accessibility, resilience and operational confidence without weakening the canonical architecture proven in Phases 1–6.
 
@@ -43,7 +43,7 @@ Harden landmarks, focus order, keyboard operation, visible focus, status semanti
 
 ## P7-004 — Runtime resilience and recovery UX
 
-Status: **IN PROGRESS**
+Status: **COMPLETE**
 
 Dependencies: Phase 6 product baseline.
 
@@ -51,6 +51,8 @@ Purpose:
 Harden error, empty, stale, unavailable and retry states without silently substituting preview or cached truth.
 
 ## P7-005 — Performance and data-loading hardening
+
+Status: **NEXT / AUTHORIZED AFTER P7-004 MERGE**
 
 Dependencies: P7-002, P7-004.
 
