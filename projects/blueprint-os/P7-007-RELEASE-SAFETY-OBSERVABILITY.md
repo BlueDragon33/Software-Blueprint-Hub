@@ -1,6 +1,6 @@
 # P7-007 — Release safety and observability hardening
 
-Status: **IN PROGRESS**
+Status: **COMPLETE — EXACT-HEAD RELEASE GATE EVIDENCE ACCEPTED**
 
 ## Purpose
 
@@ -106,3 +106,53 @@ P7-007 must prove:
 P7-007 may PASS only when the Release Gate can independently demonstrate what exact revision it certified and rollback state cannot point at an unverified arbitrary revision.
 
 Production deployment remains unauthorized.
+
+
+## Completion evidence
+
+Reviewed implementation revision before completion-status commit:
+
+`75cbc294681643022fbc415d5a48c978ac3b379e`
+
+Exact-head automation:
+
+- push Fast CI run `36228471265`: **SUCCESS**;
+- pull-request Fast CI run `36228493087`: **SUCCESS**;
+- pull-request Release Gate run `36228516681`: **SUCCESS**.
+
+Release Gate artifact:
+
+- artifact id: `10901467057`;
+- artifact name: `release-gate-evidence-75cbc294681643022fbc415d5a48c978ac3b379e`;
+- digest: `sha256:f651f8aff3246729948138626a757d1af5af3c2490f701ce2afa7da57f673b9b`.
+
+Operational manifest review:
+
+- `revision` equals exact PR head `75cbc294681643022fbc415d5a48c978ac3b379e`;
+- `workflow` = `Release Gate CI`;
+- `runId` = `36228516681`;
+- `eventName` = `pull_request`;
+- `productionDeploymentAuthorized` = `false`;
+- manifest records the expected validation groups and makes no Preview/Production deployment claim.
+
+Rollback regression evidence:
+
+- unknown rollback revision is rejected;
+- rollback to the same revision is rejected;
+- rollback to a canonical previously released revision succeeds in PostgreSQL integration;
+- immutable released identity and optimistic concurrency regressions remain green.
+
+Human UX artifact review:
+
+- Releases & Lessons desktop evidence remains readable;
+- mobile evidence remains single-column with active route visible;
+- exact revision, gate evidence, rollback provenance and lesson provenance remain discoverable;
+- no new P0/P1 UX defect was observed.
+
+## Result
+
+**P7-007 = COMPLETE**
+
+P7-008 — Phase 7 Hardening Gate is next.
+
+Production deployment remains separately unauthorized.
