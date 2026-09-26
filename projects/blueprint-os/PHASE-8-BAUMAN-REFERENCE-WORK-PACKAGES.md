@@ -1,6 +1,6 @@
 # Blueprint OS — Phase 8 Bauman Reference Import Work Packages
 
-Status: **P8-001–P8-005 DEVELOPMENT BASELINE COMPLETE / P8-006 ACTIVE — PHASE 8 ACTIVE**
+Status: **P8-001–P8-006 DEVELOPMENT BASELINE COMPLETE / P8-007 GATE CANDIDATE — PHASE 8 ACTIVE**
 
 Phase 8 uses the Bauman next-generation architecture dossier as a real external reference case to prove that Blueprint OS can absorb a complex software blueprint without making Universal Core Bauman-specific.
 
@@ -162,4 +162,4 @@ Decide whether Blueprint OS has proven safe reference import and production-cand
 
 PASS requires no P0/P1 defect, no source-of-truth contradiction, no provenance loss, no accidental Bauman-specific Core coupling, and exact-revision gate evidence.
 
-A PASS still does not authorize Production deployment.
+Gate evidence document: `projects/blueprint-os/P8-007-REFERENCE-IMPORT-GATE.md`.\n\nAutomated isolation coverage: `tests/architecture/reference-core-coupling.test.ts`.\n\nA PASS still does not authorize Production deployment.
