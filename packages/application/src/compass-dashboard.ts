@@ -46,45 +46,45 @@ const projection: BlueprintCompassProjection = Object.freeze({
   projectId: "project:blueprint-os",
   phase: "Phase 9 — Compass Construction",
   currentStorey: Object.freeze({
-    number: 18,
+    number: 19,
     total: 20,
-    name: "Bounded AI assistance"
+    name: "Ecosystem dogfooding"
   }),
   releaseAuthority: "not-authorized",
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-010",
-    title: "Bounded AI copilot",
-    storey: 18,
+    id: "P9-011",
+    title: "Multi-project portfolio view",
+    storey: 19,
     status: "active",
     reason:
-      "P9-009 established fail-closed provider and credential boundaries, so AI assistance can now be added as review-only proposals with explicit source revision and zero canonical authority."
+      "P9-010 passed the full Release Gate, so cross-project visibility can now be added while preserving strict per-project authority and data separation."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-009",
-      title: "Provider / plugin boundary",
-      storey: 17,
-      status: "complete",
-      reason:
-        "External providers now operate through explicit scope/capability/credential-reference contracts and passed the full Release Gate."
-    }),
     Object.freeze({
       id: "P9-010",
       title: "Bounded AI copilot",
       storey: 18,
-      status: "active",
+      status: "complete",
       reason:
-        "AI output is being constrained to revision-bound, human-review-required proposals with no canonical, Quality Gate or Production authority."
+        "AI assistance now produces revision-bound, human-review-required proposals with no canonical, Quality Gate or Production authority."
     }),
     Object.freeze({
       id: "P9-011",
       title: "Multi-project portfolio view",
       storey: 19,
+      status: "active",
+      reason:
+        "Cross-project visibility is the next valid step, but project authority and business data must remain isolated."
+    }),
+    Object.freeze({
+      id: "P9-012",
+      title: "Quality evidence graph",
+      storey: 19,
       status: "next",
       reason:
-        "Cross-project visibility follows only after AI assistance is bounded and cannot merge project authority."
+        "Cross-project quality evidence visualization follows only after portfolio isolation is explicit and regression-tested."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -168,12 +168,18 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "565f05f198364fd10b307bb6f9989f06bb56182a",
       source: "Software-Blueprint-Hub PR #50 / main Release Gate",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-010 Bounded AI Copilot full Release Gate",
+      revision: "cd55737bd82c47838e92108a3d778de5f9bde162",
+      source: "Software-Blueprint-Hub PR #51 / main Release Gate",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-010 by proving AI proposals are deterministic, revision-bound, secret-safe and human-review-required with zero canonical/release authority.",
-    "Start P9-011 Multi-project Portfolio View only after P9-010 exact PR-head evidence and Release Gate are green.",
-    "Keep Production publish tied to an exact validated revision and a real deployment provider, never to merge alone."
+    "Complete P9-011 by proving cross-project visibility cannot merge project authority, business data or readiness state.",
+    "Start P9-012 Quality Evidence Graph only after P9-011 exact PR-head evidence is green.",
+    "Production publish remains blocked until a real deployment provider is connected; merge/release evidence alone is not deployment."
   ]),
   truthNote:
     "This is a checked-in Development Baseline projection. It does not manufacture project completion percentages, Quality Gate PASS state or Production readiness."
