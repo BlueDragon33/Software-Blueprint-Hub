@@ -54,37 +54,37 @@ const projection: BlueprintCompassProjection = Object.freeze({
   sourceOfTruth:
     "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
   activeWork: Object.freeze({
-    id: "P9-012",
-    title: "Quality evidence graph",
-    storey: 19,
+    id: "P9-013",
+    title: "Release orchestration",
+    storey: 20,
     status: "active",
     reason:
-      "P9-011 passed the full Release Gate with portfolio isolation, so Quality Gate, evidence, work and release provenance can now be made explainably traceable without creating synthetic readiness."
+      "P9-012 passed the full Release Gate with exact provenance visibility; release promotion can now be prepared as an explicit exact-revision plan without confusing merge evidence with deployment."
   }),
   workSequence: Object.freeze([
-    Object.freeze({
-      id: "P9-011",
-      title: "Multi-project portfolio view",
-      storey: 19,
-      status: "complete",
-      reason:
-        "Authority-filtered portfolio visibility passed the full Release Gate without merging readiness, business data or project authority."
-    }),
     Object.freeze({
       id: "P9-012",
       title: "Quality evidence graph",
       storey: 19,
-      status: "active",
+      status: "complete",
       reason:
-        "Gate, evidence, work and release provenance is the next dependency-valid visibility layer."
+        "Quality provenance passed the full Release Gate with exact evidence/revision visibility and no synthetic readiness."
     }),
     Object.freeze({
       id: "P9-013",
       title: "Release orchestration",
       storey: 20,
+      status: "active",
+      reason:
+        "Exact-revision release promotion planning is now the next dependency-valid capability."
+    }),
+    Object.freeze({
+      id: "P9-014",
+      title: "Security threat-model hardening",
+      storey: 20,
       status: "next",
       reason:
-        "Release promotion may be orchestrated only after quality evidence relationships are explainable at exact revisions."
+        "Threat-model hardening follows after release authority and promotion boundaries are explicit."
     })
   ]),
   dependencyBlockers: Object.freeze([]),
@@ -180,12 +180,18 @@ const projection: BlueprintCompassProjection = Object.freeze({
       revision: "548813aaa458a769ca00d3b74a36a0b4cb032252",
       source: "Software-Blueprint-Hub PR #53 / main Release Gate",
       result: "pass"
+    }),
+    Object.freeze({
+      label: "P9-012 Quality Evidence Graph full Release Gate",
+      revision: "7dd360aad0a89b7ca687524a639c7fccdda08077",
+      source: "Software-Blueprint-Hub PR #55 / main Release Gate",
+      result: "pass"
     })
   ]),
   nextActions: Object.freeze([
-    "Complete P9-012 by making gate/evidence/work/release provenance explainable without manufacturing readiness or PASS.",
-    "Start P9-013 Release Orchestration only after P9-012 exact PR-head evidence and full Release Gate are green.",
-    "Production publish remains blocked until a real deployment provider is connected; merge/release evidence alone is not deployment."
+    "Complete P9-013 by preparing exact-revision promotion plans with explicit environment/provider/evidence preconditions.",
+    "Start P9-014 Security Threat-model Hardening only after P9-013 exact PR-head evidence and full Release Gate are green.",
+    "Production publish remains blocked until a real deployment provider is connected and an explicit deployment action succeeds; merge/release evidence alone is not deployment."
   ]),
   truthNote:
     "This is a checked-in Development Baseline projection. It does not manufacture project completion percentages, Quality Gate PASS state or Production readiness."
