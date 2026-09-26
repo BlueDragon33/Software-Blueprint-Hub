@@ -253,3 +253,5 @@ export * from "./release-orchestration";
 export * from "./security-threat-model";
 
 export * from "./data-lifecycle";
+
+export * from "./adaptive-ux-audit";
