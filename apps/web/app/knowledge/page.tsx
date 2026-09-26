@@ -103,26 +103,35 @@ export default function KnowledgeLibraryPage() {
 
                       <p>{item.summary}</p>
 
-                      <dl className="knowledge-meta">
-                        <div>
-                          <dt>Status</dt>
-                          <dd>{item.status.replaceAll("-", " ")}</dd>
-                        </div>
-                        <div>
-                          <dt>Authority</dt>
-                          <dd>{item.authorityLayer ?? "reference"}</dd>
-                        </div>
-                        <div className="knowledge-meta-span">
-                          <dt>Source</dt>
-                          <dd>{item.sourcePath}</dd>
-                        </div>
-                      </dl>
+                      <details className="canonical-disclosure knowledge-disclosure">
+                        <summary>
+                          Provenance & tags
+                          <span>{item.authorityLayer ?? "reference"}</span>
+                        </summary>
 
-                      <div className="knowledge-tags">
-                        {item.tags.map((tag) => (
-                          <span key={tag}>{tag}</span>
-                        ))}
-                      </div>
+                        <div className="canonical-disclosure-body">
+                          <dl className="knowledge-meta">
+                            <div>
+                              <dt>Status</dt>
+                              <dd>{item.status.replaceAll("-", " ")}</dd>
+                            </div>
+                            <div>
+                              <dt>Authority</dt>
+                              <dd>{item.authorityLayer ?? "reference"}</dd>
+                            </div>
+                            <div className="knowledge-meta-span">
+                              <dt>Source</dt>
+                              <dd>{item.sourcePath}</dd>
+                            </div>
+                          </dl>
+
+                          <div className="knowledge-tags">
+                            {item.tags.map((tag) => (
+                              <span key={tag}>{tag}</span>
+                            ))}
+                          </div>
+                        </div>
+                      </details>
                     </article>
                   ))}
                 </div>

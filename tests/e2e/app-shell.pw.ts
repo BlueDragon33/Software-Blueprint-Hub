@@ -166,7 +166,7 @@ test("canonical project workspace has stable truthful views", async ({
     })
   ).toBeVisible();
   await expect(
-    page.getByText("revision-p6-beta-quality", { exact: true })
+    page.getByText("revision-p6-beta-quality", { exact: true }).first()
   ).toBeVisible();
 
   await page.screenshot({
@@ -441,6 +441,94 @@ test("Knowledge Library exposes reusable truth without project completion state"
     path: `artifacts/p6-005-knowledge-${testInfo.project.name}.png`,
     fullPage: true
   });
+});
+
+test("P7-002 disclosures preserve critical truth and are keyboard operable", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+
+  await page.goto("/projects/project%3Ap6-registry-beta/quality");
+  await expect(
+    page.getByText("revision-p6-beta-quality", { exact: true }).first()
+  ).toBeVisible();
+
+  const qualityGateCard = page.locator(".workspace-quality-card", {
+    hasText: "gate:quality:evidence"
+  });
+  const qualityDisclosure = qualityGateCard.locator(
+    "details.quality-disclosure"
+  );
+  await expect(qualityDisclosure).not.toHaveAttribute("open", "");
+  const qualitySummary = qualityDisclosure.locator("summary");
+  await qualitySummary.focus();
+  await page.keyboard.press("Enter");
+  await expect(qualityDisclosure).toHaveAttribute("open", "");
+  await expect(
+    qualityDisclosure.getByText("evidence:p6-beta-quality", { exact: true })
+  ).toBeVisible();
+
+  await page.goto("/knowledge");
+  await expect(
+    page.getByText("Universal Constitution v0", { exact: true })
+  ).toBeVisible();
+  const knowledgeDisclosure = page
+    .locator("details.knowledge-disclosure")
+    .first();
+  await expect(knowledgeDisclosure).not.toHaveAttribute("open", "");
+  await knowledgeDisclosure.locator("summary").focus();
+  await page.keyboard.press("Space");
+  await expect(knowledgeDisclosure).toHaveAttribute("open", "");
+
+  await page.goto("/projects/project%3Ap6-registry-beta/prompt");
+  await expect(
+    page.getByText(/^(Fresh|Stale)$/).first()
+  ).toBeVisible();
+  await expect(
+    page.getByText("Current canonical source revision", { exact: true })
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy" })).toBeEnabled();
+  await expect(page.locator(".prompt-card pre")).toBeVisible();
+
+  const historyDisclosure = page.locator(
+    "details.prompt-history-disclosure"
+  );
+  await expect(historyDisclosure).not.toHaveAttribute("open", "");
+  await historyDisclosure.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect(historyDisclosure).toHaveAttribute("open", "");
+  await expect(
+    historyDisclosure.locator(".prompt-history-row").first()
+  ).toBeVisible();
+
+  await page.goto(
+    "/projects/project%3Ap6-registry-beta/releases-lessons"
+  );
+  await expect(page.getByText("v1.0.0", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("revision-p6-006-e2e", { exact: true }).first()
+  ).toBeVisible();
+  await expect(
+    page.getByText("evidence:p6-006-release", { exact: true })
+  ).toBeVisible();
+
+  const releaseDisclosure = page
+    .locator("details.release-disclosure")
+    .first();
+  await expect(releaseDisclosure).not.toHaveAttribute("open", "");
+  await releaseDisclosure.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect(releaseDisclosure).toHaveAttribute("open", "");
+  await expect(
+    releaseDisclosure.getByText(/Rollback plan/)
+  ).toBeVisible();
+
+  if (testInfo.project.name === "mobile-chromium") {
+    await page.screenshot({
+      path: "artifacts/p7-002-progressive-disclosure-mobile.png",
+      fullPage: true
+    });
+  }
 });
 
 test("critical preview journey stays understandable and evidence-honest", async ({

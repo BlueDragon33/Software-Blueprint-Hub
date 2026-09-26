@@ -1,44 +1,20 @@
-name: Development Fast CI
+name: Release Gate CI
 
 on:
-  push:
-    branches: [main, "foundation/**", "phase6/**", "phase7/**"]
-  pull_request:
   workflow_dispatch:
+  pull_request:
+    types: [ready_for_review, synchronize, reopened]
 
 permissions:
   contents: read
 
 concurrency:
-  group: blueprint-fast-${{ github.ref }}
+  group: blueprint-release-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  fast-check:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 3
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          package-manager-cache: false
-      - name: Fast repository sanity
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f package.json
-          test -f prisma7.config.ts
-          test -f packages/persistence/prisma/schema.prisma
-          test -d apps
-          test -d packages/persistence/prisma/migrations
-          node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))"
-      - name: Development mode
-        run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
-
-
   release-gate:
-    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[release-gate]') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
 

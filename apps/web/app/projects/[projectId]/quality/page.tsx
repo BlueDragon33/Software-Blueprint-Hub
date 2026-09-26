@@ -104,47 +104,75 @@ export default async function ProjectQualityPage({
                   </span>
                 </div>
 
-                <div className="workspace-quality-grid">
-                  <div>
-                    <strong>Requirements</strong>
-                    <ul>
-                      {gate.requirements.map((requirement) => (
-                        <li key={requirement}>{requirement}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <strong>Linked evidence IDs</strong>
-                    {gate.evidenceIds.length ? (
-                      <ul>
-                        {gate.evidenceIds.map((id) => <li key={id}>{id}</li>)}
-                      </ul>
-                    ) : (
-                      <span>No evidence linked</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="workspace-evidence-list">
-                  {evidence.length ? (
-                    evidence.map((item) => (
-                      <div className="workspace-evidence-row" key={item.id}>
-                        <div>
-                          <strong>{item.kind}</strong>
-                          <span>{item.source}</span>
-                        </div>
-                        <div>
-                          <span>{item.revision}</span>
-                          <small>{item.createdAt}</small>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="workspace-empty-inline">
-                      No canonical evidence record is available for this gate.
+                {evidence[0] ? (
+                  <div className="canonical-provenance-preview">
+                    <div>
+                      <strong>Latest recorded evidence</strong>
+                      <span>{evidence[0].source}</span>
                     </div>
-                  )}
-                </div>
+                    <div>
+                      <span>{evidence[0].revision}</span>
+                      <small>{evidence[0].createdAt}</small>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="workspace-empty-inline">
+                    No canonical evidence record is available for this gate.
+                  </div>
+                )}
+
+                <details className="canonical-disclosure quality-disclosure">
+                  <summary>
+                    Requirements & evidence register
+                    <span>
+                      {gate.requirements.length} requirements · {evidence.length} evidence
+                    </span>
+                  </summary>
+
+                  <div className="canonical-disclosure-body">
+                    <div className="workspace-quality-grid">
+                      <div>
+                        <strong>Requirements</strong>
+                        <ul>
+                          {gate.requirements.map((requirement) => (
+                            <li key={requirement}>{requirement}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <strong>Linked evidence IDs</strong>
+                        {gate.evidenceIds.length ? (
+                          <ul>
+                            {gate.evidenceIds.map((id) => <li key={id}>{id}</li>)}
+                          </ul>
+                        ) : (
+                          <span>No evidence linked</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="workspace-evidence-list">
+                      {evidence.length ? (
+                        evidence.map((item) => (
+                          <div className="workspace-evidence-row" key={item.id}>
+                            <div>
+                              <strong>{item.kind}</strong>
+                              <span>{item.source}</span>
+                            </div>
+                            <div>
+                              <span>{item.revision}</span>
+                              <small>{item.createdAt}</small>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="workspace-empty-inline">
+                          No canonical evidence record is available for this gate.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </details>
               </article>
             ))}
           </div>

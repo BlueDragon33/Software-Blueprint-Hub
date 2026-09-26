@@ -115,24 +115,32 @@ export default async function PromptPage({ params }: PromptPageProps) {
               <StatusChip>{latest.id}</StatusChip>
             </div>
 
-            <dl className="prompt-workspace-metadata">
-              <div>
-                <dt>Generated</dt>
-                <dd>{latest.generatedAt}</dd>
+            <details className="canonical-disclosure prompt-metadata-disclosure">
+              <summary>
+                Snapshot metadata
+                <span>{latest.generatedAt}</span>
+              </summary>
+              <div className="canonical-disclosure-body">
+                <dl className="prompt-workspace-metadata">
+                  <div>
+                    <dt>Generated</dt>
+                    <dd>{latest.generatedAt}</dd>
+                  </div>
+                  <div>
+                    <dt>Source revision</dt>
+                    <dd>{shortHash(latest.sourceRevision)}</dd>
+                  </div>
+                  <div>
+                    <dt>Content hash</dt>
+                    <dd>{shortHash(latest.contentHash)}</dd>
+                  </div>
+                  <div>
+                    <dt>Template</dt>
+                    <dd>{latest.templateVersion}</dd>
+                  </div>
+                </dl>
               </div>
-              <div>
-                <dt>Source revision</dt>
-                <dd>{shortHash(latest.sourceRevision)}</dd>
-              </div>
-              <div>
-                <dt>Content hash</dt>
-                <dd>{shortHash(latest.contentHash)}</dd>
-              </div>
-              <div>
-                <dt>Template</dt>
-                <dd>{latest.templateVersion}</dd>
-              </div>
-            </dl>
+            </details>
 
             <div className="prompt-card prompt-workspace-content-card">
               <div className="prompt-toolbar">
@@ -170,27 +178,37 @@ export default async function PromptPage({ params }: PromptPageProps) {
             No derived Prompt Projection snapshot has been recorded.
           </div>
         ) : (
-          <div className="prompt-history-list">
-            {history.map((item, index) => {
-              const stale = item.sourceRevision !== currentSourceRevision;
-              return (
-                <article
-                  className="prompt-history-row"
-                  key={item.id + item.generatedAt}
-                >
-                  <div className="prompt-history-index">{index + 1}</div>
-                  <div>
-                    <strong>{item.generatedAt}</strong>
-                    <span>{shortHash(item.contentHash)}</span>
-                    <small>{shortHash(item.sourceRevision)}</small>
-                  </div>
-                  <StatusChip tone={stale ? "warning" : "success"}>
-                    {stale ? "Stale" : "Current"}
-                  </StatusChip>
-                </article>
-              );
-            })}
-          </div>
+          <details className="canonical-disclosure prompt-history-disclosure">
+            <summary>
+              Show Prompt history
+              <span>
+                {history.length} snapshots · latest {history[0]?.generatedAt}
+              </span>
+            </summary>
+            <div className="canonical-disclosure-body">
+              <div className="prompt-history-list">
+                {history.map((item, index) => {
+                  const stale = item.sourceRevision !== currentSourceRevision;
+                  return (
+                    <article
+                      className="prompt-history-row"
+                      key={item.id + item.generatedAt}
+                    >
+                      <div className="prompt-history-index">{index + 1}</div>
+                      <div>
+                        <strong>{item.generatedAt}</strong>
+                        <span>{shortHash(item.contentHash)}</span>
+                        <small>{shortHash(item.sourceRevision)}</small>
+                      </div>
+                      <StatusChip tone={stale ? "warning" : "success"}>
+                        {stale ? "Stale" : "Current"}
+                      </StatusChip>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </details>
         )}
       </section>
     </ProjectWorkspaceFrame>

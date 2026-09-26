@@ -2784,3 +2784,177 @@ input:hover {
     justify-self: start;
   }
 }
+
+
+/* P7-002 — Dense canonical view progressive disclosure */
+.canonical-disclosure {
+  overflow: hidden;
+  border: 1px solid var(--bp-color-border, #dfe5ef);
+  border-radius: var(--bp-radius-md, 0.9rem);
+  background: var(--bp-color-bg-subtle, #f8faff);
+}
+
+.canonical-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.8rem;
+  padding: 0.7rem 0.85rem;
+  color: var(--bp-color-fg-strong, #25314b);
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.canonical-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.canonical-disclosure > summary::before {
+  content: "＋";
+  flex: 0 0 auto;
+  color: var(--bp-color-primary, #4255d7);
+  font-size: 0.9rem;
+}
+
+.canonical-disclosure[open] > summary::before {
+  content: "−";
+}
+
+.canonical-disclosure > summary > span {
+  margin-left: auto;
+  color: var(--bp-color-fg-muted, #7a8498);
+  font-size: 0.7rem;
+  font-weight: 650;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.canonical-disclosure-body {
+  display: grid;
+  gap: 0.8rem;
+  padding: 0 0.85rem 0.85rem;
+  border-top: 1px solid var(--bp-color-border-soft, #e7eaf0);
+}
+
+.canonical-disclosure-body > :first-child {
+  margin-top: 0.85rem;
+}
+
+.knowledge-disclosure,
+.quality-disclosure,
+.prompt-metadata-disclosure,
+.prompt-history-disclosure,
+.release-disclosure,
+.lesson-disclosure {
+  margin-top: 0.75rem;
+}
+
+.prompt-metadata-disclosure .prompt-workspace-metadata {
+  margin-bottom: 0;
+}
+
+.canonical-release-critical,
+.canonical-lesson-primary {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+  padding: 0.8rem;
+  border: 1px solid #e7eaf0;
+  border-radius: 0.8rem;
+  background: #fafbfe;
+}
+
+.canonical-release-critical > div,
+.canonical-lesson-primary {
+  min-width: 0;
+}
+
+.canonical-release-critical strong,
+.canonical-lesson-primary strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #33405a;
+  font-size: 0.74rem;
+}
+
+.canonical-release-critical span,
+.canonical-lesson-primary span {
+  color: #667289;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .canonical-disclosure > summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .canonical-disclosure > summary > span {
+    flex-basis: 100%;
+    margin-left: 1.4rem;
+    text-align: left;
+  }
+
+  .canonical-disclosure-body {
+    padding-inline: 0.7rem;
+    padding-bottom: 0.7rem;
+  }
+}
+
+
+/* P7-002 quality provenance preview */
+.canonical-provenance-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #e7eaf0;
+  border-radius: 0.78rem;
+  background: #fff;
+}
+
+.canonical-provenance-preview > div {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.canonical-provenance-preview > div:last-child {
+  text-align: right;
+}
+
+.canonical-provenance-preview strong {
+  color: #33405a;
+  font-size: 0.74rem;
+}
+
+.canonical-provenance-preview span,
+.canonical-provenance-preview small {
+  color: #748097;
+  font: 0.7rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+.workspace-work-card-heading > .status-chip {
+  width: fit-content;
+}
+
+@media (max-width: 800px) {
+  .canonical-provenance-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .canonical-provenance-preview > div:last-child {
+    text-align: left;
+  }
+
+  .workspace-work-card-heading > .status-chip {
+    justify-self: start;
+  }
+}
