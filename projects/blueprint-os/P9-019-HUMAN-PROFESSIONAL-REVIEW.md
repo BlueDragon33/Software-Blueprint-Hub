@@ -36,3 +36,19 @@ The professional visual review above is **AI-assisted evidence review**, not a h
 P9-019 must not be marked COMPLETE until an explicit human review decision is recorded against this exact review candidate (or a newer exact revision). Automated CI, screenshots or model judgement cannot manufacture that approval.
 
 Production release authority remains false.
+
+## Decision protocol
+
+The application layer now exposes an explicit, fail-closed human review decision protocol.
+
+A decision is valid only when:
+
+- it originates from an authenticated user action;
+- reviewer identity and an exact UTC decision timestamp are present;
+- the decision is bound to the exact reviewed revision and screenshot artifact digest;
+- every tracked finding is acknowledged before an approval;
+- any unresolved blocking P0/P1 finding prevents approval;
+- request-changes/reject remain blockers and cannot advance P9-020;
+- an approval may authorize only the transition to P9-020; it still grants **zero Production release authority**.
+
+No approval decision is checked into source control. The current canonical state therefore remains **HUMAN SIGN-OFF REQUIRED** until an actual human action records one.
