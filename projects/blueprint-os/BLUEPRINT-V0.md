@@ -178,4 +178,6 @@ Blueprint OS now develops as the ecosystem engineering compass using the depende
 
 Source-of-truth: `PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md`.
 
+Blueprint OS is now also subject to its own Universal Century-Grade Constitution through `CONSTITUTIONAL-SELF-AUDIT.md` and the `/compass/constitution` projection. Self-audit cannot self-approve a Constitutional Quality Gate; P9-019 human sign-off and P9-020 exact final evidence remain required.
+
 Phase 8 PASS authorizes Phase 9 Development Mode work. It still does not authorize Production deployment.
