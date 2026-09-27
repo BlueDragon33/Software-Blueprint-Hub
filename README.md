@@ -42,3 +42,9 @@ Phase 9 uses a dependency-driven **20-storey construction map** to evolve Bluepr
 ## Prime rules
 
 Design before build. Contracts before components. Dependency before sequencing. Root cause before patch. Canonical state before projection. Human UX acceptance before UI completion. Security/data authority by design. PASS requires exact evidence.
+
+Every future project also inherits the **Century-Grade Construction Standard**:
+
+`Structural Capacity → Architectural Longevity → Product Elegance → Premium Usability → Long-Term Durability → Fortress Security & Disaster Resilience`
+
+The implementation depth scales from B0 to B5, but none of these six qualities may be silently removed by a project template.
