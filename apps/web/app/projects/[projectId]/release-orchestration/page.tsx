@@ -44,6 +44,7 @@ export default async function ReleaseOrchestrationPage({
       release,
       qualityGates,
       evidence,
+      requiredGateIds: workspace.project.blueprint.requiredGates,
       targetEnvironment: "production",
       deploymentProvider: null
     })
