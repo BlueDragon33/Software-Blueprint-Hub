@@ -124,7 +124,7 @@ test("P7-004 forbidden project reads stay distinct from runtime outages", async 
   });
 });
 
-test("canonical B4 project surfaces truthful readiness without percentages", async ({
+test("existing B4 project is constitution-retrofitted and surfaces truthful readiness without percentages", async ({
   page
 }, testInfo) => {
   await authenticateRegistryOwner(page);
@@ -136,19 +136,19 @@ test("canonical B4 project surfaces truthful readiness without percentages", asy
     })
   ).toBeVisible();
 
-  await expect(page.getByText("1 / 4 PASS", { exact: true })).toBeVisible();
+  await expect(page.getByText("1 / 8 PASS", { exact: true })).toBeVisible();
   await expect(
-    page.getByText("1 required gate records missing", { exact: true })
+    page.getByText("5 required gate records missing", { exact: true })
   ).toBeVisible();
 
   await expect(
     page.getByRole("heading", {
-      name: "Define required gate gate:platform:compatibility"
+      name: "Define required gate gate:architecture:future-scale"
     })
   ).toBeVisible();
 
   await expect(
-    page.getByText("gate:platform:compatibility", { exact: true }).first()
+    page.getByText("gate:architecture:future-scale", { exact: true }).first()
   ).toBeVisible();
 
   await expect(
