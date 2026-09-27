@@ -33,6 +33,9 @@ jobs:
           test -d apps
           test -d packages/persistence/prisma/migrations
           node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))"
+      - name: Universal Constitution compliance
+        run: node scripts/check-constitution-adoption.mjs
+
       - name: Source-of-truth contradiction gate
         run: node scripts/check-source-of-truth.mjs
       - name: Source-of-truth detector self-test
@@ -95,6 +98,9 @@ jobs:
 
       - name: Verify migration status
         run: pnpm db:migrate:status
+
+      - name: Universal Constitution compliance
+        run: pnpm constitution:check
 
       - name: Generated contract drift
         run: pnpm contracts:check
