@@ -2,8 +2,26 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildCompassAcceptancePreflight,
-  p9019ProfessionalReviewCandidate
+  p9019ProfessionalReviewCandidate,
+  type ConstitutionalComplianceAudit
 } from "../../packages/application/src";
+
+
+function compliantConstitutionAudit(): ConstitutionalComplianceAudit {
+  return {
+    kind: "constitutional-compliance-audit",
+    projectId: p9019ProfessionalReviewCandidate.projectId,
+    policyId: "blueprint-os:universal-century-grade",
+    policyVersion: "1.1.0",
+    state: "compliant",
+    pillars: [],
+    gates: [],
+    blockers: [],
+    productionReleaseAuthority: false,
+    exactReleaseRevisionCertified: false,
+    boundaryNote: "Test fixture."
+  };
+}
 
 describe("P9-020 Compass Acceptance preflight", () => {
   it("stays locked before human professional sign-off", () => {
@@ -13,6 +31,7 @@ describe("P9-020 Compass Acceptance preflight", () => {
     expect(preflight.acceptanceRecorded).toBe(false);
     expect(preflight.productionReleaseAuthority).toBe(false);
     expect(preflight.blockers).toContain("p9-019-human-signoff-required");
+    expect(preflight.blockers).toContain("universal-constitution-non-compliant");
     expect(
       preflight.criteria.find((item) => item.id === "lower-dependencies")
     ).toMatchObject({ state: "blocked" });
@@ -23,6 +42,7 @@ describe("P9-020 Compass Acceptance preflight", () => {
 
   it("unlocks final evidence collection only for an exact approved review decision", () => {
     const preflight = buildCompassAcceptancePreflight({
+      constitutionAudit: compliantConstitutionAudit(),
       reviewDecision: {
         projectId: p9019ProfessionalReviewCandidate.projectId,
         reviewerActorId: "principal:human-reviewer",
@@ -102,4 +122,37 @@ describe("P9-020 Compass Acceptance preflight", () => {
     expect(rejected.state).toBe("locked");
     expect(rejected.blockers).toContain("p9-019-human-signoff-required");
   });
+  it("does not unlock P9-020 from human approval alone when the Constitution is non-compliant", () => {
+    const preflight = buildCompassAcceptancePreflight({
+      reviewDecision: {
+        projectId: p9019ProfessionalReviewCandidate.projectId,
+        reviewerActorId: "principal:human-reviewer",
+        source: "authenticated-user-action",
+        decision: "approve",
+        decidedAt: "2026-09-27T12:30:00.000Z",
+        note: "Reviewed the exact candidate.",
+        candidateReviewedRevision:
+          p9019ProfessionalReviewCandidate.reviewedRevision,
+        candidateEvidenceDigest:
+          p9019ProfessionalReviewCandidate.evidenceArtifact.digest,
+        acknowledgedFindingIds: [],
+        humanSignoff: true,
+        p9020TransitionAllowed: true,
+        productionReleaseAuthority: false,
+        blockers: []
+      }
+    });
+
+    expect(preflight.state).toBe("locked");
+    expect(preflight.blockers).toContain(
+      "universal-constitution-non-compliant"
+    );
+    expect(
+      preflight.criteria.find(
+        (item) => item.id === "universal-constitution"
+      )
+    ).toMatchObject({ state: "blocked" });
+  });
+
+
 });

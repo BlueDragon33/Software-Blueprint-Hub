@@ -356,7 +356,11 @@ PASS requires all lower dependencies complete, no unresolved P0/P1, no source-of
 
 Preflight note:
 - `/compass/acceptance` now exposes the acceptance criteria without recording PASS;
+- Blueprint OS now runs a live Universal Constitution self-audit from its resolved Blueprint plus canonical QualityGate/GateEvidence state;
+- the preflight remains locked while Universal Constitution compliance is not proven;
 - the preflight remains locked while the exact P9-019 candidate lacks authenticated human approval;
-- after a valid approval, only final-evidence collection becomes eligible;
+- human approval alone cannot unlock P9-020 when the Constitution audit is non-compliant;
+- after both constitutional compliance and a valid human approval, only final-evidence collection becomes eligible;
 - P9-020 still requires a final exact-revision full Release Gate and explicit acceptance evidence;
+- constitutional compliance, P9-020 acceptance and Production deployment remain separate authorities;
 - the preflight has zero Production release or deployment authority.

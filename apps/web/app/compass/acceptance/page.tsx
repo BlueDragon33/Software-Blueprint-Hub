@@ -1,6 +1,8 @@
 import {
   buildCompassAcceptancePreflight,
-  p9019ProfessionalReviewCandidate
+  evaluateConstitutionalCompliance,
+  p9019ProfessionalReviewCandidate,
+  type ConstitutionalComplianceAudit
 } from "@blueprint-os/application";
 import { AppShell, StatusChip } from "@blueprint-os/ui";
 import Link from "next/link";
@@ -10,24 +12,52 @@ import { getBlueprintServerRuntime } from "../../../src/server/runtime";
 
 export const dynamic = "force-dynamic";
 
-async function loadPreflight() {
+async function loadAcceptanceState(): Promise<{
+  readonly preflight: ReturnType<typeof buildCompassAcceptancePreflight>;
+  readonly constitutionAudit: ConstitutionalComplianceAudit | null;
+}> {
   const actor = await resolveWebActor();
   if (!actor) {
-    return buildCompassAcceptancePreflight();
+    return Object.freeze({
+      preflight: buildCompassAcceptancePreflight(),
+      constitutionAudit: null
+    });
   }
 
   const runtime = getBlueprintServerRuntime();
+  const projectId = p9019ProfessionalReviewCandidate.projectId;
   const canReview = await runtime.authority.can(
     actor,
-    p9019ProfessionalReviewCandidate.projectId,
+    projectId,
     "PROJECT_REVIEW"
   );
   if (!canReview) {
-    return buildCompassAcceptancePreflight();
+    return Object.freeze({
+      preflight: buildCompassAcceptancePreflight(),
+      constitutionAudit: null
+    });
   }
 
-  const decision = await runtime.professionalReview.currentDecision(actor);
-  return buildCompassAcceptancePreflight({ reviewDecision: decision });
+  const [decision, project, gateBundles] = await Promise.all([
+    runtime.professionalReview.currentDecision(actor),
+    runtime.profiles.read(actor, projectId),
+    runtime.workQuality.listQualityGates(actor, projectId)
+  ]);
+
+  const constitutionAudit = project
+    ? evaluateConstitutionalCompliance({
+        blueprint: project.blueprint,
+        gateBundles
+      })
+    : null;
+
+  return Object.freeze({
+    preflight: buildCompassAcceptancePreflight({
+      reviewDecision: decision,
+      constitutionAudit
+    }),
+    constitutionAudit
+  });
 }
 
 function tone(state: "pass" | "blocked" | "pending-final-evidence") {
@@ -43,7 +73,7 @@ function label(state: "pass" | "blocked" | "pending-final-evidence") {
 }
 
 export default async function CompassAcceptancePage() {
-  const preflight = await loadPreflight();
+  const { preflight, constitutionAudit } = await loadAcceptanceState();
 
   return (
     <AppShell>
@@ -95,6 +125,106 @@ export default async function CompassAcceptancePage() {
             <span>Acceptance recorded</span>
             <strong>{preflight.acceptanceRecorded ? "Yes" : "No"}</strong>
           </article>
+        </section>
+
+        <section
+          className="compass-constitution-audit"
+          aria-labelledby="compass-constitution-audit-title"
+        >
+          <div className="workspace-section-heading">
+            <div>
+              <p className="section-kicker">Universal Constitution self-audit</p>
+              <h2 id="compass-constitution-audit-title">
+                Blueprint OS is subject to the same law it imposes
+              </h2>
+              <p>
+                Compliance is read from the resolved Blueprint and canonical
+                QualityGate evidence. Documentation cannot self-certify PASS.
+              </p>
+            </div>
+            <StatusChip
+              tone={
+                constitutionAudit?.state === "compliant"
+                  ? "success"
+                  : "warning"
+              }
+            >
+              {constitutionAudit?.state === "compliant"
+                ? "COMPLIANT"
+                : "NON-COMPLIANT"}
+            </StatusChip>
+          </div>
+
+          {constitutionAudit ? (
+            <>
+              <div className="compass-constitution-grid">
+                {constitutionAudit.pillars.map((pillar) => (
+                  <article key={pillar.id}>
+                    <div>
+                      <strong>{pillar.label}</strong>
+                      <StatusChip
+                        tone={
+                          pillar.state === "compliant"
+                            ? "success"
+                            : "warning"
+                        }
+                      >
+                        {pillar.state === "compliant"
+                          ? "Compliant"
+                          : "Blocked"}
+                      </StatusChip>
+                    </div>
+                    {pillar.missingRequirementIds.length ? (
+                      <p>
+                        Missing requirements:{" "}
+                        {pillar.missingRequirementIds.join(", ")}
+                      </p>
+                    ) : pillar.blockingGateIds.length ? (
+                      <p>
+                        Blocking gates: {pillar.blockingGateIds.join(", ")}
+                      </p>
+                    ) : (
+                      <p>Required module/gate obligations are satisfied.</p>
+                    )}
+                  </article>
+                ))}
+              </div>
+
+              <div className="compass-constitution-gates">
+                {constitutionAudit.gates.map((gate) => (
+                  <div key={gate.id}>
+                    <code>{gate.id}</code>
+                    <StatusChip
+                      tone={gate.state === "pass" ? "success" : "warning"}
+                    >
+                      {gate.state}
+                    </StatusChip>
+                  </div>
+                ))}
+              </div>
+
+              {constitutionAudit.blockers.length ? (
+                <div className="compass-constitution-blockers">
+                  <strong>Constitution blockers</strong>
+                  <ul>
+                    {constitutionAudit.blockers.map((blocker) => (
+                      <li key={blocker}>{blocker}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              <p className="readiness-provenance-note">
+                {constitutionAudit.boundaryNote}
+              </p>
+            </>
+          ) : (
+            <div className="workspace-empty-inline">
+              Canonical Blueprint / QualityGate state for project:blueprint-os
+              is not available to this request. The audit fails closed and
+              P9-020 remains blocked.
+            </div>
+          )}
         </section>
 
         <section
