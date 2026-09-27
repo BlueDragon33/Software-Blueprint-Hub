@@ -20,8 +20,7 @@ const levelTemplate = (
   requirements
 });
 
-export const universalConstitutionTemplateV1: BlueprintTemplate = Object.freeze(
-  {
+export const universalConstitutionTemplateV1 = Object.freeze({
     schemaVersion: "1.0.0",
     id: "template:constitution:universal-v1",
     version: "1.1.0",
@@ -223,7 +222,7 @@ export const universalConstitutionTemplateV1: BlueprintTemplate = Object.freeze(
           "PASS requires bounded authority, containment and recoverability evidence appropriate to consequence."
       }
     ]
-  }
+  } satisfies BlueprintTemplate
 );
 
 export const foundationBlueprintTemplatesV1: readonly BlueprintTemplate[] =
