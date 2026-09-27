@@ -77,6 +77,7 @@ describe("P9-013 Release Orchestration", () => {
       release,
       qualityGates: [gate],
       evidence: [evidence],
+      requiredGateIds: [gate.id],
       targetEnvironment: "production"
     });
 
@@ -93,6 +94,7 @@ describe("P9-013 Release Orchestration", () => {
       release,
       qualityGates: [gate],
       evidence: [evidence],
+      requiredGateIds: [gate.id],
       targetEnvironment: "production",
       deploymentProvider: provider,
       deploymentCapabilityId: "deployment:promote"
@@ -147,4 +149,61 @@ describe("P9-013 Release Orchestration", () => {
       })
     ).toThrow(/not scoped/i);
   });
+  it("blocks promotion when any Blueprint-required constitutional gate is missing, non-PASS, or lacks exact evidence", () => {
+    const missing = buildReleasePromotionPlan({
+      projectId: "project:release",
+      release,
+      qualityGates: [gate],
+      evidence: [evidence],
+      requiredGateIds: [gate.id, "gate:security:resilience-containment"],
+      targetEnvironment: "production",
+      deploymentProvider: provider,
+      deploymentCapabilityId: "deployment:promote"
+    });
+    expect(missing.state).toBe("blocked");
+    expect(missing.blockers).toContain(
+      "constitutional-gate-missing:gate:security:resilience-containment"
+    );
+
+    const requiredCandidate: QualityGate = {
+      ...gate,
+      id: "gate:security:resilience-containment",
+      status: "candidate",
+      evidenceIds: []
+    };
+    const nonPass = buildReleasePromotionPlan({
+      projectId: "project:release",
+      release,
+      qualityGates: [gate, requiredCandidate],
+      evidence: [evidence],
+      requiredGateIds: [gate.id, requiredCandidate.id],
+      targetEnvironment: "production",
+      deploymentProvider: provider,
+      deploymentCapabilityId: "deployment:promote"
+    });
+    expect(nonPass.state).toBe("blocked");
+    expect(nonPass.blockers).toContain(
+      "constitutional-gate-not-pass:gate:security:resilience-containment"
+    );
+
+    const requiredPass: QualityGate = {
+      ...requiredCandidate,
+      status: "pass"
+    };
+    const noExactEvidence = buildReleasePromotionPlan({
+      projectId: "project:release",
+      release,
+      qualityGates: [gate, requiredPass],
+      evidence: [evidence],
+      requiredGateIds: [gate.id, requiredPass.id],
+      targetEnvironment: "production",
+      deploymentProvider: provider,
+      deploymentCapabilityId: "deployment:promote"
+    });
+    expect(noExactEvidence.state).toBe("blocked");
+    expect(noExactEvidence.blockers).toContain(
+      "constitutional-gate-evidence-missing:gate:security:resilience-containment"
+    );
+  });
+
 });
