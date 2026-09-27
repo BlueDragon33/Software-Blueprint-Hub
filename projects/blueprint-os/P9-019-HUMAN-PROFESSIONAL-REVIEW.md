@@ -52,3 +52,22 @@ A decision is valid only when:
 - an approval may authorize only the transition to P9-020; it still grants **zero Production release authority**.
 
 No approval decision is checked into source control. The current canonical state therefore remains **HUMAN SIGN-OFF REQUIRED** until an actual human action records one.
+
+## Review recording surface
+
+The development baseline now includes a first-class `/professional-review` surface so the human gate can be performed through an authenticated product action rather than by editing source text.
+
+The surface:
+
+- shows the exact candidate revision, Release Gate run, artifact ID and digest;
+- keeps every tracked finding visible;
+- requires explicit acknowledgement of every finding before approval;
+- obtains reviewer identity from the authenticated server session;
+- generates the decision timestamp on the server;
+- persists one append-only decision for the exact candidate in PostgreSQL;
+- prevents a second decision from silently rewriting the same candidate;
+- enforces `PROJECT_REVIEW` authority;
+- keeps `productionReleaseAuthority = false` for every outcome.
+
+Automated Playwright coverage verifies that the review control is reachable, responsive and fail-closed, but it deliberately does **not** submit an approval. Automated testing remains evidence about the decision mechanism, not the human sign-off itself.
+
