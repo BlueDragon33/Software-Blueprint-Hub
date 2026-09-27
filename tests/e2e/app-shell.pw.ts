@@ -636,6 +636,27 @@ test("P7-002 disclosures preserve critical truth and are keyboard operable", asy
     page.getByText("revision-p6-beta-quality", { exact: true }).first()
   ).toBeVisible();
 
+  const qualityFilter = page.getByLabel("Search gates or evidence");
+  await expect(qualityFilter).toBeVisible();
+  await qualityFilter.fill("revision-p6-beta-security");
+  await expect(page.locator(".workspace-quality-card")).toHaveCount(1);
+  await expect(
+    page.locator(".workspace-quality-card", {
+      hasText: "gate:security:authority"
+    })
+  ).toBeVisible();
+  await qualityFilter.fill("");
+
+  const qualityStatusFilter = page.getByLabel("Status");
+  await qualityStatusFilter.selectOption("candidate");
+  await expect(page.locator(".workspace-quality-card")).toHaveCount(1);
+  await expect(
+    page.locator(".workspace-quality-card", {
+      hasText: "gate:quality:evidence"
+    })
+  ).toBeVisible();
+  await qualityStatusFilter.selectOption("all");
+
   const qualityGateCard = page.locator(".workspace-quality-card", {
     hasText: "gate:quality:evidence"
   });
@@ -886,6 +907,25 @@ test("P9-016 adaptive audit covers current workspace without overflow and honors
 
   await lifecycle.focus();
   await expect(lifecycle).toBeFocused();
+
+  await expect(
+    page.getByRole("heading", { name: "No lifecycle policy is checked in yet" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Choose record kinds", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Define retention and archive rules", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Review destructive-action blockers", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "This guidance creates no lifecycle policy, performs no destructive action and grants no Production authority.",
+      { exact: true }
+    )
+  ).toBeVisible();
 
   if (testInfo.project.name !== "desktop-chromium") {
     const visible = await lifecycle.evaluate((element) => {
