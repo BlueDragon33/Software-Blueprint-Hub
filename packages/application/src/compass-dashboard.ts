@@ -1,3 +1,5 @@
+import type { HumanProfessionalReviewDecisionRecord } from "@blueprint-os/core";
+
 export type CompassWorkStatus = "complete" | "active" | "next";
 
 export interface CompassEvidence {
@@ -41,7 +43,7 @@ export interface BlueprintCompassProjection {
   readonly truthNote: string;
 }
 
-const projection: BlueprintCompassProjection = Object.freeze({
+const pendingProjection: BlueprintCompassProjection = Object.freeze({
   projectionKind: "development-baseline",
   projectId: "project:blueprint-os",
   phase: "Phase 9 — Compass Construction",
@@ -87,7 +89,9 @@ const projection: BlueprintCompassProjection = Object.freeze({
         "Final acceptance cannot start until P9-019 has an explicit human professional decision."
     })
   ]),
-  dependencyBlockers: Object.freeze([]),
+  dependencyBlockers: Object.freeze([
+    "P9-019 human professional sign-off has not been recorded for the exact current review candidate."
+  ]),
   risks: Object.freeze([
     Object.freeze({
       id: "R-P9-DRIFT",
@@ -233,6 +237,98 @@ const projection: BlueprintCompassProjection = Object.freeze({
     "This is a checked-in Development Baseline projection. It does not manufacture project completion percentages, Quality Gate PASS state or Production readiness."
 });
 
-export function getBlueprintCompassProjection(): BlueprintCompassProjection {
-  return projection;
+export type CompassHumanReviewDecision = Pick<
+  HumanProfessionalReviewDecisionRecord,
+  | "decision"
+  | "candidateReviewedRevision"
+  | "candidateEvidenceDigest"
+  | "humanSignoff"
+  | "p9020TransitionAllowed"
+  | "productionReleaseAuthority"
+  | "blockers"
+>;
+
+function freezeWorkItem(item: CompassWorkItem): CompassWorkItem {
+  return Object.freeze({ ...item });
+}
+
+export function getBlueprintCompassProjection(
+  reviewDecision: CompassHumanReviewDecision | null = null
+): BlueprintCompassProjection {
+  const approved =
+    reviewDecision?.decision === "approve" &&
+    reviewDecision.humanSignoff === true &&
+    reviewDecision.p9020TransitionAllowed === true &&
+    reviewDecision.productionReleaseAuthority === false;
+
+  if (!approved) {
+    if (!reviewDecision) {
+      return pendingProjection;
+    }
+
+    const decisionBlockers = reviewDecision.blockers.length
+      ? reviewDecision.blockers
+      : ["human-professional-signoff-required"];
+
+    return Object.freeze({
+      ...pendingProjection,
+      dependencyBlockers: Object.freeze([
+        `P9-019 recorded ${reviewDecision.decision}; P9-020 remains blocked until an explicit approval is recorded for the exact current candidate.`,
+        ...decisionBlockers
+      ]),
+      nextActions: Object.freeze([
+        "Resolve the recorded P9-019 review outcome and record an explicit approval against the exact current candidate.",
+        "Start P9-020 only after the approval grants p9020TransitionAllowed = true.",
+        "Production publish remains blocked until a real deployment provider is connected and explicit external execution succeeds."
+      ])
+    });
+  }
+
+  const p9018 = freezeWorkItem({
+    id: "P9-018",
+    title: "Ecosystem dogfood regression",
+    storey: 20,
+    status: "complete",
+    reason:
+      "Self-dogfood and heterogeneous project classes passed identity and semantic-isolation regression with full Release Gate evidence."
+  });
+  const p9019 = freezeWorkItem({
+    id: "P9-019",
+    title: "Human professional review",
+    storey: 20,
+    status: "complete",
+    reason:
+      "An authenticated human approval is recorded against the exact current P9-019 review candidate."
+  });
+  const p9020 = freezeWorkItem({
+    id: "P9-020",
+    title: "Compass Acceptance Gate",
+    storey: 20,
+    status: "active",
+    reason:
+      "P9-019 human sign-off is recorded. Final ecosystem reference acceptance may now evaluate exact evidence without granting Production authority."
+  });
+
+  return Object.freeze({
+    ...pendingProjection,
+    activeWork: p9020,
+    workSequence: Object.freeze([p9018, p9019, p9020]),
+    dependencyBlockers: Object.freeze([]),
+    evidence: Object.freeze([
+      ...pendingProjection.evidence,
+      Object.freeze({
+        label: "P9-019 Human Professional Review",
+        revision: reviewDecision.candidateReviewedRevision,
+        source: "Authenticated append-only human professional review decision",
+        result: "pass" as const
+      })
+    ]),
+    nextActions: Object.freeze([
+      "Run P9-020 Compass Acceptance Gate against the exact approved review candidate and current source-of-truth.",
+      "Fail closed on any source-of-truth contradiction, authority leakage, unresolved P0/P1 or evidence revision mismatch.",
+      "Production publish remains separate and unauthorized until a real deployment provider plus explicit external execution succeeds."
+    ]),
+    truthNote:
+      "P9-019 human sign-off is recorded for the exact candidate. P9-020 is active, but Production release authority remains false and no deployment is implied."
+  });
 }

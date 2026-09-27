@@ -86,7 +86,8 @@ export function SystemCompass({
               </ul>
             ) : (
               <p className="system-compass-note">
-                P9-001 is complete. P9-002 is therefore the next dependency-valid Work Package.
+                No lower dependency blocker is recorded for {projection.activeWork.id}.
+                Continue only with that Work Package's own acceptance criteria and exact evidence.
               </p>
             )}
           </article>
@@ -152,8 +153,17 @@ export function SystemCompass({
           </Link>
         ) : (
           <div className="system-compass-footer-actions">
-            <Link className="primary-button" href="/professional-review">
-              Open P9-019 review
+            <Link
+              className="primary-button"
+              href={
+                projection.activeWork.id === "P9-020"
+                  ? "/compass/acceptance"
+                  : "/professional-review"
+              }
+            >
+              {projection.activeWork.id === "P9-020"
+                ? "Open P9-020 acceptance"
+                : "Open P9-019 review"}
             </Link>
             <Link className="secondary-button" href="/">
               Back to Projects

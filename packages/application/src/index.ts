@@ -261,3 +261,5 @@ export * from "./performance-capacity";
 export * from "./ecosystem-dogfood";
 
 export * from "./professional-review";
+
+export * from "./compass-acceptance";
