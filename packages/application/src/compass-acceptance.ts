@@ -4,6 +4,7 @@ import {
   p9019ProfessionalReviewCandidate,
   type HumanProfessionalReviewCandidate
 } from "./professional-review";
+import { buildBlueprintOsConstitutionAudit } from "./constitutional-self-audit";
 
 export type CompassAcceptanceCriterionState =
   | "pass"
@@ -45,6 +46,10 @@ export function buildCompassAcceptancePreflight(input?: {
 }): CompassAcceptancePreflight {
   const candidate = input?.reviewCandidate ?? p9019ProfessionalReviewCandidate;
   const decision = input?.reviewDecision ?? null;
+  const constitution = buildBlueprintOsConstitutionAudit({
+    reviewCandidate: candidate,
+    reviewDecision: decision
+  });
 
   const exactDecision =
     decision !== null &&
@@ -71,8 +76,14 @@ export function buildCompassAcceptancePreflight(input?: {
   if (blockingSevereFinding) {
     blockers.push("unresolved-p0-p1-finding");
   }
+  if (constitution.state === "blocked") {
+    blockers.push("constitutional-self-audit-blocked");
+  }
 
-  const unlocked = humanApproval && !blockingSevereFinding;
+  const unlocked =
+    humanApproval &&
+    !blockingSevereFinding &&
+    constitution.state === "ready-for-final-evidence";
 
   return Object.freeze({
     kind: "compass-acceptance-preflight",
@@ -103,6 +114,16 @@ export function buildCompassAcceptancePreflight(input?: {
         exactDecision
           ? "The recorded review decision matches the candidate revision and evidence digest."
           : "No recorded human decision is bound to the exact current review revision and evidence digest."
+      ),
+      criterion(
+        "constitution",
+        "Universal Constitution self-compliance",
+        constitution.state === "blocked"
+          ? "blocked"
+          : "pending-final-evidence",
+        constitution.state === "blocked"
+          ? "Blueprint OS still has an unresolved Constitutional blocker. The current self-audit cannot self-approve it."
+          : "All six pillars have a valid path to final evidence. Their Constitutional gates still require exact-revision evidence before P9-020 acceptance."
       ),
       criterion(
         "source-of-truth",
