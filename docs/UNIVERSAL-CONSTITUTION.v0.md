@@ -72,6 +72,56 @@ Prime rule: every authority and trust boundary is explicit; UI visibility is nev
 - Case-specific assumptions are not promoted to Universal Core without review.
 - Constitutions change rarely; project blueprints may evolve but cannot silently violate active constitutions.
 
+## 9. Century-Grade Construction Standard
+
+Every project inherits six non-negotiable construction qualities. Their **implementation depth scales with Blueprint Level and real risk**, but no project may opt out of the qualities themselves.
+
+### 9.1 Structural Capacity — foundation for future height
+- Architecture must preserve a credible growth path beyond today's feature count, load and team size.
+- Build only the capacity justified now, but do not make today's convenience structurally block tomorrow's justified scale.
+- Stable Core, canonical contracts, explicit dependency direction and replaceable adapters are preferred over irreversible coupling.
+- Scaling mechanisms are introduced from measured need, not speculative complexity.
+
+### 9.2 Architectural Longevity — designed to age well
+- Business/domain meaning must outlive any single framework, hosting provider, UI library or AI vendor where practical.
+- Public contracts require versioning, compatibility and deprecation paths.
+- Technology replacement must be possible without rewriting canonical product meaning.
+- Architecture decisions record the future condition that would justify replacement or expansion.
+
+### 9.3 Product Elegance — timeless rather than trend-bound
+- Visual systems favor clarity, proportion, hierarchy, restraint and consistency over short-lived decorative trends.
+- Shared design tokens/components prevent local visual drift and override piles.
+- Desktop, tablet and mobile are deliberately composed; responsive design is not desktop shrinkage.
+- A technically correct screen may still fail acceptance when hierarchy, readability or coherence is poor.
+
+### 9.4 Premium Usability — worthy of user time and money
+- Critical tasks minimize unnecessary steps, ambiguity and cognitive load.
+- Search, filtering, navigation, forms, tables, feedback and recovery must remain understandable at realistic data sizes.
+- Empty, loading, error, permission, offline/degraded and recovery states are first-class product surfaces.
+- Human UX acceptance is required for critical journeys; CI green alone never proves commercial-quality usability.
+
+### 9.5 Long-Term Durability — resist software ageing
+- Dependency, schema, migration, browser/device and provider evolution must have regression protection.
+- Repeated change must not accumulate hidden coupling, CSS patches, stale compatibility paths or unverifiable migrations.
+- Upgrade, rollback, restore and representative ageing/regression scenarios are tested at depth appropriate to consequence.
+- Maintenance should replace finishes and services without demolishing the structural Core.
+
+### 9.6 Fortress Security & Disaster Resilience — contain damage and recover
+- Security is defense-in-depth: perimeter protection never replaces trusted-boundary authorization.
+- Least privilege, segmentation and blast-radius containment prevent one compromised user, module, provider, plugin or AI path from becoming system-wide authority.
+- Sensitive data and secrets use appropriate encryption, scoped credential ownership and auditable access.
+- Canonical mutations, Quality Gate PASS and Production release authority remain separately protected capabilities.
+- Important records require tested backup/recovery appropriate to consequence; high-risk systems require immutable/offline or otherwise independently recoverable copies.
+- Incidents must be detectable, attributable and containable without leaking secrets.
+- No system claims to be impossible to breach; the engineering objective is to resist attack, limit damage, protect authoritative data and recover to a trusted state.
+
+### 9.7 Universal inheritance rule
+- These six qualities apply to every future Blueprint, template and project.
+- A lower Blueprint Level may reduce **depth**, never delete the quality.
+- Project-specific templates may strengthen these requirements but cannot weaken or bypass them.
+- Bootstrap, readiness and acceptance projections must preserve this inheritance.
+- New features are incomplete when they work only at initial launch but introduce avoidable structural, visual, operational or security decay.
+
 ## Scalable Blueprint Levels — initial model
 - **B0 MICRO**: purpose, I/O, errors, basic security, tests, release definition.
 - **B1 SMALL**: add user flow, UI/data structure, deployment, regression.
