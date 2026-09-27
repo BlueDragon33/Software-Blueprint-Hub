@@ -81,3 +81,136 @@ export const p9019ProfessionalReviewCandidate: HumanProfessionalReviewCandidate 
     boundaryNote:
       "Automated Release Gate and AI-assisted professional visual review are evidence, but neither may be relabeled as a human sign-off. P9-019 remains active until an explicit human review decision is recorded."
   });
+
+
+export type HumanProfessionalReviewDecisionKind =
+  | "approve"
+  | "request-changes"
+  | "reject";
+
+export interface HumanProfessionalReviewDecisionInput {
+  readonly reviewerActorId: string;
+  readonly source: "authenticated-user-action";
+  readonly decision: HumanProfessionalReviewDecisionKind;
+  readonly decidedAt: string;
+  readonly note: string;
+  readonly candidateReviewedRevision: string;
+  readonly candidateEvidenceDigest: string;
+  readonly acknowledgedFindingIds: readonly string[];
+}
+
+export interface RecordedHumanProfessionalReviewDecision {
+  readonly kind: "human-professional-review-decision";
+  readonly projectId: "project:blueprint-os";
+  readonly reviewerActorId: string;
+  readonly source: "authenticated-user-action";
+  readonly decision: HumanProfessionalReviewDecisionKind;
+  readonly decidedAt: string;
+  readonly note: string;
+  readonly candidateReviewedRevision: string;
+  readonly candidateEvidenceDigest: string;
+  readonly acknowledgedFindingIds: readonly string[];
+  readonly humanSignoff: boolean;
+  readonly p9020TransitionAllowed: boolean;
+  readonly productionReleaseAuthority: false;
+  readonly blockers: readonly string[];
+}
+
+function requireNonEmpty(value: string, label: string): string {
+  const normalized = value.trim();
+  if (!normalized) {
+    throw new TypeError(`${label} is required`);
+  }
+  return normalized;
+}
+
+function requireIsoTimestamp(value: string): string {
+  const normalized = requireNonEmpty(value, "decidedAt");
+  const parsed = Date.parse(normalized);
+  if (Number.isNaN(parsed) || new Date(parsed).toISOString() !== normalized) {
+    throw new TypeError("decidedAt must be an exact ISO-8601 UTC timestamp");
+  }
+  return normalized;
+}
+
+export function recordHumanProfessionalReviewDecision(
+  candidate: HumanProfessionalReviewCandidate,
+  input: HumanProfessionalReviewDecisionInput
+): RecordedHumanProfessionalReviewDecision {
+  const reviewerActorId = requireNonEmpty(
+    input.reviewerActorId,
+    "reviewerActorId"
+  );
+  const note = requireNonEmpty(input.note, "note");
+  const decidedAt = requireIsoTimestamp(input.decidedAt);
+
+  if (input.source !== "authenticated-user-action") {
+    throw new TypeError(
+      "Human professional review decisions require an authenticated user action"
+    );
+  }
+  if (input.candidateReviewedRevision !== candidate.reviewedRevision) {
+    throw new TypeError(
+      "Human professional review decision is stale: reviewed revision mismatch"
+    );
+  }
+  if (input.candidateEvidenceDigest !== candidate.evidenceArtifact.digest) {
+    throw new TypeError(
+      "Human professional review decision is stale: evidence digest mismatch"
+    );
+  }
+
+  const findingIds = new Set(candidate.findings.map((finding) => finding.id));
+  const acknowledgements = [...new Set(input.acknowledgedFindingIds)].sort();
+  const unknownFinding = acknowledgements.find((id) => !findingIds.has(id));
+  if (unknownFinding) {
+    throw new TypeError(
+      `Human professional review acknowledged unknown finding ${unknownFinding}`
+    );
+  }
+
+  const hasBlockingSevereFinding = candidate.findings.some(
+    (finding) =>
+      finding.blocking &&
+      (finding.severity === "P0" || finding.severity === "P1")
+  );
+  const missingAcknowledgement = candidate.findings.find(
+    (finding) => !acknowledgements.includes(finding.id)
+  );
+
+  if (input.decision === "approve" && hasBlockingSevereFinding) {
+    throw new TypeError(
+      "Human professional review cannot approve with unresolved blocking P0/P1 findings"
+    );
+  }
+  if (input.decision === "approve" && missingAcknowledgement) {
+    throw new TypeError(
+      `Human professional review must acknowledge finding ${missingAcknowledgement.id} before approval`
+    );
+  }
+
+  const approved = input.decision === "approve";
+  return Object.freeze({
+    kind: "human-professional-review-decision",
+    projectId: candidate.projectId,
+    reviewerActorId,
+    source: input.source,
+    decision: input.decision,
+    decidedAt,
+    note,
+    candidateReviewedRevision: input.candidateReviewedRevision,
+    candidateEvidenceDigest: input.candidateEvidenceDigest,
+    acknowledgedFindingIds: Object.freeze(acknowledgements),
+    humanSignoff: approved,
+    p9020TransitionAllowed: approved,
+    productionReleaseAuthority: false,
+    blockers: Object.freeze(
+      approved
+        ? []
+        : [
+            "human-professional-signoff-required",
+            `human-review-decision-${input.decision}`
+          ]
+    )
+  });
+}
