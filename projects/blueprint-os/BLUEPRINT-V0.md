@@ -47,6 +47,7 @@ One human may hold several roles, but authority concepts remain distinct.
 Primary design baseline:
 - `ARCHITECTURE-V1.md`
 - `../../docs/UNIVERSAL-CONSTITUTION.v0.md`
+- `../../docs/UNIVERSAL-CENTURY-GRADE-CONSTRUCTION-STANDARD.v1.md`
 - `../../docs/TEMPLATE-RESOLUTION-CONTRACT.v1.md`
 - `../../docs/NFR-CAPACITY-BUDGETS.v1.md`
 
