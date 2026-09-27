@@ -1,4 +1,5 @@
 import {
+  ConstitutionLockedTemplateCatalog,
   foundationBlueprintTemplatesV1,
   GovernanceApplicationService,
   HumanProfessionalReviewApplicationService,
@@ -9,6 +10,7 @@ import {
   PromptProjectionApplicationService,
   ReleaseLessonsApplicationService,
   StaticTemplateCatalog,
+  universalConstitutionTemplateV1,
   WorkQualityApplicationService
 } from "@blueprint-os/application";
 import { AuthorityService } from "@blueprint-os/core";
@@ -56,7 +58,10 @@ export function createBlueprintServerRuntime(
     new PostgresPromptProjectionHistoryRepository(prisma);
   const professionalReviewRepository =
     new PostgresHumanProfessionalReviewDecisionRepository(prisma);
-  const templates = new StaticTemplateCatalog(foundationBlueprintTemplatesV1);
+  const templates = new ConstitutionLockedTemplateCatalog(
+    new StaticTemplateCatalog(foundationBlueprintTemplatesV1),
+    universalConstitutionTemplateV1
+  );
   const profiles = new ProjectProfileApplicationService(
     profileRepository,
     authority,
