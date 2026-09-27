@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "policyId": "blueprint-os:universal-century-grade",
+  "policyVersion": "1.1.0",
+  "constitutionTemplate": {
+    "id": "template:constitution:universal-v1",
+    "version": "1.1.0"
+  },
+  "inheritanceRule": "mandatory-all-projects",
+  "depthRule": "blueprint-level-scales-depth-never-removes-pillar",
+  "pillars": [
+    {
+      "id": "structural-capacity",
+      "requirementIds": [
+        "module:architecture:structural-capacity",
+        "gate:architecture:future-scale"
+      ]
+    },
+    {
+      "id": "architectural-longevity",
+      "requirementIds": [
+        "module:governance:architectural-longevity"
+      ]
+    },
+    {
+      "id": "product-elegance",
+      "requirementIds": [
+        "module:ux:product-elegance",
+        "gate:ux:commercial-quality"
+      ]
+    },
+    {
+      "id": "premium-usability",
+      "requirementIds": [
+        "module:ux:premium-usability",
+        "gate:ux:commercial-quality"
+      ]
+    },
+    {
+      "id": "long-term-durability",
+      "requirementIds": [
+        "module:maintenance:long-term-durability",
+        "gate:durability:ageing-regression"
+      ]
+    },
+    {
+      "id": "fortress-security-disaster-resilience",
+      "requirementIds": [
+        "module:security:fortress-resilience",
+        "gate:security:resilience-containment"
+      ]
+    }
+  ],
+  "forbidden": {
+    "disablePillars": true,
+    "projectTemplateWeakening": true,
+    "providerOverride": true,
+    "uiOverride": true,
+    "aiOverride": true,
+    "implicitProductionAuthority": true
+  }
+}
