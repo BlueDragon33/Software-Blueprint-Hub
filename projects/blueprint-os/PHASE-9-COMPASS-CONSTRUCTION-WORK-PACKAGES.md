@@ -347,9 +347,16 @@ Purpose:
 Conduct end-to-end professional UX/product review after engineering gates are green.
 
 ### P9-020 — Compass Acceptance Gate
-Status: **PLANNED**
+Status: **PLANNED — PREFLIGHT IMPLEMENTED, DEPENDENCY LOCKED**
 
 Purpose:
 Decide whether Blueprint OS is ready to serve as the ecosystem reference implementation.
 
 PASS requires all lower dependencies complete, no unresolved P0/P1, no source-of-truth contradiction, no authority leakage, evidence at exact revision and no false Production claim.
+
+Preflight note:
+- `/compass/acceptance` now exposes the acceptance criteria without recording PASS;
+- the preflight remains locked while the exact P9-019 candidate lacks authenticated human approval;
+- after a valid approval, only final-evidence collection becomes eligible;
+- P9-020 still requires a final exact-revision full Release Gate and explicit acceptance evidence;
+- the preflight has zero Production release or deployment authority.
