@@ -931,6 +931,34 @@ test("P9-019 exposes an explicit human review surface without automated sign-off
     page.getByText("Production not authorized", { exact: true })
   ).toBeVisible();
 
+  await expect(
+    page.getByRole("link", { name: "Open Release Gate run" })
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/36252022005"
+  );
+  await expect(
+    page.getByRole("link", { name: "Open screenshot artifact" })
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/36252022005/artifacts/10908943707"
+  );
+
+  const reviewedScope = page.getByRole("region", {
+    name: "What the evidence actually covers"
+  });
+  await expect(reviewedScope.getByText("desktop", { exact: true })).toBeVisible();
+  await expect(reviewedScope.getByText("tablet", { exact: true })).toBeVisible();
+  await expect(reviewedScope.getByText("mobile", { exact: true })).toBeVisible();
+  await expect(
+    reviewedScope.getByText("Quality & revision-specific evidence", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(
+    reviewedScope.getByText("Release & Lessons", { exact: true })
+  ).toBeVisible();
+
   const approve = page.getByRole("button", { name: "Approve P9-019" });
   await expect(approve).toBeDisabled();
 
