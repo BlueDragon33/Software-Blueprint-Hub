@@ -1037,3 +1037,53 @@ test("P9-019 exposes an explicit human review surface without automated sign-off
   });
 });
 
+test("P9-020 acceptance preflight remains locked before human sign-off", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/compass");
+
+  await expect(
+    page.getByRole("heading", { name: "System Compass" })
+  ).toBeVisible();
+  await expect(page.getByText("P9-019", { exact: true }).first()).toBeVisible();
+  await expect(
+    page.getByText(
+      "P9-019 human professional sign-off has not been recorded for the exact current review candidate.",
+      { exact: true }
+    )
+  ).toBeVisible();
+  await expect(
+    page.getByText(/P9-001 is complete\. P9-002 is therefore/)
+  ).toHaveCount(0);
+
+  await page.goto("/compass/acceptance");
+
+  await expect(
+    page.getByRole("heading", { name: "Compass Acceptance Gate" })
+  ).toBeVisible();
+  await expect(page.getByText("Dependency locked", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "P9-020 cannot begin yet" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Production not authorized", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Acceptance is not deployment.", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Complete P9-019 human review" })
+  ).toHaveAttribute("href", "/professional-review");
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
+  expect(overflow).toBe(false);
+
+  await page.screenshot({
+    path: `artifacts/p9-020-preflight-locked-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
