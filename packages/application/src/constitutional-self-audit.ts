@@ -222,7 +222,7 @@ export function buildBlueprintOsConstitutionAudit(input?: {
         ),
         evidence(
           "Export / backup / restore",
-          "projects/blueprint-os/P9-007-EXPORT-BACKUP-RESTORE.md",
+          "projects/blueprint-os/PHASE-9-COMPASS-CONSTRUCTION-WORK-PACKAGES.md",
           "6293dbb04a6ba4137a57dd887bbe35ceaa585d9c",
           "resilience"
         )
