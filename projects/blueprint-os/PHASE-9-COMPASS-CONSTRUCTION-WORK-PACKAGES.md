@@ -355,8 +355,11 @@ Decide whether Blueprint OS is ready to serve as the ecosystem reference impleme
 PASS requires all lower dependencies complete, no unresolved P0/P1, no source-of-truth contradiction, no authority leakage, evidence at exact revision and no false Production claim.
 
 Preflight note:
-- `/compass/acceptance` now exposes the acceptance criteria without recording PASS;
+- `/compass/acceptance` exposes the acceptance criteria without recording PASS;
+- `/compass/constitution` applies the Universal Century-Grade Constitution to Blueprint OS itself and exposes all six mandatory pillars;
+- the Constitutional self-audit is an evidence projection only: it cannot PASS its own gates, approve P9-019, accept P9-020 or authorize Production;
 - the preflight remains locked while the exact P9-019 candidate lacks authenticated human approval;
-- after a valid approval, only final-evidence collection becomes eligible;
-- P9-020 still requires a final exact-revision full Release Gate and explicit acceptance evidence;
-- the preflight has zero Production release or deployment authority.
+- before human approval, Product Elegance and Premium Usability remain explicitly blocked by the human-review boundary;
+- after a valid approval, all six pillars become eligible only for final exact-revision evidence collection;
+- P9-020 still requires final source-of-truth, authority and full Release Gate evidence on the exact acceptance revision;
+- Production release/deployment authority remains false.
