@@ -126,4 +126,35 @@ describe("P9-005 Project Bootstrap Factory", () => {
       createProjectBootstrapPlan(intent({ jobsToBeDone: [] }))
     ).toThrow(/job-to-be-done/i);
   });
+  it("carries universal century-grade requirements into every new project roadmap", () => {
+    const plan = createProjectBootstrapPlan(
+      intent({
+        persistence: "none",
+        authentication: "none",
+        authorization: "none",
+        expectedLifetime: "temporary",
+        minimumBlueprintLevel: "B0"
+      })
+    );
+
+    const required = new Set(
+      plan.roadmap.map((item) => item.sourceRequirementId)
+    );
+
+    for (const requirementId of [
+      "module:architecture:structural-capacity",
+      "module:governance:architectural-longevity",
+      "module:ux:product-elegance",
+      "module:ux:premium-usability",
+      "module:maintenance:long-term-durability",
+      "module:security:fortress-resilience",
+      "gate:architecture:future-scale",
+      "gate:ux:commercial-quality",
+      "gate:durability:ageing-regression",
+      "gate:security:resilience-containment"
+    ]) {
+      expect(required.has(requirementId)).toBe(true);
+    }
+  });
+
 });
