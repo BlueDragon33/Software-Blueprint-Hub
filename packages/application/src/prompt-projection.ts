@@ -132,6 +132,12 @@ function renderPrompt(
     `Blueprint level: ${source.profile.blueprintLevel}`,
     `Profile record version: ${source.profile.meta.recordVersion}`,
     "",
+    "## Authority stack",
+    "- Universal Constitution outranks this prompt.",
+    "- Resolved Blueprint outranks this prompt.",
+    "- Canonical Work Packages, Quality Gates and evidence outrank this prompt.",
+    "- This prompt is a derived execution projection and has zero authority to PASS gates, ratify constitutional changes or authorize Production.",
+    "",
     "## Template versions"
   ];
 
@@ -192,7 +198,8 @@ function renderPrompt(
     "- Execute only against the canonical state represented by this source revision.",
     "- Do not infer PASS from Work Package completion.",
     "- Do not mutate canonical state from this generated prompt.",
-    "- If the source revision is stale, regenerate before execution."
+    "- If the source revision is stale, regenerate before execution.",
+    "- If this prompt conflicts with Constitution, Blueprint or canonical gate/work state, the higher authority wins and this prompt must be regenerated."
   );
 
   return `${lines.join("\n")}\n`;

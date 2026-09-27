@@ -16,6 +16,11 @@ Presentation → Application Services → Blueprint Domain Core → Ports → Ad
 
 ## Bounded contexts
 
+Global governance control plane:
+- **Constitution Authority** — Universal Constitution versions, amendment lifecycle, impact/migration evidence, human ratification, publication and ecosystem propagation. This authority is global and remains separate from Project Authority and Production Authority.
+
+Project/product contexts:
+
 1. **Project Registry** — project identity and lifecycle.
 2. **Profile & Classification** — Project Profile, Blueprint Level and rationale.
 3. **Blueprint Resolution** — required modules/gates/templates.

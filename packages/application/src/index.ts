@@ -306,3 +306,5 @@ export * from "./professional-review";
 export * from "./compass-acceptance";
 
 export * from "./constitutional-compliance";
+
+export * from "./constitution-authority";

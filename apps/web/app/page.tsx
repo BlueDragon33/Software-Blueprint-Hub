@@ -130,6 +130,9 @@ export default async function HomePage() {
             <Link className="secondary-button registry-action" href="/knowledge">
               Knowledge Library
             </Link>
+            <Link className="secondary-button registry-action" href="/constitution">
+              Constitution Center
+            </Link>
             <Link className="primary-button registry-action" href="/projects/new">
               New project
             </Link>

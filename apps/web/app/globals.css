@@ -5200,3 +5200,209 @@ textarea:focus-visible,
     align-items: flex-start;
   }
 }
+
+
+/* Constitution Authority Center */
+.constitution-center-page {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.25rem 0 4rem;
+}
+
+.constitution-center-breadcrumbs,
+.constitution-center-status,
+.constitution-center-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.constitution-center-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: start;
+  margin-top: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid rgba(127, 127, 127, 0.24);
+  border-radius: 1.2rem;
+  background:
+    linear-gradient(145deg, rgba(127, 127, 127, 0.08), rgba(127, 127, 127, 0.02));
+}
+
+.constitution-center-status {
+  max-width: 28rem;
+  justify-content: flex-end;
+}
+
+.constitution-center-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.constitution-center-facts article {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.22);
+  border-radius: 0.9rem;
+}
+
+.constitution-center-facts span,
+.constitution-center-facts small {
+  display: block;
+}
+
+.constitution-center-facts strong {
+  display: block;
+  margin: 0.35rem 0;
+  overflow-wrap: anywhere;
+}
+
+.constitution-center-section,
+.constitution-center-boundary {
+  margin-top: 1.25rem;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  border: 1px solid rgba(127, 127, 127, 0.22);
+  border-radius: 1rem;
+}
+
+.constitution-pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.constitution-pillar-grid article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 0.85rem;
+}
+
+.constitution-pillar-grid article > span {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+}
+
+.constitution-pillar-grid h3,
+.constitution-stage-copy h3,
+.constitution-prompt-rules h3 {
+  margin: 0;
+}
+
+.constitution-pillar-grid code,
+.constitution-pillar-grid p {
+  overflow-wrap: anywhere;
+}
+
+.constitution-stage-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.constitution-stage-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 0.9rem;
+}
+
+.constitution-stage-index {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  font-variant-numeric: tabular-nums;
+}
+
+.constitution-stage-copy > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.constitution-stage-copy p {
+  margin: 0.55rem 0 0.4rem;
+}
+
+.constitution-authority-stack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 1rem;
+  border-radius: 0.85rem;
+  background: rgba(127, 127, 127, 0.06);
+  text-align: center;
+}
+
+.constitution-prompt-rules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.8rem;
+}
+
+.constitution-prompt-rules article {
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 0.85rem;
+}
+
+.constitution-center-boundary {
+  background: rgba(127, 127, 127, 0.04);
+}
+
+.constitution-center-actions {
+  margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .constitution-center-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .constitution-center-status {
+    justify-content: flex-start;
+  }
+
+  .constitution-center-facts,
+  .constitution-prompt-rules {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .constitution-center-page {
+    width: min(100% - 1rem, 1180px);
+  }
+
+  .constitution-center-facts,
+  .constitution-pillar-grid,
+  .constitution-prompt-rules {
+    grid-template-columns: 1fr;
+  }
+
+  .constitution-stage-list li {
+    grid-template-columns: 1fr;
+  }
+
+  .constitution-stage-copy > div {
+    align-items: flex-start;
+  }
+}

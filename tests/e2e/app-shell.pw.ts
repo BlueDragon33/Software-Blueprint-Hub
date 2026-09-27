@@ -1098,3 +1098,42 @@ test("P9-020 acceptance preflight remains locked before human sign-off", async (
   });
 });
 
+
+test("Constitution Center exposes authority separation and prompt governance", async ({
+  page
+}, testInfo) => {
+  await page.goto("/constitution");
+
+  await expect(
+    page.getByRole("heading", { name: "Constitution Center" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Century-grade universal pillars" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Changing the Constitution is a gated lifecycle"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Prompts coordinate work; they do not own authority"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Human Ratification", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Production authority separate", { exact: true })
+  ).toBeVisible();
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
+  expect(overflow).toBe(false);
+
+  await page.screenshot({
+    path: `artifacts/constitution-center-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
