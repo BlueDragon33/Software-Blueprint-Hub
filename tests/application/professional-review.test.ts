@@ -8,11 +8,11 @@ import {
 describe("P9-019 Human Professional Review boundary", () => {
   it("records exact revision and screenshot artifact provenance", () => {
     expect(p9019ProfessionalReviewCandidate.reviewedRevision).toBe(
-      "6da60278e4ef03a95f137eae1902a4054de66120"
+      "c2190d1540edaf2946d866e3719cd8fa78172719"
     );
     expect(p9019ProfessionalReviewCandidate.evidenceArtifact).toMatchObject({
-      workflowRunId: 36252022005,
-      artifactId: 10908943707
+      workflowRunId: 36317309428,
+      artifactId: 10931137598
     });
     expect(p9019ProfessionalReviewCandidate.evidenceArtifact.digest).toMatch(
       /^sha256:[0-9a-f]{64}$/
@@ -31,16 +31,8 @@ describe("P9-019 Human Professional Review boundary", () => {
     );
   });
 
-  it("contains no untracked P0/P1 blocker while preserving P2 follow-ups", () => {
-    const severe = p9019ProfessionalReviewCandidate.findings.filter(
-      (item) => item.severity === "P0" || item.severity === "P1"
-    );
-    expect(severe).toEqual([]);
-    expect(
-      p9019ProfessionalReviewCandidate.findings.every(
-        (item) => item.followUp.trim().length > 0
-      )
-    ).toBe(true);
+  it("publishes the refreshed candidate with no open tracked findings", () => {
+    expect(p9019ProfessionalReviewCandidate.findings).toEqual([]);
   });
   it("fails closed on stale revision or evidence digest", () => {
     const base = {
@@ -73,17 +65,30 @@ describe("P9-019 Human Professional Review boundary", () => {
   });
 
   it("requires every tracked finding to be acknowledged before approval", () => {
+    const candidateWithFinding = Object.freeze({
+      ...p9019ProfessionalReviewCandidate,
+      reviewedRevision: "synthetic-review-candidate",
+      findings: Object.freeze([
+        Object.freeze({
+          id: "P2-SYNTHETIC",
+          severity: "P2" as const,
+          surface: "Synthetic",
+          observation: "Synthetic finding for protocol coverage.",
+          blocking: false,
+          followUp: "Acknowledge before approval."
+        })
+      ])
+    });
+
     expect(() =>
-      recordHumanProfessionalReviewDecision(p9019ProfessionalReviewCandidate, {
+      recordHumanProfessionalReviewDecision(candidateWithFinding, {
         reviewerActorId: "user:reviewer",
         source: "authenticated-user-action",
         decision: "approve",
         decidedAt: "2026-09-27T02:00:00.000Z",
         note: "Reviewed the candidate.",
-        candidateReviewedRevision:
-          p9019ProfessionalReviewCandidate.reviewedRevision,
-        candidateEvidenceDigest:
-          p9019ProfessionalReviewCandidate.evidenceArtifact.digest,
+        candidateReviewedRevision: candidateWithFinding.reviewedRevision,
+        candidateEvidenceDigest: candidateWithFinding.evidenceArtifact.digest,
         acknowledgedFindingIds: []
       })
     ).toThrow(/acknowledge finding/);
@@ -97,7 +102,7 @@ describe("P9-019 Human Professional Review boundary", () => {
         source: "authenticated-user-action",
         decision: "approve",
         decidedAt: "2026-09-27T02:00:00.000Z",
-        note: "Reviewed exact evidence and accept the tracked P2 follow-ups.",
+        note: "Reviewed exact evidence for the refreshed candidate.",
         candidateReviewedRevision:
           p9019ProfessionalReviewCandidate.reviewedRevision,
         candidateEvidenceDigest:
