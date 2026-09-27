@@ -304,3 +304,5 @@ export * from "./ecosystem-dogfood";
 export * from "./professional-review";
 
 export * from "./compass-acceptance";
+
+export * from "./constitutional-self-audit";
