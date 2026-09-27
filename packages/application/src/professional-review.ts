@@ -1,3 +1,10 @@
+import {
+  type AuthenticatedActor,
+  AuthorityService,
+  type HumanProfessionalReviewDecisionRecord,
+  type HumanProfessionalReviewDecisionRepository
+} from "@blueprint-os/core";
+
 export type ProfessionalReviewSeverity = "P0" | "P1" | "P2" | "P3";
 
 export interface ProfessionalReviewFinding {
@@ -124,6 +131,30 @@ function requireNonEmpty(value: string, label: string): string {
   return normalized;
 }
 
+const professionalReviewDecisionKinds = new Set<HumanProfessionalReviewDecisionKind>([
+  "approve",
+  "request-changes",
+  "reject"
+]);
+
+function requireDecisionKind(
+  value: HumanProfessionalReviewDecisionKind
+): HumanProfessionalReviewDecisionKind {
+  if (!professionalReviewDecisionKinds.has(value)) {
+    throw new TypeError("decision must be approve, request-changes, or reject");
+  }
+  return value;
+}
+
+function requireAcknowledgementIds(
+  value: readonly string[]
+): readonly string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+    throw new TypeError("acknowledgedFindingIds must be a string array");
+  }
+  return value;
+}
+
 function requireIsoTimestamp(value: string): string {
   const normalized = requireNonEmpty(value, "decidedAt");
   const parsed = Date.parse(normalized);
@@ -143,6 +174,10 @@ export function recordHumanProfessionalReviewDecision(
   );
   const note = requireNonEmpty(input.note, "note");
   const decidedAt = requireIsoTimestamp(input.decidedAt);
+  const decisionKind = requireDecisionKind(input.decision);
+  const acknowledgementIds = requireAcknowledgementIds(
+    input.acknowledgedFindingIds
+  );
 
   if (input.source !== "authenticated-user-action") {
     throw new TypeError(
@@ -161,7 +196,7 @@ export function recordHumanProfessionalReviewDecision(
   }
 
   const findingIds = new Set(candidate.findings.map((finding) => finding.id));
-  const acknowledgements = [...new Set(input.acknowledgedFindingIds)].sort();
+  const acknowledgements = [...new Set(acknowledgementIds)].sort();
   const unknownFinding = acknowledgements.find((id) => !findingIds.has(id));
   if (unknownFinding) {
     throw new TypeError(
@@ -178,24 +213,24 @@ export function recordHumanProfessionalReviewDecision(
     (finding) => !acknowledgements.includes(finding.id)
   );
 
-  if (input.decision === "approve" && hasBlockingSevereFinding) {
+  if (decisionKind === "approve" && hasBlockingSevereFinding) {
     throw new TypeError(
       "Human professional review cannot approve with unresolved blocking P0/P1 findings"
     );
   }
-  if (input.decision === "approve" && missingAcknowledgement) {
+  if (decisionKind === "approve" && missingAcknowledgement) {
     throw new TypeError(
       `Human professional review must acknowledge finding ${missingAcknowledgement.id} before approval`
     );
   }
 
-  const approved = input.decision === "approve";
+  const approved = decisionKind === "approve";
   return Object.freeze({
     kind: "human-professional-review-decision",
     projectId: candidate.projectId,
     reviewerActorId,
     source: input.source,
-    decision: input.decision,
+    decision: decisionKind,
     decidedAt,
     note,
     candidateReviewedRevision: input.candidateReviewedRevision,
@@ -209,8 +244,80 @@ export function recordHumanProfessionalReviewDecision(
         ? []
         : [
             "human-professional-signoff-required",
-            `human-review-decision-${input.decision}`
+            `human-review-decision-${decisionKind}`
           ]
     )
   });
+}
+
+
+export interface HumanProfessionalReviewDecisionSubmission {
+  readonly decision: HumanProfessionalReviewDecisionKind;
+  readonly note: string;
+  readonly candidateReviewedRevision: string;
+  readonly candidateEvidenceDigest: string;
+  readonly acknowledgedFindingIds: readonly string[];
+}
+
+export class HumanProfessionalReviewApplicationService {
+  constructor(
+    private readonly repository: HumanProfessionalReviewDecisionRepository,
+    private readonly authority: AuthorityService
+  ) {}
+
+  async currentDecision(
+    actor: AuthenticatedActor | null
+  ): Promise<HumanProfessionalReviewDecisionRecord | null> {
+    await this.authority.require(
+      actor,
+      p9019ProfessionalReviewCandidate.projectId,
+      "PROJECT_REVIEW"
+    );
+
+    return this.repository.findForCandidate(
+      p9019ProfessionalReviewCandidate.projectId,
+      p9019ProfessionalReviewCandidate.reviewedRevision,
+      p9019ProfessionalReviewCandidate.evidenceArtifact.digest
+    );
+  }
+
+  async record(
+    actor: AuthenticatedActor | null,
+    input: HumanProfessionalReviewDecisionSubmission,
+    decidedAt: string
+  ): Promise<RecordedHumanProfessionalReviewDecision> {
+    await this.authority.require(
+      actor,
+      p9019ProfessionalReviewCandidate.projectId,
+      "PROJECT_REVIEW"
+    );
+
+    const existing = await this.repository.findForCandidate(
+      p9019ProfessionalReviewCandidate.projectId,
+      input.candidateReviewedRevision,
+      input.candidateEvidenceDigest
+    );
+    if (existing) {
+      throw new TypeError(
+        "A human professional review decision already exists for this exact candidate."
+      );
+    }
+
+    const decision = recordHumanProfessionalReviewDecision(
+      p9019ProfessionalReviewCandidate,
+      {
+        reviewerActorId: actor!.principalId,
+        source: "authenticated-user-action",
+        decision: input.decision,
+        decidedAt,
+        note: input.note,
+        candidateReviewedRevision: input.candidateReviewedRevision,
+        candidateEvidenceDigest: input.candidateEvidenceDigest,
+        acknowledgedFindingIds: input.acknowledgedFindingIds
+      }
+    );
+
+    await this.repository.append(decision);
+    return decision;
+  }
 }

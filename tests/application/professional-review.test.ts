@@ -114,6 +114,36 @@ describe("P9-019 Human Professional Review boundary", () => {
     expect(decision.blockers).toEqual([]);
   });
 
+  it("rejects tampered decision and acknowledgement payloads at runtime", () => {
+    const base = {
+      reviewerActorId: "user:reviewer",
+      source: "authenticated-user-action" as const,
+      decidedAt: "2026-09-27T02:00:00.000Z",
+      note: "Reviewed exact evidence.",
+      candidateReviewedRevision: p9019ProfessionalReviewCandidate.reviewedRevision,
+      candidateEvidenceDigest:
+        p9019ProfessionalReviewCandidate.evidenceArtifact.digest,
+      acknowledgedFindingIds: p9019ProfessionalReviewCandidate.findings.map(
+        (finding) => finding.id
+      )
+    };
+
+    expect(() =>
+      recordHumanProfessionalReviewDecision(p9019ProfessionalReviewCandidate, {
+        ...base,
+        decision: "tampered" as never
+      })
+    ).toThrow(/decision must be/);
+
+    expect(() =>
+      recordHumanProfessionalReviewDecision(p9019ProfessionalReviewCandidate, {
+        ...base,
+        decision: "approve",
+        acknowledgedFindingIds: [123] as never
+      })
+    ).toThrow(/string array/);
+  });
+
   it("keeps request-changes blocked and does not manufacture sign-off", () => {
     const decision = recordHumanProfessionalReviewDecision(
       p9019ProfessionalReviewCandidate,

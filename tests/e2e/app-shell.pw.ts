@@ -903,3 +903,62 @@ test("P9-016 adaptive audit covers current workspace without overflow and honors
     fullPage: true
   });
 });
+
+test("P9-019 exposes an explicit human review surface without automated sign-off", async ({
+  page
+}, testInfo) => {
+  await page.goto("/professional-review");
+  await expect(
+    page.getByRole("heading", {
+      name: "Sign in to review the exact candidate."
+    })
+  ).toBeVisible();
+
+  await authenticateRegistryOwner(page);
+  await page.goto("/compass");
+
+  const reviewLink = page.getByRole("link", { name: "Open P9-019 review" });
+  await expect(reviewLink).toHaveAttribute("href", "/professional-review");
+  await reviewLink.click();
+
+  await expect(
+    page.getByRole("heading", { name: "Human Professional Review" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Human sign-off required", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Production not authorized", { exact: true })
+  ).toBeVisible();
+
+  const approve = page.getByRole("button", { name: "Approve P9-019" });
+  await expect(approve).toBeDisabled();
+
+  const acknowledgements = page.getByRole("group", {
+    name: "Finding acknowledgements"
+  }).getByRole("checkbox");
+  await expect(acknowledgements).toHaveCount(2);
+
+  await acknowledgements.nth(0).check();
+  await expect(approve).toBeDisabled();
+  await acknowledgements.nth(1).check();
+  await expect(approve).toBeDisabled();
+
+  await page.getByLabel("Decision note").fill(
+    "Human reviewer note is required before approval can be submitted."
+  );
+  await expect(approve).toBeEnabled();
+
+  await expect(
+    page.getByText(
+      "Even an approval only allows transition to P9-020. It never authorizes Production deployment.",
+      { exact: true }
+    )
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p9-019-human-review-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+

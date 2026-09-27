@@ -1,6 +1,7 @@
 import {
   foundationBlueprintTemplatesV1,
   GovernanceApplicationService,
+  HumanProfessionalReviewApplicationService,
   KnowledgeLibraryApplicationService,
   ProjectProfileApplicationService,
   ProjectReadinessApplicationService,
@@ -15,6 +16,7 @@ import {
   createPrismaClient,
   PostgresAuthorityRepository,
   PostgresGovernanceRepository,
+  PostgresHumanProfessionalReviewDecisionRepository,
   PostgresProjectProfileRepository,
   PostgresPromptProjectionHistoryRepository,
   PostgresReleaseRepository,
@@ -33,6 +35,7 @@ export interface BlueprintServerRuntime {
   readonly releases: ReleaseLessonsApplicationService;
   readonly workQuality: WorkQualityApplicationService;
   readonly prompts: PromptProjectionApplicationService;
+  readonly professionalReview: HumanProfessionalReviewApplicationService;
 }
 
 export function createBlueprintServerRuntime(
@@ -51,6 +54,8 @@ export function createBlueprintServerRuntime(
   const releaseRepository = new PostgresReleaseRepository(prisma);
   const promptHistoryRepository =
     new PostgresPromptProjectionHistoryRepository(prisma);
+  const professionalReviewRepository =
+    new PostgresHumanProfessionalReviewDecisionRepository(prisma);
   const templates = new StaticTemplateCatalog(foundationBlueprintTemplatesV1);
   const profiles = new ProjectProfileApplicationService(
     profileRepository,
@@ -87,6 +92,10 @@ export function createBlueprintServerRuntime(
     undefined,
     promptHistoryRepository
   );
+  const professionalReview = new HumanProfessionalReviewApplicationService(
+    professionalReviewRepository,
+    authority
+  );
 
   return Object.freeze({
     prisma,
@@ -98,7 +107,8 @@ export function createBlueprintServerRuntime(
     knowledge,
     releases,
     workQuality,
-    prompts
+    prompts,
+    professionalReview
   });
 }
 

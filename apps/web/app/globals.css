@@ -4414,3 +4414,319 @@ textarea:focus-visible,
     grid-template-columns: 1fr;
   }
 }
+
+/* P9-019 — Explicit human professional review */
+.system-compass-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+
+.professional-review-page {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 4rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.professional-review-breadcrumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: #6b7488;
+  font-size: 0.9rem;
+}
+
+.professional-review-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(58, 78, 138, 0.14);
+  border-radius: 1.3rem;
+  background: #ffffff;
+  box-shadow: 0 0.8rem 2.2rem rgba(39, 53, 93, 0.07);
+}
+
+.professional-review-header h1,
+.professional-review-findings h2,
+.professional-review-decision h2,
+.professional-review-boundary-card h2,
+.professional-review-state h1 {
+  margin: 0;
+  color: #24324d;
+}
+
+.professional-review-header > div:first-child {
+  display: grid;
+  gap: 0.45rem;
+  max-width: 50rem;
+}
+
+.professional-review-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.professional-review-evidence {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.professional-review-evidence > div,
+.professional-review-findings,
+.professional-review-decision,
+.professional-review-boundary-card,
+.professional-review-state {
+  border: 1px solid rgba(58, 78, 138, 0.14);
+  border-radius: 1.15rem;
+  background: #ffffff;
+  box-shadow: 0 0.6rem 1.8rem rgba(39, 53, 93, 0.06);
+}
+
+.professional-review-evidence > div {
+  min-width: 0;
+  padding: 1rem 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.professional-review-evidence span,
+.professional-review-receipt-grid dt {
+  color: #788198;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.professional-review-evidence code,
+.professional-review-evidence strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #2f3d5c;
+}
+
+.professional-review-findings,
+.professional-review-decision,
+.professional-review-boundary-card,
+.professional-review-state {
+  padding: 1.25rem;
+}
+
+.professional-review-finding-list {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.professional-review-finding-list article {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem;
+  border: 1px solid rgba(58, 78, 138, 0.12);
+  border-radius: 1rem;
+  background: rgba(247, 249, 255, 0.72);
+}
+
+.professional-review-finding-list article > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.professional-review-finding-list h3,
+.professional-review-finding-list p,
+.professional-review-finding-list small,
+.professional-review-decision p,
+.professional-review-boundary-card p,
+.professional-review-state p {
+  margin: 0;
+}
+
+.professional-review-finding-list p,
+.professional-review-decision > div > p:last-child,
+.professional-review-boundary-card p,
+.professional-review-state p {
+  color: #657086;
+  line-height: 1.55;
+}
+
+.professional-review-finding-list small {
+  color: #788198;
+  line-height: 1.45;
+}
+
+.professional-review-decision {
+  display: grid;
+  gap: 1rem;
+}
+
+.professional-review-decision > div:first-child {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.professional-review-acknowledgements {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid rgba(58, 78, 138, 0.14);
+  border-radius: 1rem;
+}
+
+.professional-review-acknowledgements legend {
+  padding: 0 0.35rem;
+  color: #34425e;
+  font-weight: 800;
+}
+
+.professional-review-acknowledgements label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.75rem;
+  border-radius: 0.8rem;
+  background: rgba(247, 249, 255, 0.78);
+  cursor: pointer;
+}
+
+.professional-review-acknowledgements input {
+  margin-top: 0.2rem;
+}
+
+.professional-review-acknowledgements span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.professional-review-acknowledgements small {
+  color: #788198;
+}
+
+.professional-review-note {
+  display: grid;
+  gap: 0.45rem;
+  color: #34425e;
+  font-weight: 800;
+}
+
+.professional-review-note textarea {
+  width: 100%;
+  resize: vertical;
+  box-sizing: border-box;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(58, 78, 138, 0.22);
+  border-radius: 0.9rem;
+  background: #ffffff;
+  color: #24324d;
+  font: inherit;
+  line-height: 1.5;
+}
+
+.professional-review-note textarea:focus-visible {
+  outline: 3px solid rgba(57, 92, 190, 0.2);
+  outline-offset: 2px;
+  border-color: rgba(57, 92, 190, 0.65);
+}
+
+.professional-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.professional-review-message {
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.8rem;
+  background: rgba(241, 245, 255, 0.9);
+  color: #34425e;
+}
+
+.professional-review-boundary {
+  color: #788198;
+  font-size: 0.9rem;
+}
+
+.professional-review-receipt-grid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.professional-review-receipt-grid > div {
+  padding: 0.85rem;
+  border-radius: 0.85rem;
+  background: rgba(247, 249, 255, 0.82);
+}
+
+.professional-review-receipt-grid dd {
+  margin: 0.3rem 0 0;
+  color: #2f3d5c;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.professional-review-blockers {
+  display: grid;
+  gap: 0.4rem;
+  color: #5a3c2a;
+}
+
+.professional-review-blockers ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.professional-review-state {
+  display: grid;
+  gap: 0.8rem;
+  justify-items: start;
+}
+
+@media (max-width: 760px) {
+  .professional-review-page {
+    width: min(100% - 1rem, 1180px);
+    padding-top: 0.75rem;
+  }
+
+  .professional-review-header,
+  .workspace-section-heading {
+    align-items: stretch;
+  }
+
+  .professional-review-header {
+    display: grid;
+  }
+
+  .professional-review-statuses,
+  .system-compass-footer-actions {
+    justify-content: flex-start;
+  }
+
+  .professional-review-evidence,
+  .professional-review-finding-list,
+  .professional-review-receipt-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .professional-review-actions {
+    display: grid;
+  }
+
+  .professional-review-actions button {
+    width: 100%;
+  }
+}
+
