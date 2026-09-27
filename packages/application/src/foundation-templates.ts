@@ -25,7 +25,7 @@ export const foundationBlueprintTemplatesV1: readonly BlueprintTemplate[] =
     {
       schemaVersion: "1.0.0",
       id: "template:constitution:universal-v1",
-      version: "1.0.0",
+      version: "1.1.0",
       authorityLayer: "constitution",
       requirements: [
         {
@@ -92,6 +92,75 @@ export const foundationBlueprintTemplatesV1: readonly BlueprintTemplate[] =
           description: "Define ADR, compatibility, deprecation, and debt policy."
         },
         {
+          id: "module:architecture:structural-capacity",
+          kind: "module",
+          depth: "standard",
+          tags: ["architecture", "capacity", "longevity"],
+          dependsOn: ["module:architecture:boundaries"],
+          description:
+            "Preserve a credible future-scale path without speculative overbuilding or irreversible coupling."
+        },
+        {
+          id: "module:governance:architectural-longevity",
+          kind: "module",
+          depth: "standard",
+          tags: ["governance", "compatibility", "longevity"],
+          dependsOn: [
+            "module:architecture:boundaries",
+            "module:governance:evolution"
+          ],
+          description:
+            "Keep domain meaning portable across framework, provider, UI-library and AI-vendor evolution."
+        },
+        {
+          id: "module:ux:product-elegance",
+          kind: "module",
+          depth: "standard",
+          tags: ["ux", "design-system", "longevity"],
+          dependsOn: ["module:ux:information-architecture"],
+          description:
+            "Define a calm, coherent and deliberately responsive visual system designed to age gracefully."
+        },
+        {
+          id: "module:ux:premium-usability",
+          kind: "module",
+          depth: "standard",
+          tags: ["ux", "product-quality"],
+          dependsOn: [
+            "module:product:purpose",
+            "module:ux:information-architecture"
+          ],
+          description:
+            "Make critical journeys efficient, comprehensible and commercially credible at realistic data sizes."
+        },
+        {
+          id: "module:maintenance:long-term-durability",
+          kind: "module",
+          depth: "standard",
+          tags: ["maintenance", "compatibility", "quality", "longevity"],
+          dependsOn: [
+            "module:architecture:boundaries",
+            "module:data:source-of-truth",
+            "module:quality:evidence",
+            "module:operations:release"
+          ],
+          description:
+            "Protect against dependency, schema, migration, browser/device, provider and UI-regression ageing."
+        },
+        {
+          id: "module:security:fortress-resilience",
+          kind: "module",
+          depth: "standard",
+          tags: ["security", "resilience", "recovery"],
+          dependsOn: [
+            "module:security:authority",
+            "module:data:source-of-truth",
+            "module:operations:release"
+          ],
+          description:
+            "Apply defense in depth, least privilege, blast-radius containment, protected canonical state and tested recovery."
+        },
+        {
           id: "gate:quality:evidence",
           kind: "gate",
           depth: "standard",
@@ -114,6 +183,45 @@ export const foundationBlueprintTemplatesV1: readonly BlueprintTemplate[] =
           tags: ["ux"],
           dependsOn: ["module:ux:information-architecture"],
           description: "Critical user journeys require human UX acceptance."
+        },
+        {
+          id: "gate:architecture:future-scale",
+          kind: "gate",
+          depth: "standard",
+          tags: ["architecture", "capacity", "longevity"],
+          dependsOn: ["module:architecture:structural-capacity"],
+          description:
+            "PASS requires evidence that present implementation does not needlessly block justified future scale."
+        },
+        {
+          id: "gate:ux:commercial-quality",
+          kind: "gate",
+          depth: "standard",
+          tags: ["ux", "product-quality"],
+          dependsOn: [
+            "module:ux:product-elegance",
+            "module:ux:premium-usability"
+          ],
+          description:
+            "PASS requires coherent visual quality and efficient realistic user journeys, not merely functional UI."
+        },
+        {
+          id: "gate:durability:ageing-regression",
+          kind: "gate",
+          depth: "standard",
+          tags: ["maintenance", "quality", "longevity"],
+          dependsOn: ["module:maintenance:long-term-durability"],
+          description:
+            "PASS requires regression evidence appropriate to expected lifetime, upgrade risk and compatibility surface."
+        },
+        {
+          id: "gate:security:resilience-containment",
+          kind: "gate",
+          depth: "standard",
+          tags: ["security", "resilience", "recovery"],
+          dependsOn: ["module:security:fortress-resilience"],
+          description:
+            "PASS requires bounded authority, containment and recoverability evidence appropriate to consequence."
         }
       ]
     },
