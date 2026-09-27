@@ -53,6 +53,10 @@ export default async function CompassAcceptancePage() {
             System Compass
           </Link>
           <span aria-hidden="true">/</span>
+          <Link className="text-link" href="/compass/constitution">
+            Constitution Self-Audit
+          </Link>
+          <span aria-hidden="true">/</span>
           <span>P9-020 Acceptance</span>
         </div>
 
