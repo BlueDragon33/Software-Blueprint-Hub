@@ -5,3 +5,4 @@ export * from "./work-quality-repository";
 export * from "./governance-repository";
 export * from "./release-repository";
 export * from "./prompt-history-repository";
+export * from "./professional-review-repository";
