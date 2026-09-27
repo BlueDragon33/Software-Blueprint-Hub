@@ -4,6 +4,7 @@ import {
   p9019ProfessionalReviewCandidate,
   type HumanProfessionalReviewCandidate
 } from "./professional-review";
+import type { ConstitutionalComplianceAudit } from "./constitutional-compliance";
 
 export type CompassAcceptanceCriterionState =
   | "pass"
@@ -42,9 +43,11 @@ function criterion(
 export function buildCompassAcceptancePreflight(input?: {
   readonly reviewCandidate?: HumanProfessionalReviewCandidate;
   readonly reviewDecision?: HumanProfessionalReviewDecisionRecord | null;
+  readonly constitutionAudit?: ConstitutionalComplianceAudit | null;
 }): CompassAcceptancePreflight {
   const candidate = input?.reviewCandidate ?? p9019ProfessionalReviewCandidate;
   const decision = input?.reviewDecision ?? null;
+  const constitutionAudit = input?.constitutionAudit ?? null;
 
   const exactDecision =
     decision !== null &&
@@ -64,7 +67,16 @@ export function buildCompassAcceptancePreflight(input?: {
       (finding.severity === "P0" || finding.severity === "P1")
   );
 
+  const constitutionCompliant =
+    constitutionAudit?.projectId === candidate.projectId &&
+    constitutionAudit.state === "compliant" &&
+    constitutionAudit.productionReleaseAuthority === false &&
+    constitutionAudit.exactReleaseRevisionCertified === false;
+
   const blockers: string[] = [];
+  if (!constitutionCompliant) {
+    blockers.push("universal-constitution-non-compliant");
+  }
   if (!humanApproval) {
     blockers.push("p9-019-human-signoff-required");
   }
@@ -72,7 +84,8 @@ export function buildCompassAcceptancePreflight(input?: {
     blockers.push("unresolved-p0-p1-finding");
   }
 
-  const unlocked = humanApproval && !blockingSevereFinding;
+  const unlocked =
+    constitutionCompliant && humanApproval && !blockingSevereFinding;
 
   return Object.freeze({
     kind: "compass-acceptance-preflight",
@@ -80,6 +93,14 @@ export function buildCompassAcceptancePreflight(input?: {
     workPackageId: "P9-020",
     state: unlocked ? "ready-for-final-evidence" : "locked",
     criteria: Object.freeze([
+      criterion(
+        "universal-constitution",
+        "Universal Constitution compliance",
+        constitutionCompliant ? "pass" : "blocked",
+        constitutionCompliant
+          ? "All Universal Constitution gates are canonically present, PASS and evidence-backed. Exact final release revision certification remains separate."
+          : "Blueprint OS has not yet proved canonical PASS evidence for every Universal Constitution gate."
+      ),
       criterion(
         "lower-dependencies",
         "All lower dependencies complete",
