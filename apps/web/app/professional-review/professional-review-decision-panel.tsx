@@ -143,23 +143,33 @@ export function ProfessionalReviewDecisionPanel({
         </p>
       </div>
 
-      <fieldset className="professional-review-acknowledgements">
-        <legend>Finding acknowledgements</legend>
-        {candidate.findings.map((finding) => (
-          <label key={finding.id}>
-            <input
-              type="checkbox"
-              checked={acknowledged.includes(finding.id)}
-              onChange={() => toggleFinding(finding.id)}
-              disabled={isPending}
-            />
-            <span>
-              <strong>{finding.id}</strong>
-              <small>{finding.surface}</small>
-            </span>
-          </label>
-        ))}
-      </fieldset>
+      {candidate.findings.length ? (
+        <fieldset className="professional-review-acknowledgements">
+          <legend>Finding acknowledgements</legend>
+          {candidate.findings.map((finding) => (
+            <label key={finding.id}>
+              <input
+                type="checkbox"
+                checked={acknowledged.includes(finding.id)}
+                onChange={() => toggleFinding(finding.id)}
+                disabled={isPending}
+              />
+              <span>
+                <strong>{finding.id}</strong>
+                <small>{finding.surface}</small>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+      ) : (
+        <div className="professional-review-acknowledgements-clear">
+          <strong>No finding acknowledgement is required.</strong>
+          <span>
+            The refreshed candidate has no open tracked findings. Review the
+            exact evidence and record a decision note before approving.
+          </span>
+        </div>
+      )}
 
       <label className="professional-review-note">
         <span>Decision note</span>

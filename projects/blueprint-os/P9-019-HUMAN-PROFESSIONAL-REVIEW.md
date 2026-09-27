@@ -4,10 +4,10 @@ Status: **REVIEW CANDIDATE — HUMAN SIGN-OFF REQUIRED**
 
 ## Evidence reviewed
 
-- exact application revision: `6da60278e4ef03a95f137eae1902a4054de66120`;
-- full Release Gate run: `36252022005` — PASS;
-- screenshot artifact: `10908943707`;
-- artifact digest: `sha256:44c493d1373e4e27edef26ce6fae11465b7a0dc8adf1af2d85c77fdcf3d5aa7d`;
+- exact application revision: `c2190d1540edaf2946d866e3719cd8fa78172719`;
+- full Release Gate run: `36317309428` — PASS;
+- screenshot artifact: `10931137598`;
+- artifact digest: `sha256:603a9fc0b91bfa29d99fc8c1aa2b65c72ade18c87d657050f1343b4ff8fcc9e4`;
 - desktop, tablet/iPad-class and mobile evidence inspected;
 - representative surfaces reviewed: Projects/Compass, canonical workspace, Quality, Portfolio, Data Lifecycle, Prompt, Knowledge/Reference Case, Releases/Lessons.
 
@@ -15,19 +15,23 @@ Status: **REVIEW CANDIDATE — HUMAN SIGN-OFF REQUIRED**
 
 ### Blocking defects
 
-No P0/P1 defect was observed in the captured evidence.
+No P0/P1 defect was observed in the refreshed captured evidence.
 
-### P2 — Quality mobile evidence length
+### Remediated — Quality mobile evidence length
 
-The Quality surface remains readable and does not overflow horizontally, but evidence-heavy projects can create a long vertical scan on mobile.
+The prior P2 mobile scan finding was addressed with a searchable, status-filterable Quality Gate register. The existing progressive-disclosure evidence register remains intact, while the user can now reduce a large gate set without losing canonical status or provenance.
 
-This does not block the gate. Preserve progressive disclosure and add filtering/collapsing only when real evidence volume justifies it.
+Release Gate E2E verifies search by evidence revision and filtering by gate status.
 
-### P2 — Data Lifecycle sparse tablet state
+### Remediated — Data Lifecycle sparse tablet state
 
-A project without a checked-in lifecycle policy correctly refuses to inherit policy from another project. The tablet empty state is therefore semantically correct, but visually sparse.
+The prior P2 sparse tablet finding was addressed with project-scoped setup guidance for projects that do not yet have a checked-in lifecycle policy.
 
-This does not block the gate. A future improvement may add contextual setup guidance without creating policy authority.
+The guidance explains record-kind selection, retention/archive definition and destructive-action blockers while explicitly creating no policy, executing no destructive action and granting no Production authority.
+
+### Current candidate finding state
+
+No tracked P0/P1/P2 finding remains open in the refreshed review candidate. Human professional sign-off is still required; remediation and automated evidence do not self-approve P9-019.
 
 ## Boundary
 
@@ -62,8 +66,8 @@ The surface:
 - shows the exact candidate revision, Release Gate run, artifact ID and digest;
 - links directly to the exact GitHub Actions run and screenshot artifact;
 - lists the reviewed desktop/tablet/mobile viewports and the exact product surfaces covered by the evidence;
-- keeps every tracked finding visible;
-- requires explicit acknowledgement of every finding before approval;
+- keeps every currently tracked finding visible;
+- requires explicit acknowledgement of every tracked finding before approval, and shows a clear no-acknowledgement state when the refreshed candidate has no open findings;
 - obtains reviewer identity from the authenticated server session;
 - generates the decision timestamp on the server;
 - persists one append-only decision for the exact candidate in PostgreSQL;

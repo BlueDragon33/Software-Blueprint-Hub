@@ -190,29 +190,36 @@ export default async function ProfessionalReviewPage() {
             <div>
               <p className="section-kicker">Tracked findings</p>
               <h2 id="professional-review-findings-title">
-                No P0/P1 blocker is recorded
+                No open P0/P1/P2 finding is recorded
               </h2>
               <p>
-                P2 findings remain visible and must be explicitly acknowledged
-                before approval.
+                The two prior P2 UX observations were remediated before this
+                refreshed review candidate. Human sign-off is still required
+                against the exact evidence above.
               </p>
             </div>
-            <StatusChip tone="info">{candidate.findings.length} P2 findings</StatusChip>
+            <StatusChip tone="success">No open findings</StatusChip>
           </div>
 
-          <div className="professional-review-finding-list">
-            {candidate.findings.map((finding) => (
-              <article key={finding.id}>
-                <div>
-                  <StatusChip tone="info">{finding.severity}</StatusChip>
-                  <span>{finding.surface}</span>
-                </div>
-                <h3>{finding.id}</h3>
-                <p>{finding.observation}</p>
-                <small>{finding.followUp}</small>
-              </article>
-            ))}
-          </div>
+          {candidate.findings.length ? (
+            <div className="professional-review-finding-list">
+              {candidate.findings.map((finding) => (
+                <article key={finding.id}>
+                  <div>
+                    <StatusChip tone="info">{finding.severity}</StatusChip>
+                    <span>{finding.surface}</span>
+                  </div>
+                  <h3>{finding.id}</h3>
+                  <p>{finding.observation}</p>
+                  <small>{finding.followUp}</small>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="workspace-empty-inline professional-review-no-findings">
+              No tracked finding remains open in this candidate.
+            </div>
+          )}
         </section>
 
         <ProfessionalReviewDecisionPanel

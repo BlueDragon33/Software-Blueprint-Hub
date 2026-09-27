@@ -37,10 +37,50 @@ export default async function DataLifecyclePage({ params }: DataLifecyclePagePro
       </section>
 
       {!policy ? (
-        <div className="workspace-empty-inline">
-          No checked-in lifecycle policy exists for this project. Blueprint OS does not
-          inherit retention/deletion rules from another project.
-        </div>
+        <section
+          className="lifecycle-setup-guidance"
+          aria-labelledby="lifecycle-setup-title"
+        >
+          <div>
+            <p className="section-kicker">Project-scoped setup guidance</p>
+            <h3 id="lifecycle-setup-title">No lifecycle policy is checked in yet</h3>
+            <p>
+              Blueprint OS correctly refuses to inherit retention or deletion
+              rules from another project. Define this project's own policy before
+              lifecycle actions can be evaluated.
+            </p>
+          </div>
+          <ol className="lifecycle-setup-steps">
+            <li>
+              <strong>Choose record kinds</strong>
+              <span>
+                Identify which project records require explicit retention,
+                archive, migration and deletion semantics.
+              </span>
+            </li>
+            <li>
+              <strong>Define retention and archive rules</strong>
+              <span>
+                Set project-specific minimum retention and archive thresholds;
+                do not copy another project's policy by default.
+              </span>
+            </li>
+            <li>
+              <strong>Review destructive-action blockers</strong>
+              <span>
+                Preserve export-before-delete, legal-hold and release-evidence
+                constraints before any future mutation path is introduced.
+              </span>
+            </li>
+          </ol>
+          <div className="evidence-graph-boundary lifecycle-setup-boundary">
+            <strong>Authority boundary</strong>
+            <p>
+              This guidance creates no lifecycle policy, performs no destructive
+              action and grants no Production authority.
+            </p>
+          </div>
+        </section>
       ) : (
         <>
           <section className="workspace-fact-grid" aria-label="Lifecycle policy summary">

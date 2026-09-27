@@ -636,6 +636,27 @@ test("P7-002 disclosures preserve critical truth and are keyboard operable", asy
     page.getByText("revision-p6-beta-quality", { exact: true }).first()
   ).toBeVisible();
 
+  const qualityFilter = page.getByLabel("Search gates or evidence");
+  await expect(qualityFilter).toBeVisible();
+  await qualityFilter.fill("revision-p6-beta-security");
+  await expect(page.locator(".workspace-quality-card")).toHaveCount(1);
+  await expect(
+    page.locator(".workspace-quality-card", {
+      hasText: "gate:security:authority"
+    })
+  ).toBeVisible();
+  await qualityFilter.fill("");
+
+  const qualityStatusFilter = page.getByLabel("Status");
+  await qualityStatusFilter.selectOption("candidate");
+  await expect(page.locator(".workspace-quality-card")).toHaveCount(1);
+  await expect(
+    page.locator(".workspace-quality-card", {
+      hasText: "gate:quality:evidence"
+    })
+  ).toBeVisible();
+  await qualityStatusFilter.selectOption("all");
+
   const qualityGateCard = page.locator(".workspace-quality-card", {
     hasText: "gate:quality:evidence"
   });
@@ -887,6 +908,25 @@ test("P9-016 adaptive audit covers current workspace without overflow and honors
   await lifecycle.focus();
   await expect(lifecycle).toBeFocused();
 
+  await expect(
+    page.getByRole("heading", { name: "No lifecycle policy is checked in yet" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Choose record kinds", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Define retention and archive rules", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Review destructive-action blockers", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "This guidance creates no lifecycle policy, performs no destructive action and grants no Production authority.",
+      { exact: true }
+    )
+  ).toBeVisible();
+
   if (testInfo.project.name !== "desktop-chromium") {
     const visible = await lifecycle.evaluate((element) => {
       const shell = element.closest(".project-workspace-nav-shell");
@@ -935,13 +975,13 @@ test("P9-019 exposes an explicit human review surface without automated sign-off
     page.getByRole("link", { name: "Open Release Gate run" })
   ).toHaveAttribute(
     "href",
-    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/36252022005"
+    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/36317309428"
   );
   await expect(
     page.getByRole("link", { name: "Open screenshot artifact" })
   ).toHaveAttribute(
     "href",
-    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/36252022005/artifacts/10908943707"
+    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/36317309428/artifacts/10931137598"
   );
 
   const reviewedScope = page.getByRole("region", {
@@ -962,14 +1002,21 @@ test("P9-019 exposes an explicit human review surface without automated sign-off
   const approve = page.getByRole("button", { name: "Approve P9-019" });
   await expect(approve).toBeDisabled();
 
-  const acknowledgements = page.getByRole("group", {
-    name: "Finding acknowledgements"
-  }).getByRole("checkbox");
-  await expect(acknowledgements).toHaveCount(2);
+  await expect(
+    page.getByText("No open findings", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("No tracked finding remains open in this candidate.", {
+      exact: true
+    })
+  ).toBeVisible();
 
-  await acknowledgements.nth(0).check();
-  await expect(approve).toBeDisabled();
-  await acknowledgements.nth(1).check();
+  await expect(
+    page.getByText("No finding acknowledgement is required.", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("group", { name: "Finding acknowledgements" })
+  ).toHaveCount(0);
   await expect(approve).toBeDisabled();
 
   await page.getByLabel("Decision note").fill(
