@@ -146,7 +146,20 @@ export function SystemCompass({
 
       <footer className="system-compass-footer">
         <p>{projection.truthNote}</p>
-        {compact ? <Link className="secondary-button" href="/compass">Open full Compass</Link> : <Link className="secondary-button" href="/">Back to Projects</Link>}
+        {compact ? (
+          <Link className="secondary-button" href="/compass">
+            Open full Compass
+          </Link>
+        ) : (
+          <div className="system-compass-footer-actions">
+            <Link className="primary-button" href="/professional-review">
+              Open P9-019 review
+            </Link>
+            <Link className="secondary-button" href="/">
+              Back to Projects
+            </Link>
+          </div>
+        )}
       </footer>
     </section>
   );
