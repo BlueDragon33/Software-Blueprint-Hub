@@ -131,6 +131,30 @@ function requireNonEmpty(value: string, label: string): string {
   return normalized;
 }
 
+const professionalReviewDecisionKinds = new Set<HumanProfessionalReviewDecisionKind>([
+  "approve",
+  "request-changes",
+  "reject"
+]);
+
+function requireDecisionKind(
+  value: HumanProfessionalReviewDecisionKind
+): HumanProfessionalReviewDecisionKind {
+  if (!professionalReviewDecisionKinds.has(value)) {
+    throw new TypeError("decision must be approve, request-changes, or reject");
+  }
+  return value;
+}
+
+function requireAcknowledgementIds(
+  value: readonly string[]
+): readonly string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) {
+    throw new TypeError("acknowledgedFindingIds must be a string array");
+  }
+  return value;
+}
+
 function requireIsoTimestamp(value: string): string {
   const normalized = requireNonEmpty(value, "decidedAt");
   const parsed = Date.parse(normalized);
@@ -150,6 +174,10 @@ export function recordHumanProfessionalReviewDecision(
   );
   const note = requireNonEmpty(input.note, "note");
   const decidedAt = requireIsoTimestamp(input.decidedAt);
+  const decisionKind = requireDecisionKind(input.decision);
+  const acknowledgementIds = requireAcknowledgementIds(
+    input.acknowledgedFindingIds
+  );
 
   if (input.source !== "authenticated-user-action") {
     throw new TypeError(
@@ -168,7 +196,7 @@ export function recordHumanProfessionalReviewDecision(
   }
 
   const findingIds = new Set(candidate.findings.map((finding) => finding.id));
-  const acknowledgements = [...new Set(input.acknowledgedFindingIds)].sort();
+  const acknowledgements = [...new Set(acknowledgementIds)].sort();
   const unknownFinding = acknowledgements.find((id) => !findingIds.has(id));
   if (unknownFinding) {
     throw new TypeError(
@@ -185,24 +213,24 @@ export function recordHumanProfessionalReviewDecision(
     (finding) => !acknowledgements.includes(finding.id)
   );
 
-  if (input.decision === "approve" && hasBlockingSevereFinding) {
+  if (decisionKind === "approve" && hasBlockingSevereFinding) {
     throw new TypeError(
       "Human professional review cannot approve with unresolved blocking P0/P1 findings"
     );
   }
-  if (input.decision === "approve" && missingAcknowledgement) {
+  if (decisionKind === "approve" && missingAcknowledgement) {
     throw new TypeError(
       `Human professional review must acknowledge finding ${missingAcknowledgement.id} before approval`
     );
   }
 
-  const approved = input.decision === "approve";
+  const approved = decisionKind === "approve";
   return Object.freeze({
     kind: "human-professional-review-decision",
     projectId: candidate.projectId,
     reviewerActorId,
     source: input.source,
-    decision: input.decision,
+    decision: decisionKind,
     decidedAt,
     note,
     candidateReviewedRevision: input.candidateReviewedRevision,
@@ -216,7 +244,7 @@ export function recordHumanProfessionalReviewDecision(
         ? []
         : [
             "human-professional-signoff-required",
-            `human-review-decision-${input.decision}`
+            `human-review-decision-${decisionKind}`
           ]
     )
   });
