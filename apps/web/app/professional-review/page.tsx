@@ -75,6 +75,11 @@ export default async function ProfessionalReviewPage() {
   }
 
   const candidate = p9019ProfessionalReviewCandidate;
+  const releaseGateUrl =
+    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/" +
+    candidate.evidenceArtifact.workflowRunId;
+  const artifactUrl =
+    releaseGateUrl + "/artifacts/" + candidate.evidenceArtifact.artifactId;
 
   return (
     <AppShell>
@@ -122,6 +127,61 @@ export default async function ProfessionalReviewPage() {
           <div>
             <span>Evidence digest</span>
             <code>{candidate.evidenceArtifact.digest}</code>
+          </div>
+          <div className="professional-review-evidence-actions">
+            <a
+              className="secondary-button"
+              href={releaseGateUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open Release Gate run
+            </a>
+            <a
+              className="secondary-button"
+              href={artifactUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open screenshot artifact
+            </a>
+          </div>
+        </section>
+
+        <section
+          className="professional-review-scope"
+          aria-labelledby="professional-review-scope-title"
+        >
+          <div className="workspace-section-heading">
+            <div>
+              <p className="section-kicker">Reviewed scope</p>
+              <h2 id="professional-review-scope-title">
+                What the evidence actually covers
+              </h2>
+              <p>
+                Use this scope together with the exact run and screenshots
+                before recording a human decision.
+              </p>
+            </div>
+          </div>
+
+          <div className="professional-review-scope-grid">
+            <div>
+              <strong>Viewports</strong>
+              <ul>
+                {candidate.reviewedViewports.map((viewport) => (
+                  <li key={viewport}>{viewport}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <strong>Product surfaces</strong>
+              <ul>
+                {candidate.reviewedSurfaces.map((surface) => (
+                  <li key={surface}>{surface}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         </section>
 
