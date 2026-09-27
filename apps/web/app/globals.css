@@ -5119,3 +5119,84 @@ textarea:focus-visible,
   }
 }
 
+
+
+/* Phase 9 — Universal Constitution self-audit */
+.compass-constitution-audit {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--border-subtle, rgba(127, 127, 127, 0.28));
+  border-radius: 1rem;
+  background: var(--surface-raised, rgba(127, 127, 127, 0.04));
+}
+
+.compass-constitution-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.compass-constitution-grid article {
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--border-subtle, rgba(127, 127, 127, 0.24));
+  border-radius: 0.85rem;
+  background: var(--surface, transparent);
+}
+
+.compass-constitution-grid article > div,
+.compass-constitution-gates > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.compass-constitution-grid p {
+  margin: 0.65rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.compass-constitution-gates {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.compass-constitution-gates > div {
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.7rem;
+  background: var(--surface, rgba(127, 127, 127, 0.05));
+}
+
+.compass-constitution-gates code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.compass-constitution-blockers {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border-subtle, rgba(127, 127, 127, 0.28));
+  border-radius: 0.8rem;
+}
+
+.compass-constitution-blockers ul {
+  margin: 0.65rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.compass-constitution-blockers li {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .compass-constitution-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compass-constitution-grid article > div,
+  .compass-constitution-gates > div {
+    align-items: flex-start;
+  }
+}
