@@ -11,6 +11,7 @@ export * from "./project-readiness";
 export * from "./governance";
 export * from "./release";
 export * from "./prompt-history";
+export * from "./professional-review";
 
 export interface RegisteredProject {
   readonly id: ProjectId;
