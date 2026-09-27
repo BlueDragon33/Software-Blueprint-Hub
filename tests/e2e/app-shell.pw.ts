@@ -1011,10 +1011,12 @@ test("P9-019 exposes an explicit human review surface without automated sign-off
     })
   ).toBeVisible();
 
-  const acknowledgements = page.getByRole("group", {
-    name: "Finding acknowledgements"
-  }).getByRole("checkbox");
-  await expect(acknowledgements).toHaveCount(0);
+  await expect(
+    page.getByText("No finding acknowledgement is required.", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("group", { name: "Finding acknowledgements" })
+  ).toHaveCount(0);
   await expect(approve).toBeDisabled();
 
   await page.getByLabel("Decision note").fill(
