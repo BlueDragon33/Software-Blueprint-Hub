@@ -78,7 +78,7 @@ describePostgres("P9-019 professional review PostgreSQL + authority integration"
       reviewer,
       {
         decision: "approve",
-        note: "Reviewed the exact candidate and acknowledge both P2 follow-ups.",
+        note: "Reviewed the exact refreshed candidate with no open findings.",
         candidateReviewedRevision:
           p9019ProfessionalReviewCandidate.reviewedRevision,
         candidateEvidenceDigest:
