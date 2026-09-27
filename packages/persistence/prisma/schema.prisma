@@ -211,6 +211,7 @@ model Principal {
   authorities     ProjectAuthority[]
   auditActor      AuthorityAuditEvent[] @relation("AuthorityAuditActor")
   auditTarget     AuthorityAuditEvent[] @relation("AuthorityAuditTarget")
+  professionalReviewDecisions HumanProfessionalReviewDecision[]
 
   @@unique([provider, providerSubject])
 }
@@ -251,4 +252,29 @@ model AuthorityAuditEvent {
 
   @@index([projectId, createdAt])
   @@index([actorPrincipalId, createdAt])
+}
+
+
+model HumanProfessionalReviewDecision {
+  id                         String   @id @db.VarChar(160)
+  projectId                  String   @db.VarChar(160)
+  reviewerActorId            String   @db.VarChar(160)
+  source                     String   @db.VarChar(80)
+  decision                   String   @db.VarChar(32)
+  decidedAt                  DateTime @db.Timestamptz(6)
+  note                       String   @db.Text
+  candidateReviewedRevision  String   @db.VarChar(160)
+  candidateEvidenceDigest    String   @db.VarChar(160)
+  acknowledgedFindingIds     Json
+  humanSignoff               Boolean
+  p9020TransitionAllowed     Boolean
+  productionReleaseAuthority Boolean  @default(false)
+  blockers                   Json
+  createdAt                  DateTime @default(now()) @db.Timestamptz(6)
+
+  reviewer Principal @relation(fields: [reviewerActorId], references: [id], onDelete: Restrict)
+
+  @@unique([projectId, candidateReviewedRevision, candidateEvidenceDigest])
+  @@index([reviewerActorId, decidedAt])
+  @@index([projectId, decidedAt])
 }
