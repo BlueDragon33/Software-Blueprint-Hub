@@ -40,7 +40,7 @@ export const p9019ProfessionalReviewCandidate: HumanProfessionalReviewCandidate 
       digest:
         "sha256:44c493d1373e4e27edef26ce6fae11465b7a0dc8adf1af2d85c77fdcf3d5aa7d"
     }),
-    reviewedViewports: Object.freeze(["desktop", "tablet", "mobile"]),
+    reviewedViewports: Object.freeze(["desktop", "tablet", "mobile"] as const),
     reviewedSurfaces: Object.freeze([
       "Projects / System Compass",
       "Canonical Project Workspace",

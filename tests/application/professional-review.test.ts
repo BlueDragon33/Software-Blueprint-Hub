@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import {\n  p9019ProfessionalReviewCandidate,\n  recordHumanProfessionalReviewDecision\n} from "../../packages/application/src/professional-review";
+import {
+  p9019ProfessionalReviewCandidate,
+  recordHumanProfessionalReviewDecision
+} from "../../packages/application/src/professional-review";
 
 describe("P9-019 Human Professional Review boundary", () => {
   it("records exact revision and screenshot artifact provenance", () => {
