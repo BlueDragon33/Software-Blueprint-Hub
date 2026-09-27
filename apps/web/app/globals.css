@@ -4960,3 +4960,22 @@ textarea:focus-visible,
   }
 }
 
+.professional-review-acknowledgements-clear {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(48, 130, 86, 0.2);
+  border-radius: 0.9rem;
+  background: rgba(240, 249, 244, 0.76);
+}
+
+.professional-review-acknowledgements-clear strong {
+  color: #315944;
+}
+
+.professional-review-acknowledgements-clear span {
+  color: #66786e;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
