@@ -19,6 +19,7 @@ export interface ReleasePromotionPlanInput {
   readonly qualityGates: readonly QualityGate[];
   readonly evidence: readonly GateEvidence[];
   readonly targetEnvironment: PromotionEnvironment;
+  readonly requiredGateIds: readonly string[];
   readonly deploymentProvider?: ProviderBoundaryDescriptor | null;
   readonly deploymentCapabilityId?: string | null;
 }
@@ -98,6 +99,8 @@ export function buildReleasePromotionPlan(
     );
   }
 
+  const requiredGateIds = [...new Set(input.requiredGateIds.map((id) => required(id, "Required gate id")))].sort();
+
   const gateById = new Map<string, QualityGate>();
   for (const gate of input.qualityGates) {
     if (gate.projectId !== projectId) {
@@ -152,6 +155,34 @@ export function buildReleasePromotionPlan(
   }
 
   const blockers: string[] = [];
+
+  for (const gateId of requiredGateIds) {
+    const gate = gateById.get(gateId);
+    if (!gate) {
+      blockers.push(`constitutional-gate-missing:${gateId}`);
+      continue;
+    }
+
+    if (gate.status !== "pass") {
+      blockers.push(`constitutional-gate-not-pass:${gateId}`);
+      continue;
+    }
+
+    const exactEvidence = evidenceIds
+      .map((id) => evidenceById.get(id))
+      .filter((record): record is GateEvidence => Boolean(record))
+      .some(
+        (record) =>
+          record.gateId === gateId &&
+          record.revision === sourceRevision &&
+          gate.evidenceIds.includes(record.id)
+      );
+
+    if (!exactEvidence) {
+      blockers.push(`constitutional-gate-evidence-missing:${gateId}`);
+    }
+  }
+
   let deploymentProviderId: string | null = null;
   let deploymentCapabilityId: string | null = null;
 
@@ -201,6 +232,7 @@ export function buildReleasePromotionPlan(
     sourceRevision,
     artifactSource,
     targetEnvironment: input.targetEnvironment,
+    requiredGateIds,
     evidenceIds,
     passedGateIds: [...passedGateIds].sort(),
     deploymentProviderId,
@@ -232,6 +264,6 @@ export function buildReleasePromotionPlan(
     requiresExternalExecution: true,
     auditFingerprint,
     boundaryNote:
-      "This plan proves promotion preconditions only. Merge, CI and release evidence are not deployment. A real external deployment provider plus an explicit execution action are still required."
+      "This plan proves promotion preconditions only. Every Blueprint-required constitutional gate must PASS with exact-revision evidence before execution can become eligible. Merge, CI and release evidence are not deployment. A real external deployment provider plus an explicit execution action are still required."
   });
 }
