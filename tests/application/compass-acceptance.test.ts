@@ -17,6 +17,9 @@ describe("P9-020 Compass Acceptance preflight", () => {
       preflight.criteria.find((item) => item.id === "lower-dependencies")
     ).toMatchObject({ state: "blocked" });
     expect(
+      preflight.criteria.find((item) => item.id === "constitution")
+    ).toMatchObject({ state: "blocked" });
+    expect(
       preflight.criteria.find((item) => item.id === "final-release-gate")
     ).toMatchObject({ state: "blocked" });
   });
@@ -46,6 +49,9 @@ describe("P9-020 Compass Acceptance preflight", () => {
     expect(preflight.blockers).toEqual([]);
     expect(preflight.acceptanceRecorded).toBe(false);
     expect(preflight.productionReleaseAuthority).toBe(false);
+    expect(
+      preflight.criteria.find((item) => item.id === "constitution")
+    ).toMatchObject({ state: "pending-final-evidence" });
     expect(
       preflight.criteria.find((item) => item.id === "source-of-truth")
     ).toMatchObject({ state: "pending-final-evidence" });
