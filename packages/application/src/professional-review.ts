@@ -1,3 +1,10 @@
+import {
+  type AuthenticatedActor,
+  AuthorityService,
+  type HumanProfessionalReviewDecisionRecord,
+  type HumanProfessionalReviewDecisionRepository
+} from "@blueprint-os/core";
+
 export type ProfessionalReviewSeverity = "P0" | "P1" | "P2" | "P3";
 
 export interface ProfessionalReviewFinding {
@@ -213,4 +220,76 @@ export function recordHumanProfessionalReviewDecision(
           ]
     )
   });
+}
+
+
+export interface HumanProfessionalReviewDecisionSubmission {
+  readonly decision: HumanProfessionalReviewDecisionKind;
+  readonly note: string;
+  readonly candidateReviewedRevision: string;
+  readonly candidateEvidenceDigest: string;
+  readonly acknowledgedFindingIds: readonly string[];
+}
+
+export class HumanProfessionalReviewApplicationService {
+  constructor(
+    private readonly repository: HumanProfessionalReviewDecisionRepository,
+    private readonly authority: AuthorityService
+  ) {}
+
+  async currentDecision(
+    actor: AuthenticatedActor | null
+  ): Promise<HumanProfessionalReviewDecisionRecord | null> {
+    await this.authority.require(
+      actor,
+      p9019ProfessionalReviewCandidate.projectId,
+      "PROJECT_REVIEW"
+    );
+
+    return this.repository.findForCandidate(
+      p9019ProfessionalReviewCandidate.projectId,
+      p9019ProfessionalReviewCandidate.reviewedRevision,
+      p9019ProfessionalReviewCandidate.evidenceArtifact.digest
+    );
+  }
+
+  async record(
+    actor: AuthenticatedActor | null,
+    input: HumanProfessionalReviewDecisionSubmission,
+    decidedAt: string
+  ): Promise<RecordedHumanProfessionalReviewDecision> {
+    await this.authority.require(
+      actor,
+      p9019ProfessionalReviewCandidate.projectId,
+      "PROJECT_REVIEW"
+    );
+
+    const existing = await this.repository.findForCandidate(
+      p9019ProfessionalReviewCandidate.projectId,
+      input.candidateReviewedRevision,
+      input.candidateEvidenceDigest
+    );
+    if (existing) {
+      throw new TypeError(
+        "A human professional review decision already exists for this exact candidate."
+      );
+    }
+
+    const decision = recordHumanProfessionalReviewDecision(
+      p9019ProfessionalReviewCandidate,
+      {
+        reviewerActorId: actor!.principalId,
+        source: "authenticated-user-action",
+        decision: input.decision,
+        decidedAt,
+        note: input.note,
+        candidateReviewedRevision: input.candidateReviewedRevision,
+        candidateEvidenceDigest: input.candidateEvidenceDigest,
+        acknowledgedFindingIds: input.acknowledgedFindingIds
+      }
+    );
+
+    await this.repository.append(decision);
+    return decision;
+  }
 }
