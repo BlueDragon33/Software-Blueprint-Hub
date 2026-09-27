@@ -1087,3 +1087,73 @@ test("P9-020 acceptance preflight remains locked before human sign-off", async (
   });
 });
 
+
+
+test("Blueprint OS applies the Universal Constitution to itself without self-approval", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/compass");
+
+  const auditLink = page.getByRole("link", { name: "Constitution self-audit" });
+  await expect(auditLink).toHaveAttribute("href", "/compass/constitution");
+  await auditLink.click();
+
+  await expect(
+    page.getByRole("heading", { name: "Constitutional Self-Audit" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Constitution blocked", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Production not authorized", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "The project must satisfy its own law" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Structural Capacity", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Architectural Longevity", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Product Elegance", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Premium Usability", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Long-Term Durability", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Fortress Security & Disaster Resilience", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Human review required", { exact: true }).first()
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Self-audit is not self-approval." })
+  ).toBeVisible();
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
+  expect(overflow).toBe(false);
+
+  await page.goto("/compass/acceptance");
+  await expect(
+    page.getByText("Universal Constitution self-compliance", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Blueprint OS still has an unresolved Constitutional blocker. The current self-audit cannot self-approve it.",
+      { exact: true }
+    )
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/constitutional-self-audit-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
