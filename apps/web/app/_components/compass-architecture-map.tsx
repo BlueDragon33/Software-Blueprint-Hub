@@ -1,5 +1,6 @@
 import {
   resolveCompassArchitecture,
+  type BlueprintCompassProjection,
   type CompassStoreyState
 } from "@blueprint-os/application";
 import { StatusChip, type StatusTone } from "@blueprint-os/ui";
@@ -16,8 +17,12 @@ function label(state: CompassStoreyState) {
   return "Dependency-gated";
 }
 
-export function CompassArchitectureMap() {
-  const storeys = resolveCompassArchitecture();
+export function CompassArchitectureMap({
+  projection
+}: {
+  readonly projection?: BlueprintCompassProjection;
+}) {
+  const storeys = resolveCompassArchitecture(projection);
 
   return (
     <section className="compass-architecture" aria-labelledby="compass-architecture-title">
