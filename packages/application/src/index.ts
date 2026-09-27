@@ -86,6 +86,47 @@ export class StaticTemplateCatalog implements TemplateCatalog {
   }
 }
 
+export class ConstitutionLockedTemplateCatalog implements TemplateCatalog {
+  constructor(
+    private readonly delegate: TemplateCatalog,
+    private readonly constitution: BlueprintTemplate
+  ) {
+    if (constitution.authorityLayer !== "constitution") {
+      throw new TypeError(
+        "Constitution lock requires a constitution-authority template"
+      );
+    }
+    if (constitution.activation) {
+      throw new TypeError(
+        "Universal Constitution template must be unconditional"
+      );
+    }
+  }
+
+  async snapshotFor(
+    profile: Readonly<ProjectProfile>
+  ): Promise<readonly BlueprintTemplate[]> {
+    const delegated = await this.delegate.snapshotFor(profile);
+    const suppliedConstitution = delegated.find(
+      (template) => template.id === this.constitution.id
+    );
+
+    if (
+      suppliedConstitution &&
+      JSON.stringify(suppliedConstitution) !== JSON.stringify(this.constitution)
+    ) {
+      throw new TypeError(
+        `Universal Constitution template ${this.constitution.id}@${this.constitution.version} is runtime-controlled and cannot be replaced or weakened`
+      );
+    }
+
+    return Object.freeze([
+      this.constitution,
+      ...delegated.filter((template) => template.id !== this.constitution.id)
+    ]);
+  }
+}
+
 function assertValidProfile(profile: unknown): asserts profile is ProjectProfile {
   const validation = validateProjectProfile(profile);
 
