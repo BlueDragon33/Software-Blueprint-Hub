@@ -1062,6 +1062,17 @@ test("P9-020 acceptance preflight remains locked before human sign-off", async (
   await expect(
     page.getByRole("heading", { name: "Compass Acceptance Gate" })
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Blueprint OS is subject to the same law it imposes"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("NON-COMPLIANT", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("universal-constitution-non-compliant", { exact: true })
+  ).toBeVisible();
   await expect(page.getByText("Dependency locked", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "P9-020 cannot begin yet" })
