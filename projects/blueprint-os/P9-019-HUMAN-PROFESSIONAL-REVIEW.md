@@ -60,6 +60,8 @@ The development baseline now includes a first-class `/professional-review` surfa
 The surface:
 
 - shows the exact candidate revision, Release Gate run, artifact ID and digest;
+- links directly to the exact GitHub Actions run and screenshot artifact;
+- lists the reviewed desktop/tablet/mobile viewports and the exact product surfaces covered by the evidence;
 - keeps every tracked finding visible;
 - requires explicit acknowledgement of every finding before approval;
 - obtains reviewer identity from the authenticated server session;
