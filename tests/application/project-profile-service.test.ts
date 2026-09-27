@@ -11,8 +11,10 @@ import {
   type ProjectRoleAssignment
 } from "../../packages/core/src";
 import {
+  ConstitutionLockedTemplateCatalog,
   ProjectProfileApplicationService,
-  StaticTemplateCatalog
+  StaticTemplateCatalog,
+  universalConstitutionTemplateV1
 } from "../../packages/application/src";
 import type { BlueprintTemplate } from "../../packages/blueprint-engine/src";
 import { describe, expect, it } from "vitest";
@@ -272,6 +274,39 @@ describe("ProjectProfileApplicationService", () => {
 
     expect(profiles.value?.id).toBe(profile.id);
     expect(profiles.value?.name).toBe(profile.name);
+  });
+
+  it("constitution lock injects the current universal law even when a project catalog omits it", async () => {
+    const catalog = new ConstitutionLockedTemplateCatalog(
+      new StaticTemplateCatalog(
+        templates.filter((template) => template.authorityLayer !== "constitution")
+      ),
+      universalConstitutionTemplateV1
+    );
+
+    const snapshot = await catalog.snapshotFor(profile);
+    expect(snapshot[0]).toEqual(universalConstitutionTemplateV1);
+    expect(
+      snapshot.filter(
+        (template) => template.id === universalConstitutionTemplateV1.id
+      )
+    ).toHaveLength(1);
+  });
+
+  it("constitution lock fails closed when a catalog attempts to replace the current universal law", async () => {
+    const tampered: BlueprintTemplate = {
+      ...universalConstitutionTemplateV1,
+      version: "999.0.0",
+      requirements: []
+    };
+    const catalog = new ConstitutionLockedTemplateCatalog(
+      new StaticTemplateCatalog([tampered, ...templates]),
+      universalConstitutionTemplateV1
+    );
+
+    await expect(catalog.snapshotFor(profile)).rejects.toThrow(
+      /runtime-controlled and cannot be replaced or weakened/i
+    );
   });
 
 });

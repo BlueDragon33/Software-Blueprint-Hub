@@ -63,4 +63,38 @@ describe("Foundation Blueprint template catalog", () => {
       "module:platform:extension-contract"
     );
   });
+  it("inherits all century-grade construction pillars at every Blueprint Level", () => {
+    const universalModules = [
+      "module:architecture:structural-capacity",
+      "module:governance:architectural-longevity",
+      "module:ux:product-elegance",
+      "module:ux:premium-usability",
+      "module:maintenance:long-term-durability",
+      "module:security:fortress-resilience"
+    ] as const;
+    const universalGates = [
+      "gate:architecture:future-scale",
+      "gate:ux:commercial-quality",
+      "gate:durability:ageing-regression",
+      "gate:security:resilience-containment"
+    ] as const;
+
+    for (const blueprintLevel of ["B0", "B1", "B2", "B3", "B4", "B5"] as const) {
+      const result = resolveFoundationBlueprintPreview({
+        ...baseProfile,
+        blueprintLevel
+      });
+
+      expect(result.status).toBe("success");
+      if (result.status !== "success") continue;
+
+      for (const moduleId of universalModules) {
+        expect(result.blueprint.requiredModules).toContain(moduleId);
+      }
+      for (const gateId of universalGates) {
+        expect(result.blueprint.requiredGates).toContain(gateId);
+      }
+    }
+  });
+
 });

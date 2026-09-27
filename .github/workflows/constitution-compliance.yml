@@ -1,0 +1,29 @@
+name: Universal Constitution Compliance
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  constitution:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout caller repository
+        uses: actions/checkout@v5
+
+      - name: Checkout Universal Constitution authority
+        uses: actions/checkout@v5
+        with:
+          repository: BlueDragon33/Software-Blueprint-Hub
+          ref: main
+          path: .blueprint-policy
+
+      - name: Verify Constitution adoption
+        run: >
+          node .blueprint-policy/scripts/check-constitution-adoption.mjs
+          .blueprint/constitution-adoption.json
+          .blueprint-policy/control/universal-constitution.contract.json
