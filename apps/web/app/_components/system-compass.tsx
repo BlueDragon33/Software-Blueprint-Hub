@@ -165,6 +165,9 @@ export function SystemCompass({
                 ? "Open P9-020 acceptance"
                 : "Open P9-019 review"}
             </Link>
+            <Link className="secondary-button" href="/compass/constitution">
+              Constitution self-audit
+            </Link>
             <Link className="secondary-button" href="/">
               Back to Projects
             </Link>
