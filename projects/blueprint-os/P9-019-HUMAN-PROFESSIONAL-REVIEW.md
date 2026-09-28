@@ -4,12 +4,12 @@ Status: **REVIEW CANDIDATE — HUMAN SIGN-OFF REQUIRED**
 
 ## Evidence reviewed
 
-- exact application revision: `c2190d1540edaf2946d866e3719cd8fa78172719`;
-- full Release Gate run: `36317309428` — PASS;
-- screenshot artifact: `10931137598`;
-- artifact digest: `sha256:603a9fc0b91bfa29d99fc8c1aa2b65c72ade18c87d657050f1343b4ff8fcc9e4`;
+- exact application revision: `d32532927d48076c96259ca20d16a9243f1fe1b3`;
+- full Release Gate run: `36377043606` — PASS;
+- screenshot artifact: `10951361448`;
+- artifact digest: `sha256:96b5fa6a5db9182ea27146db6031026ffd662750d7adf4f176dddbca24c77b9f`;
 - desktop, tablet/iPad-class and mobile evidence inspected;
-- representative surfaces reviewed: Projects/Compass, canonical workspace, Quality, Portfolio, Data Lifecycle, Prompt, Knowledge/Reference Case, Releases/Lessons.
+- representative surfaces reviewed: Projects/Compass, canonical workspace, Constitution/Compliance, Quality, Portfolio, Data Lifecycle, Prompt, Knowledge/Reference Case, Releases/Lessons.
 
 ## Professional review findings
 
