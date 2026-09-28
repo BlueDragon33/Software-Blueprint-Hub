@@ -124,12 +124,10 @@ export function ConstitutionAuthorityConsole({
   }
 
   function ratify(
-    event: FormEvent<HTMLFormElement>,
+    form: HTMLFormElement,
     amendment: CanonicalConstitutionAmendmentRecord,
     decision: ConstitutionRatificationDecisionKind
   ) {
-    event.preventDefault();
-    const form = event.currentTarget;
     const data = new FormData(form);
 
     run(() =>
@@ -405,14 +403,7 @@ export function ConstitutionAuthorityConsole({
                         onClick={(event) => {
                           const form = event.currentTarget.form;
                           if (form) {
-                            ratify(
-                              {
-                                preventDefault: () => undefined,
-                                currentTarget: form
-                              } as FormEvent<HTMLFormElement>,
-                              amendment,
-                              "approve"
-                            );
+                            ratify(form, amendment, "approve");
                           }
                         }}
                       >
@@ -425,14 +416,7 @@ export function ConstitutionAuthorityConsole({
                         onClick={(event) => {
                           const form = event.currentTarget.form;
                           if (form) {
-                            ratify(
-                              {
-                                preventDefault: () => undefined,
-                                currentTarget: form
-                              } as FormEvent<HTMLFormElement>,
-                              amendment,
-                              "reject"
-                            );
+                            ratify(form, amendment, "reject");
                           }
                         }}
                       >
