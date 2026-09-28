@@ -35,7 +35,10 @@ export async function resolveWebIdentity(): Promise<WebAuthenticatedIdentity | n
   const secureCookie = shouldUseSecureAuthCookie({
     host: requestHeaders.get("host"),
     forwardedProto: requestHeaders.get("x-forwarded-proto"),
-    nodeEnv: process.env.NODE_ENV
+    nodeEnv: process.env.NODE_ENV,
+    allowLocalHttpAuth:
+      process.env.BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH?.trim().toLowerCase() ===
+      "true"
   });
 
   const token = (await getToken({
