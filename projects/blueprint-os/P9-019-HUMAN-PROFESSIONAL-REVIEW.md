@@ -61,6 +61,19 @@ A decision is valid only when:
 
 No approval decision is checked into source control. The current canonical state therefore remains **HUMAN SIGN-OFF REQUIRED** until an actual human action records one.
 
+## Security hardening after operational bootstrap
+
+The first operational bootstrap implementation revealed two additional defects during review:
+
+1. **First-login takeover risk** — one-time bootstrap was atomic but any authenticated account could claim Owner before initialization.
+2. **Local review cookie mismatch** — `next start` on HTTP localhost could look for the secure Auth.js cookie solely because `NODE_ENV=production`, while real local review must remain supported.
+
+The remediation now requires an exact deployment-configured provider + provider subject before the bootstrap control is exposed or the server action executes. Missing/mismatched identity fails closed. Localhost/loopback uses local HTTP session-cookie lookup, while non-local Production hosts stay secure-cookie-only.
+
+The previous P9-019 candidate is therefore stale again until a new exact-revision full Release Gate and responsive Human UX artifact capture the hardened review path.
+
+See `docs/P9-019-HUMAN-REVIEW-RUNBOOK.md`.
+
 ## Operational authority setup remediation
 
 A review surface is not operational if no real authenticated account can acquire the authority required to use it.
