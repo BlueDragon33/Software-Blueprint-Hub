@@ -4,8 +4,8 @@ export interface OwnerBootstrapIdentity {
 }
 
 export interface OwnerBootstrapPolicyEnvironment {
-  readonly provider?: string | null;
-  readonly providerSubject?: string | null;
+  readonly provider?: string | null | undefined;
+  readonly providerSubject?: string | null | undefined;
 }
 
 export type OwnerBootstrapAuthorization =
