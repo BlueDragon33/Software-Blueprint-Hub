@@ -53,7 +53,7 @@ async function authenticateNoAccessUser(page: Page): Promise<void> {
   );
 }
 
-test("ADR-0003 owner setup is explicit, authenticated, and takeover-safe", async ({
+test("ADR-0003 owner setup requires the deployment-configured identity", async ({
   page
 }, testInfo) => {
   await page.goto("/setup/owner");
@@ -84,16 +84,18 @@ test("ADR-0003 owner setup is explicit, authenticated, and takeover-safe", async
   await page.context().clearCookies();
   await authenticateNoAccessUser(page);
   await page.goto("/setup/owner");
-  const initialize = page.getByRole("button", {
-    name: "Initialize this account as System Owner"
-  });
-  await expect(initialize).toBeEnabled();
-  await initialize.click();
   await expect(
-    page.getByText(
-      "Blueprint OS already has a System Owner. Existing authority was not changed.",
-      { exact: true }
-    )
+    page.getByRole("heading", {
+      name: "This account is not authorized to initialize System Owner."
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: "Initialize this account as System Owner"
+    })
+  ).toHaveCount(0);
+  await expect(
+    page.getByText(/setup route grants no authority to unconfigured identities/i)
   ).toBeVisible();
   await expect(
     page.getByText("System Owner active", { exact: true })
