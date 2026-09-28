@@ -346,6 +346,13 @@ Status: **ACTIVE / REVIEW CANDIDATE — HUMAN SIGN-OFF REQUIRED**
 Purpose:
 Conduct end-to-end professional UX/product review after engineering gates are green.
 
+Operational prerequisites:
+- a real authenticated account can reach the review surface;
+- a new database exposes an explicit one-time System Owner bootstrap path;
+- Owner bootstrap fails closed after initialization and cannot be reused for takeover;
+- Owner/bootstrap authority does not create review approval, P9-020 acceptance or Production authority;
+- the exact human-review candidate must be refreshed after any remediation that changes the reviewed product surface.
+
 ### P9-020 — Compass Acceptance Gate
 Status: **PLANNED — PREFLIGHT IMPLEMENTED, DEPENDENCY LOCKED**
 
