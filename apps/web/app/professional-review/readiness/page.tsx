@@ -97,12 +97,14 @@ export default async function ProfessionalReviewReadinessPage() {
                 Open System Owner setup
               </Link>
             ) : (
-              <Link
+              <a
                 className="secondary-button"
-                href="/docs/P9-019-HUMAN-REVIEW-RUNBOOK.md"
+                href="https://github.com/BlueDragon33/Software-Blueprint-Hub/blob/main/docs/P9-019-HUMAN-REVIEW-RUNBOOK.md"
+                target="_blank"
+                rel="noreferrer"
               >
                 Follow the P9-019 runbook
-              </Link>
+              </a>
             )}
             <Link className="secondary-button" href="/professional-review">
               Back to P9-019 review
