@@ -4,16 +4,16 @@ Status: **REVIEW CANDIDATE — HUMAN SIGN-OFF REQUIRED**
 
 ## Evidence reviewed
 
-- exact application revision: `7e084a37851411e8a1057a30cf585816ac1de243`;
-- full Release Gate run: `36438556727` — PASS;
-- screenshot artifact: `10976478430`;
-- artifact digest: `sha256:5b9fadad6e31d84884277f9fc5faec39610b07fc550aeb6727f2cc9bca57a61f`;
+- exact application revision: `f936d3e4eb6a56671415e9f500b0935159baf49d`;
+- full Release Gate run: `36441844449` — PASS;
+- screenshot artifact: `10978228236`;
+- artifact digest: `sha256:63400e4ef649f8c88e54b711052e194251c42c313e69ff9ac429b5d602b580cf`;
 - desktop, tablet/iPad-class and mobile evidence inspected;
 - representative surfaces reviewed: Projects/Compass, canonical workspace, Constitution/Compliance, Quality, Portfolio, Data Lifecycle, Prompt, Knowledge/Reference Case, Releases/Lessons.
 
 ## Refresh reason
 
-The previous candidate became stale because ADR-0003's required one-time Owner bootstrap path was not exposed by the product. The operational remediation added authenticated `/setup/owner`, takeover-safe behavior and responsive E2E coverage. The current candidate is bound to the exact remediated revision and refreshed Human UX artifact.
+The previous candidate became stale after adding the fail-closed human-review runtime readiness surface, safe configuration diagnostics and the local environment contract. The current candidate is bound to the exact remediated revision and refreshed responsive Human UX evidence.
 
 ## Professional review findings
 
@@ -74,7 +74,7 @@ The P9-019 flow now includes `/professional-review/readiness`, a fail-closed pre
 
 The page links into System Owner setup only when no blocking preflight check remains. `.env.example` defines the local configuration contract, while the runbook remains the operator procedure.
 
-Because this adds a new reviewed product surface and runtime decision aid, the prior P9-019 candidate is stale until a new exact-revision full Release Gate and Human UX artifact capture this flow.
+This runtime readiness remediation is captured by full Release Gate `36441844449` on exact revision `f936d3e4eb6a56671415e9f500b0935159baf49d`. Earlier P9-019 candidates are stale.
 
 ## Security hardening after operational bootstrap
 
@@ -85,7 +85,7 @@ The first operational bootstrap implementation revealed two additional defects d
 
 The remediation now requires an exact deployment-configured provider + provider subject before the bootstrap control is exposed or the server action executes. Missing/mismatched identity fails closed. Localhost/loopback uses local HTTP session-cookie lookup, while non-local Production hosts stay secure-cookie-only.
 
-The previous P9-019 candidate is therefore stale again until a new exact-revision full Release Gate and responsive Human UX artifact capture the hardened review path.
+The secure bootstrap and cookie policy remain part of the current refreshed candidate.
 
 See `docs/P9-019-HUMAN-REVIEW-RUNBOOK.md`.
 
