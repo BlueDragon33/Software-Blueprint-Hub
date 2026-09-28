@@ -113,6 +113,11 @@ export default async function OwnerSetupPage() {
                 before exposing this setup path.
               </p>
             </div>
+            <div className="professional-review-actions">
+              <Link className="secondary-button" href="/professional-review/readiness">
+                Check runtime readiness
+              </Link>
+            </div>
             <p className="professional-review-boundary">
               No authenticated account can claim System Owner while bootstrap
               identity configuration is absent.
@@ -132,6 +137,11 @@ export default async function OwnerSetupPage() {
                 Sign in with the deployment-configured bootstrap identity. OAuth
                 claims do not create Blueprint OS authority by themselves.
               </p>
+            </div>
+            <div className="professional-review-actions">
+              <Link className="secondary-button" href="/professional-review/readiness">
+                Check runtime readiness
+              </Link>
             </div>
             <p className="professional-review-boundary">
               The setup route grants no authority to unconfigured identities.
