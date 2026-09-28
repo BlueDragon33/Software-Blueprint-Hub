@@ -38,6 +38,9 @@ jobs:
       - name: Constitution authority-set atomicity
         run: node scripts/check-constitution-authority-set.mjs
 
+      - name: Constitution ecosystem snapshot
+        run: node scripts/check-constitution-ecosystem-snapshot.mjs
+
       - name: Source-of-truth contradiction gate
         run: node scripts/check-source-of-truth.mjs
       - name: Source-of-truth detector self-test
@@ -106,6 +109,9 @@ jobs:
 
       - name: Constitution authority-set atomicity
         run: node scripts/check-constitution-authority-set.mjs --write artifacts/constitution-authority-set.json
+
+      - name: Constitution ecosystem snapshot
+        run: node scripts/check-constitution-ecosystem-snapshot.mjs
 
       - name: Generated contract drift
         run: pnpm contracts:check
