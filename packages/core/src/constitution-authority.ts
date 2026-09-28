@@ -114,3 +114,17 @@ export interface ConstitutionAuthorityRepository {
     amendmentRecordVersion: number
   ): Promise<ConstitutionRatificationDecisionRecord | null>;
 }
+
+export class ConstitutionRecordVersionConflictError extends Error {
+  readonly code = "CONSTITUTION_RECORD_VERSION_CONFLICT";
+
+  constructor(
+    readonly amendmentId: string,
+    readonly expectedRecordVersion: number
+  ) {
+    super(
+      `Constitution amendment ${amendmentId} is not at expected record version ${expectedRecordVersion}`
+    );
+    this.name = "ConstitutionRecordVersionConflictError";
+  }
+}
