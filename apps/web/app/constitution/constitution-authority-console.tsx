@@ -7,7 +7,7 @@ import type {
 } from "@blueprint-os/core";
 import { StatusChip } from "@blueprint-os/ui";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState, useTransition } from "react";
+import { type FormEvent, useState, useTransition } from "react";
 
 import {
   createConstitutionAmendmentAction,
