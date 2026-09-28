@@ -80,4 +80,6 @@ Integration and E2E tests must cover:
 - the configured Owner sees the protected P9-019 path;
 - repository-level one-time bootstrap still fails closed if an Owner has already been initialized;
 - local `next start` on localhost/loopback can read Auth.js sessions without pretending the local HTTP transport is HTTPS;
+- an explicit HTTPS forwarding protocol always keeps secure-cookie lookup enabled;
+- the localhost exception is derived from the direct request `Host`, never from `x-forwarded-host`, so forwarding metadata cannot downgrade a non-local Production host;
 - non-local production hosts continue to require secure Auth.js cookie lookup.
