@@ -113,6 +113,10 @@ export interface ConstitutionAuthorityRepository {
     amendmentId: string,
     amendmentRecordVersion: number
   ): Promise<ConstitutionRatificationDecisionRecord | null>;
+
+  findRatificationDecisionById(
+    decisionId: string
+  ): Promise<ConstitutionRatificationDecisionRecord | null>;
 }
 
 export class ConstitutionRecordVersionConflictError extends Error {
