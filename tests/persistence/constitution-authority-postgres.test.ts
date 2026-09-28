@@ -429,6 +429,11 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
       productionReleaseAuthority: false
     });
 
+    const storedPublication =
+      await repository.findPublicationByAmendmentId(ratified.proposal.id);
+    expect(storedPublication?.id).toBe(result.publication.id);
+    expect(storedPublication?.productionReleaseAuthority).toBe(false);
+
     const evidenceRows = await prisma.constitutionEvidence.findMany({
       where: {
         amendmentId: ratified.proposal.id,
