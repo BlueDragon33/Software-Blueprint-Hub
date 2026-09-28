@@ -12,7 +12,8 @@ A review runtime needs:
 - Auth.js `AUTH_SECRET`;
 - GitHub OAuth `GITHUB_ID` and `GITHUB_SECRET`;
 - `BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER=github`;
-- `BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT=<exact GitHub provider account id allowed to initialize the first System Owner>`.
+- `BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT=<exact GitHub provider account id allowed to initialize the first System Owner>`;
+- for production-build parity on local loopback only: `BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH=true`.
 
 The provider subject is an authorization selector, not a password. Do not replace it with mutable UI labels or an email guess.
 
@@ -59,7 +60,7 @@ pnpm build
 pnpm --filter @blueprint-os/web start
 ```
 
-Blueprint OS treats localhost/127.0.0.1/::1 as local HTTP for Auth.js session-cookie lookup even when `next start` runs with `NODE_ENV=production`. An explicit HTTPS forwarding protocol always keeps secure-cookie lookup enabled. The localhost exception is derived from the direct request `Host`, not `x-forwarded-host`, so forwarding metadata cannot downgrade a non-local Production host. Non-local Production hosts remain secure-cookie-only.
+Blueprint OS keeps secure-cookie lookup enabled in `NODE_ENV=production` by default, even when a request claims a localhost Host. Production-build parity over plain HTTP is allowed only when `BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH=true` **and** the direct request Host is localhost/127.0.0.1/::1. An explicit HTTPS forwarding protocol always keeps secure-cookie lookup enabled. Never set the local-HTTP flag on an Internet-facing Preview or Production deployment.
 
 ## 5. Initialize authority
 
