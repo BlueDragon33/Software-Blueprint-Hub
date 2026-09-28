@@ -81,7 +81,7 @@ Completion evidence:
 - browser automation intentionally never performs a human ratification action.
 
 ### CA-004 — Atomic publication set
-Status: **IMPLEMENTED CANDIDATE — FULL GATE REQUIRED**
+Status: **COMPLETE — EXACT-HEAD RELEASE GATE REQUIRED BEFORE MERGE**
 
 Publication must update and verify as one authority set:
 1. normative Constitution document;
@@ -103,6 +103,11 @@ Candidate implementation:
 - PostgreSQL publication transition atomically writes publication evidence, immutable publication record and amendment revision;
 - no manual Publish button or free-form publication payload is exposed;
 - constitutional publication grants zero Production authority.
+
+Completion criteria for this branch:
+- exact branch head must pass the full Release Gate with the authority-set check and PostgreSQL publication integration enabled;
+- merge is permitted only after that exact-head evidence exists;
+- Production authority remains false.
 
 ### CA-005 — Ecosystem propagation
 Status: **PLANNED**
