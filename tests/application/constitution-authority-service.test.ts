@@ -5,7 +5,12 @@ import { describe, expect, it } from "vitest";
 import {
   ConstitutionAuthorityApplicationService,
   validateConstitutionAuthoritySetAttestation,
-  type ConstitutionPublicationAttestationVerifier
+  validateConstitutionPropagationAttestation,
+  validateConstitutionVerificationAttestation,
+  type ConstitutionLifecycleAttestationVerifier,
+  type ConstitutionPropagationAttestation,
+  type ConstitutionPublicationAttestationVerifier,
+  type ConstitutionVerificationAttestation
 } from "../../packages/application/src";
 import {
   AuthorityService,
@@ -156,7 +161,8 @@ function draftInput() {
 }
 
 function service(
-  publicationAttestationVerifier?: ConstitutionPublicationAttestationVerifier
+  publicationAttestationVerifier?: ConstitutionPublicationAttestationVerifier,
+  lifecycleAttestationVerifier?: ConstitutionLifecycleAttestationVerifier
 ) {
   const repository = new FakeConstitutionRepository();
   const authority = new AuthorityService(new FakeAuthorityRepository());
@@ -165,7 +171,8 @@ function service(
     service: new ConstitutionAuthorityApplicationService(
       repository,
       authority,
-      publicationAttestationVerifier
+      publicationAttestationVerifier,
+      lifecycleAttestationVerifier
     )
   };
 }
@@ -235,6 +242,64 @@ function authoritySetAttestation(
     ciRunId: "36365074322",
     components,
     authoritySetDigest,
+    productionReleaseAuthority: false
+  };
+}
+
+function lifecycleVerifier(): ConstitutionLifecycleAttestationVerifier {
+  return {
+    id: "test:trusted-lifecycle-verifier",
+    verifyPropagation: async () => true,
+    verifyVerification: async () => true
+  };
+}
+
+function propagationAttestation(
+  amendmentId: string,
+  publicationId: string
+): ConstitutionPropagationAttestation {
+  return {
+    schemaVersion: "1.0.0",
+    kind: "constitution-propagation-attestation",
+    source: "trusted-constitution-lifecycle-attestation",
+    policyId: "blueprint-os:universal-century-grade",
+    policyVersion: "1.2.0",
+    amendmentId,
+    publicationId,
+    sourceRevision: "d".repeat(40),
+    workflowRunId: "36390000001",
+    snapshotDigest: sha("propagation-snapshot"),
+    totalRepositories: 2,
+    currentRepositories: 1,
+    migrationRequiredRepositories: 1,
+    blockedRepositories: 0,
+    exactReleaseRevisionCertified: false,
+    productionReleaseAuthority: false
+  };
+}
+
+function verificationAttestation(
+  amendmentId: string,
+  publicationId: string
+): ConstitutionVerificationAttestation {
+  return {
+    schemaVersion: "1.0.0",
+    kind: "constitution-verification-attestation",
+    source: "trusted-constitution-lifecycle-attestation",
+    policyId: "blueprint-os:universal-century-grade",
+    policyVersion: "1.2.0",
+    amendmentId,
+    publicationId,
+    sourceRevision: "e".repeat(40),
+    workflowRunId: "36390000002",
+    matrixDigest: sha("compliance-matrix"),
+    totalRepositories: 2,
+    compliantRepositories: 2,
+    nonCompliantRepositories: 0,
+    unverifiedRepositories: 0,
+    migrationRequiredRepositories: 0,
+    blockedRepositories: 0,
+    exactReleaseRevisionCertified: false,
     productionReleaseAuthority: false
   };
 }
@@ -520,6 +585,175 @@ describe("CA-002/CA-003 Constitution Authority application service", () => {
     expect(
       repository.evidence.some((item) => item.kind === "publication")
     ).toBe(true);
+  });
+
+
+  it("validates lifecycle attestations and rejects contradictory repository counts", () => {
+    const propagation = propagationAttestation(
+      "amendment:test",
+      "constitution-publication:test"
+    );
+    expect(
+      validateConstitutionPropagationAttestation(propagation).snapshotDigest
+    ).toBe(propagation.snapshotDigest);
+
+    expect(() =>
+      validateConstitutionPropagationAttestation({
+        ...propagation,
+        blockedRepositories: 1
+      })
+    ).toThrow(/partition all governed repositories/i);
+
+    const verification = verificationAttestation(
+      "amendment:test",
+      "constitution-publication:test"
+    );
+    expect(
+      validateConstitutionVerificationAttestation(verification).matrixDigest
+    ).toBe(verification.matrixDigest);
+
+    expect(() =>
+      validateConstitutionVerificationAttestation({
+        ...verification,
+        productionReleaseAuthority: true as false
+      })
+    ).toThrow(/Production authority/i);
+  });
+
+  it("fails closed after publication when lifecycle provenance cannot be verified", async () => {
+    const publicationVerifier: ConstitutionPublicationAttestationVerifier = {
+      id: "test:trusted-ci-verifier",
+      verify: async () => true
+    };
+    const { service: app } = service(publicationVerifier);
+    const ratified = await ratifiedAmendment(app);
+    const published = await app.publishFromTrustedAttestation(
+      owner,
+      {
+        amendmentId: ratified.proposal.id,
+        expectedRecordVersion: ratified.recordVersion,
+        attestation: authoritySetAttestation(),
+        note: "Publish before propagation."
+      },
+      "2026-09-28T01:05:00.000Z"
+    );
+
+    await expect(
+      app.beginPropagationFromTrustedAttestation(
+        owner,
+        {
+          amendmentId: published.amendment.proposal.id,
+          expectedRecordVersion: published.amendment.recordVersion,
+          attestation: propagationAttestation(
+            published.amendment.proposal.id,
+            published.publication.id
+          ),
+          note: "Attempt without trusted lifecycle verifier."
+        },
+        "2026-09-28T01:06:00.000Z"
+      )
+    ).rejects.toThrow(/trusted lifecycle attestation verifier is configured/i);
+  });
+
+  it("closes published -> propagating -> verified only with trusted evidence and full ecosystem compliance", async () => {
+    const publicationVerifier: ConstitutionPublicationAttestationVerifier = {
+      id: "test:trusted-ci-verifier",
+      verify: async () => true
+    };
+    const { service: app, repository } = service(
+      publicationVerifier,
+      lifecycleVerifier()
+    );
+    const ratified = await ratifiedAmendment(app);
+    const published = await app.publishFromTrustedAttestation(
+      owner,
+      {
+        amendmentId: ratified.proposal.id,
+        expectedRecordVersion: ratified.recordVersion,
+        attestation: authoritySetAttestation(),
+        note: "Publish exact ratified authority set."
+      },
+      "2026-09-28T01:05:00.000Z"
+    );
+
+    const propagating = await app.beginPropagationFromTrustedAttestation(
+      owner,
+      {
+        amendmentId: published.amendment.proposal.id,
+        expectedRecordVersion: published.amendment.recordVersion,
+        attestation: propagationAttestation(
+          published.amendment.proposal.id,
+          published.publication.id
+        ),
+        note: "Record the exact ecosystem propagation snapshot."
+      },
+      "2026-09-28T01:06:00.000Z"
+    );
+
+    expect(propagating.state).toBe("propagating");
+    expect(propagating.recordVersion).toBe(7);
+    expect(propagating.productionReleaseAuthority).toBe(false);
+    expect(
+      repository.evidence.some((item) => item.kind === "propagation")
+    ).toBe(true);
+
+    const incomplete = verificationAttestation(
+      propagating.proposal.id,
+      published.publication.id
+    );
+    await expect(
+      app.verifyFromTrustedAttestation(
+        owner,
+        {
+          amendmentId: propagating.proposal.id,
+          expectedRecordVersion: propagating.recordVersion,
+          attestation: {
+            ...incomplete,
+            compliantRepositories: 1,
+            unverifiedRepositories: 1
+          },
+          note: "Incomplete compliance must remain blocked."
+        },
+        "2026-09-28T01:07:00.000Z"
+      )
+    ).rejects.toThrow(/every governed repository/i);
+
+    const verified = await app.verifyFromTrustedAttestation(
+      owner,
+      {
+        amendmentId: propagating.proposal.id,
+        expectedRecordVersion: propagating.recordVersion,
+        attestation: verificationAttestation(
+          propagating.proposal.id,
+          published.publication.id
+        ),
+        note: "All governed repositories carry trusted compliance evidence."
+      },
+      "2026-09-28T01:08:00.000Z"
+    );
+
+    expect(verified.state).toBe("verified");
+    expect(verified.recordVersion).toBe(8);
+    expect(verified.productionReleaseAuthority).toBe(false);
+    expect(
+      repository.evidence.some((item) => item.kind === "verification")
+    ).toBe(true);
+
+    await expect(
+      app.verifyFromTrustedAttestation(
+        owner,
+        {
+          amendmentId: verified.proposal.id,
+          expectedRecordVersion: verified.recordVersion,
+          attestation: verificationAttestation(
+            verified.proposal.id,
+            published.publication.id
+          ),
+          note: "A verified amendment is immutable."
+        },
+        "2026-09-28T01:09:00.000Z"
+      )
+    ).rejects.toThrow(/propagation state/i);
   });
 
 });
