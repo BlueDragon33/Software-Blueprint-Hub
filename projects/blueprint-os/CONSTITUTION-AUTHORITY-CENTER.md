@@ -141,7 +141,7 @@ Completion evidence:
 - PR #79 squash-merged as `1290f9078537759d4ee1c56b8f226113d85843df` and main Fast CI run `36370799997` passed.
 
 ### CA-006 — Constitutional compliance matrix
-Status: **IMPLEMENTED CANDIDATE — FULL GATE REQUIRED**
+Status: **COMPLETE**
 
 Global view:
 - repository/project;
@@ -166,6 +166,13 @@ Candidate implementation:
 - authority-only /constitution UI exposes repository, policy, Blueprint Level, six-pillar state, blocking gates, exact evidence revisions and verification status;
 - the initial live repository scan found no standard CA-006 attestation in the 14 governed repositories, so the truthful baseline is 14/14 adoption-current and 0/14 compliance-attested;
 - matrix projection cannot mutate project Quality Gates, fabricate PASS, certify the exact release revision or authorize Production.
+
+Completion evidence:
+- initial exact-head full Release Gate passed on `b193d13c1dc5adafb2d8c982c627edcb892a91fb` in run `36372608266`;
+- CA-006 snapshot integrity, typecheck, architecture boundaries, unit/integration, production build and Playwright desktop/tablet/mobile all passed;
+- E2E strict-locator ambiguity caused by the same repository appearing in both CA-005 and CA-006 was fixed by scoping assertions to the intended matrix rather than weakening product behavior;
+- the truthful baseline remains 14/14 adoption-current, 0/14 compliance-attested, 14/14 compliance-unverified;
+- automatic Quality Gate PASS, canonical project mutation, exact-release certification and Production authority remain false.
 
 ## Completion gate
 
