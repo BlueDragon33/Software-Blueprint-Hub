@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "1.0.0",
+  "policyId": "blueprint-os:universal-century-grade",
+  "repositories": [
+    {
+      "repository": "BlueDragon33/Software-Blueprint-Hub",
+      "branch": "main",
+      "projectId": "project:blueprint-os",
+      "blueprintLevel": "B4",
+      "role": "authority-self"
+    },
+    {
+      "repository": "BlueDragon33/Bauman-master-ai-system",
+      "branch": "main",
+      "projectId": "project:bauman-master-ai-system",
+      "blueprintLevel": "B4",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/Application-Management",
+      "branch": "main",
+      "projectId": "project:application-management",
+      "blueprintLevel": "B4",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/BOIECH_AI",
+      "branch": "main",
+      "projectId": "project:boiech-ai",
+      "blueprintLevel": "B3",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/RU_LIFE",
+      "branch": "main",
+      "projectId": "project:ru-life",
+      "blueprintLevel": "B3",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/Health_Care",
+      "branch": "main",
+      "projectId": "project:health-care",
+      "blueprintLevel": "B5",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/NC03_Modem",
+      "branch": "main",
+      "projectId": "project:nc03-modem",
+      "blueprintLevel": "B4",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/ROS-1-2",
+      "branch": "ros2",
+      "projectId": "project:ros-1-2",
+      "blueprintLevel": "B3",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/Math_Bauman",
+      "branch": "main",
+      "projectId": "project:math-bauman",
+      "blueprintLevel": "B2",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/GrowUP_MyChildren",
+      "branch": "main",
+      "projectId": "project:growup-mychildren",
+      "blueprintLevel": "B5",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/Hardware_Simulation",
+      "branch": "main",
+      "projectId": "project:hardware-simulation",
+      "blueprintLevel": "B2",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/MPC_PID_System",
+      "branch": "main",
+      "projectId": "project:mpc-pid-system",
+      "blueprintLevel": "B3",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/CAD_CAM_3D",
+      "branch": "main",
+      "projectId": "project:cad-cam-3d",
+      "blueprintLevel": "B2",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/PriceReport_Tunggiabao",
+      "branch": "main",
+      "projectId": "project:pricereport-tunggiabao",
+      "blueprintLevel": "B3",
+      "role": "governed"
+    }
+  ]
+}
