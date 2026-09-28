@@ -1,4 +1,5 @@
 import {
+  ConstitutionAuthorityApplicationService,
   ConstitutionLockedTemplateCatalog,
   foundationBlueprintTemplatesV1,
   GovernanceApplicationService,
@@ -17,6 +18,7 @@ import { AuthorityService } from "@blueprint-os/core";
 import {
   createPrismaClient,
   PostgresAuthorityRepository,
+  PostgresConstitutionAuthorityRepository,
   PostgresGovernanceRepository,
   PostgresHumanProfessionalReviewDecisionRepository,
   PostgresProjectProfileRepository,
@@ -29,6 +31,7 @@ import {
 export interface BlueprintServerRuntime {
   readonly prisma: BlueprintPrismaClient;
   readonly authority: AuthorityService;
+  readonly constitutionAuthority: ConstitutionAuthorityApplicationService;
   readonly profiles: ProjectProfileApplicationService;
   readonly registry: ProjectRegistryApplicationService;
   readonly readiness: ProjectReadinessApplicationService;
@@ -50,6 +53,12 @@ export function createBlueprintServerRuntime(
   const prisma = createPrismaClient(connectionString);
   const authorityRepository = new PostgresAuthorityRepository(prisma);
   const authority = new AuthorityService(authorityRepository);
+  const constitutionAuthorityRepository =
+    new PostgresConstitutionAuthorityRepository(prisma);
+  const constitutionAuthority = new ConstitutionAuthorityApplicationService(
+    constitutionAuthorityRepository,
+    authority
+  );
   const profileRepository = new PostgresProjectProfileRepository(prisma);
   const workRepository = new PostgresWorkQualityRepository(prisma);
   const governanceRepository = new PostgresGovernanceRepository(prisma);
@@ -105,6 +114,7 @@ export function createBlueprintServerRuntime(
   return Object.freeze({
     prisma,
     authority,
+    constitutionAuthority,
     profiles,
     registry,
     readiness,

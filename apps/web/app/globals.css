@@ -5406,3 +5406,169 @@ textarea:focus-visible,
     align-items: flex-start;
   }
 }
+
+
+/* CA-002 / CA-003 — canonical amendment workspace */
+.constitution-authority-console {
+  display: grid;
+  gap: 1rem;
+}
+
+.constitution-command-form {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.22);
+  border-radius: 0.9rem;
+  background: rgba(127, 127, 127, 0.035);
+}
+
+.constitution-command-form h3,
+.constitution-command-form h4 {
+  margin: 0;
+}
+
+.constitution-command-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.constitution-command-form input,
+.constitution-command-form textarea,
+.constitution-command-form select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid rgba(127, 127, 127, 0.28);
+  border-radius: 0.65rem;
+  background: var(--surface, transparent);
+  color: inherit;
+  font: inherit;
+}
+
+.constitution-command-form textarea {
+  resize: vertical;
+}
+
+.constitution-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.constitution-checkbox-row {
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center;
+  justify-content: start;
+}
+
+.constitution-checkbox-row input {
+  width: auto;
+}
+
+.constitution-command-feedback {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.24);
+  border-radius: 0.75rem;
+}
+
+.constitution-amendment-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.constitution-amendment-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.24);
+  border-radius: 1rem;
+}
+
+.constitution-amendment-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.constitution-amendment-heading h3 {
+  margin: 0.2rem 0;
+}
+
+.constitution-amendment-heading code {
+  overflow-wrap: anywhere;
+}
+
+.constitution-amendment-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 0.9rem 0;
+}
+
+.constitution-amendment-meta div {
+  min-width: 0;
+  padding: 0.7rem;
+  border-radius: 0.7rem;
+  background: rgba(127, 127, 127, 0.055);
+}
+
+.constitution-amendment-meta dt {
+  font-size: 0.82rem;
+  opacity: 0.7;
+}
+
+.constitution-amendment-meta dd {
+  margin: 0.2rem 0 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.constitution-inline-command,
+.constitution-ratification-form,
+.constitution-ratification-open,
+.constitution-state-boundary {
+  margin-top: 0.9rem;
+}
+
+.constitution-ratification-open,
+.constitution-state-boundary {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.22);
+  border-radius: 0.8rem;
+  background: rgba(127, 127, 127, 0.045);
+}
+
+.constitution-ratification-open p,
+.constitution-state-boundary span {
+  margin: 0;
+}
+
+.constitution-decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+@media (max-width: 760px) {
+  .constitution-form-grid,
+  .constitution-amendment-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .constitution-amendment-heading {
+    flex-direction: column;
+  }
+
+  .constitution-decision-actions {
+    align-items: stretch;
+  }
+
+  .constitution-decision-actions button {
+    width: 100%;
+  }
+}

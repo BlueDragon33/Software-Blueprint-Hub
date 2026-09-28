@@ -1,4 +1,21 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+
+import {
+  AuthorityService,
+  type AuthenticatedActor,
+  type CanonicalConstitutionAmendmentRecord,
+  type ConstitutionAuthorityRepository,
+  type ConstitutionEvidenceKind,
+  type ConstitutionEvidenceRecord,
+  type ConstitutionRatificationDecisionKind,
+  type ConstitutionRatificationDecisionRecord
+} from "@blueprint-os/core";
+
+export type {
+  CanonicalConstitutionAmendmentRecord,
+  ConstitutionEvidenceKind,
+  ConstitutionRatificationDecisionKind
+} from "@blueprint-os/core";
 
 export const CONSTITUTION_POLICY_ID = "blueprint-os:universal-century-grade" as const;
 export const CONSTITUTION_POLICY_VERSION = "1.1.0" as const;
@@ -369,4 +386,365 @@ export function createConstitutionAuthorityPrompt(
     mayRatify: false,
     productionReleaseAuthority: false
   });
+}
+
+
+export interface ConstitutionAmendmentDraftInput {
+  readonly targetPolicyVersion: string;
+  readonly title: string;
+  readonly problem: string;
+  readonly rationale: string;
+  readonly affectedPillarIds: readonly string[];
+  readonly affectedRequirementIds: readonly string[];
+  readonly compatibilityRisk: ConstitutionAmendmentProposal["compatibilityRisk"];
+  readonly migrationRequired: boolean;
+}
+
+export interface ConstitutionStageEvidenceInput {
+  readonly amendmentId: string;
+  readonly expectedRecordVersion: number;
+  readonly kind: Extract<ConstitutionEvidenceKind, "impact" | "migration">;
+  readonly source: string;
+  readonly revision: string;
+  readonly digest: string;
+  readonly note: string;
+}
+
+export interface ConstitutionRatificationSubmission {
+  readonly amendmentId: string;
+  readonly expectedRecordVersion: number;
+  readonly decision: ConstitutionRatificationDecisionKind;
+  readonly note: string;
+}
+
+export interface ConstitutionAmendmentWorkspace {
+  readonly amendment: CanonicalConstitutionAmendmentRecord;
+  readonly evidence: readonly ConstitutionEvidenceRecord[];
+  readonly ratificationDecision: ConstitutionRatificationDecisionRecord | null;
+}
+
+function nonEmpty(value: string, label: string): string {
+  const normalized = value.trim();
+  if (!normalized) throw new TypeError(`${label} is required`);
+  return normalized;
+}
+
+function semver(value: string, label: string): string {
+  const normalized = nonEmpty(value, label);
+  if (!/^\d+\.\d+\.\d+$/.test(normalized)) {
+    throw new TypeError(`${label} must use major.minor.patch semantic versioning`);
+  }
+  return normalized;
+}
+
+function requireIsoTimestamp(value: string): string {
+  const normalized = nonEmpty(value, "timestamp");
+  const parsed = Date.parse(normalized);
+  if (Number.isNaN(parsed) || new Date(parsed).toISOString() !== normalized) {
+    throw new TypeError("timestamp must be an exact ISO-8601 UTC timestamp");
+  }
+  return normalized;
+}
+
+const compatibilityRisks = new Set([
+  "low",
+  "medium",
+  "high",
+  "critical"
+] as const);
+
+function compatibilityRisk(
+  value: ConstitutionAmendmentProposal["compatibilityRisk"]
+): ConstitutionAmendmentProposal["compatibilityRisk"] {
+  if (!compatibilityRisks.has(value)) {
+    throw new TypeError("compatibilityRisk must be low, medium, high, or critical");
+  }
+  return value;
+}
+
+function compareSemver(a: string, b: string): number {
+  const left = a.split(".").map(Number);
+  const right = b.split(".").map(Number);
+  for (let index = 0; index < 3; index += 1) {
+    const delta = left[index]! - right[index]!;
+    if (delta !== 0) return delta;
+  }
+  return 0;
+}
+
+function uniqueStrings(values: readonly string[], label: string): readonly string[] {
+  if (!Array.isArray(values) || values.some((value) => typeof value !== "string")) {
+    throw new TypeError(`${label} must be a string array`);
+  }
+  return Object.freeze(
+    [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort()
+  );
+}
+
+function sha256Digest(value: string): string {
+  const normalized = nonEmpty(value, "digest").toLowerCase();
+  if (!/^sha256:[a-f0-9]{64}$/.test(normalized)) {
+    throw new TypeError("digest must be sha256:<64 lowercase hex characters>");
+  }
+  return normalized;
+}
+
+function canonicalNext(
+  current: CanonicalConstitutionAmendmentRecord,
+  next: ConstitutionAmendmentRecord,
+  now: string
+): CanonicalConstitutionAmendmentRecord {
+  return Object.freeze({
+    ...next,
+    proposedByActorId: current.proposedByActorId,
+    recordVersion: current.recordVersion + 1,
+    createdAt: current.createdAt,
+    updatedAt: now
+  });
+}
+
+export class ConstitutionAuthorityApplicationService {
+  constructor(
+    private readonly repository: ConstitutionAuthorityRepository,
+    private readonly authority: AuthorityService
+  ) {}
+
+  async list(
+    actor: AuthenticatedActor | null
+  ): Promise<readonly CanonicalConstitutionAmendmentRecord[]> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    return this.repository.listAmendments();
+  }
+
+  async read(
+    actor: AuthenticatedActor | null,
+    amendmentId: string
+  ): Promise<ConstitutionAmendmentWorkspace | null> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    const amendment = await this.repository.findAmendmentById(
+      nonEmpty(amendmentId, "amendmentId")
+    );
+    if (!amendment) return null;
+
+    const evidence = await this.repository.listEvidence(amendment.proposal.id);
+    const ratificationDecision = amendment.ratificationDecisionId
+      ? await this.repository.findRatificationDecisionById(
+          amendment.ratificationDecisionId
+        )
+      : null;
+
+    return Object.freeze({
+      amendment,
+      evidence,
+      ratificationDecision
+    });
+  }
+
+  async createDraft(
+    actor: AuthenticatedActor | null,
+    input: ConstitutionAmendmentDraftInput,
+    now: string
+  ): Promise<CanonicalConstitutionAmendmentRecord> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    const timestamp = requireIsoTimestamp(now);
+    const targetPolicyVersion = semver(
+      input.targetPolicyVersion,
+      "targetPolicyVersion"
+    );
+    const basePolicyVersion = semver(
+      CONSTITUTION_POLICY_VERSION,
+      "basePolicyVersion"
+    );
+    if (compareSemver(targetPolicyVersion, basePolicyVersion) <= 0) {
+      throw new TypeError(
+        "targetPolicyVersion must be greater than the active Constitution version"
+      );
+    }
+
+    const proposal: CanonicalConstitutionAmendmentRecord["proposal"] =
+      Object.freeze({
+        id: `amendment:${randomUUID()}`,
+        basePolicyVersion,
+        targetPolicyVersion,
+        title: nonEmpty(input.title, "title"),
+        problem: nonEmpty(input.problem, "problem"),
+        rationale: nonEmpty(input.rationale, "rationale"),
+        affectedPillarIds: uniqueStrings(
+          input.affectedPillarIds,
+          "affectedPillarIds"
+        ),
+        affectedRequirementIds: uniqueStrings(
+          input.affectedRequirementIds,
+          "affectedRequirementIds"
+        ),
+        compatibilityRisk: compatibilityRisk(input.compatibilityRisk),
+        migrationRequired: input.migrationRequired,
+        proposedAt: timestamp
+      });
+
+    if (proposal.affectedPillarIds.length === 0) {
+      throw new TypeError("At least one affected Constitutional pillar is required");
+    }
+
+    const record: CanonicalConstitutionAmendmentRecord = Object.freeze({
+      proposal,
+      state: "draft",
+      impactEvidenceIds: Object.freeze([]),
+      migrationEvidenceIds: Object.freeze([]),
+      ratificationDecisionId: null,
+      publicationEvidenceId: null,
+      propagationEvidenceIds: Object.freeze([]),
+      verificationEvidenceIds: Object.freeze([]),
+      productionReleaseAuthority: false,
+      proposedByActorId: actor!.principalId,
+      recordVersion: 1,
+      createdAt: timestamp,
+      updatedAt: timestamp
+    });
+
+    return this.repository.createAmendment(record);
+  }
+
+  async recordStageEvidence(
+    actor: AuthenticatedActor | null,
+    input: ConstitutionStageEvidenceInput,
+    now: string
+  ): Promise<CanonicalConstitutionAmendmentRecord> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    const current = await this.requireExactAmendment(
+      input.amendmentId,
+      input.expectedRecordVersion
+    );
+    const timestamp = requireIsoTimestamp(now);
+
+    const expectedKind =
+      current.state === "draft"
+        ? "impact"
+        : current.state === "impact-reviewed"
+          ? "migration"
+          : null;
+
+    if (!expectedKind || input.kind !== expectedKind) {
+      throw new TypeError(
+        `Constitution stage ${current.state} does not accept ${input.kind} evidence`
+      );
+    }
+
+    const evidence: ConstitutionEvidenceRecord = Object.freeze({
+      id: `constitution-evidence:${randomUUID()}`,
+      amendmentId: current.proposal.id,
+      kind: input.kind,
+      source: nonEmpty(input.source, "source"),
+      revision: nonEmpty(input.revision, "revision"),
+      digest: sha256Digest(input.digest),
+      note: nonEmpty(input.note, "note"),
+      recordedByActorId: actor!.principalId,
+      createdAt: timestamp
+    });
+
+    const transition = transitionConstitutionAmendment(current, {
+      action:
+        input.kind === "impact"
+          ? "complete-impact-review"
+          : "complete-migration-plan",
+      evidenceIds: [evidence.id]
+    });
+    const next = canonicalNext(current, transition, timestamp);
+
+    return this.repository.appendEvidenceAndUpdate(
+      evidence,
+      next,
+      input.expectedRecordVersion,
+      actor!.principalId,
+      input.kind === "impact"
+        ? "IMPACT_REVIEW_COMPLETED"
+        : "MIGRATION_PLAN_COMPLETED"
+    );
+  }
+
+  async openRatification(
+    actor: AuthenticatedActor | null,
+    amendmentId: string,
+    expectedRecordVersion: number,
+    now: string
+  ): Promise<CanonicalConstitutionAmendmentRecord> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    const current = await this.requireExactAmendment(
+      amendmentId,
+      expectedRecordVersion
+    );
+    const transition = transitionConstitutionAmendment(current, {
+      action: "open-ratification"
+    });
+    const next = canonicalNext(current, transition, requireIsoTimestamp(now));
+    return this.repository.updateAmendment(
+      next,
+      expectedRecordVersion,
+      actor!.principalId,
+      "RATIFICATION_OPENED"
+    );
+  }
+
+  async ratify(
+    actor: AuthenticatedActor | null,
+    input: ConstitutionRatificationSubmission,
+    now: string
+  ): Promise<CanonicalConstitutionAmendmentRecord> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    const current = await this.requireExactAmendment(
+      input.amendmentId,
+      input.expectedRecordVersion
+    );
+    if (current.state !== "ratification-ready") {
+      throw new TypeError(
+        "Constitution amendment must be ratification-ready before a human decision"
+      );
+    }
+
+    const timestamp = requireIsoTimestamp(now);
+    const decisionId = `constitution-ratification:${randomUUID()}`;
+    const note = nonEmpty(input.note, "ratification note");
+    const decision: ConstitutionRatificationDecisionRecord = Object.freeze({
+      id: decisionId,
+      amendmentId: current.proposal.id,
+      amendmentRecordVersion: current.recordVersion,
+      reviewerActorId: actor!.principalId,
+      source: "authenticated-user-action",
+      decision: input.decision,
+      note,
+      decidedAt: timestamp,
+      humanRatification: true,
+      productionReleaseAuthority: false
+    });
+
+    const transition = transitionConstitutionAmendment(current, {
+      action: input.decision === "approve" ? "ratify" : "reject",
+      humanRatificationDecisionId: decisionId
+    });
+    const next = canonicalNext(current, transition, timestamp);
+
+    return this.repository.appendRatificationDecisionAndUpdate(
+      decision,
+      next,
+      input.expectedRecordVersion
+    );
+  }
+
+  private async requireExactAmendment(
+    amendmentId: string,
+    expectedRecordVersion: number
+  ): Promise<CanonicalConstitutionAmendmentRecord> {
+    const current = await this.repository.findAmendmentById(
+      nonEmpty(amendmentId, "amendmentId")
+    );
+    if (!current) {
+      throw new TypeError(`Unknown Constitution amendment ${amendmentId}`);
+    }
+    if (current.recordVersion !== expectedRecordVersion) {
+      throw new TypeError(
+        `Constitution amendment is stale: expected recordVersion ${expectedRecordVersion}, current is ${current.recordVersion}`
+      );
+    }
+    return current;
+  }
 }
