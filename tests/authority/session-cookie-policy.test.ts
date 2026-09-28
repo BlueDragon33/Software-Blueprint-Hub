@@ -20,10 +20,28 @@ describe("Auth.js session cookie transport policy", () => {
 
     expect(
       shouldUseSecureAuthCookie({
-        forwardedHost: "[::1]:3000",
+        host: "[::1]:3000",
         nodeEnv: "production"
       })
     ).toBe(false);
+  });
+
+  it("does not allow forwarded host spoofing to downgrade Production cookie lookup", () => {
+    expect(
+      shouldUseSecureAuthCookie({
+        host: "blueprint.example.com",
+        forwardedProto: "http",
+        nodeEnv: "production"
+      })
+    ).toBe(true);
+
+    expect(
+      shouldUseSecureAuthCookie({
+        host: "localhost:3000",
+        forwardedProto: "https",
+        nodeEnv: "production"
+      })
+    ).toBe(true);
   });
 
   it("keeps non-local production hosts on secure Auth.js cookies", () => {
