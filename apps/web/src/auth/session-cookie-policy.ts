@@ -2,6 +2,7 @@ export interface SessionCookiePolicyInput {
   readonly host?: string | null;
   readonly forwardedProto?: string | null;
   readonly nodeEnv?: string | null;
+  readonly allowLocalHttpAuth?: boolean;
 }
 
 function firstHeaderValue(value: string | null | undefined): string | null {
@@ -18,6 +19,16 @@ function hostnameFromHeader(value: string | null): string | null {
   return value.split(":")[0] ?? value;
 }
 
+function isLoopbackHost(host: string | null): boolean {
+  const hostname = hostnameFromHeader(host);
+  return (
+    hostname === "localhost" ||
+    hostname?.endsWith(".localhost") === true ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1"
+  );
+}
+
 export function shouldUseSecureAuthCookie(
   input: SessionCookiePolicyInput
 ): boolean {
@@ -26,16 +37,13 @@ export function shouldUseSecureAuthCookie(
     return true;
   }
 
-  const hostname = hostnameFromHeader(firstHeaderValue(input.host));
-  const localHost =
-    hostname === "localhost" ||
-    hostname?.endsWith(".localhost") === true ||
-    hostname === "127.0.0.1" ||
-    hostname === "::1";
+  if (input.nodeEnv === "production") {
+    const localHttpExplicitlyAllowed =
+      input.allowLocalHttpAuth === true &&
+      isLoopbackHost(firstHeaderValue(input.host));
 
-  if (localHost) {
-    return false;
+    return !localHttpExplicitlyAllowed;
   }
 
-  return input.nodeEnv === "production";
+  return forwardedProto === "https";
 }
