@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0.0",
+  "authority": "software-blueprint-hub-constitution-center",
+  "repositories": [
+    {
+      "repository": "BlueDragon33/Software-Blueprint-Hub",
+      "projectId": "project:blueprint-os",
+      "blueprintLevel": "B4",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/Bauman-master-ai-system",
+      "projectId": "project:bauman-master-ai-system",
+      "blueprintLevel": "B4",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/Application-Management",
+      "projectId": "project:application-management",
+      "blueprintLevel": "B4",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/BOIECH_AI",
+      "projectId": "project:boiech-ai",
+      "blueprintLevel": "B3",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/RU_LIFE",
+      "projectId": "project:ru-life",
+      "blueprintLevel": "B3",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/Health_Care",
+      "projectId": "project:health-care",
+      "blueprintLevel": "B5",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/NC03_Modem",
+      "projectId": "project:nc03-modem",
+      "blueprintLevel": "B4",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/ROS-1-2",
+      "projectId": "project:ros-1-2",
+      "blueprintLevel": "B3",
+      "defaultBranch": "ros2"
+    },
+    {
+      "repository": "BlueDragon33/Math_Bauman",
+      "projectId": "project:math-bauman",
+      "blueprintLevel": "B2",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/GrowUP_MyChildren",
+      "projectId": "project:growup-mychildren",
+      "blueprintLevel": "B5",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/Hardware_Simulation",
+      "projectId": "project:hardware-simulation",
+      "blueprintLevel": "B2",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/MPC_PID_System",
+      "projectId": "project:mpc-pid-system",
+      "blueprintLevel": "B3",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/CAD_CAM_3D",
+      "projectId": "project:cad-cam-3d",
+      "blueprintLevel": "B2",
+      "defaultBranch": "main"
+    },
+    {
+      "repository": "BlueDragon33/PriceReport_Tunggiabao",
+      "projectId": "project:pricereport-tunggiabao",
+      "blueprintLevel": "B3",
+      "defaultBranch": "main"
+    }
+  ],
+  "constitutionalMutationAuthority": "central-amendment-protocol-only",
+  "repositoryMutationAuthority": "provider-scoped-explicit-action-only",
+  "productionReleaseAuthority": false
+}
