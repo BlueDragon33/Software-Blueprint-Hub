@@ -12,7 +12,6 @@ async function authenticatePrincipal(
   subject: string,
   email: string
 ): Promise<void> {
-  await page.setExtraHTTPHeaders({ "x-forwarded-proto": "http" });
   const cookieName = "authjs.session-token";
   const token = await encode({
     secret: e2eAuthSecret,
