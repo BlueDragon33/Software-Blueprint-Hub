@@ -30,9 +30,14 @@ export default async function ProfessionalReviewPage() {
               Automated evidence is visible only as review input. A human
               decision requires an authenticated reviewer.
             </p>
-            <a className="primary-button" href="/api/auth/signin">
-              Sign in
-            </a>
+            <div className="professional-review-actions">
+              <a className="primary-button" href="/api/auth/signin">
+                Sign in
+              </a>
+              <Link className="secondary-button" href="/professional-review/readiness">
+                Check runtime readiness
+              </Link>
+            </div>
           </section>
         </main>
       </AppShell>
