@@ -77,6 +77,7 @@ jobs:
       - name: Verify migration status
         run: pnpm db:migrate:status
 
+      # P9-020 requires the manual gate to prove the same governance invariants as the push release gate.
       - name: Universal Constitution compliance
         run: pnpm constitution:check
 
