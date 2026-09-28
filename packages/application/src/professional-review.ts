@@ -40,17 +40,18 @@ export const p9019ProfessionalReviewCandidate: HumanProfessionalReviewCandidate 
   Object.freeze({
     kind: "human-professional-review-candidate",
     projectId: "project:blueprint-os",
-    reviewedRevision: "d32532927d48076c96259ca20d16a9243f1fe1b3",
+    reviewedRevision: "c407386d5e7f112d8be39a3800a4e7a0444bec5e",
     evidenceArtifact: Object.freeze({
-      workflowRunId: 36377043606,
-      artifactId: 10951361448,
+      workflowRunId: 36409922206,
+      artifactId: 10963368635,
       digest:
-        "sha256:96b5fa6a5db9182ea27146db6031026ffd662750d7adf4f176dddbca24c77b9f"
+        "sha256:559428654aa09e5349d808449425364df4a4671574496292a768ab1a6fcdea9b"
     }),
     reviewedViewports: Object.freeze(["desktop", "tablet", "mobile"] as const),
     reviewedSurfaces: Object.freeze([
       "Projects / System Compass",
       "Canonical Project Workspace",
+      "Constitution / Compliance",
       "Quality & revision-specific evidence",
       "Portfolio",
       "Data Lifecycle",
