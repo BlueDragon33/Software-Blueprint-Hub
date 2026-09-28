@@ -77,6 +77,24 @@ jobs:
       - name: Verify migration status
         run: pnpm db:migrate:status
 
+      - name: Universal Constitution compliance
+        run: pnpm constitution:check
+
+      - name: Constitution authority-set atomicity
+        run: node scripts/check-constitution-authority-set.mjs --write artifacts/constitution-authority-set.json
+
+      - name: Constitution ecosystem snapshot
+        run: node scripts/check-constitution-ecosystem-snapshot.mjs
+
+      - name: Constitution compliance matrix snapshot
+        run: node scripts/check-constitution-compliance-snapshot.mjs
+
+      - name: Source-of-truth contradiction gate
+        run: pnpm check:truth
+
+      - name: Source-of-truth detector self-test
+        run: pnpm test:truth
+
       - name: Generated contract drift
         run: pnpm contracts:check
 
