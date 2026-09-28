@@ -4,16 +4,16 @@ Status: **REVIEW CANDIDATE — HUMAN SIGN-OFF REQUIRED**
 
 ## Evidence reviewed
 
-- exact application revision: `c407386d5e7f112d8be39a3800a4e7a0444bec5e`;
-- full Release Gate run: `36409922206` — PASS;
-- screenshot artifact: `10963368635`;
-- artifact digest: `sha256:559428654aa09e5349d808449425364df4a4671574496292a768ab1a6fcdea9b`;
+- exact application revision: `30e536e077e0172c9fb8819ea5ab9a280f407f26`;
+- full Release Gate run: `36416876423` — PASS;
+- screenshot artifact: `10967937656`;
+- artifact digest: `sha256:f07ccb857affd951499e65a18d0a9f0da806f62fe55f9b7da86ebba377af63e8`;
 - desktop, tablet/iPad-class and mobile evidence inspected;
 - representative surfaces reviewed: Projects/Compass, canonical workspace, Constitution/Compliance, Quality, Portfolio, Data Lifecycle, Prompt, Knowledge/Reference Case, Releases/Lessons.
 
 ## Refresh reason
 
-The previous candidate became stale after Release Gate governance parity was hardened and stale evidence fixtures were repaired. The current candidate is bound to a new exact revision and new responsive UX artifact.
+The previous candidate became stale because ADR-0003's required one-time Owner bootstrap path was not exposed by the product. The operational remediation added authenticated `/setup/owner`, takeover-safe behavior and responsive E2E coverage. The current candidate is bound to the exact remediated revision and refreshed Human UX artifact.
 
 ## Professional review findings
 
@@ -60,6 +60,23 @@ A decision is valid only when:
 - an approval may authorize only the transition to P9-020; it still grants **zero Production release authority**.
 
 No approval decision is checked into source control. The current canonical state therefore remains **HUMAN SIGN-OFF REQUIRED** until an actual human action records one.
+
+## Operational authority setup remediation
+
+A review surface is not operational if no real authenticated account can acquire the authority required to use it.
+
+ADR-0003 requires an explicit one-time Owner bootstrap path. The P9-019 implementation now includes `/setup/owner`, which:
+
+- requires an Auth.js-authenticated identity;
+- delegates to canonical `AuthorityService.bootstrapOwner`;
+- creates exactly one System Owner through the transactional authority repository;
+- fails closed if an Owner already exists, preventing takeover by another authenticated account;
+- creates no P9-019 approval, P9-020 acceptance or Production authority;
+- routes the configured Owner back to the separate professional-review decision surface.
+
+Responsive E2E coverage verifies signed-out authentication guidance, configured-Owner recognition and takeover rejection.
+
+This remediation is now captured by full Release Gate `36416876423` on exact revision `30e536e077e0172c9fb8819ea5ab9a280f407f26`. Earlier P9-019 screenshot candidates are stale.
 
 ## Review recording surface
 

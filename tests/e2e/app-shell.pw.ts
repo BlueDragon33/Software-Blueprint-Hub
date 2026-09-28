@@ -53,6 +53,58 @@ async function authenticateNoAccessUser(page: Page): Promise<void> {
   );
 }
 
+test("ADR-0003 owner setup is explicit, authenticated, and takeover-safe", async ({
+  page
+}, testInfo) => {
+  await page.goto("/setup/owner");
+  await expect(
+    page.getByRole("heading", {
+      name: "Sign in before initializing the System Owner."
+    })
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+    "href",
+    "/api/auth/signin"
+  );
+
+  await authenticateRegistryOwner(page);
+  await page.goto("/setup/owner");
+  await expect(
+    page.getByRole("heading", {
+      name: "This authenticated account is the System Owner."
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Open P9-019 professional review" })
+  ).toHaveAttribute("href", "/professional-review");
+  await expect(
+    page.getByText("System Owner active", { exact: true })
+  ).toBeVisible();
+
+  await page.context().clearCookies();
+  await authenticateNoAccessUser(page);
+  await page.goto("/setup/owner");
+  const initialize = page.getByRole("button", {
+    name: "Initialize this account as System Owner"
+  });
+  await expect(initialize).toBeEnabled();
+  await initialize.click();
+  await expect(
+    page.getByText(
+      "Blueprint OS already has a System Owner. Existing authority was not changed.",
+      { exact: true }
+    )
+  ).toBeVisible();
+  await expect(
+    page.getByText("System Owner active", { exact: true })
+  ).toHaveCount(0);
+
+  await page.screenshot({
+    path: `artifacts/p9-019-owner-bootstrap-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
 test("signed-out root protects the canonical project registry", async ({ page }, testInfo) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();

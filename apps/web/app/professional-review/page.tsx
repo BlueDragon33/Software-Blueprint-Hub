@@ -67,7 +67,12 @@ export default async function ProfessionalReviewPage() {
             <h1>PROJECT_REVIEW authority is required.</h1>
             <p>
               Blueprint OS did not expose a decision control to this account.
+              If this is a new database, initialize the first System Owner
+              through the explicit one-time setup path.
             </p>
+            <Link className="secondary-button" href="/setup/owner">
+              Open System Owner setup
+            </Link>
           </section>
         </main>
       </AppShell>

@@ -50,11 +50,27 @@ Cost:
 - role changes are auditable protected actions;
 - OAuth/provider secrets stay in environment/provider secret management.
 
+## Operational setup path
+
+The web application exposes `/setup/owner` as the explicit one-time Owner bootstrap path required by this ADR.
+
+Rules:
+
+- Auth.js authentication is required before bootstrap;
+- the authenticated identity is passed to the canonical `AuthorityService.bootstrapOwner`;
+- the repository transaction creates exactly one System Owner and an audit event;
+- if a System Owner already exists, the action fails closed and preserves existing authority;
+- Owner bootstrap grants no P9-019 approval, P9-020 acceptance or Production release authority;
+- after bootstrap, the Owner must separately open `/professional-review` and record an explicit decision.
+
 ## Validation
 
-Integration tests must cover:
+Integration and E2E tests must cover:
 - unauthenticated mutation denied;
 - Viewer mutation denied;
 - Editor allowed only within granted scope;
 - Reviewer does not gain Owner actions;
-- Owner bootstrap cannot be repeated to seize an initialized system.
+- Owner bootstrap cannot be repeated to seize an initialized system;
+- signed-out users are directed to authenticate before `/setup/owner`;
+- the configured Owner sees the protected P9-019 path;
+- a different authenticated account receives a fail-closed conflict instead of taking over ownership.
