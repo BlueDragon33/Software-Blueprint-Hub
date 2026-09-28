@@ -1126,6 +1126,12 @@ test("Constitution Center exposes authority separation and prompt governance", a
   await expect(
     page.getByText("Production authority separate", { exact: true })
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "System Owner authentication required" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "New amendment draft" })
+  ).toHaveCount(0);
 
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
@@ -1134,6 +1140,43 @@ test("Constitution Center exposes authority separation and prompt governance", a
 
   await page.screenshot({
     path: `artifacts/constitution-center-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+
+test("System Owner can open the canonical amendment workspace without automated ratification", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/constitution");
+
+  await expect(
+    page.getByRole("heading", { name: "Canonical amendment workspace" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("System Owner authority", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "New amendment draft" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Create canonical draft" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /publish/i })
+  ).toHaveCount(0);
+  await expect(
+    page.getByText(/Publication is intentionally unavailable in this phase/i)
+  ).toBeVisible();
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
+  expect(overflow).toBe(false);
+
+  await page.screenshot({
+    path: `artifacts/constitution-authority-console-${testInfo.project.name}.png`,
     fullPage: true
   });
 });
