@@ -73,6 +73,46 @@ export interface ConstitutionRatificationDecisionRecord {
   readonly productionReleaseAuthority: false;
 }
 
+
+export type ConstitutionAuthoritySetComponentId =
+  | "normative-document"
+  | "machine-contract"
+  | "universal-template"
+  | "policy-version";
+
+export interface ConstitutionAuthoritySetComponent {
+  readonly id: ConstitutionAuthoritySetComponentId;
+  readonly path: string;
+  readonly version: string;
+  readonly digest: string;
+}
+
+export interface ConstitutionAuthoritySetAttestation {
+  readonly schemaVersion: "1.0.0";
+  readonly source: "trusted-ci-attestation";
+  readonly policyId: string;
+  readonly policyVersion: string;
+  readonly sourceRevision: string;
+  readonly ciRunId: string;
+  readonly components: readonly ConstitutionAuthoritySetComponent[];
+  readonly authoritySetDigest: string;
+  readonly productionReleaseAuthority: false;
+}
+
+export interface ConstitutionPublicationRecord {
+  readonly id: string;
+  readonly amendmentId: string;
+  readonly amendmentRecordVersion: number;
+  readonly policyVersion: string;
+  readonly publishedByActorId: string;
+  readonly sourceRevision: string;
+  readonly ciRunId: string;
+  readonly authoritySetDigest: string;
+  readonly components: readonly ConstitutionAuthoritySetComponent[];
+  readonly publishedAt: string;
+  readonly productionReleaseAuthority: false;
+}
+
 export interface ConstitutionAuthorityRepository {
   createAmendment(
     record: CanonicalConstitutionAmendmentRecord
@@ -117,6 +157,17 @@ export interface ConstitutionAuthorityRepository {
   findRatificationDecisionById(
     decisionId: string
   ): Promise<ConstitutionRatificationDecisionRecord | null>;
+
+  appendPublicationAndUpdate(
+    publication: ConstitutionPublicationRecord,
+    evidence: ConstitutionEvidenceRecord,
+    record: CanonicalConstitutionAmendmentRecord,
+    expectedRecordVersion: number
+  ): Promise<CanonicalConstitutionAmendmentRecord>;
+
+  findPublicationByAmendmentId(
+    amendmentId: string
+  ): Promise<ConstitutionPublicationRecord | null>;
 }
 
 export class ConstitutionRecordVersionConflictError extends Error {
