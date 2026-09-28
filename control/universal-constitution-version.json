@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "policyId": "blueprint-os:universal-century-grade",
+  "policyVersion": "1.1.0",
+  "normativeDocument": {
+    "path": "docs/UNIVERSAL-CONSTITUTION.md",
+    "version": "1.1.0"
+  },
+  "machineContract": {
+    "path": "control/universal-constitution.contract.json",
+    "version": "1.1.0"
+  },
+  "universalTemplate": {
+    "path": "packages/application/src/foundation-templates.ts",
+    "id": "template:constitution:universal-v1",
+    "version": "1.1.0"
+  },
+  "policySource": {
+    "path": "packages/application/src/constitution-authority.ts",
+    "version": "1.1.0"
+  },
+  "productionReleaseAuthority": false
+}
