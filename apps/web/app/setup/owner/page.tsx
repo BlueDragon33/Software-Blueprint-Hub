@@ -28,9 +28,14 @@ export default async function OwnerSetupPage() {
               Identity comes from Auth.js. Blueprint OS stores authority
               separately and never infers Owner status from OAuth claims.
             </p>
-            <a className="primary-button" href="/api/auth/signin">
-              Sign in
-            </a>
+            <div className="professional-review-actions">
+              <a className="primary-button" href="/api/auth/signin">
+                Sign in
+              </a>
+              <Link className="secondary-button" href="/professional-review/readiness">
+                Check runtime readiness
+              </Link>
+            </div>
           </section>
         </main>
       </AppShell>
