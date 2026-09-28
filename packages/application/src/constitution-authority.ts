@@ -11,6 +11,12 @@ import {
   type ConstitutionRatificationDecisionRecord
 } from "@blueprint-os/core";
 
+export type {
+  CanonicalConstitutionAmendmentRecord,
+  ConstitutionEvidenceKind,
+  ConstitutionRatificationDecisionKind
+} from "@blueprint-os/core";
+
 export const CONSTITUTION_POLICY_ID = "blueprint-os:universal-century-grade" as const;
 export const CONSTITUTION_POLICY_VERSION = "1.1.0" as const;
 export const CONSTITUTION_AUTHORITY_PROMPT_VERSION =
