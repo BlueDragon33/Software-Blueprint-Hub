@@ -10,14 +10,14 @@ export interface HumanReviewReadinessCheck {
 }
 
 export interface HumanReviewReadinessEnvironment {
-  readonly databaseUrl?: string | null;
-  readonly authSecret?: string | null;
-  readonly githubClientId?: string | null;
-  readonly githubClientSecret?: string | null;
-  readonly bootstrapProvider?: string | null;
-  readonly bootstrapSubject?: string | null;
-  readonly allowLocalHttpAuth?: string | null;
-  readonly nodeEnv?: string | null;
+  readonly databaseUrl?: string | null | undefined;
+  readonly authSecret?: string | null | undefined;
+  readonly githubClientId?: string | null | undefined;
+  readonly githubClientSecret?: string | null | undefined;
+  readonly bootstrapProvider?: string | null | undefined;
+  readonly bootstrapSubject?: string | null | undefined;
+  readonly allowLocalHttpAuth?: string | null | undefined;
+  readonly nodeEnv?: string | null | undefined;
 }
 
 export interface HumanReviewRuntimeReadiness {
