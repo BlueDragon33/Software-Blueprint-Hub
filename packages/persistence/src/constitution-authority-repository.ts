@@ -312,6 +312,13 @@ function assertNextVersion(
 }
 
 
+const publicationComponentIds = new Set([
+  "normative-document",
+  "machine-contract",
+  "universal-template",
+  "policy-version"
+]);
+
 function asPublication(row: {
   id: string;
   amendmentId: string;
@@ -343,7 +350,10 @@ function asPublication(row: {
       row.sourceRevision ||
     string(document.ciRunId, "publication.ciRunId") !== row.ciRunId ||
     string(document.authoritySetDigest, "publication.authoritySetDigest") !==
-      row.authoritySetDigest
+      row.authoritySetDigest ||
+    iso(document.publishedAt, "publication.publishedAt") !==
+      row.publishedAt.toISOString() ||
+    document.productionReleaseAuthority !== false
   ) {
     throw new TypeError(
       "Stored Constitution publication columns drift from canonical document"
@@ -365,8 +375,14 @@ function asPublication(row: {
     components: Object.freeze(
       document.components.map((item, index) => {
         const component = object(item, `publication.components[${index}]`);
+        const id = string(component.id, "publication component id");
+        if (!publicationComponentIds.has(id)) {
+          throw new TypeError(
+            `Stored Constitution publication has invalid component id ${id}`
+          );
+        }
         return Object.freeze({
-          id: string(component.id, "publication component id") as ConstitutionPublicationRecord["components"][number]["id"],
+          id: id as ConstitutionPublicationRecord["components"][number]["id"],
           path: string(component.path, "publication component path"),
           version: string(component.version, "publication component version"),
           digest: string(component.digest, "publication component digest")
