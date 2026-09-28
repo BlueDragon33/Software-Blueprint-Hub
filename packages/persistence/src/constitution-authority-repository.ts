@@ -48,6 +48,13 @@ function string(value: unknown, label: string): string {
   return value;
 }
 
+function boolean(value: unknown, label: string): boolean {
+  if (typeof value !== "boolean") {
+    throw new TypeError(`${label} must be a boolean`);
+  }
+  return value;
+}
+
 function integer(value: unknown, label: string): number {
   if (!Number.isInteger(value) || Number(value) < 1) {
     throw new TypeError(`${label} must be a positive integer`);
@@ -129,11 +136,20 @@ function asAmendment(
         proposal.affectedRequirementIds,
         "proposal.affectedRequirementIds"
       ),
-      compatibilityRisk: string(
-        proposal.compatibilityRisk,
-        "proposal.compatibilityRisk"
-      ) as CanonicalConstitutionAmendmentRecord["proposal"]["compatibilityRisk"],
-      migrationRequired: Boolean(proposal.migrationRequired),
+      compatibilityRisk: (() => {
+        const risk = string(
+          proposal.compatibilityRisk,
+          "proposal.compatibilityRisk"
+        );
+        if (!["low", "medium", "high", "critical"].includes(risk)) {
+          throw new TypeError("Stored Constitution amendment has invalid compatibilityRisk");
+        }
+        return risk as CanonicalConstitutionAmendmentRecord["proposal"]["compatibilityRisk"];
+      })(),
+      migrationRequired: boolean(
+        proposal.migrationRequired,
+        "proposal.migrationRequired"
+      ),
       proposedAt: iso(proposal.proposedAt, "proposal.proposedAt")
     }),
     state: state as CanonicalConstitutionAmendmentState,
@@ -548,6 +564,15 @@ export class PostgresConstitutionAuthorityRepository
           amendmentRecordVersion
         }
       }
+    });
+    return row ? asDecision(row) : null;
+  }
+
+  async findRatificationDecisionById(
+    decisionId: string
+  ): Promise<ConstitutionRatificationDecisionRecord | null> {
+    const row = await this.prisma.constitutionRatificationDecision.findUnique({
+      where: { id: decisionId }
     });
     return row ? asDecision(row) : null;
   }
