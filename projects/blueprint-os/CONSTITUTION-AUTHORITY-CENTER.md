@@ -110,7 +110,7 @@ Completion criteria for this branch:
 - Production authority remains false.
 
 ### CA-005 — Ecosystem propagation
-Status: **PLANNED**
+Status: **IMPLEMENTED CANDIDATE — FULL GATE REQUIRED**
 
 For governed repositories:
 - detect stale adoption version;
@@ -119,6 +119,17 @@ For governed repositories:
 - report CI compliance;
 - never fabricate project gate evidence;
 - keep Production authority separate.
+
+Candidate implementation:
+- canonical governed-repository registry covers the authority repo plus 13 governed repositories;
+- provenance-bound adoption snapshot records exact default-branch Git SHA and manifest state;
+- deterministic propagation planner reports current / migration-required / policy-ahead / invalid-adoption / unverified;
+- stale policy produces a non-authoritative migration plan with zero external-repository mutation, Quality Gate PASS or Production authority;
+- invalid/missing adoption fails closed instead of being treated as migrated;
+- CI validates registry/snapshot coverage, branch, exact SHA shape, project identity, Blueprint Level and adoption authority boundaries;
+- /constitution exposes the propagation matrix only to authenticated Constitutional Authority;
+- public Constitution readers do not receive governance inventory metadata;
+- the first verified snapshot is 14/14 current at policy 1.1.0.
 
 ### CA-006 — Constitutional compliance matrix
 Status: **PLANNED**
