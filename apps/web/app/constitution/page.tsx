@@ -8,9 +8,27 @@ import {
 } from "@blueprint-os/application";
 import { AppShell, StatusChip } from "@blueprint-os/ui";
 
+import { resolveWebActor } from "../../src/auth/server-actor";
+import { getBlueprintServerRuntime } from "../../src/server/runtime";
+import { ConstitutionAuthorityConsole } from "./constitution-authority-console";
+
 export const dynamic = "force-dynamic";
 
-export default function ConstitutionCenterPage() {
+export default async function ConstitutionCenterPage() {
+  const actor = await resolveWebActor();
+  let canManage = false;
+  let amendments = [] as Awaited<
+    ReturnType<ReturnType<typeof getBlueprintServerRuntime>["constitutionAuthority"]["list"]>
+  >;
+
+  if (actor) {
+    const runtime = getBlueprintServerRuntime();
+    canManage = await runtime.authority.canExerciseConstitutionalAuthority(actor);
+    if (canManage) {
+      amendments = await runtime.constitutionAuthority.list(actor);
+    }
+  }
+
   return (
     <AppShell>
       <main className="constitution-center-page">
@@ -90,6 +108,11 @@ export default function ConstitutionCenterPage() {
             ))}
           </div>
         </section>
+
+        <ConstitutionAuthorityConsole
+          canManage={canManage}
+          amendments={amendments}
+        />
 
         <section className="constitution-center-section" aria-labelledby="amendment-flow-title">
           <div className="workspace-section-heading">
