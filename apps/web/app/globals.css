@@ -5572,3 +5572,116 @@ textarea:focus-visible,
     width: 100%;
   }
 }
+
+
+/* CA-005 — Constitution ecosystem propagation */
+.constitution-propagation {
+  display: grid;
+  gap: 1rem;
+}
+
+.constitution-propagation-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.constitution-propagation-metrics article {
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 0.85rem;
+}
+
+.constitution-propagation-metrics span,
+.constitution-propagation-metrics strong {
+  display: block;
+}
+
+.constitution-propagation-metrics strong {
+  margin-top: 0.3rem;
+  font-size: 1.35rem;
+}
+
+.constitution-propagation-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.constitution-propagation-list > article {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 0.9rem;
+}
+
+.constitution-propagation-primary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.constitution-propagation-primary strong,
+.constitution-propagation-primary small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.constitution-propagation-primary small {
+  margin-top: 0.25rem;
+}
+
+.constitution-propagation-list dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0.8rem 0 0;
+}
+
+.constitution-propagation-list dl > div {
+  min-width: 0;
+  padding: 0.65rem 0.7rem;
+  border-radius: 0.65rem;
+  background: rgba(127, 127, 127, 0.05);
+}
+
+.constitution-propagation-list dt,
+.constitution-propagation-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.constitution-propagation-list dt {
+  font-size: 0.78rem;
+  opacity: 0.68;
+}
+
+.constitution-propagation-list dd {
+  margin-top: 0.2rem;
+}
+
+.constitution-propagation-blockers {
+  margin: 0.7rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .constitution-propagation-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .constitution-propagation-list dl {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .constitution-propagation-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .constitution-propagation-primary {
+    flex-direction: column;
+  }
+}

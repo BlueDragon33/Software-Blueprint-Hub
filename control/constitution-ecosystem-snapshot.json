@@ -1,0 +1,358 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "github-default-branch-snapshot",
+  "policyId": "blueprint-os:universal-century-grade",
+  "activePolicyVersion": "1.1.0",
+  "repositories": [
+    {
+      "repository": "BlueDragon33/Software-Blueprint-Hub",
+      "branch": "main",
+      "sourceRevision": "64b5bcdf1686069a3cf9ad039ee13f94a6d2cc41",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:blueprint-os",
+        "blueprintLevel": "B4",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/Bauman-master-ai-system",
+      "branch": "main",
+      "sourceRevision": "cfdc2a654d5d79d12a8cc8abe4f7f220bf450f1d",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:bauman-master-ai-system",
+        "blueprintLevel": "B4",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/Application-Management",
+      "branch": "main",
+      "sourceRevision": "0212b59fd875847763965fc4d7a510ef48601c1e",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:application-management",
+        "blueprintLevel": "B4",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/BOIECH_AI",
+      "branch": "main",
+      "sourceRevision": "4427985edcda3823b61ff144264cd433b1a854b8",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:boiech-ai",
+        "blueprintLevel": "B3",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/RU_LIFE",
+      "branch": "main",
+      "sourceRevision": "63a3ec9ce8b1194b283cd9cd3b02340fa9b251e0",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:ru-life",
+        "blueprintLevel": "B3",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/Health_Care",
+      "branch": "main",
+      "sourceRevision": "1675520b2d9e642bbeb2c7f5dd0d27e7e4fffe7b",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:health-care",
+        "blueprintLevel": "B5",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/NC03_Modem",
+      "branch": "main",
+      "sourceRevision": "f6688ec0c229b0077b3dbbcb9298c56d04d22c1d",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:nc03-modem",
+        "blueprintLevel": "B4",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/ROS-1-2",
+      "branch": "ros2",
+      "sourceRevision": "74da53c090f485c0b7999121d5835e4b0531b77d",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:ros-1-2",
+        "blueprintLevel": "B3",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/Math_Bauman",
+      "branch": "main",
+      "sourceRevision": "f69832e0f97a38e4b8d46aca41b456c9b4d06557",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:math-bauman",
+        "blueprintLevel": "B2",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/GrowUP_MyChildren",
+      "branch": "main",
+      "sourceRevision": "14c250f38c9e2636c96f570608aafa8a364477a8",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:growup-mychildren",
+        "blueprintLevel": "B5",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/Hardware_Simulation",
+      "branch": "main",
+      "sourceRevision": "ab7546fe86ae75a6e57cf82ba65e688565ca25ae",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:hardware-simulation",
+        "blueprintLevel": "B2",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/MPC_PID_System",
+      "branch": "main",
+      "sourceRevision": "8efa3456c35d37a770f7fee309d3e55e24cc28f0",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:mpc-pid-system",
+        "blueprintLevel": "B3",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/CAD_CAM_3D",
+      "branch": "main",
+      "sourceRevision": "b2b5f28aba6808b456acbd6413c3851f510bd3ec",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:cad-cam-3d",
+        "blueprintLevel": "B2",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    },
+    {
+      "repository": "BlueDragon33/PriceReport_Tunggiabao",
+      "branch": "main",
+      "sourceRevision": "c756f07d22d1210de7a1a1b5885977e404279d55",
+      "manifest": {
+        "schemaVersion": "1.0.0",
+        "policyId": "blueprint-os:universal-century-grade",
+        "policyVersion": "1.1.0",
+        "projectId": "project:pricereport-tunggiabao",
+        "blueprintLevel": "B3",
+        "enforcementMode": "enforced",
+        "inheritedPillars": [
+          "structural-capacity",
+          "architectural-longevity",
+          "product-elegance",
+          "premium-usability",
+          "long-term-durability",
+          "fortress-security-disaster-resilience"
+        ],
+        "disabledPillars": [],
+        "constitutionalWaivers": [],
+        "evidenceAuthority": "canonical-quality-gates",
+        "productionAuthority": "separate-explicit-release-gate"
+      }
+    }
+  ]
+}
