@@ -61,6 +61,23 @@ A decision is valid only when:
 
 No approval decision is checked into source control. The current canonical state therefore remains **HUMAN SIGN-OFF REQUIRED** until an actual human action records one.
 
+## Operational authority setup remediation
+
+A review surface is not operational if no real authenticated account can acquire the authority required to use it.
+
+ADR-0003 requires an explicit one-time Owner bootstrap path. The P9-019 implementation now includes `/setup/owner`, which:
+
+- requires an Auth.js-authenticated identity;
+- delegates to canonical `AuthorityService.bootstrapOwner`;
+- creates exactly one System Owner through the transactional authority repository;
+- fails closed if an Owner already exists, preventing takeover by another authenticated account;
+- creates no P9-019 approval, P9-020 acceptance or Production authority;
+- routes the configured Owner back to the separate professional-review decision surface.
+
+Responsive E2E coverage verifies signed-out authentication guidance, configured-Owner recognition and takeover rejection.
+
+Because this remediation changes the reviewed product surface, any earlier P9-019 screenshot candidate is stale until a new exact-revision full Release Gate is captured.
+
 ## Review recording surface
 
 The development baseline now includes a first-class `/professional-review` surface so the human gate can be performed through an authenticated product action rather than by editing source text.
