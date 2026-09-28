@@ -105,7 +105,7 @@ jobs:
         run: pnpm constitution:check
 
       - name: Constitution authority-set atomicity
-        run: pnpm constitution:authority-set
+        run: node scripts/check-constitution-authority-set.mjs --write artifacts/constitution-authority-set.json
 
       - name: Generated contract drift
         run: pnpm contracts:check
