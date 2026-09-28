@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-
 import Link from "next/link";
 
 import {
@@ -20,6 +17,8 @@ import { AppShell, StatusChip } from "@blueprint-os/ui";
 
 import { resolveWebActor } from "../../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../../src/server/runtime";
+import governedRegistryJson from "../../../../control/constitution-governed-repositories.json";
+import ecosystemSnapshotJson from "../../../../control/constitution-ecosystem-snapshot.json";
 import { ConstitutionAuthorityConsole } from "./constitution-authority-console";
 
 export const dynamic = "force-dynamic";
@@ -40,19 +39,8 @@ interface EcosystemSnapshotFile {
 }
 
 function loadPropagationProjection(): ConstitutionPropagationProjection {
-  const controlPath = join(process.cwd(), "control");
-  const registry = JSON.parse(
-    readFileSync(
-      join(controlPath, "constitution-governed-repositories.json"),
-      "utf8"
-    )
-  ) as GovernedRegistryFile;
-  const snapshot = JSON.parse(
-    readFileSync(
-      join(controlPath, "constitution-ecosystem-snapshot.json"),
-      "utf8"
-    )
-  ) as EcosystemSnapshotFile;
+  const registry = governedRegistryJson as unknown as GovernedRegistryFile;
+  const snapshot = ecosystemSnapshotJson as unknown as EcosystemSnapshotFile;
 
   if (registry.schemaVersion !== "1.0.0" || snapshot.schemaVersion !== "1.0.0") {
     throw new TypeError("Unsupported Constitution ecosystem control schema");
