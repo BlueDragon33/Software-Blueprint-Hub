@@ -33,9 +33,9 @@ export function OwnerBootstrapPanel() {
         <p className="section-kicker">One-time authority setup</p>
         <h2 id="owner-bootstrap-title">Initialize the first System Owner</h2>
         <p>
-          Use this only for a new Blueprint OS database. The operation is
-          atomic and fail-closed: once an Owner exists, another account cannot
-          seize the role through this setup path.
+          This control is exposed only to the deployment-configured bootstrap
+          identity for a new Blueprint OS database. The operation is atomic and
+          fail-closed: once an Owner exists, no later bootstrap can replace it.
         </p>
       </div>
 

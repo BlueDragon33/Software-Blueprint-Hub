@@ -2,6 +2,7 @@ import { getToken } from "@auth/core/jwt";
 import { headers } from "next/headers";
 
 import { getBlueprintServerRuntime } from "../server/runtime";
+import { shouldUseSecureAuthCookie } from "./session-cookie-policy";
 
 export interface WebAuthenticatedIdentity {
   readonly provider: string;
@@ -31,10 +32,14 @@ export async function resolveWebIdentity(): Promise<WebAuthenticatedIdentity | n
   }
 
   const requestHeaders = new Headers(await headers());
-  const forwardedProto = requestHeaders.get("x-forwarded-proto");
-  const secureCookie =
-    forwardedProto === "https" ||
-    (!forwardedProto && process.env.NODE_ENV === "production");
+  const secureCookie = shouldUseSecureAuthCookie({
+    host: requestHeaders.get("host"),
+    forwardedProto: requestHeaders.get("x-forwarded-proto"),
+    nodeEnv: process.env.NODE_ENV,
+    allowLocalHttpAuth:
+      process.env.BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH?.trim().toLowerCase() ===
+      "true"
+  });
 
   const token = (await getToken({
     req: { headers: requestHeaders },

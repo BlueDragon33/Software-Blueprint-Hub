@@ -23,6 +23,18 @@ When this app participates in Application Management:
 - **Approval/Managed OFF**: enter directly in standalone local-first mode.
 - Development defaults to OFF unless explicitly switched on by the user.
 
+## Human review runtime
+
+Protected human review may run locally or in a non-Production Preview, but it must remain a real authenticated/persistent runtime.
+
+- Follow `docs/P9-019-HUMAN-REVIEW-RUNBOOK.md`.
+- Never expose first-come-first-served Owner bootstrap.
+- Configure the exact bootstrap provider + provider subject before exposing `/setup/owner`.
+- Missing or mismatched bootstrap identity must fail closed.
+- Localhost HTTP is supported for local-first review; non-local Production hosts retain secure Auth.js cookie handling.
+- A P9-019 decision lives in canonical PostgreSQL state and must not be lost by destroying an ephemeral review database.
+- Human review authority is not Production authority.
+
 ## Release Mode
 
 Release Mode starts only when the owner explicitly requests a stable/production release.

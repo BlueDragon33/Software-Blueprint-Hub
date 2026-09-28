@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { evaluateOwnerBootstrapAuthorization } from "../../../src/auth/owner-bootstrap-policy";
 import { resolveWebIdentity } from "../../../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../../../src/server/runtime";
 
@@ -27,6 +28,22 @@ export async function bootstrapOwnerAction(): Promise<BootstrapOwnerResult> {
     return Object.freeze({
       ok: false,
       message: "Sign in before initializing the Blueprint OS System Owner."
+    });
+  }
+
+  const authorization = evaluateOwnerBootstrapAuthorization(identity);
+  if (!authorization.configured) {
+    return Object.freeze({
+      ok: false,
+      message:
+        "System Owner bootstrap is disabled until the deployment configures BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER and BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT."
+    });
+  }
+  if (!authorization.allowed) {
+    return Object.freeze({
+      ok: false,
+      message:
+        "This authenticated account is not the configured System Owner bootstrap identity."
     });
   }
 

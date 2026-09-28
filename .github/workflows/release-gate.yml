@@ -33,6 +33,9 @@ jobs:
     env:
       DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_test
       AUTH_SECRET: p6-e2e-auth-secret-2026-blueprint-os-registry
+      BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER: github
+      BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT: p6-e2e-owner
+      BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH: "true"
       RELEASE_GATE_REVISION: ${{ github.sha }}
 
     steps:

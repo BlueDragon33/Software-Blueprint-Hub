@@ -1,6 +1,7 @@
 import { AppShell, StatusChip } from "@blueprint-os/ui";
 import Link from "next/link";
 
+import { evaluateOwnerBootstrapAuthorization } from "../../../src/auth/owner-bootstrap-policy";
 import {
   resolveWebActor,
   resolveWebIdentity
@@ -42,6 +43,8 @@ export default async function OwnerSetupPage() {
     (await getBlueprintServerRuntime().authority.canExerciseConstitutionalAuthority(
       actor
     ));
+  const bootstrapAuthorization =
+    evaluateOwnerBootstrapAuthorization(identity);
 
   return (
     <AppShell>
@@ -87,6 +90,46 @@ export default async function OwnerSetupPage() {
             </Link>
             <p className="professional-review-boundary">
               System Owner status does not authorize Production deployment.
+            </p>
+          </section>
+        ) : !bootstrapAuthorization.configured ? (
+          <section
+            className="professional-review-decision"
+            aria-labelledby="owner-bootstrap-disabled-title"
+          >
+            <div>
+              <p className="section-kicker">Fail-closed configuration</p>
+              <h2 id="owner-bootstrap-disabled-title">
+                Owner bootstrap identity is not configured.
+              </h2>
+              <p>
+                Configure BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER and
+                BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT in the server environment
+                before exposing this setup path.
+              </p>
+            </div>
+            <p className="professional-review-boundary">
+              No authenticated account can claim System Owner while bootstrap
+              identity configuration is absent.
+            </p>
+          </section>
+        ) : !bootstrapAuthorization.allowed ? (
+          <section
+            className="professional-review-decision"
+            aria-labelledby="owner-bootstrap-denied-title"
+          >
+            <div>
+              <p className="section-kicker">Bootstrap identity protected</p>
+              <h2 id="owner-bootstrap-denied-title">
+                This account is not authorized to initialize System Owner.
+              </h2>
+              <p>
+                Sign in with the deployment-configured bootstrap identity. OAuth
+                claims do not create Blueprint OS authority by themselves.
+              </p>
+            </div>
+            <p className="professional-review-boundary">
+              The setup route grants no authority to unconfigured identities.
             </p>
           </section>
         ) : (

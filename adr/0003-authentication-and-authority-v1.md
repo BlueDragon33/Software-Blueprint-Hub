@@ -57,6 +57,9 @@ The web application exposes `/setup/owner` as the explicit one-time Owner bootst
 Rules:
 
 - Auth.js authentication is required before bootstrap;
+- bootstrap is disabled unless the server configures `BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER` and `BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT`;
+- the authenticated provider + provider subject must exactly match that deployment-configured bootstrap identity;
+- OAuth claims alone never create Blueprint OS authority;
 - the authenticated identity is passed to the canonical `AuthorityService.bootstrapOwner`;
 - the repository transaction creates exactly one System Owner and an audit event;
 - if a System Owner already exists, the action fails closed and preserves existing authority;
@@ -72,5 +75,13 @@ Integration and E2E tests must cover:
 - Reviewer does not gain Owner actions;
 - Owner bootstrap cannot be repeated to seize an initialized system;
 - signed-out users are directed to authenticate before `/setup/owner`;
+- missing bootstrap identity configuration exposes no Owner claim action;
+- an authenticated identity that does not exactly match deployment configuration exposes no Owner claim action;
 - the configured Owner sees the protected P9-019 path;
-- a different authenticated account receives a fail-closed conflict instead of taking over ownership.
+- repository-level one-time bootstrap still fails closed if an Owner has already been initialized;
+- Production secure-cookie lookup is fail-closed by default, including requests whose Host merely claims localhost;
+- production-build parity on local loopback requires explicit `BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH=true`;
+- the local HTTP exception additionally requires direct Host localhost/127.0.0.1/::1 and never trusts `x-forwarded-host`;
+- an explicit HTTPS forwarding protocol always keeps secure-cookie lookup enabled;
+- the local HTTP flag must never be enabled on an Internet-facing Preview or Production deployment;
+- non-local production hosts continue to require secure Auth.js cookie lookup.
