@@ -61,6 +61,21 @@ A decision is valid only when:
 
 No approval decision is checked into source control. The current canonical state therefore remains **HUMAN SIGN-OFF REQUIRED** until an actual human action records one.
 
+## Runtime readiness remediation
+
+A secure review mechanism is still not operational if missing runtime configuration causes opaque authentication failures or server errors.
+
+The P9-019 flow now includes `/professional-review/readiness`, a fail-closed preflight that checks, without rendering secret values:
+
+- required PostgreSQL/Auth.js/GitHub OAuth/bootstrap environment configuration;
+- PostgreSQL connectivity;
+- presence of the authority bootstrap and human-review decision persistence tables;
+- whether the local HTTP authentication exception is enabled.
+
+The page links into System Owner setup only when no blocking preflight check remains. `.env.example` defines the local configuration contract, while the runbook remains the operator procedure.
+
+Because this adds a new reviewed product surface and runtime decision aid, the prior P9-019 candidate is stale until a new exact-revision full Release Gate and Human UX artifact capture this flow.
+
 ## Security hardening after operational bootstrap
 
 The first operational bootstrap implementation revealed two additional defects during review:
