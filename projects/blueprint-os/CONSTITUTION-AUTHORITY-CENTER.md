@@ -110,7 +110,7 @@ Completion criteria for this branch:
 - Production authority remains false.
 
 ### CA-005 — Ecosystem propagation
-Status: **IMPLEMENTED CANDIDATE — FULL GATE REQUIRED**
+Status: **COMPLETE**
 
 For governed repositories:
 - detect stale adoption version;
@@ -130,6 +130,12 @@ Candidate implementation:
 - /constitution exposes the propagation matrix only to authenticated Constitutional Authority;
 - public Constitution readers do not receive governance inventory metadata;
 - the first verified snapshot is 14/14 current at policy 1.1.0.
+
+Completion evidence:
+- initial exact-head full Release Gate passed on `c82950620dd16af0e34d2f49fa2bb35b20e354c9` in run `36370333878` after repairing the Next.js runtime control-file path;
+- Fast CI and full gate both execute the Constitution ecosystem snapshot validator;
+- production build and Playwright desktop/tablet/mobile evidence passed with the authority-only propagation matrix;
+- propagation remains a read-only plan; external repository mutation, Quality Gate PASS and Production authority remain false.
 
 ### CA-006 — Constitutional compliance matrix
 Status: **PLANNED**
