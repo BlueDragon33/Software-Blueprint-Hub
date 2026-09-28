@@ -4,7 +4,7 @@ import type {
   CanonicalConstitutionAmendmentRecord,
   ConstitutionEvidenceKind,
   ConstitutionRatificationDecisionKind
-} from "@blueprint-os/core";
+} from "@blueprint-os/application";
 import { StatusChip } from "@blueprint-os/ui";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState, useTransition } from "react";
