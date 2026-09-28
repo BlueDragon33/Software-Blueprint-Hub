@@ -83,6 +83,15 @@ export class AuthenticationRequiredError extends Error {
   }
 }
 
+export class ConstitutionalAuthorityDeniedError extends Error {
+  readonly code = "CONSTITUTIONAL_AUTHORITY_DENIED";
+
+  constructor() {
+    super("Constitutional authority is restricted to the authenticated System Owner");
+    this.name = "ConstitutionalAuthorityDeniedError";
+  }
+}
+
 export class AuthorizationDeniedError extends Error {
   readonly code = "AUTHORIZATION_DENIED";
 
@@ -118,6 +127,22 @@ export class AuthorityService {
 
   bootstrapOwner(identity: AuthenticatedIdentity): Promise<PrincipalRecord> {
     return this.repository.bootstrapOwner(identity);
+  }
+
+  async canExerciseConstitutionalAuthority(
+    actor: AuthenticatedActor | null
+  ): Promise<boolean> {
+    return actor
+      ? this.repository.isSystemOwner(actor.principalId)
+      : false;
+  }
+
+  async requireConstitutionalAuthority(
+    actor: AuthenticatedActor | null
+  ): Promise<void> {
+    if (!(await this.canExerciseConstitutionalAuthority(actor))) {
+      throw new ConstitutionalAuthorityDeniedError();
+    }
   }
 
   async can(
