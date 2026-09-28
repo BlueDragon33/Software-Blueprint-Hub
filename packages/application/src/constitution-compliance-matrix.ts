@@ -71,6 +71,7 @@ export interface ConstitutionComplianceRepositoryProjection {
   }[];
   readonly blockingGateIds: readonly string[];
   readonly blockers: readonly string[];
+  readonly lastObservedAt: string | null;
   readonly lastVerifiedAt: string | null;
   readonly productionReleaseAuthority: false;
 }
@@ -287,6 +288,7 @@ export function buildConstitutionComplianceMatrix(input: {
             pillarStates: unverifiedPillars(),
             blockingGateIds: Object.freeze([...constitutionalGateIds]),
             blockers: Object.freeze(["constitutional-migration-required"]),
+            lastObservedAt: observationByRepository.get(propagation.repository)?.observedAt ?? null,
             lastVerifiedAt: null,
             productionReleaseAuthority: false
           });
@@ -309,6 +311,7 @@ export function buildConstitutionComplianceMatrix(input: {
               "constitutional-adoption-not-current",
               ...propagation.blockers
             ]),
+            lastObservedAt: observationByRepository.get(propagation.repository)?.observedAt ?? null,
             lastVerifiedAt: null,
             productionReleaseAuthority: false
           });
@@ -339,7 +342,8 @@ export function buildConstitutionComplianceMatrix(input: {
             pillarStates: unverifiedPillars(),
             blockingGateIds: Object.freeze([...constitutionalGateIds]),
             blockers: Object.freeze(observationBlockers),
-            lastVerifiedAt: observation?.observedAt ?? null,
+            lastObservedAt: observation?.observedAt ?? null,
+            lastVerifiedAt: null,
             productionReleaseAuthority: false
           });
         }
@@ -380,7 +384,8 @@ export function buildConstitutionComplianceMatrix(input: {
             pillarStates: unverifiedPillars(),
             blockingGateIds: Object.freeze([...constitutionalGateIds]),
             blockers: validationBlockers,
-            lastVerifiedAt: observation.observedAt,
+            lastObservedAt: observation.observedAt,
+            lastVerifiedAt: null,
             productionReleaseAuthority: false
           });
         }
@@ -413,6 +418,7 @@ export function buildConstitutionComplianceMatrix(input: {
           ),
           blockingGateIds,
           blockers: Object.freeze([...attestation.blockers]),
+          lastObservedAt: observation.observedAt,
           lastVerifiedAt: attestation.verifiedAt,
           productionReleaseAuthority: false
         });
