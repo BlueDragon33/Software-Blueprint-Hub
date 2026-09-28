@@ -6,7 +6,7 @@ import {
   constitutionAuthorityStages,
   centuryGradePillarDefinitions
 } from "@blueprint-os/application";
-import type { CanonicalConstitutionAmendmentRecord } from "@blueprint-os/core";
+import type { CanonicalConstitutionAmendmentRecord } from "@blueprint-os/application";
 import { AppShell, StatusChip } from "@blueprint-os/ui";
 
 import { resolveWebActor } from "../../src/auth/server-actor";
