@@ -431,6 +431,31 @@ function semver(value: string, label: string): string {
   return normalized;
 }
 
+function requireIsoTimestamp(value: string): string {
+  const normalized = nonEmpty(value, "timestamp");
+  const parsed = Date.parse(normalized);
+  if (Number.isNaN(parsed) || new Date(parsed).toISOString() !== normalized) {
+    throw new TypeError("timestamp must be an exact ISO-8601 UTC timestamp");
+  }
+  return normalized;
+}
+
+const compatibilityRisks = new Set([
+  "low",
+  "medium",
+  "high",
+  "critical"
+] as const);
+
+function compatibilityRisk(
+  value: ConstitutionAmendmentProposal["compatibilityRisk"]
+): ConstitutionAmendmentProposal["compatibilityRisk"] {
+  if (!compatibilityRisks.has(value)) {
+    throw new TypeError("compatibilityRisk must be low, medium, high, or critical");
+  }
+  return value;
+}
+
 function compareSemver(a: string, b: string): number {
   const left = a.split(".").map(Number);
   const right = b.split(".").map(Number);
@@ -540,7 +565,7 @@ export class ConstitutionAuthorityApplicationService {
           input.affectedRequirementIds,
           "affectedRequirementIds"
         ),
-        compatibilityRisk: input.compatibilityRisk,
+        compatibilityRisk: compatibilityRisk(input.compatibilityRisk),
         migrationRequired: input.migrationRequired,
         proposedAt: timestamp
       });
