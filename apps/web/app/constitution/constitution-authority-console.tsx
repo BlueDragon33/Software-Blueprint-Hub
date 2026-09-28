@@ -430,8 +430,21 @@ export function ConstitutionAuthorityConsole({
                   <div className="constitution-state-boundary">
                     <strong>Human ratification recorded.</strong>
                     <span>
-                      CA-004 Publication is not implemented yet; this state grants
-                      zero Production authority.
+                      Atomic publication now requires a trusted CI authority-set
+                      attestation verified by configured infrastructure. Manual
+                      publication input is intentionally unavailable, and this
+                      state grants zero Production authority.
+                    </span>
+                  </div>
+                ) : null}
+
+                {amendment.state === "published" ? (
+                  <div className="constitution-state-boundary">
+                    <strong>Constitution version published.</strong>
+                    <span>
+                      The canonical amendment records an atomic authority-set
+                      publication. Publication is governance state, not
+                      application Production deployment.
                     </span>
                   </div>
                 ) : null}

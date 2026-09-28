@@ -5,15 +5,21 @@ import {
   type AuthenticatedActor,
   type CanonicalConstitutionAmendmentRecord,
   type ConstitutionAuthorityRepository,
+  type ConstitutionAuthoritySetAttestation,
+  type ConstitutionAuthoritySetComponent,
   type ConstitutionEvidenceKind,
   type ConstitutionEvidenceRecord,
+  type ConstitutionPublicationRecord,
   type ConstitutionRatificationDecisionKind,
   type ConstitutionRatificationDecisionRecord
 } from "@blueprint-os/core";
 
 export type {
   CanonicalConstitutionAmendmentRecord,
+  ConstitutionAuthoritySetAttestation,
+  ConstitutionAuthoritySetComponent,
   ConstitutionEvidenceKind,
+  ConstitutionPublicationRecord,
   ConstitutionRatificationDecisionKind
 } from "@blueprint-os/core";
 
@@ -389,6 +395,155 @@ export function createConstitutionAuthorityPrompt(
 }
 
 
+
+const authoritySetComponentIds = Object.freeze([
+  "normative-document",
+  "machine-contract",
+  "universal-template",
+  "policy-version"
+] as const);
+
+const authoritySetPaths: Readonly<Record<
+  (typeof authoritySetComponentIds)[number],
+  string
+>> = Object.freeze({
+  "normative-document": "docs/UNIVERSAL-CONSTITUTION.md",
+  "machine-contract": "control/universal-constitution.contract.json",
+  "universal-template": "packages/application/src/foundation-templates.ts",
+  "policy-version": "packages/application/src/constitution-authority.ts"
+});
+
+export interface ConstitutionPublicationAttestationVerifier {
+  readonly id: string;
+  verify(
+    attestation: ConstitutionAuthoritySetAttestation
+  ): Promise<boolean>;
+}
+
+export interface ConstitutionPublicationSubmission {
+  readonly amendmentId: string;
+  readonly expectedRecordVersion: number;
+  readonly attestation: ConstitutionAuthoritySetAttestation;
+  readonly note: string;
+}
+
+export interface ConstitutionPublicationResult {
+  readonly amendment: CanonicalConstitutionAmendmentRecord;
+  readonly publication: ConstitutionPublicationRecord;
+}
+
+function sha256Value(value: string): string {
+  return `sha256:${createHash("sha256").update(value).digest("hex")}`;
+}
+
+function stableAuthorityValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stableAuthorityValue);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Readonly<Record<string, unknown>>)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, child]) => [key, stableAuthorityValue(child)])
+    );
+  }
+  return value;
+}
+
+export function validateConstitutionAuthoritySetAttestation(
+  attestation: ConstitutionAuthoritySetAttestation
+): ConstitutionAuthoritySetAttestation {
+  if (attestation.schemaVersion !== "1.0.0") {
+    throw new TypeError("Constitution authority-set schemaVersion must be 1.0.0");
+  }
+  if (attestation.source !== "trusted-ci-attestation") {
+    throw new TypeError(
+      "Constitution publication requires a trusted CI attestation source"
+    );
+  }
+  if (attestation.policyId !== CONSTITUTION_POLICY_ID) {
+    throw new TypeError(
+      `Constitution authority-set policyId must be ${CONSTITUTION_POLICY_ID}`
+    );
+  }
+  semver(attestation.policyVersion, "attestation.policyVersion");
+  if (!/^[a-f0-9]{40}$/.test(nonEmpty(attestation.sourceRevision, "sourceRevision"))) {
+    throw new TypeError("sourceRevision must be an exact 40-character Git commit SHA");
+  }
+  if (!/^\d+$/.test(nonEmpty(attestation.ciRunId, "ciRunId"))) {
+    throw new TypeError("ciRunId must be a numeric trusted CI run identifier");
+  }
+  if (attestation.productionReleaseAuthority !== false) {
+    throw new TypeError(
+      "Constitution authority-set attestation must never grant Production authority"
+    );
+  }
+
+  if (attestation.components.length !== authoritySetComponentIds.length) {
+    throw new TypeError(
+      "Constitution authority-set must contain exactly four canonical components"
+    );
+  }
+
+  const seen = new Set<string>();
+  const components = attestation.components
+    .map((component): ConstitutionAuthoritySetComponent => {
+      if (!authoritySetComponentIds.includes(component.id)) {
+        throw new TypeError(
+          `Unknown Constitution authority-set component ${component.id}`
+        );
+      }
+      if (seen.has(component.id)) {
+        throw new TypeError(
+          `Duplicate Constitution authority-set component ${component.id}`
+        );
+      }
+      seen.add(component.id);
+
+      if (component.path !== authoritySetPaths[component.id]) {
+        throw new TypeError(
+          `Constitution authority-set component ${component.id} has an unexpected canonical path`
+        );
+      }
+      if (component.version !== attestation.policyVersion) {
+        throw new TypeError(
+          `Constitution authority-set component ${component.id} version drift`
+        );
+      }
+      sha256Digest(component.digest);
+      return Object.freeze({ ...component });
+    })
+    .sort((a, b) => a.id.localeCompare(b.id));
+
+  for (const id of authoritySetComponentIds) {
+    if (!seen.has(id)) {
+      throw new TypeError(
+        `Constitution authority-set is missing canonical component ${id}`
+      );
+    }
+  }
+
+  const expectedDigest = sha256Value(
+    JSON.stringify(
+      stableAuthorityValue({
+        policyId: attestation.policyId,
+        policyVersion: attestation.policyVersion,
+        components
+      })
+    )
+  );
+  if (sha256Digest(attestation.authoritySetDigest) !== expectedDigest) {
+    throw new TypeError(
+      "Constitution authority-set digest does not match its canonical components"
+    );
+  }
+
+  return Object.freeze({
+    ...attestation,
+    components: Object.freeze(components),
+    authoritySetDigest: expectedDigest,
+    productionReleaseAuthority: false
+  });
+}
+
 export interface ConstitutionAmendmentDraftInput {
   readonly targetPolicyVersion: string;
   readonly title: string;
@@ -506,7 +661,8 @@ function canonicalNext(
 export class ConstitutionAuthorityApplicationService {
   constructor(
     private readonly repository: ConstitutionAuthorityRepository,
-    private readonly authority: AuthorityService
+    private readonly authority: AuthorityService,
+    private readonly publicationAttestationVerifier?: ConstitutionPublicationAttestationVerifier
   ) {}
 
   async list(
@@ -728,6 +884,104 @@ export class ConstitutionAuthorityApplicationService {
       next,
       input.expectedRecordVersion
     );
+  }
+
+
+  async publishFromTrustedAttestation(
+    actor: AuthenticatedActor | null,
+    input: ConstitutionPublicationSubmission,
+    now: string
+  ): Promise<ConstitutionPublicationResult> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    if (!this.publicationAttestationVerifier) {
+      throw new TypeError(
+        "Constitution publication is blocked until a trusted attestation verifier is configured"
+      );
+    }
+
+    const current = await this.requireExactAmendment(
+      input.amendmentId,
+      input.expectedRecordVersion
+    );
+    if (current.state !== "ratified" || !current.ratificationDecisionId) {
+      throw new TypeError(
+        "Constitution publication requires an exact human-ratified amendment"
+      );
+    }
+
+    const ratificationDecision =
+      await this.repository.findRatificationDecisionById(
+        current.ratificationDecisionId
+      );
+    if (
+      !ratificationDecision ||
+      ratificationDecision.decision !== "approve" ||
+      ratificationDecision.humanRatification !== true ||
+      ratificationDecision.productionReleaseAuthority !== false
+    ) {
+      throw new TypeError(
+        "Constitution publication requires a valid human approval record"
+      );
+    }
+
+    const attestation = validateConstitutionAuthoritySetAttestation(
+      input.attestation
+    );
+    if (attestation.policyVersion !== current.proposal.targetPolicyVersion) {
+      throw new TypeError(
+        "Constitution authority-set policy version does not match the ratified amendment target"
+      );
+    }
+    if (
+      !(await this.publicationAttestationVerifier.verify(attestation))
+    ) {
+      throw new TypeError(
+        `Constitution authority-set attestation was not verified by ${this.publicationAttestationVerifier.id}`
+      );
+    }
+
+    const timestamp = requireIsoTimestamp(now);
+    const note = nonEmpty(input.note, "publication note");
+    const evidence: ConstitutionEvidenceRecord = Object.freeze({
+      id: `constitution-evidence:${randomUUID()}`,
+      amendmentId: current.proposal.id,
+      kind: "publication",
+      source: `trusted-ci-attestation:${attestation.ciRunId}`,
+      revision: attestation.sourceRevision,
+      digest: attestation.authoritySetDigest,
+      note,
+      recordedByActorId: actor!.principalId,
+      createdAt: timestamp
+    });
+
+    const publication: ConstitutionPublicationRecord = Object.freeze({
+      id: `constitution-publication:${randomUUID()}`,
+      amendmentId: current.proposal.id,
+      amendmentRecordVersion: current.recordVersion,
+      policyVersion: attestation.policyVersion,
+      publishedByActorId: actor!.principalId,
+      sourceRevision: attestation.sourceRevision,
+      ciRunId: attestation.ciRunId,
+      authoritySetDigest: attestation.authoritySetDigest,
+      components: attestation.components,
+      publishedAt: timestamp,
+      productionReleaseAuthority: false
+    });
+
+    const transition = transitionConstitutionAmendment(current, {
+      action: "publish",
+      evidenceIds: [evidence.id]
+    });
+    const next = canonicalNext(current, transition, timestamp);
+
+    const amendment = await this.repository.appendPublicationAndUpdate(
+      publication,
+      evidence,
+      next,
+      input.expectedRecordVersion
+    );
+
+    return Object.freeze({ amendment, publication });
   }
 
   private async requireExactAmendment(

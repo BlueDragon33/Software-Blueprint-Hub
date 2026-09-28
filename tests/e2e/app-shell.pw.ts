@@ -1117,6 +1117,14 @@ test("Constitution Center exposes authority separation and prompt governance", a
   ).toBeVisible();
   await expect(
     page.getByRole("heading", {
+      name: "One law version, four synchronized authority components"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("CI atomicity enforced", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
       name: "Prompts coordinate work; they do not own authority"
     })
   ).toBeVisible();
@@ -1166,6 +1174,9 @@ test("System Owner can open the canonical amendment workspace without automated 
   await expect(
     page.getByRole("button", { name: /publish/i })
   ).toHaveCount(0);
+  await expect(
+    page.getByText(/manual publication data is not trusted/i)
+  ).toBeVisible();
   await expect(
     page.getByText(/Publication is intentionally unavailable in this phase/i)
   ).toBeVisible();

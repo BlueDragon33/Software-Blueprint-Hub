@@ -5,6 +5,7 @@ import {
   type ConstitutionAuthorityRepository,
   type ConstitutionEvidenceKind,
   type ConstitutionEvidenceRecord,
+  type ConstitutionPublicationRecord,
   type ConstitutionRatificationDecisionKind,
   type ConstitutionRatificationDecisionRecord
 } from "@blueprint-os/core";
@@ -310,6 +311,89 @@ function assertNextVersion(
   }
 }
 
+
+const publicationComponentIds = new Set([
+  "normative-document",
+  "machine-contract",
+  "universal-template",
+  "policy-version"
+]);
+
+function asPublication(row: {
+  id: string;
+  amendmentId: string;
+  amendmentRecordVersion: number;
+  policyVersion: string;
+  publishedByActorId: string;
+  sourceRevision: string;
+  ciRunId: string;
+  authoritySetDigest: string;
+  productionReleaseAuthority: boolean;
+  document: unknown;
+  publishedAt: Date;
+}): ConstitutionPublicationRecord {
+  if (row.productionReleaseAuthority) {
+    throw new TypeError(
+      "Stored Constitution publication must never grant Production authority"
+    );
+  }
+  const document = object(row.document, "ConstitutionPublication.document");
+  if (
+    string(document.id, "publication.id") !== row.id ||
+    string(document.amendmentId, "publication.amendmentId") !== row.amendmentId ||
+    integer(document.amendmentRecordVersion, "publication.amendmentRecordVersion") !==
+      row.amendmentRecordVersion ||
+    string(document.policyVersion, "publication.policyVersion") !== row.policyVersion ||
+    string(document.publishedByActorId, "publication.publishedByActorId") !==
+      row.publishedByActorId ||
+    string(document.sourceRevision, "publication.sourceRevision") !==
+      row.sourceRevision ||
+    string(document.ciRunId, "publication.ciRunId") !== row.ciRunId ||
+    string(document.authoritySetDigest, "publication.authoritySetDigest") !==
+      row.authoritySetDigest ||
+    iso(document.publishedAt, "publication.publishedAt") !==
+      row.publishedAt.toISOString() ||
+    document.productionReleaseAuthority !== false
+  ) {
+    throw new TypeError(
+      "Stored Constitution publication columns drift from canonical document"
+    );
+  }
+  if (!Array.isArray(document.components)) {
+    throw new TypeError("Stored Constitution publication components are invalid");
+  }
+
+  return Object.freeze({
+    id: row.id,
+    amendmentId: row.amendmentId,
+    amendmentRecordVersion: row.amendmentRecordVersion,
+    policyVersion: row.policyVersion,
+    publishedByActorId: row.publishedByActorId,
+    sourceRevision: row.sourceRevision,
+    ciRunId: row.ciRunId,
+    authoritySetDigest: row.authoritySetDigest,
+    components: Object.freeze(
+      document.components.map((item, index) => {
+        const component = object(item, `publication.components[${index}]`);
+        const id = string(component.id, "publication component id");
+        if (!publicationComponentIds.has(id)) {
+          throw new TypeError(
+            `Stored Constitution publication has invalid component id ${id}`
+          );
+        }
+        return Object.freeze({
+          id: id as ConstitutionPublicationRecord["components"][number]["id"],
+          path: string(component.path, "publication component path"),
+          version: string(component.version, "publication component version"),
+          digest: string(component.digest, "publication component digest")
+        });
+      })
+    ),
+    publishedAt: row.publishedAt.toISOString(),
+    productionReleaseAuthority: false
+  });
+}
+
 function isUniqueConstraintError(error: unknown): boolean {
   return (
     error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -576,4 +660,121 @@ export class PostgresConstitutionAuthorityRepository
     });
     return row ? asDecision(row) : null;
   }
+
+
+  async appendPublicationAndUpdate(
+    publication: ConstitutionPublicationRecord,
+    evidence: ConstitutionEvidenceRecord,
+    record: CanonicalConstitutionAmendmentRecord,
+    expectedRecordVersion: number
+  ): Promise<CanonicalConstitutionAmendmentRecord> {
+    assertNextVersion(record, expectedRecordVersion);
+    if (
+      publication.amendmentId !== record.proposal.id ||
+      evidence.amendmentId !== record.proposal.id
+    ) {
+      throw new TypeError(
+        "Publication record and evidence must belong to the same amendment"
+      );
+    }
+    if (
+      publication.amendmentRecordVersion !== expectedRecordVersion ||
+      evidence.kind !== "publication" ||
+      record.publicationEvidenceId !== evidence.id
+    ) {
+      throw new TypeError(
+        "Publication must bind the exact ratified amendment revision and canonical publication evidence"
+      );
+    }
+    if (
+      publication.productionReleaseAuthority !== false ||
+      record.productionReleaseAuthority !== false
+    ) {
+      throw new TypeError(
+        "Constitution publication must never grant Production authority"
+      );
+    }
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        const result = await tx.constitutionAmendment.updateMany({
+          where: {
+            id: record.proposal.id,
+            recordVersion: expectedRecordVersion,
+            state: "ratified"
+          },
+          data: amendmentRow(record)
+        });
+        if (result.count !== 1) {
+          throw new ConstitutionRecordVersionConflictError(
+            record.proposal.id,
+            expectedRecordVersion
+          );
+        }
+
+        await tx.constitutionEvidence.create({
+          data: {
+            id: evidence.id,
+            amendmentId: evidence.amendmentId,
+            kind: evidence.kind,
+            source: evidence.source,
+            revision: evidence.revision,
+            digest: evidence.digest,
+            note: evidence.note,
+            recordedByActorId: evidence.recordedByActorId,
+            document: asJson(evidence),
+            createdAt: new Date(evidence.createdAt)
+          }
+        });
+
+        await tx.constitutionPublication.create({
+          data: {
+            id: publication.id,
+            amendmentId: publication.amendmentId,
+            amendmentRecordVersion: publication.amendmentRecordVersion,
+            policyVersion: publication.policyVersion,
+            publishedByActorId: publication.publishedByActorId,
+            sourceRevision: publication.sourceRevision,
+            ciRunId: publication.ciRunId,
+            authoritySetDigest: publication.authoritySetDigest,
+            productionReleaseAuthority: false,
+            document: asJson(publication),
+            publishedAt: new Date(publication.publishedAt)
+          }
+        });
+
+        await tx.constitutionAmendmentRevision.create({
+          data: {
+            id: `${record.proposal.id}:v${record.recordVersion}`,
+            amendmentId: record.proposal.id,
+            recordVersion: record.recordVersion,
+            state: record.state,
+            actorPrincipalId: publication.publishedByActorId,
+            action: "CONSTITUTION_PUBLISHED",
+            document: asJson(record),
+            createdAt: new Date(record.updatedAt)
+          }
+        });
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new TypeError(
+          "This amendment or Constitution policy version already has a publication record."
+        );
+      }
+      throw error;
+    }
+
+    return record;
+  }
+
+  async findPublicationByAmendmentId(
+    amendmentId: string
+  ): Promise<ConstitutionPublicationRecord | null> {
+    const row = await this.prisma.constitutionPublication.findUnique({
+      where: { amendmentId }
+    });
+    return row ? asPublication(row) : null;
+  }
+
 }

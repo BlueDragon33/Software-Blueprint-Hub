@@ -23,7 +23,8 @@
     "test:e2e": "playwright test",
     "check:truth": "node scripts/check-source-of-truth.mjs",
     "test:truth": "node --test tests/source-truth/source-truth-detector.test.mjs",
-    "constitution:check": "node scripts/check-constitution-adoption.mjs"
+    "constitution:check": "node scripts/check-constitution-adoption.mjs",
+    "constitution:authority-set": "node scripts/check-constitution-authority-set.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

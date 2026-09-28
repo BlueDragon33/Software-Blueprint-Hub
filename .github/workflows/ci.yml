@@ -35,6 +35,8 @@ jobs:
           node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))"
       - name: Universal Constitution compliance
         run: node scripts/check-constitution-adoption.mjs
+      - name: Constitution authority-set atomicity
+        run: node scripts/check-constitution-authority-set.mjs
 
       - name: Source-of-truth contradiction gate
         run: node scripts/check-source-of-truth.mjs
@@ -101,6 +103,9 @@ jobs:
 
       - name: Universal Constitution compliance
         run: pnpm constitution:check
+
+      - name: Constitution authority-set atomicity
+        run: node scripts/check-constitution-authority-set.mjs --write artifacts/constitution-authority-set.json
 
       - name: Generated contract drift
         run: pnpm contracts:check

@@ -216,6 +216,7 @@ model Principal {
   constitutionAmendmentRevisions ConstitutionAmendmentRevision[] @relation("ConstitutionAmendmentRevisionActor")
   constitutionEvidence ConstitutionEvidence[] @relation("ConstitutionEvidenceActor")
   constitutionRatificationDecisions ConstitutionRatificationDecision[] @relation("ConstitutionRatificationReviewer")
+  constitutionPublications ConstitutionPublication[] @relation("ConstitutionPublicationPublisher")
 
   @@unique([provider, providerSubject])
 }
@@ -301,6 +302,7 @@ model ConstitutionAmendment {
   revisions ConstitutionAmendmentRevision[]
   evidence ConstitutionEvidence[]
   ratificationDecisions ConstitutionRatificationDecision[]
+  publication ConstitutionPublication?
 
   @@index([state, updatedAt])
   @@index([targetPolicyVersion])
@@ -365,4 +367,27 @@ model ConstitutionRatificationDecision {
   @@unique([amendmentId, amendmentRecordVersion])
   @@index([reviewerActorId, decidedAt])
   @@index([amendmentId, decidedAt])
+}
+
+
+model ConstitutionPublication {
+  id                         String   @id @db.VarChar(160)
+  amendmentId                String   @unique @db.VarChar(160)
+  amendmentRecordVersion     Int
+  policyVersion              String   @unique @db.VarChar(80)
+  publishedByActorId         String   @db.VarChar(160)
+  sourceRevision             String   @db.VarChar(160)
+  ciRunId                    String   @db.VarChar(120)
+  authoritySetDigest         String   @db.VarChar(160)
+  productionReleaseAuthority Boolean  @default(false)
+  document                   Json
+  publishedAt                DateTime @db.Timestamptz(6)
+  createdAt                  DateTime @default(now()) @db.Timestamptz(6)
+
+  amendment ConstitutionAmendment @relation(fields: [amendmentId], references: [id], onDelete: Restrict)
+  publisher Principal @relation("ConstitutionPublicationPublisher", fields: [publishedByActorId], references: [id], onDelete: Restrict)
+
+  @@index([sourceRevision])
+  @@index([publishedByActorId, publishedAt])
+  @@index([authoritySetDigest])
 }
