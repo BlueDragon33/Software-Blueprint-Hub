@@ -212,6 +212,10 @@ model Principal {
   auditActor      AuthorityAuditEvent[] @relation("AuthorityAuditActor")
   auditTarget     AuthorityAuditEvent[] @relation("AuthorityAuditTarget")
   professionalReviewDecisions HumanProfessionalReviewDecision[]
+  constitutionAmendments ConstitutionAmendment[] @relation("ConstitutionAmendmentProposer")
+  constitutionAmendmentRevisions ConstitutionAmendmentRevision[] @relation("ConstitutionAmendmentRevisionActor")
+  constitutionEvidence ConstitutionEvidence[] @relation("ConstitutionEvidenceActor")
+  constitutionRatificationDecisions ConstitutionRatificationDecision[] @relation("ConstitutionRatificationReviewer")
 
   @@unique([provider, providerSubject])
 }
@@ -277,4 +281,88 @@ model HumanProfessionalReviewDecision {
   @@unique([projectId, candidateReviewedRevision, candidateEvidenceDigest])
   @@index([reviewerActorId, decidedAt])
   @@index([projectId, decidedAt])
+}
+
+
+model ConstitutionAmendment {
+  id                  String   @id @db.VarChar(160)
+  schemaVersion       String   @db.VarChar(32)
+  recordVersion       Int
+  basePolicyVersion   String   @db.VarChar(80)
+  targetPolicyVersion String   @db.VarChar(80)
+  title               String   @db.VarChar(240)
+  state               String   @db.VarChar(40)
+  proposedByActorId   String   @db.VarChar(160)
+  document            Json
+  createdAt           DateTime @db.Timestamptz(6)
+  updatedAt           DateTime @db.Timestamptz(6)
+
+  proposedBy Principal @relation("ConstitutionAmendmentProposer", fields: [proposedByActorId], references: [id], onDelete: Restrict)
+  revisions ConstitutionAmendmentRevision[]
+  evidence ConstitutionEvidence[]
+  ratificationDecisions ConstitutionRatificationDecision[]
+
+  @@index([state, updatedAt])
+  @@index([targetPolicyVersion])
+  @@index([proposedByActorId, updatedAt])
+}
+
+model ConstitutionAmendmentRevision {
+  id                String   @id @db.VarChar(200)
+  amendmentId       String   @db.VarChar(160)
+  recordVersion     Int
+  state             String   @db.VarChar(40)
+  actorPrincipalId  String   @db.VarChar(160)
+  action            String   @db.VarChar(80)
+  document          Json
+  createdAt         DateTime @db.Timestamptz(6)
+
+  amendment ConstitutionAmendment @relation(fields: [amendmentId], references: [id], onDelete: Cascade)
+  actor Principal @relation("ConstitutionAmendmentRevisionActor", fields: [actorPrincipalId], references: [id], onDelete: Restrict)
+
+  @@unique([amendmentId, recordVersion])
+  @@index([amendmentId, createdAt])
+  @@index([actorPrincipalId, createdAt])
+}
+
+model ConstitutionEvidence {
+  id                String   @id @db.VarChar(160)
+  amendmentId       String   @db.VarChar(160)
+  kind              String   @db.VarChar(32)
+  source            String   @db.VarChar(500)
+  revision          String   @db.VarChar(160)
+  digest            String   @db.VarChar(160)
+  note              String   @db.Text
+  recordedByActorId String   @db.VarChar(160)
+  document          Json
+  createdAt         DateTime @db.Timestamptz(6)
+
+  amendment ConstitutionAmendment @relation(fields: [amendmentId], references: [id], onDelete: Cascade)
+  recordedBy Principal @relation("ConstitutionEvidenceActor", fields: [recordedByActorId], references: [id], onDelete: Restrict)
+
+  @@index([amendmentId, kind, createdAt])
+  @@index([source, revision])
+  @@index([recordedByActorId, createdAt])
+}
+
+model ConstitutionRatificationDecision {
+  id                     String   @id @db.VarChar(160)
+  amendmentId            String   @db.VarChar(160)
+  amendmentRecordVersion Int
+  reviewerActorId        String   @db.VarChar(160)
+  source                 String   @db.VarChar(80)
+  decision               String   @db.VarChar(24)
+  note                   String   @db.Text
+  decidedAt              DateTime @db.Timestamptz(6)
+  humanRatification      Boolean
+  productionReleaseAuthority Boolean @default(false)
+  document               Json
+  createdAt              DateTime @default(now()) @db.Timestamptz(6)
+
+  amendment ConstitutionAmendment @relation(fields: [amendmentId], references: [id], onDelete: Restrict)
+  reviewer Principal @relation("ConstitutionRatificationReviewer", fields: [reviewerActorId], references: [id], onDelete: Restrict)
+
+  @@unique([amendmentId, amendmentRecordVersion])
+  @@index([reviewerActorId, decidedAt])
+  @@index([amendmentId, decidedAt])
 }
