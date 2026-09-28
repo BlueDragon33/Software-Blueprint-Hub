@@ -1,12 +1,21 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import Link from "next/link";
 
 import {
   CONSTITUTION_POLICY_ID,
   CONSTITUTION_POLICY_VERSION,
+  buildConstitutionPropagationProjection,
   constitutionAuthorityStages,
   centuryGradePillarDefinitions
 } from "@blueprint-os/application";
-import type { CanonicalConstitutionAmendmentRecord } from "@blueprint-os/application";
+import type {
+  CanonicalConstitutionAmendmentRecord,
+  ConstitutionPropagationProjection,
+  GovernedRepositoryAdoptionSnapshot,
+  GovernedRepositoryDefinition
+} from "@blueprint-os/application";
 import { AppShell, StatusChip } from "@blueprint-os/ui";
 
 import { resolveWebActor } from "../../src/auth/server-actor";
@@ -15,16 +24,69 @@ import { ConstitutionAuthorityConsole } from "./constitution-authority-console";
 
 export const dynamic = "force-dynamic";
 
+
+interface GovernedRegistryFile {
+  readonly schemaVersion: "1.0.0";
+  readonly policyId: string;
+  readonly repositories: readonly GovernedRepositoryDefinition[];
+}
+
+interface EcosystemSnapshotFile {
+  readonly schemaVersion: "1.0.0";
+  readonly source: "github-default-branch-snapshot";
+  readonly policyId: string;
+  readonly activePolicyVersion: string;
+  readonly repositories: readonly GovernedRepositoryAdoptionSnapshot[];
+}
+
+function loadPropagationProjection(): ConstitutionPropagationProjection {
+  const controlPath = join(process.cwd(), "control");
+  const registry = JSON.parse(
+    readFileSync(
+      join(controlPath, "constitution-governed-repositories.json"),
+      "utf8"
+    )
+  ) as GovernedRegistryFile;
+  const snapshot = JSON.parse(
+    readFileSync(
+      join(controlPath, "constitution-ecosystem-snapshot.json"),
+      "utf8"
+    )
+  ) as EcosystemSnapshotFile;
+
+  if (registry.schemaVersion !== "1.0.0" || snapshot.schemaVersion !== "1.0.0") {
+    throw new TypeError("Unsupported Constitution ecosystem control schema");
+  }
+  if (
+    registry.policyId !== CONSTITUTION_POLICY_ID ||
+    snapshot.policyId !== CONSTITUTION_POLICY_ID
+  ) {
+    throw new TypeError("Constitution ecosystem policy identity drift");
+  }
+  if (snapshot.activePolicyVersion !== CONSTITUTION_POLICY_VERSION) {
+    throw new TypeError("Constitution ecosystem snapshot policy version is stale");
+  }
+
+  return buildConstitutionPropagationProjection({
+    policyId: registry.policyId,
+    activePolicyVersion: snapshot.activePolicyVersion,
+    governedRepositories: registry.repositories,
+    snapshots: snapshot.repositories
+  });
+}
+
 export default async function ConstitutionCenterPage() {
   const actor = await resolveWebActor();
   let canManage = false;
   let amendments: readonly CanonicalConstitutionAmendmentRecord[] = [];
+  let propagation: ConstitutionPropagationProjection | null = null;
 
   if (actor) {
     const runtime = getBlueprintServerRuntime();
     canManage = await runtime.authority.canExerciseConstitutionalAuthority(actor);
     if (canManage) {
       amendments = await runtime.constitutionAuthority.list(actor);
+      propagation = loadPropagationProjection();
     }
   }
 
@@ -153,6 +215,131 @@ export default async function ConstitutionCenterPage() {
           canManage={canManage}
           amendments={amendments}
         />
+
+        {canManage && propagation ? (
+          <section
+            className="constitution-center-section constitution-propagation"
+            aria-labelledby="constitution-propagation-title"
+          >
+            <div className="workspace-section-heading">
+              <div>
+                <p className="section-kicker">CA-005 · Ecosystem propagation</p>
+                <h2 id="constitution-propagation-title">
+                  Constitution adoption across governed repositories
+                </h2>
+                <p>
+                  This is a provenance-bound read model. It can identify stale
+                  adoption and generate migration plans, but it cannot mutate
+                  external repositories, PASS project gates or authorize
+                  Production.
+                </p>
+              </div>
+              <StatusChip
+                tone={
+                  propagation.migrationRequiredRepositories === 0 &&
+                  propagation.blockedRepositories === 0
+                    ? "success"
+                    : "warning"
+                }
+              >
+                {propagation.currentRepositories} / {propagation.totalRepositories} current
+              </StatusChip>
+            </div>
+
+            <div className="constitution-propagation-metrics">
+              <article>
+                <span>Governed repositories</span>
+                <strong>{propagation.totalRepositories}</strong>
+              </article>
+              <article>
+                <span>Current policy</span>
+                <strong>{propagation.currentRepositories}</strong>
+              </article>
+              <article>
+                <span>Migration required</span>
+                <strong>{propagation.migrationRequiredRepositories}</strong>
+              </article>
+              <article>
+                <span>Blocked / unverified</span>
+                <strong>{propagation.blockedRepositories}</strong>
+              </article>
+            </div>
+
+            <div className="constitution-propagation-list">
+              {propagation.repositories.map((item) => (
+                <article key={item.repository}>
+                  <div className="constitution-propagation-primary">
+                    <div>
+                      <strong>{item.repository}</strong>
+                      <small>
+                        {item.projectId} · {item.blueprintLevel} · {item.branch}
+                      </small>
+                    </div>
+                    <StatusChip
+                      tone={
+                        item.state === "current"
+                          ? "success"
+                          : item.state === "migration-required"
+                            ? "warning"
+                            : "danger"
+                      }
+                    >
+                      {item.state}
+                    </StatusChip>
+                  </div>
+
+                  <dl>
+                    <div>
+                      <dt>Observed policy</dt>
+                      <dd>{item.observedPolicyVersion ?? "unverified"}</dd>
+                    </div>
+                    <div>
+                      <dt>Source revision</dt>
+                      <dd>
+                        {item.sourceRevision
+                          ? item.sourceRevision.slice(0, 12) + "…"
+                          : "unavailable"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Role</dt>
+                      <dd>{item.role}</dd>
+                    </div>
+                  </dl>
+
+                  {item.migrationPlan ? (
+                    <details className="canonical-disclosure">
+                      <summary>
+                        Migration plan
+                        <span>
+                          {item.migrationPlan.fromPolicyVersion} →{" "}
+                          {item.migrationPlan.toPolicyVersion}
+                        </span>
+                      </summary>
+                      <div className="canonical-disclosure-body">
+                        <ol>
+                          {item.migrationPlan.requiredSteps.map((step) => (
+                            <li key={step}>{step}</li>
+                          ))}
+                        </ol>
+                      </div>
+                    </details>
+                  ) : null}
+
+                  {item.blockers.length ? (
+                    <p className="constitution-propagation-blockers">
+                      {item.blockers.join(" · ")}
+                    </p>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+
+            <p className="readiness-provenance-note">
+              {propagation.boundaryNote}
+            </p>
+          </section>
+        ) : null}
 
         <section className="constitution-center-section" aria-labelledby="amendment-flow-title">
           <div className="workspace-section-heading">
