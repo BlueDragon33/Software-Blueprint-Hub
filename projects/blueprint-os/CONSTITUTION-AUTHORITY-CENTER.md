@@ -192,8 +192,9 @@ Candidate implementation:
 - lifecycle evidence cannot PASS a project Quality Gate, certify the final Production release revision or grant Production authority.
 
 Release evidence:
-- pending exact-head Fast CI and full Release Gate;
-- status must remain RELEASE CANDIDATE until exact revision evidence exists.
+- PR #81 exact candidate `f1dbb699b66f07ae043a3c67a0fcb1cbb5119a46` passed Development Fast CI run `36375326525`;
+- full Release Gate is pending on the next exact-head release candidate;
+- status must remain RELEASE CANDIDATE until exact revision full-gate evidence exists.
 
 ## Completion gate
 
