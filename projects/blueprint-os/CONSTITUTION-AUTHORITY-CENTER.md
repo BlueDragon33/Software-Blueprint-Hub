@@ -20,7 +20,7 @@ Status: **IMPLEMENTED CANDIDATE**
 - `/constitution` exposes current authority and protocol.
 
 ### CA-002 — Canonical amendment persistence
-Status: **PLANNED**
+Status: **IMPLEMENTED CANDIDATE — FULL GATE REQUIRED**
 
 Persist append-only:
 - amendment proposal revisions;
@@ -38,8 +38,15 @@ Required:
 - audit provenance;
 - no UI-only constitutional state.
 
+Candidate evidence:
+- PostgreSQL current amendment record plus append-only revision history;
+- append-only stage evidence;
+- atomic evidence + lifecycle transition transactions;
+- exact recordVersion conflict protection;
+- System Owner global authority boundary.
+
 ### CA-003 — Human ratification surface
-Status: **PLANNED**
+Status: **IMPLEMENTED CANDIDATE — FULL GATE REQUIRED**
 
 Create authenticated Constitution Reviewer/Owner action:
 - exact amendment revision;
@@ -48,6 +55,14 @@ Create authenticated Constitution Reviewer/Owner action:
 - mandatory note;
 - append-only decision;
 - no automatic AI ratification.
+
+Candidate evidence:
+- authenticated System Owner ratification action only;
+- approve/reject requires mandatory note;
+- decision is append-only and bound to exact pre-decision recordVersion;
+- decision and lifecycle transition persist atomically;
+- Playwright intentionally never performs ratification;
+- ratification grants zero Production authority.
 
 ### CA-004 — Atomic publication set
 Status: **PLANNED**
