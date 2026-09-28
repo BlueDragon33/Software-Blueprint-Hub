@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 
 function fail(message) {
   console.error("[constitution-authority-set] " + message);
@@ -226,16 +227,32 @@ const components = [
 
 const attestation = {
   schemaVersion: "1.0.0",
+  source: "trusted-ci-attestation",
   policyId,
   policyVersion,
+  sourceRevision: process.env.GITHUB_SHA ?? null,
+  ciRunId: process.env.GITHUB_RUN_ID ?? null,
   components,
   authoritySetDigest: sha256(JSON.stringify(stable({ policyId, policyVersion, components }))),
   productionReleaseAuthority: false
 };
 
+const writeIndex = process.argv.indexOf("--write");
+if (writeIndex >= 0) {
+  const outputPath = process.argv[writeIndex + 1];
+  if (!outputPath) {
+    fail("--write requires an output path");
+  } else if (!attestation.sourceRevision || !attestation.ciRunId) {
+    fail("--write requires GITHUB_SHA and GITHUB_RUN_ID trusted CI context");
+  } else {
+    mkdirSync(dirname(outputPath), { recursive: true });
+    writeFileSync(outputPath, JSON.stringify(attestation, null, 2) + "\n");
+  }
+}
+
 if (process.argv.includes("--json")) {
   console.log(JSON.stringify(attestation, null, 2));
-} else {
+} else if (!process.exitCode) {
   console.log(
     `[constitution-authority-set] PASS ${policyId}@${policyVersion} · ${components.length} components · ${attestation.authoritySetDigest}`
   );
