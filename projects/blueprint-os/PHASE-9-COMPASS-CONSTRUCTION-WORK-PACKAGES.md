@@ -347,6 +347,7 @@ Purpose:
 Conduct end-to-end professional UX/product review after engineering gates are green.
 
 Operational prerequisites:
+- a runtime preflight exposes configuration/database/schema blockers without leaking secrets;
 - a real authenticated account can reach the review surface;
 - a new database exposes an explicit one-time System Owner bootstrap path;
 - Owner bootstrap fails closed after initialization and cannot be reused for takeover;

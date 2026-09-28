@@ -19,7 +19,24 @@ The provider subject is an authorization selector, not a password. Do not replac
 
 If either bootstrap environment value is missing, Blueprint OS intentionally exposes no Owner initialization action.
 
-## 2. GitHub OAuth callback
+## 2. Run the in-product preflight
+
+Start the web app, then open:
+
+`/professional-review/readiness`
+
+The preflight reports only safe status information:
+
+- required environment variables present/missing;
+- PostgreSQL reachable/unreachable;
+- authority + P9-019 decision tables present/missing;
+- local HTTP auth exception enabled/disabled.
+
+It never renders `DATABASE_URL`, `AUTH_SECRET`, GitHub OAuth credentials or the configured bootstrap provider subject.
+
+Use `.env.example` as the local configuration contract. A green preflight is necessary runtime evidence, but it does not test the external GitHub OAuth provider callback and it grants no authority.
+
+## 3. GitHub OAuth callback
 
 Configure the OAuth application callback for the actual review host:
 
@@ -32,7 +49,7 @@ Examples:
 
 Do not reuse a Production callback for an unrelated local/Preview origin unless the provider configuration explicitly supports it.
 
-## 3. Database initialization
+## 4. Database initialization
 
 From the repository root:
 
@@ -45,7 +62,7 @@ pnpm db:migrate:status
 
 The review decision is canonical PostgreSQL state. An ephemeral database will lose the decision when destroyed.
 
-## 4. Start a local review workstation
+## 5. Start a local review workstation
 
 For development:
 
@@ -62,7 +79,7 @@ pnpm --filter @blueprint-os/web start
 
 Blueprint OS keeps secure-cookie lookup enabled in `NODE_ENV=production` by default, even when a request claims a localhost Host. Production-build parity over plain HTTP is allowed only when `BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH=true` **and** the direct request Host is localhost/127.0.0.1/::1. An explicit HTTPS forwarding protocol always keeps secure-cookie lookup enabled. Never set the local-HTTP flag on an Internet-facing Preview or Production deployment.
 
-## 5. Initialize authority
+## 6. Initialize authority
 
 Open:
 
@@ -78,7 +95,7 @@ Expected behavior:
 
 Owner initialization does not approve P9-019 and grants no Production release authority.
 
-## 6. Perform P9-019
+## 7. Perform P9-019
 
 Open:
 
@@ -90,13 +107,13 @@ Review the responsive evidence and current findings, enter a decision note, then
 
 Only an authenticated `approve` decision bound to the exact current candidate can unlock P9-020 evidence collection.
 
-## 7. Preserve the decision
+## 8. Preserve the decision
 
 Do not destroy or replace the PostgreSQL database after approval unless the canonical decision has been migrated through an approved data-migration/restore process.
 
 The approval is intentionally not checked into Git source and cannot be reconstructed from a chat message.
 
-## 8. Boundary
+## 9. Boundary
 
 P9-019 approval:
 

@@ -52,6 +52,43 @@ async function authenticateNoAccessUser(page: Page): Promise<void> {
   );
 }
 
+test("P9-019 runtime readiness is truthful and redacts configuration values", async ({
+  page
+}, testInfo) => {
+  await page.goto("/professional-review/readiness");
+
+  await expect(
+    page.getByRole("heading", { name: "Review Runtime Readiness" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Preflight blocked", { exact: true })
+  ).toBeVisible();
+
+  const githubOauth = page.getByRole("heading", { name: "GitHub OAuth" }).locator("..");
+  await expect(githubOauth.getByText("Blocked", { exact: true })).toBeVisible();
+
+  const databaseConnectivity = page
+    .getByRole("heading", { name: "PostgreSQL connectivity" })
+    .locator("..");
+  await expect(
+    databaseConnectivity.getByText("Ready", { exact: true })
+  ).toBeVisible();
+
+  const schema = page
+    .getByRole("heading", { name: "P9-019 persistence schema" })
+    .locator("..");
+  await expect(schema.getByText("Ready", { exact: true })).toBeVisible();
+
+  const body = await page.locator("body").innerText();
+  expect(body).not.toContain("postgresql://blueprint:blueprint");
+  expect(body).not.toContain("p6-e2e-auth-secret-2026-blueprint-os-registry");
+
+  await page.screenshot({
+    path: `artifacts/p9-019-runtime-readiness-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
 test("ADR-0003 owner setup requires the deployment-configured identity", async ({
   page
 }, testInfo) => {
