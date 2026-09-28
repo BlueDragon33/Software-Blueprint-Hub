@@ -35,4 +35,5 @@ Captured evidence:
 Evidence rule:
 - this successful automated run is review input only;
 - it cannot create human sign-off, P9-020 acceptance or Production authority;
-- P9-019 remains ACTIVE until an authenticated human action records a decision against this exact refreshed candidate.
+- P9-019 remains ACTIVE until an authenticated human action records a decision against this exact refreshed candidate;
+- after binding the candidate metadata to the reviewed revision/evidence above, the final PR head must also pass a supplemental full Release Gate before merge; that supplemental run verifies the metadata-bearing application state but does not replace the candidate's reviewed revision or manufacture approval.
