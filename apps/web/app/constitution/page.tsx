@@ -79,6 +79,47 @@ export default async function ConstitutionCenterPage() {
           </article>
         </section>
 
+        <section
+          className="constitution-center-section"
+          aria-labelledby="constitution-authority-set-title"
+        >
+          <div className="workspace-section-heading">
+            <div>
+              <p className="section-kicker">Atomic authority set</p>
+              <h2 id="constitution-authority-set-title">
+                One law version, four synchronized authority components
+              </h2>
+              <p>
+                The normative Constitution, machine contract, Universal
+                Blueprint template and application policy version must agree
+                exactly. Full Release Gate records a source-revision-bound
+                attestation; manual publication data is not trusted.
+              </p>
+            </div>
+            <StatusChip tone="success">CI atomicity enforced</StatusChip>
+          </div>
+          <div className="constitution-prompt-rules">
+            <article>
+              <h3>Normative law</h3>
+              <p><code>docs/UNIVERSAL-CONSTITUTION.md</code></p>
+            </article>
+            <article>
+              <h3>Machine authority</h3>
+              <p>
+                Contract + Universal template + policy version must carry the
+                same constitutional version.
+              </p>
+            </article>
+            <article>
+              <h3>Publication provenance</h3>
+              <p>
+                Exact Git revision, CI run ID and authority-set digest are
+                required. Production authority remains separate.
+              </p>
+            </article>
+          </div>
+        </section>
+
         <section className="constitution-center-section" aria-labelledby="constitution-pillars-title">
           <div className="workspace-section-heading">
             <div>
