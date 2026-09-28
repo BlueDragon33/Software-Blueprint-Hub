@@ -34,7 +34,6 @@ export async function resolveWebIdentity(): Promise<WebAuthenticatedIdentity | n
   const requestHeaders = new Headers(await headers());
   const secureCookie = shouldUseSecureAuthCookie({
     host: requestHeaders.get("host"),
-    forwardedHost: requestHeaders.get("x-forwarded-host"),
     forwardedProto: requestHeaders.get("x-forwarded-proto"),
     nodeEnv: process.env.NODE_ENV
   });
