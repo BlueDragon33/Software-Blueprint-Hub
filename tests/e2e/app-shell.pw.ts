@@ -1208,14 +1208,16 @@ test("System Owner can open the canonical amendment workspace without automated 
   await expect(
     page.getByText("0 / 14 compliant", { exact: true })
   ).toBeVisible();
+  const complianceMatrix = page.locator(".constitution-compliance-matrix");
   await expect(
-    page.getByText("Unverified", { exact: true })
+    complianceMatrix.getByText("Unverified", { exact: true })
   ).toBeVisible();
   await expect(
-    page.getByText("14", { exact: true }).filter({
-      has: page.locator("xpath=..")
-    })
-  ).toHaveCount(0);
+    complianceMatrix
+      .locator(".constitution-compliance-metrics article")
+      .filter({ hasText: "Unverified" })
+      .getByText("14", { exact: true })
+  ).toBeVisible();
   await expect(
     page.getByText("Not verified", { exact: true }).first()
   ).toBeVisible();
