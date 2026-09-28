@@ -1,6 +1,11 @@
+import { createHash } from "node:crypto";
+
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
-import { ConstitutionAuthorityApplicationService } from "../../packages/application/src";
+import {
+  ConstitutionAuthorityApplicationService,
+  type ConstitutionPublicationAttestationVerifier
+} from "../../packages/application/src";
 import {
   AuthorityService,
   ConstitutionRecordVersionConflictError
@@ -26,6 +31,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
   );
 
   beforeEach(async () => {
+    await prisma.constitutionPublication.deleteMany();
     await prisma.constitutionRatificationDecision.deleteMany();
     await prisma.constitutionEvidence.deleteMany();
     await prisma.constitutionAmendmentRevision.deleteMany();
@@ -51,6 +57,134 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
       providerSubject: "ca002-owner"
     });
     return { principalId: principal.id };
+  }
+
+
+  function stable(value: unknown): unknown {
+    if (Array.isArray(value)) return value.map(stable);
+    if (value && typeof value === "object") {
+      return Object.fromEntries(
+        Object.entries(value as Record<string, unknown>)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([key, child]) => [key, stable(child)])
+      );
+    }
+    return value;
+  }
+
+  function sha(value: string): string {
+    return "sha256:" + createHash("sha256").update(value).digest("hex");
+  }
+
+  function authoritySetAttestation() {
+    const policyVersion = "1.2.0";
+    const components = [
+      {
+        id: "normative-document" as const,
+        path: "docs/UNIVERSAL-CONSTITUTION.md",
+        version: policyVersion,
+        digest: sha("normative")
+      },
+      {
+        id: "machine-contract" as const,
+        path: "control/universal-constitution.contract.json",
+        version: policyVersion,
+        digest: sha("contract")
+      },
+      {
+        id: "universal-template" as const,
+        path: "packages/application/src/foundation-templates.ts",
+        version: policyVersion,
+        digest: sha("template")
+      },
+      {
+        id: "policy-version" as const,
+        path: "packages/application/src/constitution-authority.ts",
+        version: policyVersion,
+        digest: sha("policy")
+      }
+    ].sort((a, b) => a.id.localeCompare(b.id));
+    return {
+      schemaVersion: "1.0.0" as const,
+      source: "trusted-ci-attestation" as const,
+      policyId: "blueprint-os:universal-century-grade",
+      policyVersion,
+      sourceRevision: "c".repeat(40),
+      ciRunId: "36365074322",
+      components,
+      authoritySetDigest: sha(
+        JSON.stringify(
+          stable({
+            policyId: "blueprint-os:universal-century-grade",
+            policyVersion,
+            components
+          })
+        )
+      ),
+      productionReleaseAuthority: false as const
+    };
+  }
+
+  async function createRatifiedAmendment(
+    app: ConstitutionAuthorityApplicationService,
+    actor: { principalId: string }
+  ) {
+    const draft = await app.createDraft(
+      actor,
+      {
+        targetPolicyVersion: "1.2.0",
+        title: "Atomic publication amendment",
+        problem: "Constitution authority files must publish as one exact set.",
+        rationale: "Partial publication would create conflicting law sources.",
+        affectedPillarIds: ["architectural-longevity"],
+        affectedRequirementIds: ["module:governance:architectural-longevity"],
+        compatibilityRisk: "high",
+        migrationRequired: true
+      },
+      "2026-09-28T02:30:00.000Z"
+    );
+    await app.recordStageEvidence(
+      actor,
+      {
+        amendmentId: draft.proposal.id,
+        expectedRecordVersion: 1,
+        kind: "impact",
+        source: "review",
+        revision: "revision:impact",
+        digest,
+        note: "Impact evidence."
+      },
+      "2026-09-28T02:31:00.000Z"
+    );
+    await app.recordStageEvidence(
+      actor,
+      {
+        amendmentId: draft.proposal.id,
+        expectedRecordVersion: 2,
+        kind: "migration",
+        source: "migration-plan",
+        revision: "revision:migration",
+        digest,
+        note: "Migration evidence."
+      },
+      "2026-09-28T02:32:00.000Z"
+    );
+    await app.openRatification(
+      actor,
+      draft.proposal.id,
+      3,
+      "2026-09-28T02:33:00.000Z"
+    );
+    return app.ratify(
+      actor,
+      {
+        amendmentId: draft.proposal.id,
+        expectedRecordVersion: 4,
+        decision: "approve",
+        note: "Exact human ratification."
+      },
+      "2026-09-28T02:34:00.000Z"
+    );
   }
 
   it("persists append-only amendment revisions and evidence in one canonical flow", async () => {
@@ -250,4 +384,84 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
       )
     ).rejects.toThrow(/stale/i);
   });
+  it("publishes one immutable Constitution authority set atomically", async () => {
+    const actor = await owner();
+    const verifier: ConstitutionPublicationAttestationVerifier = {
+      id: "test:postgres-ci-verifier",
+      verify: async () => true
+    };
+    const publicationService = new ConstitutionAuthorityApplicationService(
+      repository,
+      authority,
+      verifier
+    );
+    const ratified = await createRatifiedAmendment(
+      publicationService,
+      actor
+    );
+
+    const result = await publicationService.publishFromTrustedAttestation(
+      actor,
+      {
+        amendmentId: ratified.proposal.id,
+        expectedRecordVersion: ratified.recordVersion,
+        attestation: authoritySetAttestation(),
+        note: "Publish exact CI-attested authority set."
+      },
+      "2026-09-28T02:35:00.000Z"
+    );
+
+    expect(result.amendment.state).toBe("published");
+    expect(result.amendment.recordVersion).toBe(6);
+    expect(result.amendment.productionReleaseAuthority).toBe(false);
+    expect(result.publication.productionReleaseAuthority).toBe(false);
+
+    const publications = await prisma.constitutionPublication.findMany({
+      where: { amendmentId: ratified.proposal.id }
+    });
+    expect(publications).toHaveLength(1);
+    expect(publications[0]).toMatchObject({
+      amendmentRecordVersion: 5,
+      policyVersion: "1.2.0",
+      sourceRevision: "c".repeat(40),
+      ciRunId: "36365074322",
+      authoritySetDigest: authoritySetAttestation().authoritySetDigest,
+      productionReleaseAuthority: false
+    });
+
+    const evidenceRows = await prisma.constitutionEvidence.findMany({
+      where: {
+        amendmentId: ratified.proposal.id,
+        kind: "publication"
+      }
+    });
+    expect(evidenceRows).toHaveLength(1);
+
+    const revisions = await prisma.constitutionAmendmentRevision.findMany({
+      where: { amendmentId: ratified.proposal.id },
+      orderBy: { recordVersion: "asc" }
+    });
+    expect(revisions.map((row) => row.state)).toEqual([
+      "draft",
+      "impact-reviewed",
+      "migration-ready",
+      "ratification-ready",
+      "ratified",
+      "published"
+    ]);
+
+    await expect(
+      publicationService.publishFromTrustedAttestation(
+        actor,
+        {
+          amendmentId: ratified.proposal.id,
+          expectedRecordVersion: 5,
+          attestation: authoritySetAttestation(),
+          note: "Duplicate publication must fail."
+        },
+        "2026-09-28T02:36:00.000Z"
+      )
+    ).rejects.toThrow(/stale/i);
+  });
+
 });
