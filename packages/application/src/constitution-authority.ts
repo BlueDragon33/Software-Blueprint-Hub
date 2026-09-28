@@ -475,6 +475,14 @@ function uniqueStrings(values: readonly string[], label: string): readonly strin
   );
 }
 
+function sha256Digest(value: string): string {
+  const normalized = nonEmpty(value, "digest").toLowerCase();
+  if (!/^sha256:[a-f0-9]{64}$/.test(normalized)) {
+    throw new TypeError("digest must be sha256:<64 lowercase hex characters>");
+  }
+  return normalized;
+}
+
 function canonicalNext(
   current: CanonicalConstitutionAmendmentRecord,
   next: ConstitutionAmendmentRecord,
@@ -513,13 +521,11 @@ export class ConstitutionAuthorityApplicationService {
     if (!amendment) return null;
 
     const evidence = await this.repository.listEvidence(amendment.proposal.id);
-    const ratificationDecision =
-      amendment.ratificationDecisionId && amendment.recordVersion > 1
-        ? await this.repository.findRatificationDecision(
-            amendment.proposal.id,
-            amendment.recordVersion - 1
-          )
-        : null;
+    const ratificationDecision = amendment.ratificationDecisionId
+      ? await this.repository.findRatificationDecisionById(
+          amendment.ratificationDecisionId
+        )
+      : null;
 
     return Object.freeze({
       amendment,
@@ -624,7 +630,7 @@ export class ConstitutionAuthorityApplicationService {
       kind: input.kind,
       source: nonEmpty(input.source, "source"),
       revision: nonEmpty(input.revision, "revision"),
-      digest: nonEmpty(input.digest, "digest"),
+      digest: sha256Digest(input.digest),
       note: nonEmpty(input.note, "note"),
       recordedByActorId: actor!.principalId,
       createdAt: timestamp
