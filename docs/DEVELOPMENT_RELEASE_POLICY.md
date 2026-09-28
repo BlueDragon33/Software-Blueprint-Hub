@@ -28,6 +28,7 @@ When this app participates in Application Management:
 Protected human review may run locally or in a non-Production Preview, but it must remain a real authenticated/persistent runtime.
 
 - Follow `docs/P9-019-HUMAN-REVIEW-RUNBOOK.md`.
+- Run `/professional-review/readiness` before Owner bootstrap; blocked configuration/database/schema checks must be resolved before human review.
 - Never expose first-come-first-served Owner bootstrap.
 - Configure the exact bootstrap provider + provider subject before exposing `/setup/owner`.
 - Missing or mismatched bootstrap identity must fail closed.
