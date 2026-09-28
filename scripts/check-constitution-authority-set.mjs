@@ -53,8 +53,27 @@ function exactMatch(source, pattern, label) {
   return match[1];
 }
 
-const manifestPath =
-  process.argv[2] ?? "control/universal-constitution-version.json";
+const cliArgs = process.argv.slice(2);
+let manifestPath = "control/universal-constitution-version.json";
+
+for (let index = 0; index < cliArgs.length; index += 1) {
+  const arg = cliArgs[index];
+  if (arg === "--write") {
+    index += 1;
+    continue;
+  }
+  if (arg === "--json") continue;
+  if (arg?.startsWith("--")) {
+    fail(`Unknown argument ${arg}`);
+    continue;
+  }
+  if (arg) {
+    manifestPath = arg;
+  }
+}
+
+if (process.exitCode) process.exit();
+
 const manifest = json(manifestPath);
 
 if (manifest.schemaVersion !== "1.0.0") {
