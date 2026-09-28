@@ -5685,3 +5685,146 @@ textarea:focus-visible,
     flex-direction: column;
   }
 }
+
+
+/* CA-006 — Constitutional Compliance Matrix */
+.constitution-compliance-matrix {
+  display: grid;
+  gap: 1rem;
+}
+
+.constitution-compliance-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.constitution-compliance-metrics article {
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 0.85rem;
+}
+
+.constitution-compliance-metrics span,
+.constitution-compliance-metrics strong {
+  display: block;
+}
+
+.constitution-compliance-metrics strong {
+  margin-top: 0.3rem;
+  font-size: 1.35rem;
+}
+
+.constitution-compliance-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.constitution-compliance-list > article {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 0.9rem;
+}
+
+.constitution-compliance-primary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.constitution-compliance-primary strong,
+.constitution-compliance-primary small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.constitution-compliance-primary small {
+  margin-top: 0.25rem;
+}
+
+.constitution-compliance-pillar-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(2rem, 1fr));
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
+
+.constitution-compliance-pillar-strip span {
+  display: grid;
+  min-height: 2rem;
+  place-items: center;
+  border: 1px solid rgba(127, 127, 127, 0.22);
+  border-radius: 0.6rem;
+  font-weight: 700;
+}
+
+.constitution-compliance-pillar-strip span[data-state="compliant"] {
+  background: rgba(60, 160, 90, 0.09);
+}
+
+.constitution-compliance-pillar-strip span[data-state="non-compliant"] {
+  background: rgba(190, 70, 70, 0.09);
+}
+
+.constitution-compliance-pillar-strip span[data-state="unverified"] {
+  background: rgba(190, 150, 60, 0.08);
+}
+
+.constitution-compliance-list dl {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0.8rem 0 0;
+}
+
+.constitution-compliance-list dl > div {
+  min-width: 0;
+  padding: 0.65rem 0.7rem;
+  border-radius: 0.65rem;
+  background: rgba(127, 127, 127, 0.05);
+}
+
+.constitution-compliance-list dt,
+.constitution-compliance-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.constitution-compliance-list dt {
+  font-size: 0.78rem;
+  opacity: 0.68;
+}
+
+.constitution-compliance-list dd {
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 980px) {
+  .constitution-compliance-list dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .constitution-compliance-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .constitution-compliance-metrics,
+  .constitution-compliance-list dl {
+    grid-template-columns: 1fr;
+  }
+
+  .constitution-compliance-primary {
+    flex-direction: column;
+  }
+
+  .constitution-compliance-pillar-strip {
+    grid-template-columns: repeat(3, minmax(2rem, 1fr));
+  }
+}
