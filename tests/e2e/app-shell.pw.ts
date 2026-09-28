@@ -1196,11 +1196,16 @@ test("System Owner can open the canonical amendment workspace without automated 
   await expect(
     page.getByText("14 / 14 current", { exact: true })
   ).toBeVisible();
+  const propagationMatrix = page.locator(".constitution-propagation");
   await expect(
-    page.getByText("BlueDragon33/Software-Blueprint-Hub", { exact: true })
+    propagationMatrix.getByText("BlueDragon33/Software-Blueprint-Hub", {
+      exact: true
+    })
   ).toBeVisible();
   await expect(
-    page.getByText("BlueDragon33/Bauman-master-ai-system", { exact: true })
+    propagationMatrix.getByText("BlueDragon33/Bauman-master-ai-system", {
+      exact: true
+    })
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Adoption is not compliance" })
