@@ -1,6 +1,5 @@
 export interface SessionCookiePolicyInput {
   readonly host?: string | null;
-  readonly forwardedHost?: string | null;
   readonly forwardedProto?: string | null;
   readonly nodeEnv?: string | null;
 }
@@ -22,9 +21,12 @@ function hostnameFromHeader(value: string | null): string | null {
 export function shouldUseSecureAuthCookie(
   input: SessionCookiePolicyInput
 ): boolean {
-  const hostHeader =
-    firstHeaderValue(input.forwardedHost) ?? firstHeaderValue(input.host);
-  const hostname = hostnameFromHeader(hostHeader);
+  const forwardedProto = firstHeaderValue(input.forwardedProto);
+  if (forwardedProto === "https") {
+    return true;
+  }
+
+  const hostname = hostnameFromHeader(firstHeaderValue(input.host));
   const localHost =
     hostname === "localhost" ||
     hostname?.endsWith(".localhost") === true ||
@@ -33,11 +35,6 @@ export function shouldUseSecureAuthCookie(
 
   if (localHost) {
     return false;
-  }
-
-  const forwardedProto = firstHeaderValue(input.forwardedProto);
-  if (forwardedProto === "https") {
-    return true;
   }
 
   return input.nodeEnv === "production";
