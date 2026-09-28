@@ -1140,6 +1140,11 @@ test("Constitution Center exposes authority separation and prompt governance", a
   await expect(
     page.getByRole("heading", { name: "New amendment draft" })
   ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", {
+      name: "Constitution adoption across governed repositories"
+    })
+  ).toHaveCount(0);
 
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
@@ -1180,6 +1185,23 @@ test("System Owner can open the canonical amendment workspace without automated 
   await expect(
     page.getByText(/Publication is intentionally unavailable in this phase/i)
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Constitution adoption across governed repositories"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("14 / 14 current", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("BlueDragon33/Software-Blueprint-Hub", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("BlueDragon33/Bauman-master-ai-system", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /deploy|pass quality|auto.*pass/i })
+  ).toHaveCount(0);
 
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
