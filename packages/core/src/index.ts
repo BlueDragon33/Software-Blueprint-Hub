@@ -37,3 +37,5 @@ export function registerProject(
 ): RegisteredProject {
   return Object.freeze({ id, profile: Object.freeze({ ...profile }) });
 }
+
+export * from "./constitution-authority";
