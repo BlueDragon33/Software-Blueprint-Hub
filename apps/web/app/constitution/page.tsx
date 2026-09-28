@@ -3,12 +3,15 @@ import Link from "next/link";
 import {
   CONSTITUTION_POLICY_ID,
   CONSTITUTION_POLICY_VERSION,
+  buildConstitutionComplianceMatrix,
   buildConstitutionPropagationProjection,
   constitutionAuthorityStages,
   centuryGradePillarDefinitions
 } from "@blueprint-os/application";
 import type {
   CanonicalConstitutionAmendmentRecord,
+  ConstitutionComplianceMatrix,
+  ConstitutionComplianceObservation,
   ConstitutionPropagationProjection,
   GovernedRepositoryAdoptionSnapshot,
   GovernedRepositoryDefinition
@@ -19,6 +22,7 @@ import { resolveWebActor } from "../../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../../src/server/runtime";
 import governedRegistryJson from "../../../../control/constitution-governed-repositories.json";
 import ecosystemSnapshotJson from "../../../../control/constitution-ecosystem-snapshot.json";
+import complianceSnapshotJson from "../../../../control/constitution-compliance-snapshot.json";
 import { ConstitutionAuthorityConsole } from "./constitution-authority-console";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +40,14 @@ interface EcosystemSnapshotFile {
   readonly policyId: string;
   readonly activePolicyVersion: string;
   readonly repositories: readonly GovernedRepositoryAdoptionSnapshot[];
+}
+
+interface ComplianceSnapshotFile {
+  readonly schemaVersion: "1.0.0";
+  readonly source: "operator-verified-repository-scan";
+  readonly policyId: string;
+  readonly policyVersion: string;
+  readonly observations: readonly ConstitutionComplianceObservation[];
 }
 
 function loadPropagationProjection(): ConstitutionPropagationProjection {
@@ -63,11 +75,34 @@ function loadPropagationProjection(): ConstitutionPropagationProjection {
   });
 }
 
+function loadComplianceMatrix(
+  propagation: ConstitutionPropagationProjection
+): ConstitutionComplianceMatrix {
+  const snapshot =
+    complianceSnapshotJson as unknown as ComplianceSnapshotFile;
+
+  if (snapshot.schemaVersion !== "1.0.0") {
+    throw new TypeError("Unsupported Constitution compliance snapshot schema");
+  }
+  if (
+    snapshot.policyId !== propagation.policyId ||
+    snapshot.policyVersion !== propagation.activePolicyVersion
+  ) {
+    throw new TypeError("Constitution compliance snapshot policy drift");
+  }
+
+  return buildConstitutionComplianceMatrix({
+    propagation,
+    observations: snapshot.observations
+  });
+}
+
 export default async function ConstitutionCenterPage() {
   const actor = await resolveWebActor();
   let canManage = false;
   let amendments: readonly CanonicalConstitutionAmendmentRecord[] = [];
   let propagation: ConstitutionPropagationProjection | null = null;
+  let complianceMatrix: ConstitutionComplianceMatrix | null = null;
 
   if (actor) {
     const runtime = getBlueprintServerRuntime();
@@ -75,6 +110,7 @@ export default async function ConstitutionCenterPage() {
     if (canManage) {
       amendments = await runtime.constitutionAuthority.list(actor);
       propagation = loadPropagationProjection();
+      complianceMatrix = loadComplianceMatrix(propagation);
     }
   }
 
@@ -325,6 +361,160 @@ export default async function ConstitutionCenterPage() {
 
             <p className="readiness-provenance-note">
               {propagation.boundaryNote}
+            </p>
+          </section>
+        ) : null}
+
+        {canManage && complianceMatrix ? (
+          <section
+            className="constitution-center-section constitution-compliance-matrix"
+            aria-labelledby="constitution-compliance-matrix-title"
+          >
+            <div className="workspace-section-heading">
+              <div>
+                <p className="section-kicker">CA-006 · Compliance matrix</p>
+                <h2 id="constitution-compliance-matrix-title">
+                  Adoption is not compliance
+                </h2>
+                <p>
+                  A project becomes COMPLIANT only from a trusted attestation
+                  bound to the active policy and exact source revision with all
+                  six pillars and all Universal gates backed by evidence.
+                </p>
+              </div>
+              <StatusChip
+                tone={
+                  complianceMatrix.compliantRepositories ===
+                    complianceMatrix.totalRepositories &&
+                  complianceMatrix.totalRepositories > 0
+                    ? "success"
+                    : "warning"
+                }
+              >
+                {complianceMatrix.compliantRepositories} /{" "}
+                {complianceMatrix.totalRepositories} compliant
+              </StatusChip>
+            </div>
+
+            <div className="constitution-compliance-metrics">
+              <article>
+                <span>Compliant</span>
+                <strong>{complianceMatrix.compliantRepositories}</strong>
+              </article>
+              <article>
+                <span>Non-compliant</span>
+                <strong>{complianceMatrix.nonCompliantRepositories}</strong>
+              </article>
+              <article>
+                <span>Unverified</span>
+                <strong>{complianceMatrix.unverifiedRepositories}</strong>
+              </article>
+              <article>
+                <span>Migration / blocked</span>
+                <strong>
+                  {complianceMatrix.migrationRequiredRepositories +
+                    complianceMatrix.blockedRepositories}
+                </strong>
+              </article>
+            </div>
+
+            <div className="constitution-compliance-list">
+              {complianceMatrix.repositories.map((item) => {
+                const provenPillars = item.pillarStates.filter(
+                  (pillar) => pillar.state === "compliant"
+                ).length;
+                return (
+                  <article key={item.repository}>
+                    <div className="constitution-compliance-primary">
+                      <div>
+                        <strong>{item.repository}</strong>
+                        <small>
+                          {item.projectId} · {item.blueprintLevel} · policy{" "}
+                          {item.adoptedPolicyVersion ?? "unverified"}
+                        </small>
+                      </div>
+                      <StatusChip
+                        tone={
+                          item.complianceState === "compliant"
+                            ? "success"
+                            : item.complianceState === "unverified"
+                              ? "warning"
+                              : "danger"
+                        }
+                      >
+                        {item.complianceState}
+                      </StatusChip>
+                    </div>
+
+                    <div className="constitution-compliance-pillar-strip">
+                      {item.pillarStates.map((pillar) => (
+                        <span
+                          key={pillar.id}
+                          data-state={pillar.state}
+                          title={pillar.id}
+                        >
+                          {pillar.state === "compliant"
+                            ? "✓"
+                            : pillar.state === "non-compliant"
+                              ? "!"
+                              : "?"}
+                        </span>
+                      ))}
+                    </div>
+
+                    <dl>
+                      <div>
+                        <dt>Pillars proven</dt>
+                        <dd>{provenPillars} / {item.pillarStates.length}</dd>
+                      </div>
+                      <div>
+                        <dt>Blocking gates</dt>
+                        <dd>{item.blockingGateIds.length}</dd>
+                      </div>
+                      <div>
+                        <dt>Evidence revisions</dt>
+                        <dd>{item.exactEvidenceRevisions.length}</dd>
+                      </div>
+                      <div>
+                        <dt>Last observed</dt>
+                        <dd>
+                          {item.lastObservedAt
+                            ? new Date(item.lastObservedAt).toLocaleString("en-GB")
+                            : "—"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>Last verified</dt>
+                        <dd>
+                          {item.lastVerifiedAt
+                            ? new Date(item.lastVerifiedAt).toLocaleString("en-GB")
+                            : "Not verified"}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    {item.blockers.length ? (
+                      <details className="canonical-disclosure">
+                        <summary>
+                          Compliance blockers
+                          <span>{item.blockers.length}</span>
+                        </summary>
+                        <div className="canonical-disclosure-body">
+                          <ul>
+                            {item.blockers.map((blocker) => (
+                              <li key={blocker}>{blocker}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </details>
+                    ) : null}
+                  </article>
+                );
+              })}
+            </div>
+
+            <p className="readiness-provenance-note">
+              {complianceMatrix.boundaryNote}
             </p>
           </section>
         ) : null}

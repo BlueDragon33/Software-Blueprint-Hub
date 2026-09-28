@@ -102,7 +102,7 @@ export interface ConstitutionalComplianceAudit {
   readonly boundaryNote: string;
 }
 
-const constitutionalGateIds = Object.freeze([
+export const constitutionalGateIds = Object.freeze([
   "gate:quality:evidence",
   "gate:security:authority",
   "gate:ux:human-acceptance",

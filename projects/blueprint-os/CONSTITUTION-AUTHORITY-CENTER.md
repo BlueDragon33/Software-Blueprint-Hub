@@ -81,7 +81,7 @@ Completion evidence:
 - browser automation intentionally never performs a human ratification action.
 
 ### CA-004 — Atomic publication set
-Status: **COMPLETE — EXACT-HEAD RELEASE GATE REQUIRED BEFORE MERGE**
+Status: **COMPLETE**
 
 Publication must update and verify as one authority set:
 1. normative Constitution document;
@@ -104,10 +104,11 @@ Candidate implementation:
 - no manual Publish button or free-form publication payload is exposed;
 - constitutional publication grants zero Production authority.
 
-Completion criteria for this branch:
-- exact branch head must pass the full Release Gate with the authority-set check and PostgreSQL publication integration enabled;
-- merge is permitted only after that exact-head evidence exists;
-- Production authority remains false.
+Completion evidence:
+- exact-head `5e0b86c5b42246d7fd9e1312db69f2f48c0c055c` passed full Release Gate run `36369217048`;
+- PR #78 squash-merged as `64b5bcdf1686069a3cf9ad039ee13f94a6d2cc41`;
+- authority-set atomicity, PostgreSQL publication integration, production build and Playwright all passed;
+- Production authority remained false.
 
 ### CA-005 — Ecosystem propagation
 Status: **COMPLETE**
@@ -135,10 +136,12 @@ Completion evidence:
 - initial exact-head full Release Gate passed on `c82950620dd16af0e34d2f49fa2bb35b20e354c9` in run `36370333878` after repairing the Next.js runtime control-file path;
 - Fast CI and full gate both execute the Constitution ecosystem snapshot validator;
 - production build and Playwright desktop/tablet/mobile evidence passed with the authority-only propagation matrix;
-- propagation remains a read-only plan; external repository mutation, Quality Gate PASS and Production authority remain false.
+- propagation remains a read-only plan; external repository mutation, Quality Gate PASS and Production authority remain false;
+- final exact-head `83c69685836ff11173d82ffa26fd59f44438de2c` passed full Release Gate run `36370577912`;
+- PR #79 squash-merged as `1290f9078537759d4ee1c56b8f226113d85843df` and main Fast CI run `36370799997` passed.
 
 ### CA-006 — Constitutional compliance matrix
-Status: **PLANNED**
+Status: **COMPLETE**
 
 Global view:
 - repository/project;
@@ -150,6 +153,26 @@ Global view:
 - exact evidence revision;
 - last verification time;
 - Production authority shown separately.
+
+Candidate implementation:
+- a standard Constitution Compliance Attestation protocol separates adoption from compliance evidence;
+- the matrix accepts COMPLIANT only for the active policy and exact current source revision;
+- all six Century-Grade pillars and all seven Universal constitutional gates must appear in a valid attestation;
+- a PASS gate requires evidence IDs and evidence revisions;
+- missing attestation remains UNVERIFIED instead of inheriting adoption or CI success;
+- stale adoption becomes MIGRATION REQUIRED before compliance is considered;
+- malformed, contradictory or stale attestation fails closed as BLOCKED;
+- observation time and compliance verification time are separate;
+- authority-only /constitution UI exposes repository, policy, Blueprint Level, six-pillar state, blocking gates, exact evidence revisions and verification status;
+- the initial live repository scan found no standard CA-006 attestation in the 14 governed repositories, so the truthful baseline is 14/14 adoption-current and 0/14 compliance-attested;
+- matrix projection cannot mutate project Quality Gates, fabricate PASS, certify the exact release revision or authorize Production.
+
+Completion evidence:
+- initial exact-head full Release Gate passed on `b193d13c1dc5adafb2d8c982c627edcb892a91fb` in run `36372608266`;
+- CA-006 snapshot integrity, typecheck, architecture boundaries, unit/integration, production build and Playwright desktop/tablet/mobile all passed;
+- E2E strict-locator ambiguity caused by the same repository appearing in both CA-005 and CA-006 was fixed by scoping assertions to the intended matrix rather than weakening product behavior;
+- the truthful baseline remains 14/14 adoption-current, 0/14 compliance-attested, 14/14 compliance-unverified;
+- automatic Quality Gate PASS, canonical project mutation, exact-release certification and Production authority remain false.
 
 ## Completion gate
 

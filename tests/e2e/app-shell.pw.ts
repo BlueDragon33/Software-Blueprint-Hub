@@ -1145,6 +1145,9 @@ test("Constitution Center exposes authority separation and prompt governance", a
       name: "Constitution adoption across governed repositories"
     })
   ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Adoption is not compliance" })
+  ).toHaveCount(0);
 
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
@@ -1193,11 +1196,35 @@ test("System Owner can open the canonical amendment workspace without automated 
   await expect(
     page.getByText("14 / 14 current", { exact: true })
   ).toBeVisible();
+  const propagationMatrix = page.locator(".constitution-propagation");
   await expect(
-    page.getByText("BlueDragon33/Software-Blueprint-Hub", { exact: true })
+    propagationMatrix.getByText("BlueDragon33/Software-Blueprint-Hub", {
+      exact: true
+    })
   ).toBeVisible();
   await expect(
-    page.getByText("BlueDragon33/Bauman-master-ai-system", { exact: true })
+    propagationMatrix.getByText("BlueDragon33/Bauman-master-ai-system", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Adoption is not compliance" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("0 / 14 compliant", { exact: true })
+  ).toBeVisible();
+  const complianceMatrix = page.locator(".constitution-compliance-matrix");
+  await expect(
+    complianceMatrix.getByText("Unverified", { exact: true })
+  ).toBeVisible();
+  await expect(
+    complianceMatrix
+      .locator(".constitution-compliance-metrics article")
+      .filter({ hasText: "Unverified" })
+      .getByText("14", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Not verified", { exact: true }).first()
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: /deploy|pass quality|auto.*pass/i })

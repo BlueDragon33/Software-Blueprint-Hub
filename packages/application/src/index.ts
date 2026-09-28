@@ -310,3 +310,5 @@ export * from "./constitutional-compliance";
 export * from "./constitution-authority";
 
 export * from "./constitution-propagation";
+
+export * from "./constitution-compliance-matrix";
