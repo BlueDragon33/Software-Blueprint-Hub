@@ -59,7 +59,7 @@ pnpm build
 pnpm --filter @blueprint-os/web start
 ```
 
-Blueprint OS treats localhost/127.0.0.1/::1 as local HTTP for Auth.js session-cookie lookup even when `next start` runs with `NODE_ENV=production`. Non-local Production hosts remain secure-cookie-only.
+Blueprint OS treats localhost/127.0.0.1/::1 as local HTTP for Auth.js session-cookie lookup even when `next start` runs with `NODE_ENV=production`. An explicit HTTPS forwarding protocol always keeps secure-cookie lookup enabled. The localhost exception is derived from the direct request `Host`, not `x-forwarded-host`, so forwarding metadata cannot downgrade a non-local Production host. Non-local Production hosts remain secure-cookie-only.
 
 ## 5. Initialize authority
 
