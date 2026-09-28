@@ -59,6 +59,29 @@ describe("Release Gate evidence manifest", () => {
     });
     expect(manifest.passedChecks).toContain("browser-e2e");
     expect(manifest.passedChecks).toContain("migration-status");
+    expect(manifest.passedChecks).toContain("universal-constitution-compliance");
+    expect(manifest.passedChecks).toContain("constitution-authority-set");
+    expect(manifest.passedChecks).toContain("constitution-ecosystem-snapshot");
+    expect(manifest.passedChecks).toContain("constitution-compliance-matrix");
+    expect(manifest.passedChecks).toContain("source-of-truth-contradiction");
+    expect(manifest.passedChecks).toContain("source-of-truth-detector-self-test");
+  });
+
+  it("manual Release Gate includes the governance checks required by P9-020", async () => {
+    const workflow = await readFile(
+      new URL("../../.github/workflows/release-gate.yml", import.meta.url),
+      "utf8"
+    );
+
+    expect(workflow).toContain("Universal Constitution compliance");
+    expect(workflow).toContain("Constitution authority-set atomicity");
+    expect(workflow).toContain("Constitution ecosystem snapshot");
+    expect(workflow).toContain("Constitution compliance matrix snapshot");
+    expect(workflow).toContain("Source-of-truth contradiction gate");
+    expect(workflow).toContain("Source-of-truth detector self-test");
+    expect(workflow).toContain("pnpm constitution:check");
+    expect(workflow).toContain("pnpm check:truth");
+    expect(workflow).toContain("pnpm test:truth");
   });
 
   it("rejects a non-exact revision instead of producing ambiguous evidence", async () => {

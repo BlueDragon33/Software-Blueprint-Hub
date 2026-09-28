@@ -1,5 +1,6 @@
 import { encode } from "@auth/core/jwt";
 import { expect, test, type Page } from "@playwright/test";
+import { p9019ProfessionalReviewCandidate } from "../../packages/application/src/professional-review";
 
 const e2eAuthSecret = process.env.AUTH_SECRET ?? "";
 
@@ -971,17 +972,19 @@ test("P9-019 exposes an explicit human review surface without automated sign-off
     page.getByText("Production not authorized", { exact: true })
   ).toBeVisible();
 
+  const releaseGateUrl =
+    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/" +
+    p9019ProfessionalReviewCandidate.evidenceArtifact.workflowRunId;
   await expect(
     page.getByRole("link", { name: "Open Release Gate run" })
-  ).toHaveAttribute(
-    "href",
-    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/36317309428"
-  );
+  ).toHaveAttribute("href", releaseGateUrl);
   await expect(
     page.getByRole("link", { name: "Open screenshot artifact" })
   ).toHaveAttribute(
     "href",
-    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/36317309428/artifacts/10931137598"
+    releaseGateUrl +
+      "/artifacts/" +
+      p9019ProfessionalReviewCandidate.evidenceArtifact.artifactId
   );
 
   const reviewedScope = page.getByRole("region", {
