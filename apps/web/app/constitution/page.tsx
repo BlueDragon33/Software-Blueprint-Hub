@@ -6,6 +6,7 @@ import {
   constitutionAuthorityStages,
   centuryGradePillarDefinitions
 } from "@blueprint-os/application";
+import type { CanonicalConstitutionAmendmentRecord } from "@blueprint-os/core";
 import { AppShell, StatusChip } from "@blueprint-os/ui";
 
 import { resolveWebActor } from "../../src/auth/server-actor";
@@ -17,9 +18,7 @@ export const dynamic = "force-dynamic";
 export default async function ConstitutionCenterPage() {
   const actor = await resolveWebActor();
   let canManage = false;
-  let amendments = [] as Awaited<
-    ReturnType<ReturnType<typeof getBlueprintServerRuntime>["constitutionAuthority"]["list"]>
-  >;
+  let amendments: readonly CanonicalConstitutionAmendmentRecord[] = [];
 
   if (actor) {
     const runtime = getBlueprintServerRuntime();
