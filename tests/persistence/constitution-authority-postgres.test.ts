@@ -4,6 +4,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import {
   ConstitutionAuthorityApplicationService,
+  type ConstitutionLifecycleAttestationVerifier,
   type ConstitutionPublicationAttestationVerifier
 } from "../../packages/application/src";
 import {
@@ -122,6 +123,14 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         )
       ),
       productionReleaseAuthority: false as const
+    };
+  }
+
+  function lifecycleVerifier(): ConstitutionLifecycleAttestationVerifier {
+    return {
+      id: "test:postgres-lifecycle-verifier",
+      verifyPropagation: async () => true,
+      verifyVerification: async () => true
     };
   }
 
@@ -467,6 +476,132 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         "2026-09-28T02:36:00.000Z"
       )
     ).rejects.toThrow(/stale/i);
+  });
+
+
+  it("persists the exact post-publication lifecycle through verified with append-only evidence", async () => {
+    const actor = await owner();
+    const publicationVerifier: ConstitutionPublicationAttestationVerifier = {
+      id: "test:postgres-ci-verifier",
+      verify: async () => true
+    };
+    const lifecycle = lifecycleVerifier();
+    const lifecycleService = new ConstitutionAuthorityApplicationService(
+      repository,
+      authority,
+      publicationVerifier,
+      lifecycle
+    );
+    const ratified = await createRatifiedAmendment(lifecycleService, actor);
+    const published = await lifecycleService.publishFromTrustedAttestation(
+      actor,
+      {
+        amendmentId: ratified.proposal.id,
+        expectedRecordVersion: ratified.recordVersion,
+        attestation: authoritySetAttestation(),
+        note: "Publish before proving propagation and verification."
+      },
+      "2026-09-28T02:35:00.000Z"
+    );
+
+    const propagating =
+      await lifecycleService.beginPropagationFromTrustedAttestation(
+        actor,
+        {
+          amendmentId: published.amendment.proposal.id,
+          expectedRecordVersion: published.amendment.recordVersion,
+          attestation: {
+            schemaVersion: "1.0.0",
+            kind: "constitution-propagation-attestation",
+            source: "trusted-constitution-lifecycle-attestation",
+            policyId: "blueprint-os:universal-century-grade",
+            policyVersion: "1.2.0",
+            amendmentId: published.amendment.proposal.id,
+            publicationId: published.publication.id,
+            sourceRevision: "d".repeat(40),
+            workflowRunId: "36390000011",
+            snapshotDigest: sha("postgres-propagation-snapshot"),
+            totalRepositories: 2,
+            currentRepositories: 1,
+            migrationRequiredRepositories: 1,
+            blockedRepositories: 0,
+            exactReleaseRevisionCertified: false,
+            productionReleaseAuthority: false
+          },
+          note: "Persist exact propagation snapshot evidence."
+        },
+        "2026-09-28T02:36:00.000Z"
+      );
+
+    expect(propagating.state).toBe("propagating");
+    expect(propagating.recordVersion).toBe(7);
+
+    const verified = await lifecycleService.verifyFromTrustedAttestation(
+      actor,
+      {
+        amendmentId: propagating.proposal.id,
+        expectedRecordVersion: propagating.recordVersion,
+        attestation: {
+          schemaVersion: "1.0.0",
+          kind: "constitution-verification-attestation",
+          source: "trusted-constitution-lifecycle-attestation",
+          policyId: "blueprint-os:universal-century-grade",
+          policyVersion: "1.2.0",
+          amendmentId: propagating.proposal.id,
+          publicationId: published.publication.id,
+          sourceRevision: "e".repeat(40),
+          workflowRunId: "36390000012",
+          matrixDigest: sha("postgres-compliance-matrix"),
+          totalRepositories: 2,
+          compliantRepositories: 2,
+          nonCompliantRepositories: 0,
+          unverifiedRepositories: 0,
+          migrationRequiredRepositories: 0,
+          blockedRepositories: 0,
+          exactReleaseRevisionCertified: false,
+          productionReleaseAuthority: false
+        },
+        note: "Persist exact all-compliant verification evidence."
+      },
+      "2026-09-28T02:37:00.000Z"
+    );
+
+    expect(verified.state).toBe("verified");
+    expect(verified.recordVersion).toBe(8);
+    expect(verified.productionReleaseAuthority).toBe(false);
+
+    const lifecycleEvidence = await prisma.constitutionEvidence.findMany({
+      where: {
+        amendmentId: ratified.proposal.id,
+        kind: { in: ["propagation", "verification"] }
+      },
+      orderBy: { createdAt: "asc" }
+    });
+    expect(lifecycleEvidence.map((row) => row.kind)).toEqual([
+      "propagation",
+      "verification"
+    ]);
+    expect(
+      lifecycleEvidence.every((row) => row.recordedByActorId === actor.principalId)
+    ).toBe(true);
+
+    const revisions = await prisma.constitutionAmendmentRevision.findMany({
+      where: { amendmentId: ratified.proposal.id },
+      orderBy: { recordVersion: "asc" }
+    });
+    expect(revisions.map((row) => row.state)).toEqual([
+      "draft",
+      "impact-reviewed",
+      "migration-ready",
+      "ratification-ready",
+      "ratified",
+      "published",
+      "propagating",
+      "verified"
+    ]);
+    expect(revisions.map((row) => row.recordVersion)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8
+    ]);
   });
 
 });

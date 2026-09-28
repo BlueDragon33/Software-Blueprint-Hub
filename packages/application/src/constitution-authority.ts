@@ -544,6 +544,70 @@ export function validateConstitutionAuthoritySetAttestation(
   });
 }
 
+export interface ConstitutionPropagationAttestation {
+  readonly schemaVersion: "1.0.0";
+  readonly kind: "constitution-propagation-attestation";
+  readonly source: "trusted-constitution-lifecycle-attestation";
+  readonly policyId: string;
+  readonly policyVersion: string;
+  readonly amendmentId: string;
+  readonly publicationId: string;
+  readonly sourceRevision: string;
+  readonly workflowRunId: string;
+  readonly snapshotDigest: string;
+  readonly totalRepositories: number;
+  readonly currentRepositories: number;
+  readonly migrationRequiredRepositories: number;
+  readonly blockedRepositories: number;
+  readonly exactReleaseRevisionCertified: false;
+  readonly productionReleaseAuthority: false;
+}
+
+export interface ConstitutionVerificationAttestation {
+  readonly schemaVersion: "1.0.0";
+  readonly kind: "constitution-verification-attestation";
+  readonly source: "trusted-constitution-lifecycle-attestation";
+  readonly policyId: string;
+  readonly policyVersion: string;
+  readonly amendmentId: string;
+  readonly publicationId: string;
+  readonly sourceRevision: string;
+  readonly workflowRunId: string;
+  readonly matrixDigest: string;
+  readonly totalRepositories: number;
+  readonly compliantRepositories: number;
+  readonly nonCompliantRepositories: number;
+  readonly unverifiedRepositories: number;
+  readonly migrationRequiredRepositories: number;
+  readonly blockedRepositories: number;
+  readonly exactReleaseRevisionCertified: false;
+  readonly productionReleaseAuthority: false;
+}
+
+export interface ConstitutionLifecycleAttestationVerifier {
+  readonly id: string;
+  verifyPropagation(
+    attestation: ConstitutionPropagationAttestation
+  ): Promise<boolean>;
+  verifyVerification(
+    attestation: ConstitutionVerificationAttestation
+  ): Promise<boolean>;
+}
+
+export interface ConstitutionPropagationSubmission {
+  readonly amendmentId: string;
+  readonly expectedRecordVersion: number;
+  readonly attestation: ConstitutionPropagationAttestation;
+  readonly note: string;
+}
+
+export interface ConstitutionVerificationSubmission {
+  readonly amendmentId: string;
+  readonly expectedRecordVersion: number;
+  readonly attestation: ConstitutionVerificationAttestation;
+  readonly note: string;
+}
+
 export interface ConstitutionAmendmentDraftInput {
   readonly targetPolicyVersion: string;
   readonly title: string;
@@ -644,6 +708,168 @@ function sha256Digest(value: string): string {
   return normalized;
 }
 
+function nonNegativeInteger(value: number, label: string): number {
+  if (!Number.isInteger(value) || value < 0) {
+    throw new TypeError(`${label} must be a non-negative integer`);
+  }
+  return value;
+}
+
+function positiveInteger(value: number, label: string): number {
+  if (!Number.isInteger(value) || value < 1) {
+    throw new TypeError(`${label} must be a positive integer`);
+  }
+  return value;
+}
+
+function validateLifecycleIdentity(input: {
+  readonly schemaVersion: string;
+  readonly source: string;
+  readonly policyId: string;
+  readonly policyVersion: string;
+  readonly amendmentId: string;
+  readonly publicationId: string;
+  readonly sourceRevision: string;
+  readonly workflowRunId: string;
+  readonly exactReleaseRevisionCertified: boolean;
+  readonly productionReleaseAuthority: boolean;
+}): void {
+  if (input.schemaVersion !== "1.0.0") {
+    throw new TypeError("Constitution lifecycle attestation schemaVersion must be 1.0.0");
+  }
+  if (input.source !== "trusted-constitution-lifecycle-attestation") {
+    throw new TypeError("Constitution lifecycle attestation source is not trusted");
+  }
+  if (input.policyId !== CONSTITUTION_POLICY_ID) {
+    throw new TypeError(
+      `Constitution lifecycle policyId must be ${CONSTITUTION_POLICY_ID}`
+    );
+  }
+  semver(input.policyVersion, "attestation.policyVersion");
+  nonEmpty(input.amendmentId, "attestation.amendmentId");
+  nonEmpty(input.publicationId, "attestation.publicationId");
+  if (!/^[a-f0-9]{40}$/.test(nonEmpty(input.sourceRevision, "sourceRevision"))) {
+    throw new TypeError("sourceRevision must be an exact 40-character Git commit SHA");
+  }
+  if (!/^\d+$/.test(nonEmpty(input.workflowRunId, "workflowRunId"))) {
+    throw new TypeError("workflowRunId must be a numeric trusted CI run identifier");
+  }
+  if (input.exactReleaseRevisionCertified !== false) {
+    throw new TypeError(
+      "Constitution lifecycle evidence cannot certify the final Production release revision"
+    );
+  }
+  if (input.productionReleaseAuthority !== false) {
+    throw new TypeError(
+      "Constitution lifecycle evidence must never grant Production authority"
+    );
+  }
+}
+
+export function validateConstitutionPropagationAttestation(
+  attestation: ConstitutionPropagationAttestation
+): ConstitutionPropagationAttestation {
+  validateLifecycleIdentity(attestation);
+  if (attestation.kind !== "constitution-propagation-attestation") {
+    throw new TypeError("Constitution propagation attestation kind is invalid");
+  }
+  const totalRepositories = positiveInteger(
+    attestation.totalRepositories,
+    "totalRepositories"
+  );
+  const currentRepositories = nonNegativeInteger(
+    attestation.currentRepositories,
+    "currentRepositories"
+  );
+  const migrationRequiredRepositories = nonNegativeInteger(
+    attestation.migrationRequiredRepositories,
+    "migrationRequiredRepositories"
+  );
+  const blockedRepositories = nonNegativeInteger(
+    attestation.blockedRepositories,
+    "blockedRepositories"
+  );
+  if (
+    currentRepositories +
+      migrationRequiredRepositories +
+      blockedRepositories !==
+    totalRepositories
+  ) {
+    throw new TypeError(
+      "Constitution propagation counts must partition all governed repositories"
+    );
+  }
+
+  return Object.freeze({
+    ...attestation,
+    snapshotDigest: sha256Digest(attestation.snapshotDigest),
+    totalRepositories,
+    currentRepositories,
+    migrationRequiredRepositories,
+    blockedRepositories,
+    exactReleaseRevisionCertified: false,
+    productionReleaseAuthority: false
+  });
+}
+
+export function validateConstitutionVerificationAttestation(
+  attestation: ConstitutionVerificationAttestation
+): ConstitutionVerificationAttestation {
+  validateLifecycleIdentity(attestation);
+  if (attestation.kind !== "constitution-verification-attestation") {
+    throw new TypeError("Constitution verification attestation kind is invalid");
+  }
+  const totalRepositories = positiveInteger(
+    attestation.totalRepositories,
+    "totalRepositories"
+  );
+  const compliantRepositories = nonNegativeInteger(
+    attestation.compliantRepositories,
+    "compliantRepositories"
+  );
+  const nonCompliantRepositories = nonNegativeInteger(
+    attestation.nonCompliantRepositories,
+    "nonCompliantRepositories"
+  );
+  const unverifiedRepositories = nonNegativeInteger(
+    attestation.unverifiedRepositories,
+    "unverifiedRepositories"
+  );
+  const migrationRequiredRepositories = nonNegativeInteger(
+    attestation.migrationRequiredRepositories,
+    "migrationRequiredRepositories"
+  );
+  const blockedRepositories = nonNegativeInteger(
+    attestation.blockedRepositories,
+    "blockedRepositories"
+  );
+  if (
+    compliantRepositories +
+      nonCompliantRepositories +
+      unverifiedRepositories +
+      migrationRequiredRepositories +
+      blockedRepositories !==
+    totalRepositories
+  ) {
+    throw new TypeError(
+      "Constitution verification counts must partition all governed repositories"
+    );
+  }
+
+  return Object.freeze({
+    ...attestation,
+    matrixDigest: sha256Digest(attestation.matrixDigest),
+    totalRepositories,
+    compliantRepositories,
+    nonCompliantRepositories,
+    unverifiedRepositories,
+    migrationRequiredRepositories,
+    blockedRepositories,
+    exactReleaseRevisionCertified: false,
+    productionReleaseAuthority: false
+  });
+}
+
 function canonicalNext(
   current: CanonicalConstitutionAmendmentRecord,
   next: ConstitutionAmendmentRecord,
@@ -662,7 +888,8 @@ export class ConstitutionAuthorityApplicationService {
   constructor(
     private readonly repository: ConstitutionAuthorityRepository,
     private readonly authority: AuthorityService,
-    private readonly publicationAttestationVerifier?: ConstitutionPublicationAttestationVerifier
+    private readonly publicationAttestationVerifier?: ConstitutionPublicationAttestationVerifier,
+    private readonly lifecycleAttestationVerifier?: ConstitutionLifecycleAttestationVerifier
   ) {}
 
   async list(
@@ -982,6 +1209,173 @@ export class ConstitutionAuthorityApplicationService {
     );
 
     return Object.freeze({ amendment, publication });
+  }
+
+  async beginPropagationFromTrustedAttestation(
+    actor: AuthenticatedActor | null,
+    input: ConstitutionPropagationSubmission,
+    now: string
+  ): Promise<CanonicalConstitutionAmendmentRecord> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    if (!this.lifecycleAttestationVerifier) {
+      throw new TypeError(
+        "Constitution propagation is blocked until a trusted lifecycle attestation verifier is configured"
+      );
+    }
+
+    const current = await this.requireExactAmendment(
+      input.amendmentId,
+      input.expectedRecordVersion
+    );
+    if (current.state !== "published" || !current.publicationEvidenceId) {
+      throw new TypeError(
+        "Constitution propagation requires an exactly published amendment"
+      );
+    }
+
+    const publication = await this.repository.findPublicationByAmendmentId(
+      current.proposal.id
+    );
+    if (!publication) {
+      throw new TypeError(
+        "Constitution propagation requires the canonical publication record"
+      );
+    }
+
+    const attestation = validateConstitutionPropagationAttestation(
+      input.attestation
+    );
+    if (
+      attestation.amendmentId !== current.proposal.id ||
+      attestation.publicationId !== publication.id ||
+      attestation.policyVersion !== current.proposal.targetPolicyVersion ||
+      attestation.policyVersion !== publication.policyVersion
+    ) {
+      throw new TypeError(
+        "Constitution propagation attestation does not match the exact published amendment"
+      );
+    }
+    if (!(await this.lifecycleAttestationVerifier.verifyPropagation(attestation))) {
+      throw new TypeError(
+        `Constitution propagation attestation was not verified by ${this.lifecycleAttestationVerifier.id}`
+      );
+    }
+
+    const timestamp = requireIsoTimestamp(now);
+    const evidence: ConstitutionEvidenceRecord = Object.freeze({
+      id: `constitution-evidence:${randomUUID()}`,
+      amendmentId: current.proposal.id,
+      kind: "propagation",
+      source: `trusted-constitution-propagation:${attestation.workflowRunId}`,
+      revision: attestation.sourceRevision,
+      digest: attestation.snapshotDigest,
+      note: nonEmpty(input.note, "propagation note"),
+      recordedByActorId: actor!.principalId,
+      createdAt: timestamp
+    });
+
+    const transition = transitionConstitutionAmendment(current, {
+      action: "begin-propagation",
+      evidenceIds: [evidence.id]
+    });
+    const next = canonicalNext(current, transition, timestamp);
+
+    return this.repository.appendEvidenceAndUpdate(
+      evidence,
+      next,
+      input.expectedRecordVersion,
+      actor!.principalId,
+      "CONSTITUTION_PROPAGATION_STARTED"
+    );
+  }
+
+  async verifyFromTrustedAttestation(
+    actor: AuthenticatedActor | null,
+    input: ConstitutionVerificationSubmission,
+    now: string
+  ): Promise<CanonicalConstitutionAmendmentRecord> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    if (!this.lifecycleAttestationVerifier) {
+      throw new TypeError(
+        "Constitution verification is blocked until a trusted lifecycle attestation verifier is configured"
+      );
+    }
+
+    const current = await this.requireExactAmendment(
+      input.amendmentId,
+      input.expectedRecordVersion
+    );
+    if (current.state !== "propagating" || current.propagationEvidenceIds.length === 0) {
+      throw new TypeError(
+        "Constitution verification requires an evidence-backed propagation state"
+      );
+    }
+
+    const publication = await this.repository.findPublicationByAmendmentId(
+      current.proposal.id
+    );
+    if (!publication) {
+      throw new TypeError(
+        "Constitution verification requires the canonical publication record"
+      );
+    }
+
+    const attestation = validateConstitutionVerificationAttestation(
+      input.attestation
+    );
+    if (
+      attestation.amendmentId !== current.proposal.id ||
+      attestation.publicationId !== publication.id ||
+      attestation.policyVersion !== current.proposal.targetPolicyVersion ||
+      attestation.policyVersion !== publication.policyVersion
+    ) {
+      throw new TypeError(
+        "Constitution verification attestation does not match the exact published amendment"
+      );
+    }
+    if (
+      attestation.compliantRepositories !== attestation.totalRepositories ||
+      attestation.nonCompliantRepositories !== 0 ||
+      attestation.unverifiedRepositories !== 0 ||
+      attestation.migrationRequiredRepositories !== 0 ||
+      attestation.blockedRepositories !== 0
+    ) {
+      throw new TypeError(
+        "Constitution verification requires every governed repository to be compliance-attested with no blockers"
+      );
+    }
+    if (!(await this.lifecycleAttestationVerifier.verifyVerification(attestation))) {
+      throw new TypeError(
+        `Constitution verification attestation was not verified by ${this.lifecycleAttestationVerifier.id}`
+      );
+    }
+
+    const timestamp = requireIsoTimestamp(now);
+    const evidence: ConstitutionEvidenceRecord = Object.freeze({
+      id: `constitution-evidence:${randomUUID()}`,
+      amendmentId: current.proposal.id,
+      kind: "verification",
+      source: `trusted-constitution-verification:${attestation.workflowRunId}`,
+      revision: attestation.sourceRevision,
+      digest: attestation.matrixDigest,
+      note: nonEmpty(input.note, "verification note"),
+      recordedByActorId: actor!.principalId,
+      createdAt: timestamp
+    });
+
+    const transition = transitionConstitutionAmendment(current, {
+      action: "verify",
+      evidenceIds: [evidence.id]
+    });
+    const next = canonicalNext(current, transition, timestamp);
+
+    return this.repository.appendEvidenceAndUpdate(
+      evidence,
+      next,
+      input.expectedRecordVersion,
+      actor!.principalId,
+      "CONSTITUTION_VERIFIED"
+    );
   }
 
   private async requireExactAmendment(

@@ -174,6 +174,29 @@ Completion evidence:
 - the truthful baseline remains 14/14 adoption-current, 0/14 compliance-attested, 14/14 compliance-unverified;
 - automatic Quality Gate PASS, canonical project mutation, exact-release certification and Production authority remain false.
 
+### CA-007 — Trusted post-publication lifecycle closure
+Status: **COMPLETE**
+
+Purpose:
+Close the canonical amendment lifecycle after publication without weakening any authority boundary.
+
+Candidate implementation:
+- `published → propagating` now requires a trusted propagation attestation bound to the exact amendment, canonical publication record, target policy version, Git revision, workflow run and snapshot digest;
+- propagation may truthfully record a mixed ecosystem state, including repositories still requiring migration; it does not imply compliance;
+- `propagating → verified` now requires a separate trusted verification attestation bound to the same exact amendment/publication authority;
+- verification fails closed unless every governed repository is compliance-attested and non-compliant, unverified, migration-required and blocked counts are all zero;
+- malformed repository-count partitions, stale record versions, missing canonical publication records, untrusted attestations and missing lifecycle-verifier infrastructure are rejected;
+- propagation and verification are persisted as append-only Constitution evidence using the existing optimistic-concurrency repository path;
+- unit tests exercise fail-closed validation plus the complete post-publication state transition;
+- PostgreSQL integration proves append-only amendment revisions and evidence from `draft` through `verified`;
+- lifecycle evidence cannot PASS a project Quality Gate, certify the final Production release revision or grant Production authority.
+
+Completion evidence:
+- PR #81 candidate `f1dbb699b66f07ae043a3c67a0fcb1cbb5119a46` passed Development Fast CI run `36375326525`;
+- exact release candidate `1e79a9d3abbbab1ade2bfd9600a20ac6f430ed48` passed full Release Gate run `36375353425`;
+- the full gate proved PostgreSQL migration/integration, Universal Constitution and authority-set integrity, ecosystem/compliance snapshots, source-of-truth, lint, typecheck, architecture boundaries, complete tests, production build and Playwright evidence;
+- the lifecycle remains fail-closed and Production authority remains false.
+
 ## Completion gate
 
 Constitution Authority Center is not complete until:
