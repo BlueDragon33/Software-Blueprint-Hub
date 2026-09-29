@@ -1,5 +1,6 @@
 import {
   buildCompassAcceptancePreflight,
+  compassAcceptanceReceipt,
   evaluateConstitutionalCompliance,
   p9019ProfessionalReviewCandidate,
   type ConstitutionalComplianceAudit
@@ -9,18 +10,24 @@ import Link from "next/link";
 
 import { resolveWebActor } from "../../../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../../../src/server/runtime";
+import { AcceptancePanel } from "./acceptance-panel";
 
 export const dynamic = "force-dynamic";
 
 async function loadAcceptanceState(): Promise<{
   readonly preflight: ReturnType<typeof buildCompassAcceptancePreflight>;
   readonly constitutionAudit: ConstitutionalComplianceAudit | null;
+  readonly revision: string | null;
+  readonly acceptanceSource: string | null;
 }> {
+  const revision = process.env.VERCEL_GIT_COMMIT_SHA?.trim().toLowerCase() ?? null;
   const actor = await resolveWebActor();
   if (!actor) {
     return Object.freeze({
       preflight: buildCompassAcceptancePreflight(),
-      constitutionAudit: null
+      constitutionAudit: null,
+      revision,
+      acceptanceSource: null
     });
   }
 
@@ -34,7 +41,9 @@ async function loadAcceptanceState(): Promise<{
   if (!canReview) {
     return Object.freeze({
       preflight: buildCompassAcceptancePreflight(),
-      constitutionAudit: null
+      constitutionAudit: null,
+      revision,
+      acceptanceSource: null
     });
   }
 
@@ -56,7 +65,11 @@ async function loadAcceptanceState(): Promise<{
       reviewDecision: decision,
       constitutionAudit
     }),
-    constitutionAudit
+    constitutionAudit,
+    revision,
+    acceptanceSource: revision && /^[a-f0-9]{40}$/.test(revision)
+      ? compassAcceptanceReceipt({ revision, gateBundles }).evidenceSource
+      : null
   });
 }
 
@@ -73,7 +86,8 @@ function label(state: "pass" | "blocked" | "pending-final-evidence") {
 }
 
 export default async function CompassAcceptancePage() {
-  const { preflight, constitutionAudit } = await loadAcceptanceState();
+  const { preflight, constitutionAudit, revision, acceptanceSource } = await loadAcceptanceState();
+  const acceptanceRecorded = preflight.state === "ready-for-final-evidence" && acceptanceSource !== null;
 
   return (
     <AppShell>
@@ -96,8 +110,8 @@ export default async function CompassAcceptancePage() {
             </p>
           </div>
           <div className="professional-review-statuses">
-            <StatusChip tone={preflight.state === "locked" ? "warning" : "info"}>
-              {preflight.state === "locked"
+            <StatusChip tone={acceptanceRecorded ? "success" : preflight.state === "locked" ? "warning" : "info"}>
+              {acceptanceRecorded ? "P9-020 accepted" : preflight.state === "locked"
                 ? "Dependency locked"
                 : "Ready for final evidence"}
             </StatusChip>
@@ -123,7 +137,7 @@ export default async function CompassAcceptancePage() {
           </article>
           <article>
             <span>Acceptance recorded</span>
-            <strong>{preflight.acceptanceRecorded ? "Yes" : "No"}</strong>
+            <strong>{acceptanceRecorded ? "Yes" : "No"}</strong>
           </article>
         </section>
 
@@ -249,7 +263,7 @@ export default async function CompassAcceptancePage() {
               <article key={item.id}>
                 <div>
                   <strong>{item.label}</strong>
-                  <StatusChip tone={tone(item.state)}>{label(item.state)}</StatusChip>
+                  <StatusChip tone={tone(acceptanceRecorded ? "pass" : item.state)}>{label(acceptanceRecorded ? "pass" : item.state)}</StatusChip>
                 </div>
                 <p>{item.detail}</p>
               </article>
@@ -257,7 +271,15 @@ export default async function CompassAcceptancePage() {
           </div>
         </section>
 
-        {preflight.blockers.length ? (
+        {acceptanceRecorded ? (
+          <section className="compass-acceptance-ready" aria-label="P9-020 acceptance receipt">
+            <p className="section-kicker">Canonical acceptance receipt</p>
+            <h2>P9-020 accepted for exact revision</h2>
+            <p><code>{revision}</code></p>
+            <p>Verified full Release Gate evidence: <a className="text-link" href={acceptanceSource!}>GitHub Actions artifact</a></p>
+            <p>Production release authority remains false.</p>
+          </section>
+        ) : preflight.blockers.length ? (
           <section className="compass-acceptance-blockers" aria-labelledby="compass-acceptance-blockers-title">
             <p className="section-kicker">Dependency blockers</p>
             <h2 id="compass-acceptance-blockers-title">
@@ -272,22 +294,18 @@ export default async function CompassAcceptancePage() {
               Complete P9-019 human review
             </Link>
           </section>
+        ) : revision && /^[a-f0-9]{40}$/.test(revision) ? (
+          <AcceptancePanel revision={revision} />
         ) : (
-          <section className="compass-acceptance-ready">
-            <p className="section-kicker">Dependency state</p>
-            <h2>P9-020 may collect final evidence</h2>
-            <p>
-              Human approval unlocked this Work Package. Acceptance is still
-              unrecorded until the final contradiction, authority and Release
-              Gate evidence is produced on the exact acceptance revision.
-            </p>
-          </section>
+          <section className="compass-acceptance-ready">Exact deployment revision unavailable. Acceptance remains unrecorded.</section>
         )}
 
         <section className="professional-review-boundary-card">
           <p className="section-kicker">Authority boundary</p>
           <h2>Acceptance is not deployment.</h2>
-          <p>{preflight.boundaryNote}</p>
+          <p>{acceptanceRecorded
+            ? "The canonical P9-020 gate records acceptance for the displayed exact revision. It does not authorize or execute Production deployment."
+            : preflight.boundaryNote}</p>
           <p>
             Production release authority remains false even if every P9-020
             criterion later passes.

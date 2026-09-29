@@ -355,7 +355,7 @@ Operational prerequisites:
 - the exact human-review candidate must be refreshed after any remediation that changes the reviewed product surface.
 
 ### P9-020 — Compass Acceptance Gate
-Status: **PLANNED — PREFLIGHT IMPLEMENTED, DEPENDENCY LOCKED**
+Status: **PLANNED — IMPLEMENTATION CANDIDATE, FINAL EXACT-REVISION EVIDENCE PENDING**
 
 Purpose:
 Decide whether Blueprint OS is ready to serve as the ecosystem reference implementation.
@@ -372,3 +372,11 @@ Preflight note:
 - P9-020 still requires a final exact-revision full Release Gate and explicit acceptance evidence;
 - constitutional compliance, P9-020 acceptance and Production deployment remain separate authorities;
 - the preflight has zero Production release or deployment authority.
+
+Final recording protocol:
+- this checked-in roadmap describes the unauthenticated Development Baseline; the runtime Compass advances P9-019 to complete and P9-020 to active only from the canonical authenticated decision;
+- `project:blueprint-os` must resolve a B4 Blueprint with all seven canonical constitutional QualityGates PASS and provenance-linked evidence;
+- the authenticated P9-019 approval must match its exact reviewed revision and UX artifact digest;
+- the final manual Release Gate must succeed for the exact deployed P9-020 revision, including Constitution, truth, authority, PostgreSQL, build and browser checks;
+- the GitHub Actions run and exact-revision artifact metadata are verified server-side before a separate canonical P9-020 QualityGate is created, supplied evidence and advanced to PASS through the WorkQuality service;
+- the acceptance receipt is revision-scoped and grants no Production release authority. A changed source revision requires a fresh Release Gate and acceptance receipt.
