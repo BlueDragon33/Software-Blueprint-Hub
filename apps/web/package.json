@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prebuild": "pnpm --dir ../.. prisma:generate"
   },
   "dependencies": {
     "@auth/core": "0.41.3",
