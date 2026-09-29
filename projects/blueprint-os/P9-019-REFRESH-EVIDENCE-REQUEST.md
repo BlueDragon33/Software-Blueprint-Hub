@@ -32,3 +32,4 @@ Evidence rule:
 - it cannot create human sign-off, P9-020 acceptance or Production authority;
 - P9-019 remains ACTIVE until an authenticated human action records a decision against this exact refreshed candidate;
 - after binding candidate metadata to the reviewed revision above, the final PR head must pass a supplemental full Release Gate before merge; that supplemental run validates the metadata-bearing application state but does not replace the candidate's reviewed revision or manufacture approval.
+- this file intentionally does not record the supplemental run ID afterward, so the verified final head remains exact for merge.
