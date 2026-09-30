@@ -122,3 +122,10 @@ P9-019 approval:
 - cannot authorize Production;
 - cannot deploy;
 - cannot override Constitution or exact-revision evidence requirements.
+
+
+### Vercel monorepo build
+
+When the Vercel project root is `apps/web`, the web package must generate the Prisma client before `next build`. The package-level `prebuild` script delegates to the repository-root `prisma:generate` command so generated Prisma sources are recreated in ephemeral build environments instead of being committed.
+
+Do not commit `packages/persistence/src/generated/prisma/`; it remains a generated artifact.

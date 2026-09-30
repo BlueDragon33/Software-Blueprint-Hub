@@ -4,16 +4,16 @@ Status: **REVIEW CANDIDATE — HUMAN SIGN-OFF REQUIRED**
 
 ## Evidence reviewed
 
-- exact application revision: `f936d3e4eb6a56671415e9f500b0935159baf49d`;
-- full Release Gate run: `36441844449` — PASS;
-- screenshot artifact: `10978228236`;
-- artifact digest: `sha256:63400e4ef649f8c88e54b711052e194251c42c313e69ff9ac429b5d602b580cf`;
+- exact application revision: `c3aa400985fb7dff94525abf5e8e91a37a3ec272`;
+- full Release Gate run: `36544183321` — PASS;
+- screenshot artifact: `11021761834`;
+- artifact digest: `sha256:47b4cb0ddcf60712d2249a4f7f704ba9fc89633b110dfc1fa4b8418e2a908ca4`;
 - desktop, tablet/iPad-class and mobile evidence inspected;
 - representative surfaces reviewed: Projects/Compass, canonical workspace, Constitution/Compliance, Quality, Portfolio, Data Lifecycle, Prompt, Knowledge/Reference Case, Releases/Lessons.
 
 ## Refresh reason
 
-The previous candidate became stale after adding the fail-closed human-review runtime readiness surface, safe configuration diagnostics and the local environment contract. The current candidate is bound to the exact remediated revision and refreshed responsive Human UX evidence.
+The previous candidate became stale after the Vercel monorepo build was hardened so ephemeral deployments regenerate the gitignored Prisma client before `next build`. The current candidate is bound to the exact build-remediated revision and refreshed responsive Human UX evidence. Vercel Preview for this exact revision completed successfully.
 
 ## Professional review findings
 
