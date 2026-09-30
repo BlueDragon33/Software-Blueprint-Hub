@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildCompassAcceptancePreflight,
+  compassAcceptanceGateId,
+  compassAcceptanceReceipt,
   p9019ProfessionalReviewCandidate,
+  verifyFinalReleaseGateMetadata,
   type ConstitutionalComplianceAudit
 } from "../../packages/application/src";
 
@@ -155,4 +158,54 @@ describe("P9-020 Compass Acceptance preflight", () => {
   });
 
 
+});
+
+describe("P9-020 exact-revision receipt", () => {
+  const revision = "a".repeat(40);
+  const run = {
+    id: 123,
+    head_sha: revision,
+    status: "completed",
+    conclusion: "success",
+    event: "workflow_dispatch",
+    path: "BlueDragon33/Software-Blueprint-Hub/.github/workflows/release-gate.yml",
+    html_url: "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/123"
+  };
+  const steps = [
+    "Universal Constitution compliance",
+    "Constitution authority-set atomicity",
+    "Source-of-truth contradiction gate",
+    "Unit, contract, authority, and PostgreSQL integration tests",
+    "Production build",
+    "App Shell E2E + screenshots",
+    "Generate Release Gate evidence manifest"
+  ].map((name) => ({ name, conclusion: "success" }));
+  const metadata = {
+    revision,
+    run,
+    jobs: [{ name: "release-gate", conclusion: "success", steps }],
+    artifacts: [{ id: 45, name: `release-gate-evidence-${revision}`,
+      digest: `sha256:${"b".repeat(64)}`, expired: false }]
+  };
+
+  it("accepts only a successful manual gate, required audits, and an exact artifact", () => {
+    expect(verifyFinalReleaseGateMetadata(metadata)).toMatchObject({ revision, runId: 123, artifactId: 45 });
+    expect(() => verifyFinalReleaseGateMetadata({ ...metadata, run: { ...run, head_sha: "c".repeat(40) } })).toThrow(/exact/);
+    expect(() => verifyFinalReleaseGateMetadata({ ...metadata, jobs: [{ ...metadata.jobs[0], steps: steps.slice(1) }] })).toThrow(/audit step/);
+    expect(() => verifyFinalReleaseGateMetadata({ ...metadata, artifacts: [] })).toThrow(/artifact/);
+  });
+
+  it("does not treat a bare PASS gate or a mismatched revision as acceptance", () => {
+    const id = compassAcceptanceGateId(revision);
+    const gate = { id, projectId: "project:blueprint-os", name: "P9-020 acceptance",
+      requirements: ["Final gate"], status: "pass" as const, evidenceIds: ["evidence:acceptance"],
+      meta: { schemaVersion: "1.0.0" as const, recordVersion: 2,
+        createdAt: "2026-09-29T00:00:00.000Z", updatedAt: "2026-09-29T00:01:00.000Z" } };
+    const evidence = { id: "evidence:acceptance", gateId: id, kind: "artifact" as const,
+      source: `https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/123/artifacts/45#sha256:${"b".repeat(64)}`,
+      revision, createdAt: "2026-09-29T00:01:00.000Z" };
+    expect(compassAcceptanceReceipt({ revision, gateBundles: [{ gate, evidence: [] }] }).accepted).toBe(false);
+    expect(compassAcceptanceReceipt({ revision, gateBundles: [{ gate, evidence: [{ ...evidence, revision: "c".repeat(40) }] }] }).accepted).toBe(false);
+    expect(compassAcceptanceReceipt({ revision, gateBundles: [{ gate, evidence: [evidence] }] }).accepted).toBe(true);
+  });
 });

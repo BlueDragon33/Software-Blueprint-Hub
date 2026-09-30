@@ -1,4 +1,5 @@
 import type { HumanProfessionalReviewDecisionRecord } from "@blueprint-os/core";
+import type { QualityGateEvidenceBundle } from "@blueprint-os/core";
 
 import {
   p9019ProfessionalReviewCandidate,
@@ -163,4 +164,101 @@ export function buildCompassAcceptancePreflight(input?: {
     boundaryNote:
       "This is a preflight only. It may show when P9-020 is dependency-valid, but it cannot record acceptance, PASS a Quality Gate, authorize Production or execute deployment."
   });
+}
+
+export const compassAcceptanceGateId = (revision: string): string =>
+  `gate:compass:p9-020:${revision}`;
+
+export interface VerifiedFinalReleaseGate {
+  readonly revision: string;
+  readonly runId: number;
+  readonly artifactId: number;
+  readonly artifactDigest: string;
+  readonly runUrl: string;
+}
+
+export function verifyFinalReleaseGateMetadata(input: {
+  readonly revision: string;
+  readonly run: {
+    readonly id: number;
+    readonly head_sha: string;
+    readonly status: string;
+    readonly conclusion: string | null;
+    readonly path: string;
+    readonly event: string;
+    readonly html_url: string;
+  };
+  readonly jobs: readonly {
+    readonly name: string;
+    readonly conclusion: string | null;
+    readonly steps?: readonly { readonly name: string; readonly conclusion: string | null }[];
+  }[];
+  readonly artifacts: readonly {
+    readonly id: number;
+    readonly name: string;
+    readonly digest: string | null;
+    readonly expired: boolean;
+  }[];
+}): VerifiedFinalReleaseGate {
+  const { revision, run } = input;
+  if (!/^[a-f0-9]{40}$/.test(revision) ||
+      run.head_sha !== revision ||
+      run.status !== "completed" ||
+      run.conclusion !== "success" ||
+      run.event !== "workflow_dispatch" ||
+      !(run.path === ".github/workflows/release-gate.yml" ||
+        run.path.endsWith("/.github/workflows/release-gate.yml")) ||
+      run.html_url !== `https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/${run.id}`) {
+    throw new Error("Final Release Gate did not PASS on the exact deployment revision.");
+  }
+
+  const job = input.jobs.find((item) => item.name === "release-gate" && item.conclusion === "success");
+  const requiredSteps = [
+    "Universal Constitution compliance",
+    "Constitution authority-set atomicity",
+    "Source-of-truth contradiction gate",
+    "Unit, contract, authority, and PostgreSQL integration tests",
+    "Production build",
+    "App Shell E2E + screenshots",
+    "Generate Release Gate evidence manifest"
+  ];
+  if (!job || requiredSteps.some((name) =>
+    !job.steps?.some((step) => step.name === name && step.conclusion === "success")
+  )) {
+    throw new Error("Final Release Gate is missing a required successful audit step.");
+  }
+
+  const artifact = input.artifacts.find((item) =>
+    item.name === `release-gate-evidence-${revision}` &&
+    !item.expired &&
+    /^sha256:[a-f0-9]{64}$/.test(item.digest ?? "")
+  );
+  if (!artifact) {
+    throw new Error("Exact-revision Release Gate evidence artifact is unavailable.");
+  }
+  return Object.freeze({
+    revision,
+    runId: run.id,
+    artifactId: artifact.id,
+    artifactDigest: artifact.digest!,
+    runUrl: run.html_url
+  });
+}
+
+export function compassAcceptanceReceipt(input: {
+  readonly revision: string;
+  readonly gateBundles: readonly QualityGateEvidenceBundle[];
+}): { readonly accepted: boolean; readonly evidenceSource: string | null } {
+  const gateId = compassAcceptanceGateId(input.revision);
+  const bundle = input.gateBundles.find((item) => item.gate.id === gateId);
+  if (!bundle || bundle.gate.projectId !== "project:blueprint-os" || bundle.gate.status !== "pass") {
+    return { accepted: false, evidenceSource: null };
+  }
+  const evidence = bundle.evidence.find((item) =>
+    bundle.gate.evidenceIds.includes(item.id) &&
+    item.gateId === gateId && item.kind === "artifact" &&
+    item.revision === input.revision &&
+    /^https:\/\/github\.com\/BlueDragon33\/Software-Blueprint-Hub\/actions\/runs\/\d+\/artifacts\/\d+#sha256:[a-f0-9]{64}$/.test(item.source)
+  );
+  return { accepted: Boolean(evidence), evidenceSource: evidence?.source ?? null };
 }
