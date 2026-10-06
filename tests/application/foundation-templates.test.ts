@@ -70,13 +70,15 @@ describe("Foundation Blueprint template catalog", () => {
       "module:ux:product-elegance",
       "module:ux:premium-usability",
       "module:maintenance:long-term-durability",
-      "module:security:fortress-resilience"
+      "module:security:fortress-resilience",
+      "module:architecture:operational-sovereignty"
     ] as const;
     const universalGates = [
       "gate:architecture:future-scale",
       "gate:ux:commercial-quality",
       "gate:durability:ageing-regression",
-      "gate:security:resilience-containment"
+      "gate:security:resilience-containment",
+      "gate:operations:dependency-sovereignty"
     ] as const;
 
     for (const blueprintLevel of ["B0", "B1", "B2", "B3", "B4", "B5"] as const) {
