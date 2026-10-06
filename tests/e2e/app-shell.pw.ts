@@ -1287,7 +1287,7 @@ test("System Owner can open the canonical amendment workspace without automated 
     })
   ).toBeVisible();
   await expect(
-    page.getByText("14 / 14 current", { exact: true })
+    page.getByText("0 / 15 current", { exact: true })
   ).toBeVisible();
   const propagationMatrix = page.locator(".constitution-propagation");
   await expect(
@@ -1304,20 +1304,26 @@ test("System Owner can open the canonical amendment workspace without automated 
     page.getByRole("heading", { name: "Adoption is not compliance" })
   ).toBeVisible();
   await expect(
-    page.getByText("0 / 14 compliant", { exact: true })
+    page.getByText("0 / 15 compliant", { exact: true })
   ).toBeVisible();
   const complianceMatrix = page.locator(".constitution-compliance-matrix");
-  await expect(
-    complianceMatrix.getByText("Unverified", { exact: true })
-  ).toBeVisible();
   await expect(
     complianceMatrix
       .locator(".constitution-compliance-metrics article")
       .filter({ hasText: "Unverified" })
-      .getByText("14", { exact: true })
+      .getByText("0", { exact: true })
   ).toBeVisible();
   await expect(
-    page.getByText("Not verified", { exact: true }).first()
+    complianceMatrix
+      .locator(".constitution-compliance-metrics article")
+      .filter({ hasText: "Migration / blocked" })
+      .getByText("15", { exact: true })
+  ).toBeVisible();
+  await expect(
+    propagationMatrix.getByText("migration-required", { exact: true }).first()
+  ).toBeVisible();
+  await expect(
+    propagationMatrix.getByText("invalid-adoption", { exact: true })
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: /deploy|pass quality|auto.*pass/i })
