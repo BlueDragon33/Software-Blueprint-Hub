@@ -353,6 +353,12 @@
         "evidenceAuthority": "canonical-quality-gates",
         "productionAuthority": "separate-explicit-release-gate"
       }
+    },
+    {
+      "repository": "BlueDragon33/pc-manager-desktop",
+      "branch": "main",
+      "sourceRevision": "8ca1b9ddd89efa6c7668000d8ef7a959ae7ef272",
+      "manifest": null
     }
   ]
 }
