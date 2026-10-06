@@ -179,7 +179,7 @@ export function ConstitutionAuthorityConsole({
             Target policy version
             <input
               name="targetPolicyVersion"
-              placeholder="1.2.0"
+              placeholder="1.3.0"
               required
               disabled={pending}
             />
