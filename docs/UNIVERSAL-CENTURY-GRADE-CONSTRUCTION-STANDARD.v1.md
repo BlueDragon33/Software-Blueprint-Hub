@@ -10,7 +10,7 @@ The construction metaphor is intentional:
 
 It does **not** require every project to become a 100-floor platform. It requires every project to avoid choices that needlessly prevent safe growth, maintainability, usability or recovery.
 
-## The six inherited qualities
+## The seven inherited qualities
 
 | Pillar | Construction meaning | Software meaning | Never acceptable |
 | --- | --- | --- | --- |
@@ -20,10 +20,11 @@ It does **not** require every project to become a 100-floor platform. It require
 | Premium Usability | Interior is worth occupying and paying for | Efficient tasks, clear feedback, strong search/forms/navigation, human UX acceptance | “It works” used as a substitute for good experience |
 | Long-Term Durability | Plaster, waterproofing, paint and services resist ageing | Upgrade/migration/regression protection; maintain without demolishing Core | Dependency rot, migration uncertainty, CSS patch accumulation |
 | Fortress Security & Disaster Resilience | Walls, fire compartments, vaults and emergency recovery | Defense in depth, least privilege, blast-radius containment, protected data, tested recovery | One compromise becoming total authority or unrecoverable data loss |
+| Operational Sovereignty & Dependency Minimization | Essential rooms remain usable even if one utility/provider is unavailable | Local/offline-capable core where practical, portable data, replaceable providers, explicit dependency budget and exit paths | Core personal workflows permanently locked to avoidable paid SaaS or one provider with no degraded mode/export |
 
 ## Depth rule
 
-All six pillars are mandatory, but their implementation depth follows project consequence:
+All seven pillars are mandatory, but their implementation depth follows project consequence:
 
 - **B0 MICRO** — lightweight proof that each relevant risk has been considered; basic recovery/release definition.
 - **B1 SMALL** — regression, compatibility and maintainable UI/data structure.
@@ -51,12 +52,14 @@ LONG-TERM DURABILITY
         ↓
 SECURITY & DISASTER RESILIENCE
         ↓
+OPERATIONAL SOVEREIGNTY
+        ↓
 EXACT EVIDENCE
         ↓
 ACCEPTANCE
 ```
 
-Acceptance evidence must be appropriate to the project. Examples include architecture-boundary tests, schema/migration verification, realistic responsive journeys, accessibility checks, dependency-upgrade regression, backup/restore drills, provider-failure tests, threat-model evidence and exact-revision release proof.
+Acceptance evidence must be appropriate to the project. Examples include architecture-boundary tests, schema/migration verification, realistic responsive journeys, accessibility checks, dependency-upgrade regression, backup/restore drills, provider-failure tests, offline/degraded-mode checks, data export/restore verification, dependency-budget review, threat-model evidence and exact-revision release proof.
 
 ## Change rule
 
