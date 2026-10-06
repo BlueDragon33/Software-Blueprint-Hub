@@ -11,7 +11,8 @@ export type CenturyGradePillarId =
   | "product-elegance"
   | "premium-usability"
   | "long-term-durability"
-  | "fortress-security-disaster-resilience";
+  | "fortress-security-disaster-resilience"
+  | "operational-sovereignty-dependency-minimization";
 
 export interface CenturyGradePillarDefinition {
   readonly id: CenturyGradePillarId;
@@ -67,6 +68,14 @@ export const centuryGradePillarDefinitions: readonly CenturyGradePillarDefinitio
         "module:security:fortress-resilience",
         "gate:security:resilience-containment"
       ])
+    }),
+    Object.freeze({
+      id: "operational-sovereignty-dependency-minimization",
+      label: "Operational Sovereignty & Dependency Minimization",
+      requirementIds: Object.freeze([
+        "module:architecture:operational-sovereignty",
+        "gate:operations:dependency-sovereignty"
+      ])
     })
   ]);
 
@@ -92,7 +101,7 @@ export interface ConstitutionalComplianceAudit {
   readonly kind: "constitutional-compliance-audit";
   readonly projectId: string;
   readonly policyId: "blueprint-os:universal-century-grade";
-  readonly policyVersion: "1.1.0";
+  readonly policyVersion: "1.2.0";
   readonly state: ConstitutionalComplianceState;
   readonly pillars: readonly ConstitutionalPillarAudit[];
   readonly gates: readonly ConstitutionalGateAudit[];
@@ -109,7 +118,8 @@ export const constitutionalGateIds = Object.freeze([
   "gate:architecture:future-scale",
   "gate:ux:commercial-quality",
   "gate:durability:ageing-regression",
-  "gate:security:resilience-containment"
+  "gate:security:resilience-containment",
+  "gate:operations:dependency-sovereignty"
 ]);
 
 function linkedEvidence(
@@ -241,7 +251,7 @@ export function evaluateConstitutionalCompliance(input: {
     kind: "constitutional-compliance-audit",
     projectId: blueprint.projectId,
     policyId: "blueprint-os:universal-century-grade",
-    policyVersion: "1.1.0",
+    policyVersion: "1.2.0",
     state: uniqueBlockers.length === 0 ? "compliant" : "non-compliant",
     pillars: Object.freeze(pillarAudits),
     gates: Object.freeze(gateAudits),
