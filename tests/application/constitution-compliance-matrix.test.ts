@@ -172,6 +172,7 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
       observations: [observation(corrupted)]
     });
 
+    expect(matrix.migrationRequiredRepositories).toBe(14);
     expect(matrix.blockedRepositories).toBe(1);
     expect(matrix.repositories[0]?.complianceState).toBe("blocked");
     expect(
@@ -225,11 +226,11 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
       observations: complianceSnapshot.observations
     });
 
-    expect(ecosystemPropagation.currentRepositories).toBe(14);
+    expect(ecosystemPropagation.currentRepositories).toBe(0);
     expect(matrix.totalRepositories).toBe(15);
     expect(matrix.compliantRepositories).toBe(0);
     expect(matrix.nonCompliantRepositories).toBe(0);
-    expect(matrix.unverifiedRepositories).toBe(14);
+    expect(matrix.unverifiedRepositories).toBe(0);
     expect(matrix.blockedRepositories).toBe(1);
     expect(
       matrix.repositories.find(
