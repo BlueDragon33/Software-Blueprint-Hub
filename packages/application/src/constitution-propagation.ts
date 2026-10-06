@@ -80,13 +80,17 @@ export interface ConstitutionPropagationProjection {
   readonly boundaryNote: string;
 }
 
-const requiredPillars = Object.freeze([
+const requiredPillarsV1_1 = Object.freeze([
   "structural-capacity",
   "architectural-longevity",
   "product-elegance",
   "premium-usability",
   "long-term-durability",
-  "fortress-security-disaster-resilience",
+  "fortress-security-disaster-resilience"
+]);
+
+const requiredPillarsV1_2 = Object.freeze([
+  ...requiredPillarsV1_1,
   "operational-sovereignty-dependency-minimization"
 ]);
 
@@ -119,6 +123,18 @@ function compareVersion(left: string, right: string): number {
 
 function exactSha(value: string): boolean {
   return /^[a-f0-9]{40}$/.test(value);
+}
+
+function requiredPillarsForPolicyVersion(
+  policyVersion: string
+): readonly string[] {
+  try {
+    return compareVersion(policyVersion, "1.2.0") >= 0
+      ? requiredPillarsV1_2
+      : requiredPillarsV1_1;
+  } catch {
+    return Object.freeze([]);
+  }
 }
 
 function migrationPlan(
@@ -174,7 +190,7 @@ function validateManifest(
   }
 
   const observedPillars = new Set(manifest.inheritedPillars);
-  for (const pillar of requiredPillars) {
+  for (const pillar of requiredPillarsForPolicyVersion(manifest.policyVersion)) {
     if (!observedPillars.has(pillar)) {
       blockers.push(`required-pillar-missing:${pillar}`);
     }
