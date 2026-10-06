@@ -149,7 +149,7 @@ const digest = "sha256:" + "a".repeat(64);
 
 function draftInput() {
   return {
-    targetPolicyVersion: "1.2.0",
+    targetPolicyVersion: "1.3.0",
     title: "Strengthen long-term durability",
     problem: "Ageing evidence needs a stronger universal definition.",
     rationale: "Prevent build success from being treated as durability proof.",
@@ -194,7 +194,7 @@ function sha(value: string): string {
 }
 
 function authoritySetAttestation(
-  policyVersion = "1.2.0"
+  policyVersion = "1.3.0"
 ): ConstitutionAuthoritySetAttestation {
   const components = [
     {
@@ -263,7 +263,7 @@ function propagationAttestation(
     kind: "constitution-propagation-attestation",
     source: "trusted-constitution-lifecycle-attestation",
     policyId: "blueprint-os:universal-century-grade",
-    policyVersion: "1.2.0",
+    policyVersion: "1.3.0",
     amendmentId,
     publicationId,
     sourceRevision: "d".repeat(40),
@@ -287,7 +287,7 @@ function verificationAttestation(
     kind: "constitution-verification-attestation",
     source: "trusted-constitution-lifecycle-attestation",
     policyId: "blueprint-os:universal-century-grade",
-    policyVersion: "1.2.0",
+    policyVersion: "1.3.0",
     amendmentId,
     publicationId,
     sourceRevision: "e".repeat(40),
@@ -367,7 +367,7 @@ describe("CA-002/CA-003 Constitution Authority application service", () => {
     await expect(
       app.createDraft(
         owner,
-        { ...draftInput(), targetPolicyVersion: "1.1.0" },
+        { ...draftInput(), targetPolicyVersion: "1.2.0" },
         now
       )
     ).rejects.toThrow(/greater than the active Constitution version/i);
@@ -576,7 +576,7 @@ describe("CA-002/CA-003 Constitution Authority application service", () => {
     expect(result.amendment.state).toBe("published");
     expect(result.amendment.recordVersion).toBe(6);
     expect(result.amendment.productionReleaseAuthority).toBe(false);
-    expect(result.publication.policyVersion).toBe("1.2.0");
+    expect(result.publication.policyVersion).toBe("1.3.0");
     expect(result.publication.authoritySetDigest).toBe(
       authoritySetAttestation().authoritySetDigest
     );
