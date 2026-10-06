@@ -31,8 +31,8 @@ describe("CA-005 checked-in ecosystem controls", () => {
     });
 
     expect(projection.totalRepositories).toBe(15);
-    expect(projection.currentRepositories).toBe(14);
-    expect(projection.migrationRequiredRepositories).toBe(0);
+    expect(projection.currentRepositories).toBe(0);
+    expect(projection.migrationRequiredRepositories).toBe(14);
     expect(projection.blockedRepositories).toBe(1);
     expect(
       projection.repositories.find(
@@ -40,7 +40,7 @@ describe("CA-005 checked-in ecosystem controls", () => {
       )
     ).toMatchObject({
       role: "authority-self",
-      state: "current",
+      state: "migration-required",
       externalRepositoryMutationAllowed: false,
       qualityGatePassAllowed: false,
       productionReleaseAuthority: false
