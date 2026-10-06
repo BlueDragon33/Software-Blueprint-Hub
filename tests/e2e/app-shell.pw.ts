@@ -227,9 +227,9 @@ test("existing B4 project is constitution-retrofitted and surfaces truthful read
     })
   ).toBeVisible();
 
-  await expect(page.getByText("1 / 8 PASS", { exact: true })).toBeVisible();
+  await expect(page.getByText("1 / 9 PASS", { exact: true })).toBeVisible();
   await expect(
-    page.getByText("5 required gate records missing", { exact: true })
+    page.getByText("6 required gate records missing", { exact: true })
   ).toBeVisible();
 
   await expect(
