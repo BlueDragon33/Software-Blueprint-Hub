@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "source": "operator-verified-repository-scan",
   "policyId": "blueprint-os:universal-century-grade",
-  "policyVersion": "1.1.0",
+  "policyVersion": "1.2.0",
   "observations": [
     {
       "repository": "BlueDragon33/Software-Blueprint-Hub",
