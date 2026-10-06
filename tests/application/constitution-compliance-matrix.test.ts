@@ -172,7 +172,7 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
       observations: [observation(corrupted)]
     });
 
-    expect(matrix.migrationRequiredRepositories).toBe(14);
+    expect(matrix.migrationRequiredRepositories).toBe(0);
     expect(matrix.blockedRepositories).toBe(1);
     expect(matrix.repositories[0]?.complianceState).toBe("blocked");
     expect(
@@ -196,7 +196,7 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
     });
   });
 
-  it("projects the checked-in ecosystem truth as 14 adopted-current plus one governed-unadopted repository", () => {
+  it("projects the checked-in ecosystem truth as 14 migration-required plus one governed-unadopted repository", () => {
     const registry = JSON.parse(
       readFileSync("control/constitution-governed-repositories.json", "utf8")
     ) as {
@@ -231,6 +231,7 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
     expect(matrix.compliantRepositories).toBe(0);
     expect(matrix.nonCompliantRepositories).toBe(0);
     expect(matrix.unverifiedRepositories).toBe(0);
+    expect(matrix.migrationRequiredRepositories).toBe(14);
     expect(matrix.blockedRepositories).toBe(1);
     expect(
       matrix.repositories.find(
