@@ -21,7 +21,7 @@ This matrix defines expected project posture after ratification/publication. It 
 | PriceReport_Tunggiabao | B3 | Quotation/business app | Local-first quotation creation; portable business data; optional cross-device sync | Drive/Sheets are strong optional fit for backup/catalog/projection | Sheets must not become hidden transactional authority without conflict/version controls |
 | NC03_Modem | B4 | Local modem/admin control | LAN/local operation remains primary; remote cloud is optional and isolated | Drive only for sanitized backup/report, not runtime control | No modem credentials, tokens or private control state in Drive/Sheets plaintext |
 | Math_Bauman | B2 | Learning PWA | Offline-capable lessons/simulations; local progress; optional sync | Drive for progress/content backup and cross-device restore | Mathematical truth/content remains canonical in project data/contracts |
-| ROS-1-2 | B3 | Robot/ROS runtime | On-device/local network execution; no cloud required for robot core | Drive only for logs/maps/config archives when useful | Robot control loop must never require Drive/Apps Script; add missing adoption manifest |
+| ROS-1-2 | B3 | Robot/ROS runtime | On-device/local network execution; no cloud required for robot core | Drive only for logs/maps/config archives when useful | Robot control loop must never require Drive/Apps Script; adoption exists on active `ros2` branch and must be upgraded to 1.2.0 |
 | pc-manager-desktop | B4 | Privileged desktop system manager | Fully local privileged actions; cloud optional for reports/settings backup only | Drive optional for encrypted settings/report backup | No destructive system authority, credentials or sensitive scan state delegated to Drive; add adoption manifest |
 
 ## Cross-project dependency classes
@@ -51,14 +51,13 @@ After Constitution 1.2 is published, every governed repository must:
 
 ## Special migration: ROS-1-2
 
-Repository is already listed as governed but does not currently expose the standard adoption manifest on the active branch.
+Repository is governed on branch `ros2` and already has the standard 1.1.0 adoption manifest.
 
 Required after publication:
-- add `.blueprint/constitution-adoption.json`;
-- projectId `project:ros-1-2`;
-- Blueprint Level `B3`;
-- inherit all seven pillars;
-- add reusable Constitution CI if missing.
+- upgrade `.blueprint/constitution-adoption.json` on `ros2` to policy 1.2.0;
+- inherit the seventh pillar;
+- preserve projectId `project:ros-1-2` and Blueprint Level `B3`;
+- re-run Constitution CI and robot-local dependency checks.
 
 ## Special migration: pc-manager-desktop
 
