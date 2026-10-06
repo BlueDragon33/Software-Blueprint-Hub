@@ -86,7 +86,8 @@ const requiredPillars = Object.freeze([
   "product-elegance",
   "premium-usability",
   "long-term-durability",
-  "fortress-security-disaster-resilience"
+  "fortress-security-disaster-resilience",
+  "operational-sovereignty-dependency-minimization"
 ]);
 
 function required(value: string, label: string): string {
@@ -135,6 +136,7 @@ function migrationPlan(
       "Update the repository adoption manifest to the published policy version.",
       "Resolve the project Blueprint under the target Universal Constitution.",
       "Create project Work Packages for newly required modules or gates; do not fabricate completion.",
+      "Record a project dependency budget, including local/offline posture, external providers, cost class, data boundary, portability and exit path.",
       "Collect project-specific canonical Quality Gate evidence at the required Blueprint depth.",
       "Run Constitution Compliance and the repository's normal CI on the exact migration revision.",
       "Keep Production release authority separate from Constitution migration."
