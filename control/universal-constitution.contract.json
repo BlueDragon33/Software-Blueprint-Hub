@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
   "policyId": "blueprint-os:universal-century-grade",
-  "policyVersion": "1.1.0",
+  "policyVersion": "1.2.0",
   "constitutionTemplate": {
     "id": "template:constitution:universal-v1",
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "inheritanceRule": "mandatory-all-projects",
   "depthRule": "blueprint-level-scales-depth-never-removes-pillar",
@@ -48,6 +48,13 @@
       "requirementIds": [
         "module:security:fortress-resilience",
         "gate:security:resilience-containment"
+      ]
+    },
+    {
+      "id": "operational-sovereignty-dependency-minimization",
+      "requirementIds": [
+        "module:architecture:operational-sovereignty",
+        "gate:operations:dependency-sovereignty"
       ]
     }
   ],

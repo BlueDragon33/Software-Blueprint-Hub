@@ -20,7 +20,8 @@ const constitutionalGateIds = [
   "gate:architecture:future-scale",
   "gate:ux:commercial-quality",
   "gate:durability:ageing-regression",
-  "gate:security:resilience-containment"
+  "gate:security:resilience-containment",
+  "gate:operations:dependency-sovereignty"
 ] as const;
 
 const constitutionalModuleIds = [
@@ -29,7 +30,8 @@ const constitutionalModuleIds = [
   "module:ux:product-elegance",
   "module:ux:premium-usability",
   "module:maintenance:long-term-durability",
-  "module:security:fortress-resilience"
+  "module:security:fortress-resilience",
+  "module:architecture:operational-sovereignty"
 ] as const;
 
 function blueprint(): ResolvedBlueprint {

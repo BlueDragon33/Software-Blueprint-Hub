@@ -1,7 +1,7 @@
 # Blueprint OS — Universal Constitution
 
 Policy ID: `blueprint-os:universal-century-grade`
-Policy version: **1.1.0**
+Policy version: **1.2.0**
 Status: **ACTIVE UNIVERSAL LAW**
 
 The constitutions are long-lived engineering laws. Project Profile and Blueprint Level determine their depth; no project is exempt from basic discipline.
@@ -76,7 +76,7 @@ Prime rule: every authority and trust boundary is explicit; UI visibility is nev
 
 ## 9. Century-Grade Construction Standard
 
-Every project inherits six non-negotiable construction qualities. Their **implementation depth scales with Blueprint Level and real risk**, but no project may opt out of the qualities themselves.
+Every project inherits seven non-negotiable construction qualities. Their **implementation depth scales with Blueprint Level and real risk**, but no project may opt out of the qualities themselves.
 
 ### 9.1 Structural Capacity — foundation for future height
 - Architecture must preserve a credible growth path beyond today's feature count, load and team size.
@@ -117,8 +117,20 @@ Every project inherits six non-negotiable construction qualities. Their **implem
 - Incidents must be detectable, attributable and containable without leaking secrets.
 - No system claims to be impossible to breach; the engineering objective is to resist attack, limit damage, protect authoritative data and recover to a trusted state.
 
-### 9.7 Universal inheritance rule
-- These six qualities apply to every future Blueprint, template and project.
+### 9.7 Operational Sovereignty & Dependency Minimization — useful without permanent service lock-in
+- Prefer local, browser, desktop or self-controlled execution for core personal workflows when practical and safe.
+- Design critical user value to remain usable offline or in a clearly defined degraded mode when the capability itself does not inherently require a network service.
+- Prefer free/open/local capabilities when they meet the same correctness, security and usability requirements; cost avoidance never justifies weaker security, fabricated capability or hidden operational debt.
+- External providers, paid SaaS, hosting platforms, databases, AI vendors and cloud runtimes are replaceable adapters unless the product charter explicitly makes one provider part of the product itself.
+- A provider-specific capability must declare why external execution is required, what data leaves the user-controlled boundary, what happens when the provider is unavailable, and how replacement/export works.
+- Canonical user data should remain portable in documented formats with explicit export/backup/restore paths appropriate to consequence.
+- Git repositories own source/version history, not mutable end-user runtime data by default.
+- Google Drive/Sheets/Apps Script or similar services may provide optional sync, backup, coordination or lightweight remote access, but must not silently become an irreplaceable backend for workflows that can remain local-first.
+- AI assistants may enhance analysis, tutoring, automation and authoring, but must not become the sole owner of canonical business/learning state unless the product explicitly requires that authority and accepts the dependency.
+- New dependencies require a dependency budget: purpose, owner, cost class, portability, offline/degraded behavior, exit path and removal trigger.
+
+### 9.8 Universal inheritance rule
+- These seven qualities apply to every future Blueprint, template and project.
 - A lower Blueprint Level may reduce **depth**, never delete the quality.
 - Project-specific templates may strengthen these requirements but cannot weaken or bypass them.
 - Bootstrap, readiness and acceptance projections must preserve this inheritance.

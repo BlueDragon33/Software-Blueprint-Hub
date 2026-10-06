@@ -30,19 +30,28 @@ describe("CA-005 checked-in ecosystem controls", () => {
       snapshots: snapshot.repositories
     });
 
-    expect(projection.totalRepositories).toBe(14);
-    expect(projection.currentRepositories).toBe(14);
-    expect(projection.migrationRequiredRepositories).toBe(0);
-    expect(projection.blockedRepositories).toBe(0);
+    expect(projection.totalRepositories).toBe(15);
+    expect(projection.currentRepositories).toBe(0);
+    expect(projection.migrationRequiredRepositories).toBe(14);
+    expect(projection.blockedRepositories).toBe(1);
     expect(
       projection.repositories.find(
         (item) => item.repository === "BlueDragon33/Software-Blueprint-Hub"
       )
     ).toMatchObject({
       role: "authority-self",
-      state: "current",
+      state: "migration-required",
       externalRepositoryMutationAllowed: false,
       qualityGatePassAllowed: false,
+      productionReleaseAuthority: false
+    });
+    expect(
+      projection.repositories.find(
+        (item) => item.repository === "BlueDragon33/pc-manager-desktop"
+      )
+    ).toMatchObject({
+      state: "invalid-adoption",
+      blockers: ["adoption-manifest-unavailable"],
       productionReleaseAuthority: false
     });
     expect(projection.externalRepositoryMutationAllowed).toBe(false);

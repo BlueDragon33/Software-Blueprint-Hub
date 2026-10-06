@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "source": "github-default-branch-snapshot",
   "policyId": "blueprint-os:universal-century-grade",
-  "activePolicyVersion": "1.1.0",
+  "activePolicyVersion": "1.2.0",
   "repositories": [
     {
       "repository": "BlueDragon33/Software-Blueprint-Hub",
@@ -353,6 +353,12 @@
         "evidenceAuthority": "canonical-quality-gates",
         "productionAuthority": "separate-explicit-release-gate"
       }
+    },
+    {
+      "repository": "BlueDragon33/pc-manager-desktop",
+      "branch": "main",
+      "sourceRevision": "8ca1b9ddd89efa6c7668000d8ef7a959ae7ef272",
+      "manifest": null
     }
   ]
 }

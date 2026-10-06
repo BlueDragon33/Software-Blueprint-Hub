@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "source": "operator-verified-repository-scan",
   "policyId": "blueprint-os:universal-century-grade",
-  "policyVersion": "1.1.0",
+  "policyVersion": "1.2.0",
   "observations": [
     {
       "repository": "BlueDragon33/Software-Blueprint-Hub",
@@ -113,6 +113,14 @@
       "branch": "main",
       "sourceRevision": "c756f07d22d1210de7a1a1b5885977e404279d55",
       "observedAt": "2026-09-28T02:45:00.000Z",
+      "discovery": "standard-attestation-not-found",
+      "attestation": null
+    },
+    {
+      "repository": "BlueDragon33/pc-manager-desktop",
+      "branch": "main",
+      "sourceRevision": "8ca1b9ddd89efa6c7668000d8ef7a959ae7ef272",
+      "observedAt": "2026-10-06T11:59:00.000Z",
       "discovery": "standard-attestation-not-found",
       "attestation": null
     }

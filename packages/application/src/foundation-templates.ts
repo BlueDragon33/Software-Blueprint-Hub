@@ -23,7 +23,7 @@ const levelTemplate = (
 export const universalConstitutionTemplateV1 = Object.freeze({
     schemaVersion: "1.0.0",
     id: "template:constitution:universal-v1",
-    version: "1.1.0",
+    version: "1.2.0",
     authorityLayer: "constitution",
     requirements: [
       {
@@ -159,6 +159,19 @@ export const universalConstitutionTemplateV1 = Object.freeze({
           "Apply defense in depth, least privilege, blast-radius containment, protected canonical state and tested recovery."
       },
       {
+        id: "module:architecture:operational-sovereignty",
+        kind: "module",
+        depth: "standard",
+        tags: ["architecture", "operations", "portability", "offline", "dependency"],
+        dependsOn: [
+          "module:architecture:boundaries",
+          "module:data:source-of-truth",
+          "module:operations:release"
+        ],
+        description:
+          "Prefer local/offline-capable and provider-replaceable operation where practical; make external dependencies explicit, portable and recoverable."
+      },
+      {
         id: "gate:quality:evidence",
         kind: "gate",
         depth: "standard",
@@ -211,6 +224,15 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         dependsOn: ["module:maintenance:long-term-durability"],
         description:
           "PASS requires regression evidence appropriate to expected lifetime, upgrade risk and compatibility surface."
+      },
+      {
+        id: "gate:operations:dependency-sovereignty",
+        kind: "gate",
+        depth: "standard",
+        tags: ["operations", "portability", "offline", "dependency"],
+        dependsOn: ["module:architecture:operational-sovereignty"],
+        description:
+          "PASS requires an explicit dependency budget, degraded/offline behavior where applicable, portable data/exit paths, and no unjustified mandatory paid-provider lock-in."
       },
       {
         id: "gate:security:resilience-containment",

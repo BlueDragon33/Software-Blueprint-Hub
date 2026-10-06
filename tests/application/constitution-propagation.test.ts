@@ -12,7 +12,8 @@ const pillars = [
   "product-elegance",
   "premium-usability",
   "long-term-durability",
-  "fortress-security-disaster-resilience"
+  "fortress-security-disaster-resilience",
+  "operational-sovereignty-dependency-minimization"
 ] as const;
 
 const definition: GovernedRepositoryDefinition = {

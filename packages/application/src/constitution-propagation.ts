@@ -80,13 +80,18 @@ export interface ConstitutionPropagationProjection {
   readonly boundaryNote: string;
 }
 
-const requiredPillars = Object.freeze([
+const requiredPillarsV1_1 = Object.freeze([
   "structural-capacity",
   "architectural-longevity",
   "product-elegance",
   "premium-usability",
   "long-term-durability",
   "fortress-security-disaster-resilience"
+]);
+
+const requiredPillarsV1_2 = Object.freeze([
+  ...requiredPillarsV1_1,
+  "operational-sovereignty-dependency-minimization"
 ]);
 
 function required(value: string, label: string): string {
@@ -120,6 +125,18 @@ function exactSha(value: string): boolean {
   return /^[a-f0-9]{40}$/.test(value);
 }
 
+function requiredPillarsForPolicyVersion(
+  policyVersion: string
+): readonly string[] {
+  try {
+    return compareVersion(policyVersion, "1.2.0") >= 0
+      ? requiredPillarsV1_2
+      : requiredPillarsV1_1;
+  } catch {
+    return Object.freeze([]);
+  }
+}
+
 function migrationPlan(
   repository: GovernedRepositoryDefinition,
   fromPolicyVersion: string | null,
@@ -135,6 +152,7 @@ function migrationPlan(
       "Update the repository adoption manifest to the published policy version.",
       "Resolve the project Blueprint under the target Universal Constitution.",
       "Create project Work Packages for newly required modules or gates; do not fabricate completion.",
+      "Record a project dependency budget, including local/offline posture, external providers, cost class, data boundary, portability and exit path.",
       "Collect project-specific canonical Quality Gate evidence at the required Blueprint depth.",
       "Run Constitution Compliance and the repository's normal CI on the exact migration revision.",
       "Keep Production release authority separate from Constitution migration."
@@ -172,7 +190,7 @@ function validateManifest(
   }
 
   const observedPillars = new Set(manifest.inheritedPillars);
-  for (const pillar of requiredPillars) {
+  for (const pillar of requiredPillarsForPolicyVersion(manifest.policyVersion)) {
     if (!observedPillars.has(pillar)) {
       blockers.push(`required-pillar-missing:${pillar}`);
     }

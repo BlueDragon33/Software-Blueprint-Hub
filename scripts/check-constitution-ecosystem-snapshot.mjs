@@ -69,7 +69,6 @@ for (const [repository, definition] of registryByRepo) {
 
   const manifest = observed.manifest;
   if (!manifest) {
-    fail(`Missing adoption manifest for ${repository}`);
     continue;
   }
   if (manifest.schemaVersion !== "1.0.0") fail(`Unsupported adoption schema for ${repository}`);

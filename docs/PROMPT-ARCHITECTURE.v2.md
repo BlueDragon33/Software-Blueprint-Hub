@@ -71,7 +71,8 @@ Every durable generated prompt must carry:
 10. allowed actions;
 11. forbidden actions;
 12. required response/output structure;
-13. stale/regeneration rule.
+13. stale/regeneration rule;
+14. dependency posture: local/offline capability, external providers, cost class, data portability, degraded behavior, and exit path.
 
 ## Prompt precedence
 
@@ -117,7 +118,9 @@ Forbidden:
 - silently continuing after canonical source changed;
 - embedding raw secrets;
 - copying project-specific assumptions into Universal Constitution prompts;
-- weakening tests/gates to satisfy an old prompt.
+- weakening tests/gates to satisfy an old prompt;
+- introducing a mandatory paid/external provider without an explicit dependency budget and justified capability gap;
+- treating Google Drive, a cloud database, hosting provider, AI vendor, or any other integration as canonical authority merely because it is convenient.
 
 ## Human authority
 

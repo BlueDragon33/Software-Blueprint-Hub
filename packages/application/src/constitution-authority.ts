@@ -24,7 +24,7 @@ export type {
 } from "@blueprint-os/core";
 
 export const CONSTITUTION_POLICY_ID = "blueprint-os:universal-century-grade" as const;
-export const CONSTITUTION_POLICY_VERSION = "1.1.0" as const;
+export const CONSTITUTION_POLICY_VERSION = "1.2.0" as const;
 export const CONSTITUTION_AUTHORITY_PROMPT_VERSION =
   "constitution-authority-prompt:v1" as const;
 

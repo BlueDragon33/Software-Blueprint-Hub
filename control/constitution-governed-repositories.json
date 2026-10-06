@@ -99,6 +99,13 @@
       "projectId": "project:pricereport-tunggiabao",
       "blueprintLevel": "B3",
       "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/pc-manager-desktop",
+      "branch": "main",
+      "projectId": "project:pc-manager-desktop",
+      "blueprintLevel": "B4",
+      "role": "governed"
     }
   ]
 }
