@@ -122,7 +122,7 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
       exactEvidenceRevisions: [],
       productionReleaseAuthority: false
     });
-    expect(matrix.repositories[0]?.pillarStates).toHaveLength(6);
+    expect(matrix.repositories[0]?.pillarStates).toHaveLength(7);
     expect(
       matrix.repositories[0]?.pillarStates.every(
         (pillar) => pillar.state === "unverified"
@@ -195,7 +195,7 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
     });
   });
 
-  it("projects the checked-in ecosystem truth as 14 adopted-current but compliance-unverified", () => {
+  it("projects the checked-in ecosystem truth as 14 adopted-current plus one governed-unadopted repository", () => {
     const registry = JSON.parse(
       readFileSync("control/constitution-governed-repositories.json", "utf8")
     ) as {
@@ -226,10 +226,20 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
     });
 
     expect(ecosystemPropagation.currentRepositories).toBe(14);
-    expect(matrix.totalRepositories).toBe(14);
+    expect(matrix.totalRepositories).toBe(15);
     expect(matrix.compliantRepositories).toBe(0);
     expect(matrix.nonCompliantRepositories).toBe(0);
     expect(matrix.unverifiedRepositories).toBe(14);
+    expect(matrix.blockedRepositories).toBe(1);
+    expect(
+      matrix.repositories.find(
+        (item) => item.repository === "BlueDragon33/pc-manager-desktop"
+      )
+    ).toMatchObject({
+      complianceState: "blocked",
+      migrationState: "invalid-adoption",
+      productionReleaseAuthority: false
+    });
     expect(matrix.productionReleaseAuthority).toBe(false);
     expect(matrix.automaticPassAllowed).toBe(false);
   });
