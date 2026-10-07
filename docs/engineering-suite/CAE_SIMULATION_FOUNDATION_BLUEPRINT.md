@@ -1,7 +1,7 @@
 # CAE_Simulation — Foundation Blueprint
 
-Status: **BOOTSTRAP BLUEPRINT — REPOSITORY PENDING**
-Target repository: `BlueDragon33/CAE_Simulation`
+Status: **FOUNDATION-ACTIVE — REPOSITORY CREATED**
+Repository: `BlueDragon33/CAE_Simulation`\nFoundation branch: `foundation/general-system`\nDraft PR: `#1`
 Blueprint level: B4
 Constitution: `blueprint-os:universal-century-grade@1.2.0`
 
