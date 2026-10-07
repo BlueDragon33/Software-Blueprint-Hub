@@ -50,7 +50,7 @@ BlueDragon33/CAE_Simulation
     owns simulation studies + solver setup + simulation results
 ```
 
-The two new repository names are reserved by this blueprint but remain `pending-repository` until the Product Owner creates the empty repositories.
+The ECAD_Design and CAE_Simulation repositories now exist and carry constitutional foundation branches. Their product capabilities remain foundation-only until real vertical slices are implemented and tested.
 
 ## 3. Why separate repositories
 
