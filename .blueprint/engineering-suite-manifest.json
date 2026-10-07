@@ -20,16 +20,22 @@
     {
       "id": "ecad-design",
       "repository": "BlueDragon33/ECAD_Design",
-      "status": "reserved-pending-repository",
+      "status": "foundation-active",
       "canonicalOwner": "schematic-pcb-electrical-design",
-      "managementDeviceNamespace": "ECAD-"
+      "managementDeviceNamespace": "ECAD-",
+      "repositoryId": "1408712256",
+      "foundationBranch": "foundation/general-system",
+      "foundationPr": 1
     },
     {
       "id": "cae-simulation",
       "repository": "BlueDragon33/CAE_Simulation",
-      "status": "reserved-pending-repository",
+      "status": "foundation-active",
       "canonicalOwner": "engineering-simulation-studies-and-results",
-      "managementDeviceNamespace": "CAE-"
+      "managementDeviceNamespace": "CAE-",
+      "repositoryId": "1408713006",
+      "foundationBranch": "foundation/general-system",
+      "foundationPr": 1
     }
   ],
   "sharedCorePolicy": {
