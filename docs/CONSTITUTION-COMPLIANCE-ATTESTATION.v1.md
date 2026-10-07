@@ -21,7 +21,7 @@ Required identity:
 - exactReleaseRevisionCertified = false
 
 Required proof surface:
-- all six Century-Grade pillars appear exactly once;
+- all seven Century-Grade pillars appear exactly once;
 - all Universal constitutional gates appear exactly once;
 - a PASS gate has canonical evidence IDs and evidence revisions;
 - a compliant pillar cannot declare missing requirements or a blocking constitutional gate;
