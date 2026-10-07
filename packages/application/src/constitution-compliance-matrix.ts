@@ -444,6 +444,6 @@ export function buildConstitutionComplianceMatrix(input: {
     canonicalProjectMutationAllowed: false,
     productionReleaseAuthority: false,
     boundaryNote:
-      "Constitution adoption is not Constitution compliance. A repository is COMPLIANT only from a trusted project attestation bound to the current policy and exact source revision with all six pillars and all Universal gates evidence-backed. Missing evidence remains UNVERIFIED; this matrix cannot mutate project gates or authorize Production."
+      "Constitution adoption is not Constitution compliance. A repository is COMPLIANT only from a trusted project attestation bound to the current policy and exact source revision with all seven pillars and all Universal gates evidence-backed. Missing evidence remains UNVERIFIED; this matrix cannot mutate project gates or authorize Production."
   });
 }
