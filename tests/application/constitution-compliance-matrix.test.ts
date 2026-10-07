@@ -232,7 +232,7 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
     expect(matrix.nonCompliantRepositories).toBe(0);
     expect(matrix.unverifiedRepositories).toBe(15);
     expect(matrix.migrationRequiredRepositories).toBe(0);
-    expect(matrix.blockedRepositories).toBe(1);
+    expect(matrix.blockedRepositories).toBe(0);
     expect(
       matrix.repositories.find(
         (item) => item.repository === "BlueDragon33/pc-manager-desktop"
