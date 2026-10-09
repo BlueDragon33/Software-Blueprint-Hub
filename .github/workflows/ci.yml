@@ -48,6 +48,8 @@ jobs:
         run: node scripts/check-source-of-truth.mjs
       - name: Source-of-truth detector self-test
         run: node --test tests/source-truth/source-truth-detector.test.mjs
+      - name: Constitution 1.3 proposal evidence self-test (no policy activation)
+        run: node --test tests/source-truth/agent-change-evidence-candidate.test.mjs
       - name: Development mode
         run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
 
