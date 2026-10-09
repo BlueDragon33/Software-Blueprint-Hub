@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { evaluateAgentChangeEvidence as evaluate } from "../../scripts/agent-change-evidence-candidate.mjs";
+import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts } from "../../scripts/agent-change-evidence-candidate.mjs";
 
 const HEAD = "a".repeat(40);
 const BASE = "b".repeat(40);
@@ -193,4 +193,68 @@ test("candidate clone is advisory; confirmed owner conflict remains blocking", (
 test("empty or malformed input is BLOCKED", () => {
   assert.equal(evaluate(null).status, "BLOCKED");
   assert.equal(evaluate([]).status, "BLOCKED");
+});
+
+test("NEG-11: a reopened issue under a different ticket maps to its original root cause", () => {
+  const records = [];
+  for (let i = 0; i < 20; i++) {
+    records.push({
+      rootCauseId: "bug-" + i, original: true,
+      mature14: true, mature30: true, firstAttempt: true
+    });
+  }
+  records.push({ rootCauseId: "bug-2", original: false, recurDay: 6 });
+  // One root cause, not two tickets; recurrence also invalidates prior first-pass success.
+  const trend = summarizeFixCohorts(records);
+  assert.equal(trend.status14, "REPORTABLE_TREND");
+  assert.equal(trend.denominator14, 20);
+  assert.equal(trend.reopenedCount14, 1);
+  assert.equal(trend.reopenRate14, 0.05);
+  assert.equal(trend.firstPassCount14, 19);
+  assert.equal(trend.canonicalGatePass, false);
+});
+
+test("NEG-18: confirmed extra critical UI surface cannot be hidden by green tests", () => {
+  blocks((data) => {
+    data.uiReview = { confirmedRedundantCriticalSurface: true };
+  }, "CONFIRMED_CRITICAL_UI_ENTROPY");
+});
+
+test("NEG-20b: recurrence after 14 days is tracked in the mature 30-day view", () => {
+  const list = [{ rootCauseId: "b", original: true, mature14: true, mature30: true, firstAttempt: true },
+    { rootCauseId: "b", original: false, recurDay: 22 }];
+  const result = summarizeFixCohorts(list);
+  assert.equal(result.denominator14, 1);
+  assert.equal(result.reopenedCount14, 0);
+  assert.equal(result.reopenedCount30, 1);
+  assert.equal(result.reopenRate30, 1);
+  assert.equal(result.status14, "INSUFFICIENT_DATA");
+});
+
+test("K2/K5 cohort cannot fake a denominator by duplicating the original issue", () => {
+  assert.throws(() => summarizeFixCohorts([
+    { rootCauseId: "same", original: true, mature14: true },
+    { rootCauseId: "same", original: true, mature14: true }
+  ]), /exactly one original/);
+});
+
+test("K2/K5 cohort requires aged samples before producing a reportable percentage", () => {
+  const v = summarizeFixCohorts([
+    { rootCauseId: "old", original: true, mature14: true, mature30: false, firstAttempt: true }
+  ]);
+  assert.equal(v.status14, "INSUFFICIENT_DATA");
+  assert.equal(v.status30, "INSUFFICIENT_DATA");
+  assert.equal(v.denominator30, 0);
+  assert.equal(v.reopenRate30, null);
+});
+
+test("L3 claims never authorize release even with all proposed check names", () => {
+  const result = withChange((data) => {
+    data.risk = "L3";
+    data.checks.push(check("security"), check("recovery"), check("human-review"));
+  });
+  assert.equal(result.status, "READY_FOR_REVIEW");
+  assert.equal(result.authority.canonicalGatePass, false);
+  assert.equal(result.authority.constitutionalRatification, false);
+  assert.equal(result.authority.productionRelease, false);
 });
