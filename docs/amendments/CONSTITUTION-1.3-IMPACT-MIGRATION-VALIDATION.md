@@ -206,10 +206,11 @@ Current review disposition: **IMPACT ANALYSIS PREPARED, MIGRATION AND TEST DESIG
 
 - Candidate evaluator: `scripts/agent-change-evidence-candidate.mjs`.
 - Executable negative fixtures: `tests/source-truth/agent-change-evidence-candidate.test.mjs`.
-- CI hook: `.github/workflows/ci.yml`, dedicated `Constitution 1.3 proposal evidence self-test (no policy activation)` step inside Fast CI.
+- CI hook: `.github/workflows/ci.yml`, single `Agent change evidence candidate adversarial self-tests (proposal only)` step inside Fast CI. A duplicate invocation detected during concurrent proposal edits was removed from the draft branch; only one invocation should remain.
 - Verified PR head: `ea0e2d0f13c4a0dc9ae6671a63f77346346ab0fa`.
 - GitHub Actions Development Fast CI run: [37864240383](https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/37864240383); fast-check **PASS**, 33 unit tests run, 33 passed, 0 failed. Existing 1.2 Constitution checks, authority-set check and source-of-truth checks also passed.
 - Full release-gate job on this PR run was **SKIPPED by existing workflow trigger**, not PASS. No PostgreSQL/Playwright/Human UX evidence is asserted for this change.
+- Follow-up expanded **proposal-only** fixtures add synthetic reopened-root-cause cohort and UI-entropy checks. At draft SHA `411e3ec6e47f3367f3eb8ec32becc07b0a2f9826`, [CI run 37864332475](https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/37864332475) passed **39/39 synthetic checks per invocation**; this draft run had the same test invocation twice, which has subsequently been deduplicated. This is not live end-to-end validation.
 - The 33 tests verify **synthetic candidate-policy decisions**, including NEG-01/02/03/04/05/06/07/08/09/10/12/13/14/15/16/17/19/20 **at the evidence-evaluator layer only**. They DO NOT prove backend operations, live automation readback, semantic code-clone detection, real user performance, re-open aggregation or UX visual regression.
 - NEG-11 (real same-root-cause reopened issues), NEG-18 (real-world UX accumulation), GitHub evidence signature/trust verification, authenticating runId, and end-to-end persistence/privileged-action enforcement **remain not implemented/not verified**.
 - In the evaluator, a positive status is strictly `READY_FOR_REVIEW`, not canonical Quality Gate PASS and not release authority; a declared runId alone is **not independently authenticated** and must not be trusted for future canonical attestation.
