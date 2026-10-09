@@ -199,3 +199,21 @@ Current review disposition: **IMPACT ANALYSIS PREPARED, MIGRATION AND TEST DESIG
 "Tiếp tục [công việc] trong [repo] theo hiến pháp Blueprint OS hiện hành; kiểm tra HEAD, phạm vi, rủi ro, test, KPI và bằng chứng đúng SHA. Tự sửa và tiếp tục khi đạt gate; không ghi đè ngoài phạm vi, không sinh logic trùng, không tự cấp quyền phát hành."
 
 "Tiếp tục theo hiến pháp" is valid shorthand only when repo/project, policy, stage and tools have already been resolved in the execution environment. Otherwise the Agent must recover or ask for genuinely missing information. It must never claim code or CI was verified merely because this phrase appeared in chat.
+
+## J. Executable proposal-only evidence (2026-10-09)
+
+**Scope**: non-authoritative candidate evaluator only; no change to active policy, Constitution contract, canonical gate source, project state, or Production.
+
+- Candidate evaluator: `scripts/agent-change-evidence-candidate.mjs`.
+- Executable negative fixtures: `tests/source-truth/agent-change-evidence-candidate.test.mjs`.
+- CI hook: `.github/workflows/ci.yml`, dedicated `Constitution 1.3 proposal evidence self-test (no policy activation)` step inside Fast CI.
+- Verified PR head: `ea0e2d0f13c4a0dc9ae6671a63f77346346ab0fa`.
+- GitHub Actions Development Fast CI run: [37864240383](https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/37864240383); fast-check **PASS**, 33 unit tests run, 33 passed, 0 failed. Existing 1.2 Constitution checks, authority-set check and source-of-truth checks also passed.
+- Full release-gate job on this PR run was **SKIPPED by existing workflow trigger**, not PASS. No PostgreSQL/Playwright/Human UX evidence is asserted for this change.
+- The 33 tests verify **synthetic candidate-policy decisions**, including NEG-01/02/03/04/05/06/07/08/09/10/12/13/14/15/16/17/19/20 **at the evidence-evaluator layer only**. They DO NOT prove backend operations, live automation readback, semantic code-clone detection, real user performance, re-open aggregation or UX visual regression.
+- NEG-11 (real same-root-cause reopened issues), NEG-18 (real-world UX accumulation), GitHub evidence signature/trust verification, authenticating runId, and end-to-end persistence/privileged-action enforcement **remain not implemented/not verified**.
+- In the evaluator, a positive status is strictly `READY_FOR_REVIEW`, not canonical Quality Gate PASS and not release authority; a declared runId alone is **not independently authenticated** and must not be trusted for future canonical attestation.
+
+**Current disposition**: proposal implementation slice verified in Fast CI; **DRAFT, impact prepared but not human-reviewed; migration not executed; policy publication/human ratification gate remains CLOSED**.
+
+**Next prerequisite**: owner/authorized constitutional review of overlap with open draft PR #97, design approval for the implementation-ready candidate authority-set changes, and project-local real-world validation in a separate authorized phase. No merge, publication or propagation is implied by this experimental run.
