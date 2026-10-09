@@ -132,6 +132,10 @@ export function evaluateAgentChangeEvidence(change, policy = {}) {
     }
   }
 
+  if (change.uiReview?.confirmedRedundantCriticalSurface === true) {
+    blocked.add("CONFIRMED_CRITICAL_UI_ENTROPY");
+  }
+
   if (Number.isSafeInteger(change.failedAttempts) && change.failedAttempts >= 3) {
     blocked.add("STOP_REINVESTIGATE_ROOT_CAUSE");
   }
@@ -181,4 +185,62 @@ export function evaluateAgentChangeEvidence(change, policy = {}) {
     warnings: [...warnings].sort(),
     authority: { canonicalGatePass: false, constitutionalRatification: false, productionRelease: false }
   };
+}
+
+/**
+ * Proposal-only K2/K5 cohort. Correlates recurrent reports by stable root cause,
+ * not ticket count. Historical 14/30-day values use different mature cohorts.
+ * Does not independently verify Issue history; trusted collection is future work.
+ */
+export function summarizeFixCohorts(reports, minimum = 20) {
+  if (!Number.isInteger(minimum) || minimum < 1) {
+    throw new TypeError("minimum must be a positive integer");
+  }
+  const cases = new Map();
+  for (const report of reports) {
+    if (!report || !isNonEmpty(report.rootCauseId)) {
+      throw new TypeError("every report needs rootCauseId");
+    }
+    const item = cases.get(report.rootCauseId) ?? {
+      originals: 0, mature14: false, mature30: false,
+      firstAttempt: false, recurrences: []
+    };
+    if (report.original === true) {
+      item.originals += 1;
+      item.mature14 = report.mature14 === true;
+      item.mature30 = report.mature30 === true;
+      item.firstAttempt = report.firstAttempt === true;
+    } else if (Number.isInteger(report.recurDay) && report.recurDay >= 0) {
+      item.recurrences.push(report.recurDay);
+    } else {
+      throw new TypeError("follow-up report requires nonnegative recurDay");
+    }
+    cases.set(report.rootCauseId, item);
+  }
+  for (const item of cases.values()) {
+    if (item.originals !== 1) {
+      throw new TypeError("exactly one original per root cause required");
+    }
+  }
+  const c14 = [...cases.values()].filter((x) => x.mature14);
+  const c30 = [...cases.values()].filter((x) => x.mature30);
+  const reopened14 = c14.filter((x) => x.recurrences.some((d) => d <= 14)).length;
+  const reopened30 = c30.filter((x) => x.recurrences.some((d) => d <= 30)).length;
+  const firstPass14 = c14.filter((x) =>
+    x.firstAttempt && !x.recurrences.some((d) => d <= 14)
+  ).length;
+  return Object.freeze({
+    status14: c14.length < minimum ? "INSUFFICIENT_DATA" : "REPORTABLE_TREND",
+    status30: c30.length < minimum ? "INSUFFICIENT_DATA" : "REPORTABLE_TREND",
+    denominator14: c14.length,
+    denominator30: c30.length,
+    firstPassCount14: firstPass14,
+    reopenedCount14: reopened14,
+    reopenedCount30: reopened30,
+    firstPassRate14: c14.length ? firstPass14 / c14.length : null,
+    reopenRate14: c14.length ? reopened14 / c14.length : null,
+    reopenRate30: c30.length ? reopened30 / c30.length : null,
+    canonicalGatePass: false,
+    productionRelease: false
+  });
 }
