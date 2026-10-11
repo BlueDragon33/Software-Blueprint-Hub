@@ -188,6 +188,58 @@ export function evaluateAgentChangeEvidence(change, policy = {}) {
 }
 
 /**
+ * Advisory intake for a NEW project before a canonical Project Profile exists.
+ * Model the intended supported product, NOT the number of files in its seed.
+ * No inputs are authenticated: the owner must confirm scope/level through the
+ * existing Project Profile and Blueprint authority path. No writes or approvals.
+ */
+export function proposeNewProjectBlueprintIntake(situation) {
+  const authority = Object.freeze({
+    canonicalGatePass: false, constitutionalRatification: false, productionRelease: false
+  });
+  const invalid = () => Object.freeze({
+    status: "UNVERIFIED", recommendedBlueprintLevel: null, scale: null,
+    nextAction: "COLLECT_PROJECT_SITUATION", plan: Object.freeze([]), authority
+  });
+  if (!situation || typeof situation !== "object" || Array.isArray(situation)) return invalid();
+  const { purpose, stage, criticalJourneys, independentModules, crossAppContracts,
+    persistentUserState, highSensitivityData, privilegedControl,
+    criticalFailureImpact, sharedPlatformRole } = situation;
+  if (!isNonEmpty(purpose) || purpose.length > 160 ||
+      !["foundation", "pilot", "operational"].includes(stage) ||
+      [criticalJourneys, independentModules, crossAppContracts].some((n) =>
+        !Number.isSafeInteger(n) || n < 0 || n > 10000) ||
+      [persistentUserState, highSensitivityData, privilegedControl,
+        criticalFailureImpact, sharedPlatformRole].some((v) => typeof v !== "boolean")) {
+    return invalid();
+  }
+  // Risk and integration raise planning depth; a foundation-only repository does
+  // not downgrade the intended product architecture.
+  let level;
+  if (criticalFailureImpact || highSensitivityData) level = "B5";
+  else if (sharedPlatformRole || privilegedControl || crossAppContracts >= 3) level = "B4";
+  else if (independentModules >= 3 || criticalJourneys >= 4 ||
+    (crossAppContracts >= 1 && (independentModules >= 2 || criticalJourneys >= 3))) level = "B3";
+  else if (persistentUserState || independentModules >= 2 || criticalJourneys >= 2) level = "B2";
+  else if (independentModules >= 1 || criticalJourneys >= 1) level = "B1";
+  else level = "B0";
+  const scale = Number(level[1]) <= 2 ? "COMPACT" : "STRUCTURED";
+  const plan = scale === "COMPACT"
+    ? ["CONFIRM_ONE_USER_GOAL", "DELIVER_ONE_SCOPED_VERTICAL_SLICE",
+      "VERIFY_RELEVANT_REGRESSION_AND_STATE", "RECONCILE_NEXT_GOAL"]
+    : ["CONFIRM_PROJECT_PROFILE_AND_DEPENDENCY_OWNERS",
+      "SELECT_ONE_CRITICAL_USER_JOURNEY",
+      "DELIVER_ONE_CONTRACTED_VERTICAL_SLICE",
+      "VERIFY_REAL_BOUNDARIES_AND_FAILURE_MODES",
+      "RECONCILE_WORK_PACKAGES_BEFORE_EXPANSION"];
+  return Object.freeze({
+    status: "PROPOSAL_ONLY", recommendedBlueprintLevel: level, scale,
+    nextAction: "REVIEW_AND_RECORD_CANONICAL_PROJECT_PROFILE",
+    stage, plan: Object.freeze(plan), authority
+  });
+}
+
+/**
  * Proposal-only Universal execution-law projection (R21/R22).
  * B0–B2 = COMPACT, B3–B5 = STRUCTURED; operation risk may raise check depth
  * but never grants human, constitutional, quality-gate or production authority.
