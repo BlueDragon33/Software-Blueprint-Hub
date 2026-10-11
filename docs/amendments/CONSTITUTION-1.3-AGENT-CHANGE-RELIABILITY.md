@@ -53,6 +53,18 @@ The following requirements should strengthen the existing Product Engineering, A
 
 **R14 — Explicit central-control boundaries.** Central membership/device approval is an authenticated, scoped operational decision, not universal administrator privilege, constitutional ratification, canonical Quality Gate PASS, professional acceptance, payment entitlement or Production release authority. Keep the control-plane operator-device registry distinct from managed end-user device identities and from per-app sessions/entitlements. Centralize the approval decision and orchestration, not all business databases, private user records, client signing keys or provider credentials. Block/revoke updates must invalidate affected grants within an explicit project risk budget; source unavailability cannot silently renew trust. Metadata-only/static/local apps declare their applicable management level honestly and must never advertise a nonexistent approval backend.
 
+**R15 — Prompt-to-product execution contract.** The user's approved objective, current canonical project state and effective Constitution form a versioned execution contract: target repo/branch, exact HEAD, requested end state, acceptance criteria, protected invariants, out-of-scope changes, authority limits and ordered work packages. Resolve conflicts by existing authority precedence; the latest prompt may refine ordinary tasks but cannot silently replace approved goals or grant restricted rights. Treat each meaningful new request as a reviewed scope delta, not a reason to discard unfinished work.
+
+**R16 — One active critical path, bounded work queue.** Reconcile existing implementation and remaining gaps before proposing new modules. Maintain one visible active work package and an ordered, dependency-aware queue (READY / ACTIVE / BLOCKED / VERIFIED / DONE), with one next executable action and an explicit completion predicate per package. Parallelize only genuinely independent changes with non-overlapping ownership and revision-safe integration; do not fork duplicate approaches, dashboards or task logs. Prefer finishing, verifying and retiring obsolete paths to opening more speculative work.
+
+**R17 — Continuous verified execution.** Within an authorized interactive or explicitly scheduled execution, advance through inspect -> reproduce/baseline -> smallest coherent change -> focused tests -> regression/integration as risk warrants -> exact-SHA evidence -> review/merge when permitted -> next READY package. A failed check returns to diagnosis and remediation rather than advancing. The Agent must continue on a safe independent package when one package is blocked and the dependency graph permits it. Never claim unattended/background execution when the current environment cannot run it.
+
+**R18 — Architectural and UX entropy budget.** Every substantive change checks net-new complexity against the existing baseline: canonical ownership, new dependencies, duplicated logic, routes/cards/buttons, dead branches, package/build weight and affected user journeys. New surface/abstraction must have distinct user value, lifecycle owner, retirement/migration plan where relevant and proportional verification. Remove verified obsolete paths in the same bounded change when safe; do not delete useful tests, history or necessary modular boundaries to artificially lower counts. No optional redesign or convenience UI expansion may displace the approved task.
+
+**R19 — Intervention only for a genuine authority or capability boundary.** Distinguish (A) an engineering defect the Agent can diagnose/fix, (B) a recoverable tool/network/quota outage needing a durable checkpoint and later resumption, and (C) a non-delegable decision. Only C requires a human decision: authenticated constitutional ratification, explicit new Production/protected/destructive authority, access/identity the Agent cannot lawfully obtain, a true conflict in product intent with no safe default, or a mandatory qualified human acceptance. After three meaningfully distinct failed remedies, stop speculative patches and re-investigate; this is **not automatically a request to the user**. Do not weaken gates, reroute approvals, or claim success because credits or tools are exhausted.
+
+**R20 — End-to-end finish and clean handoff.** A package is DONE only when its acceptance criteria and affected existing critical journeys are evidenced at the exact revision; product completion additionally requires remaining-scope reconciliation, no unresolved release-blocking defects, verified persistence/security/performance/UX as applicable, dependency cleanup, truthful release/rollback status and post-release observation when authorized. Separate CODE COMPLETE, TEST VERIFIED, MERGED, DEPLOYED and USER ACCEPTED; no status implies the next. Persist the smallest useful restart checkpoint and remaining blockers so a new session resumes without re-auditing the full repository or treating chat as canonical truth.
+
 Detailed candidate rules, compatibility constraints and acceptance cases are in [the single-control-plane annex](CONSTITUTION-1.3-SINGLE-CONTROL-PLANE.md). These requirements extend the existing seven pillars; they do not add an eighth pillar or activate federation at runtime.
 
 ## 3. Five standard measured quality indicators
@@ -121,6 +133,30 @@ For an already selected project inside Blueprint OS, the compact command **“Ti
 The application should eventually offer one clear **Execute under Constitution** or equivalent action that produces a trusted, source-revision-bound prompt projection; do not add duplicate buttons or a separate Constitution app. A generic external chat or unconnected Agent cannot magically enforce this phrase: it must have access to the repo/policy/check runners, otherwise report its capability boundary.
 
 No command alone grants merge, Quality Gate PASS, destructive operation, constitutional ratification or Production release authority.
+
+### Continuous execution protocol — proposal only
+
+The operational behavior below strengthens R7/R8/R9/R15–R20; it is **not** a new authority engine, separate tracking app, mandatory global CI pipeline or permission to bypass existing review gates.
+
+| Phase | Required behavior | Safe progression check |
+| --- | --- | --- |
+| 0. RESUME | Read the short project checkpoint, active policy, repository HEAD, changed files, open PR/check status and current blockers; fetch only relevant paths | Stale evidence and obsolete plans identified before edit |
+| 1. LOCK INTENT | Resolve prompt objective, protected existing behavior, done criteria, authorization and scope delta | No hidden goal substitution or unauthorized work |
+| 2. RECONCILE | Compare shipped vs implemented-unverified vs missing vs failed; inspect current ownership | No duplicate implementation mistaken for new requirement |
+| 3. ORDER | Build a bounded dependency/critical-path work queue; choose one executable slice | Each slice has testable output and risk tier |
+| 4. BASELINE | Reproduce defect or capture affected journey/behavior before change where practical | Root-cause hypothesis or explicit uncertainty recorded |
+| 5. CHANGE | Minimal coherent patch on existing owner, safe-write/version checks; preserve rollback route | Diff stays scoped; added complexity justified |
+| 6. VERIFY | Run risk-scaled static, regression, contract, persistence/UX/security/performance checks | Exact-SHA evidence; failures return to phase 4 |
+| 7. INTEGRATE | Independent review and CI; merge only with existing policy/authority and green required checks | Recheck target HEAD, no stale PR or false PASS |
+| 8. RELEASE | If separately authorized, run exact-revision release gates and deploy; otherwise mark release BLOCKED, not DONE | No automatic Production authority |
+| 9. OBSERVE | Read back durable state, inspect deployed critical journeys and regression/incident evidence when possible | No completion by response-code/build result alone |
+| 10. RECONCILE AGAIN | Recompute remaining queue, retire safely replaced paths, hand off checkpoint or take next READY item | Zero unknown required items before product closure |
+
+**Restart checkpoint** (append/update in the existing project work record, not a new dashboard): project/repository/branch; active Constitution ID/version; approved goal and acceptance criteria; exact current HEAD and last verified SHA; active work package and next action; ordered remaining/blocked work; failing test/incident and attempt count; evidence links/status; scoped authority boundaries; resource/capability blockers; safe rollback/recovery note. Never store credentials or sensitive user data in this record. Write at work-package transitions, significant blocker changes, and before a session/resource interruption; do not append noisy logs for every command.
+
+**Failure handling:** three distinct remedies without resolving a defect trigger an engineering diagnosis reset (re-examine hypothesis, tests, contract and root cause; optionally switch to an independent READY task), not an automatic human gate. Quota exhaustion, disconnected browser or unavailable external service is `PAUSED_RESOURCE / UNVERIFIED` with next safe action, not a DONE state. Request one concise human decision only when a genuine non-delegable decision cannot be avoided. Multiple safely independent packages may progress while the blocked one remains explicitly tracked.
+
+**Completion safeguard:** require closure against the original prompt, including mandatory negative/regression cases and preserved legacy user journeys. A product cannot be labeled complete solely because all PRs merged, all tasks were moved to DONE, CI passed or a deployment URL exists.
 
 ## 7. Impact analysis scope
 
