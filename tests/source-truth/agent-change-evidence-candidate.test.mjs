@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff, resolveExecutionScaleProfile as profile, proposeNewProjectBlueprintIntake as intake, proposeEcosystemReference as ecosystem } from "../../scripts/agent-change-evidence-candidate.mjs";
+import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff, resolveExecutionScaleProfile as profile, proposeNewProjectBlueprintIntake as intake, proposeEcosystemReference as ecosystem, evaluateConstitutionPublicationPreflight as publication } from "../../scripts/agent-change-evidence-candidate.mjs";
 
 const HEAD = "a".repeat(40);
 const BASE = "b".repeat(40);
@@ -904,4 +904,110 @@ test("E-scale: new standalone project intake keeps B-scale and ecosystem scale i
   assert.equal(topology.proposedEcosystemLevel, "E0");
   assert.equal(proposed.authority.canonicalGatePass, false);
   assert.equal(topology.authority.canonicalGatePass, false);
+});
+
+function publicationCandidate() {
+  return {
+    candidateSha: HEAD,
+    activeVersion: "1.2.0",
+    targetVersion: "1.3.0",
+    competingProposals: [
+      { id: "PR-98", version: "1.3.0", resolved: true },
+      { id: "PR-97", version: "1.3.0", resolved: true }
+    ],
+    changeCompatibility: { reviewed: true, targetSha: HEAD },
+    migration: { impactReviewed: true, stagedPlanReviewed: true },
+    independentReview: { approved: true, sourceSha: HEAD },
+    fullReleaseGate: { status: "PASS", sourceSha: HEAD, runId: 1234567 },
+    authoritySet: Object.fromEntries([
+      "normativeDocument", "machineContract", "universalTemplate",
+      "policySource", "versionManifest", "validatorTests"
+    ].map((name) => [name, { sourceSha: HEAD, policyVersion: "1.3.0" }])),
+    ratification: {
+      authenticatedHuman: true, appendOnlyRecorded: true,
+      recordId: "constitution-ratification:fixture-123",
+      sourceSha: HEAD, policyVersion: "1.3.0"
+    }
+  };
+}
+
+test("Publication readiness never self-ratifies or publishes even with complete input", () => {
+  const v = publication(publicationCandidate());
+  assert.equal(v.status, "READY_FOR_INDEPENDENT_REVIEW");
+  assert.deepEqual(v.authority, {
+    constitutionalRatification: false, constitutionalPublication: false,
+    canonicalGatePass: false, productionRelease: false
+  });
+});
+
+test("Publication must block simultaneous unresolved PR #97/#98 version collision", () => {
+  const x = publicationCandidate();
+  x.competingProposals[1].resolved = false;
+  const v = publication(x);
+  assert.equal(v.status, "BLOCKED");
+  assert.ok(v.blocked.includes("UNRESOLVED_CONSTITUTION_VERSION_COLLISION"));
+});
+
+test("Publication never accepts user chat intent as ratification", () => {
+  const x = publicationCandidate();
+  x.ratification = { chatApproval: true, authenticatedHuman: false };
+  const v = publication(x);
+  assert.equal(v.status, "BLOCKED");
+  assert.ok(v.blocked.includes("AUTHENTICATED_EXACT_REVISION_HUMAN_RATIFICATION_REQUIRED"));
+});
+
+test("Publication rejects ratification of any other exact source revision", () => {
+  const x = publicationCandidate();
+  x.ratification.sourceSha = BASE;
+  const v = publication(x);
+  assert.ok(v.blocked.includes("AUTHENTICATED_EXACT_REVISION_HUMAN_RATIFICATION_REQUIRED"));
+});
+
+test("Publication requires full exact HEAD Release Gate, not fast CI alone", () => {
+  const x = publicationCandidate();
+  x.fullReleaseGate = { status: "PASS", sourceSha: BASE, runId: 999 };
+  const v = publication(x);
+  assert.equal(v.status, "UNVERIFIED");
+  assert.ok(v.unverified.includes("MISSING_FULL_RELEASE_GATE_AT_HEAD"));
+});
+
+test("Publication requires all existing canonical authority components aligned", () => {
+  const x = publicationCandidate();
+  x.authoritySet.universalTemplate.policyVersion = "1.2.0";
+  assert.ok(publication(x).unverified.includes("INCOMPLETE_ATOMIC_AUTHORITY_SET"));
+  delete x.authoritySet.policySource;
+  assert.ok(publication(x).unverified.includes("INCOMPLETE_ATOMIC_AUTHORITY_SET"));
+});
+
+test("Publication requires independently reviewed migration and compatibility", () => {
+  const x = publicationCandidate();
+  x.changeCompatibility.targetSha = BASE;
+  x.migration.stagedPlanReviewed = false;
+  x.independentReview.sourceSha = BASE;
+  const v = publication(x);
+  assert.ok(v.unverified.includes("MISSING_COMPATIBILITY_AND_SCOPE_REVIEW"));
+  assert.ok(v.unverified.includes("MIGRATION_PLAN_NOT_REVIEWED"));
+  assert.ok(v.unverified.includes("MISSING_INDEPENDENT_REVIEW_AT_HEAD"));
+});
+
+test("Publication rejects invalid candidate and no-op constitutional version", () => {
+  assert.equal(publication(null).status, "BLOCKED");
+  const x = publicationCandidate();
+  x.targetVersion = "1.2.0";
+  assert.ok(publication(x).blocked.includes("VERSION_NOT_ADVANCED"));
+});
+
+test("Publication missing proposal collision review must not pass", () => {
+  const x = publicationCandidate();
+  delete x.competingProposals;
+  assert.ok(publication(x).unverified.includes("MISSING_VERSION_COLLISION_REVIEW"));
+});
+
+test("Publication malformed or stale human ratification record cannot authorize release", () => {
+  const x = publicationCandidate();
+  x.ratification.appendOnlyRecorded = false;
+  const v = publication(x);
+  assert.equal(v.status, "BLOCKED");
+  assert.equal(v.authority.productionRelease, false);
+  assert.equal(v.authority.constitutionalPublication, false);
 });
