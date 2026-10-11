@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts } from "../../scripts/agent-change-evidence-candidate.mjs";
+import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity } from "../../scripts/agent-change-evidence-candidate.mjs";
 
 const HEAD = "a".repeat(40);
 const BASE = "b".repeat(40);
@@ -257,4 +257,194 @@ test("L3 claims never authorize release even with all proposed check names", () 
   assert.equal(result.authority.canonicalGatePass, false);
   assert.equal(result.authority.constitutionalRatification, false);
   assert.equal(result.authority.productionRelease, false);
+});
+
+function execution() {
+  return {
+    repository: "BlueDragon33/Software-Blueprint-Hub",
+    branch: "proposal/constitution-1-3-agent-reliability-20261009",
+    headSha: HEAD,
+    activePolicyVersion: "1.2.0",
+    goal: {
+      id: "protect-save-flow", approved: true,
+      acceptance: [{ id: "saved-data-roundtrip", status: "PASS", sourceSha: HEAD }]
+    },
+    checkpoint: { headSha: HEAD, policyVersion: "1.2.0", goalId: "protect-save-flow" },
+    workPackages: [{ id: "WP-1", status: "DONE", dependsOn: [], evidenceSha: HEAD }],
+    criticalJourneys: [{ id: "legacy-save-flow", status: "PASS", sourceSha: HEAD }],
+    unavailableResources: [],
+    release: { required: false },
+    humanGate: { required: false }
+  };
+}
+
+test("R15-R20 pilot positive: closed and evidenced work is only READY_FOR_REVIEW", () => {
+  const result = continuity(execution());
+  assert.equal(result.state, "READY_FOR_REVIEW");
+  assert.equal(result.nextAction, "REVIEW_PRODUCT_CLOSURE");
+  assert.equal(result.humanInterventionRequired, false);
+  assert.deepEqual(result.authority, {
+    canonicalGatePass: false, constitutionalRatification: false, productionRelease: false
+  });
+});
+
+test("NEG-21: changed HEAD or Constitution invalidates restart checkpoint", () => {
+  const h = execution();
+  h.headSha = BASE;
+  assert.equal(continuity(h).nextAction, "RECONCILE_LIVE_STATE");
+  const p = execution();
+  p.activePolicyVersion = "1.3.0";
+  assert.equal(continuity(p).nextAction, "RECONCILE_LIVE_STATE");
+});
+
+test("NEG-22: changed prompt cannot silently replace approved objective", () => {
+  const x = execution();
+  x.proposedGoalId = "redesign-everything";
+  const v = continuity(x);
+  assert.equal(v.nextAction, "RESOLVE_GOAL_CHANGE");
+  assert.equal(v.humanInterventionRequired, true);
+});
+
+test("NEG-23: duplicate canonical owner is not an invitation to build another service", () => {
+  const x = execution();
+  x.entropy = { duplicateCanonicalOwner: true };
+  assert.equal(continuity(x).nextAction, "REMOVE_UNJUSTIFIED_COMPLEXITY");
+});
+
+test("NEG-24: previously working critical journey fails even if new checks are green", () => {
+  const x = execution();
+  x.criticalJourneys[0].status = "FAIL";
+  const v = continuity(x);
+  assert.equal(v.state, "BLOCKED");
+  assert.equal(v.nextAction, "REPAIR_LEGACY_REGRESSION");
+});
+
+test("NEG-25: after three fixes choose safe independent work, otherwise reinvestigate", () => {
+  const x = execution();
+  x.workPackages = [
+    { id: "bad", status: "ACTIVE", dependsOn: [], attempts: 3 },
+    { id: "independent", status: "READY", dependsOn: [], attempts: 0 }
+  ];
+  const v = continuity(x);
+  assert.equal(v.state, "CONTINUE");
+  assert.equal(v.taskId, "independent");
+  assert.ok(v.reasons.includes("REINVESTIGATE_OTHER_PACKAGE:bad"));
+  assert.equal(v.humanInterventionRequired, false);
+  x.workPackages.pop();
+  assert.equal(continuity(x).nextAction, "REINVESTIGATE_ROOT_CAUSE");
+});
+
+test("NEG-26: exhausted browser credit pauses only affected slice, never claims done", () => {
+  const x = execution();
+  x.workPackages = [{ id: "preview", status: "ACTIVE", dependsOn: [], requires: ["browser"] }];
+  x.unavailableResources = ["browser"];
+  const v = continuity(x);
+  assert.equal(v.nextAction, "PAUSED_RESOURCE");
+  assert.equal(v.state, "UNVERIFIED");
+  assert.equal(v.humanInterventionRequired, false);
+});
+
+test("NEG-26b: a different independent available task can continue through outage", () => {
+  const x = execution();
+  x.workPackages = [
+    { id: "browser", status: "ACTIVE", dependsOn: [], requires: ["browser"] },
+    { id: "code", status: "READY", dependsOn: [], requires: ["github"] }
+  ];
+  x.unavailableResources = ["browser"];
+  const v = continuity(x);
+  assert.equal(v.nextAction, "EXECUTE_AND_VERIFY");
+  assert.equal(v.taskId, "code");
+});
+
+test("NEG-27: real human and Production gates cannot be silently self-approved", () => {
+  const x = execution();
+  x.humanGate = { required: true, approved: false };
+  let v = continuity(x);
+  assert.equal(v.nextAction, "OBTAIN_EXPLICIT_HUMAN_DECISION");
+  assert.equal(v.humanInterventionRequired, true);
+  x.humanGate.approved = true;
+  x.release = { required: true, authorized: false };
+  v = continuity(x);
+  assert.equal(v.nextAction, "OBTAIN_EXPLICIT_RELEASE_AUTHORITY");
+  assert.equal(v.humanInterventionRequired, true);
+  assert.equal(v.authority.productionRelease, false);
+});
+
+test("NEG-28: a merged old-SHA work package cannot claim present revision verified", () => {
+  const x = execution();
+  x.workPackages[0].evidenceSha = BASE;
+  const v = continuity(x);
+  assert.equal(v.nextAction, "REVERIFY_WORK_PACKAGE");
+  assert.equal(v.taskId, "WP-1");
+});
+
+test("NEG-29: redundant critical UI and unjustified deps trigger architecture cleanup", () => {
+  for (const entropy of [{ redundantCriticalSurface: true }, { unjustifiedDependency: true }]) {
+    const x = execution();
+    x.entropy = entropy;
+    assert.equal(continuity(x).nextAction, "REMOVE_UNJUSTIFIED_COMPLEXITY");
+  }
+});
+
+test("NEG-30: task closure is not product closure without original prompt acceptance", () => {
+  const x = execution();
+  x.goal.acceptance[0].status = "UNKNOWN";
+  const v = continuity(x);
+  assert.equal(v.state, "UNVERIFIED");
+  assert.equal(v.nextAction, "VERIFY_ORIGINAL_PROMPT_ACCEPTANCE");
+  assert.equal(v.humanInterventionRequired, false);
+});
+
+test("NEG-30b: no acceptance criteria never becomes fake product complete", () => {
+  const x = execution();
+  x.goal.acceptance = [];
+  assert.equal(continuity(x).nextAction, "VERIFY_ORIGINAL_PROMPT_ACCEPTANCE");
+});
+
+test("DAG regression: missing/cyclic dependencies and competing active owners block", () => {
+  const x = execution();
+  x.workPackages = [{ id: "a", status: "READY", dependsOn: ["missing"] }];
+  assert.equal(continuity(x).nextAction, "REPAIR_WORK_GRAPH");
+  x.workPackages = [
+    { id: "a", status: "READY", dependsOn: ["b"] },
+    { id: "b", status: "READY", dependsOn: ["a"] }
+  ];
+  assert.equal(continuity(x).nextAction, "REPAIR_WORK_GRAPH");
+  x.workPackages = [
+    { id: "a", status: "ACTIVE", dependsOn: [] },
+    { id: "b", status: "ACTIVE", dependsOn: [] }
+  ];
+  assert.equal(continuity(x).nextAction, "RECONCILE_CONCURRENT_OWNERS");
+});
+
+test("Dependency sequencing: next task requires verified dependent work", () => {
+  const x = execution();
+  x.workPackages = [
+    { id: "foundation", status: "ACTIVE", dependsOn: [] },
+    { id: "ux", status: "READY", dependsOn: ["foundation"] }
+  ];
+  assert.equal(continuity(x).taskId, "foundation");
+  x.workPackages[0] = { id: "foundation", status: "DONE", dependsOn: [], evidenceSha: HEAD };
+  assert.equal(continuity(x).taskId, "ux");
+});
+
+test("Release evidence is separate from claiming authority and needs readback", () => {
+  const x = execution();
+  x.release = { required: true, authorized: true, deployedSha: BASE, readback: "MATCH" };
+  assert.equal(continuity(x).nextAction, "RUN_AUTHORIZED_RELEASE_GATE");
+  x.release.deployedSha = HEAD;
+  x.release.readback = "UNKNOWN";
+  assert.equal(continuity(x).nextAction, "VERIFY_DEPLOYED_READBACK");
+  x.release.readback = "MATCH";
+  const v = continuity(x);
+  assert.equal(v.state, "READY_FOR_REVIEW");
+  assert.equal(v.authority.productionRelease, false);
+});
+
+test("Adversarial malformed execution snapshot never throws or marks approval", () => {
+  for (const x of [null, [], {}, { ...execution(), workPackages: null }]) {
+    const v = continuity(x);
+    assert.equal(v.state, "BLOCKED");
+    assert.equal(v.authority.productionRelease, false);
+  }
 });
