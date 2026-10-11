@@ -52,29 +52,58 @@ Existing, verified repository surfaces:
 6. No uncontrolled write, destructive overwrite or silent Production approval.
 7. No cross-project business-data source-of-truth. The current Blueprint OS bridge remains metadata-only. R11–R14 propose an explicit, narrowly scoped Application-Management identity/device approval owner; no runtime authority changes occur in this draft. Clients remain authoritative for business data, entitlements and session enforcement.
 
-## C. Project-level migration matrix — 15 governed repositories
+## C. Complete project-classification proposal — 17 observed repositories
 
-Source of repository/branch/Blueprint Level identity: control/constitution-governed-repositories.json on the baseline revision. No claim that any repo has already adopted 1.3.
+**Identity source:** `control/constitution-governed-repositories.json` contains **15 governed repository/branch/Blueprint Level declarations**; that manifest remains the **only canonical governed set**. GitHub repository discovery also surfaced two foundation-only repositories (`ECAD_Design`, `CAE_Simulation`) outside the manifest. Their rows below are **intake recommendations only**: they must not be represented as enrolled, activated or compliant. Do not add them to the canonical list without normal authorized registration and validated Project Profile.
 
-| Repository | Level | Risk-specific K1–K5 evidence focus | Minimum early adoption posture |
-| --- | --- | --- | --- |
-| Software-Blueprint-Hub | B4 | Constitutional authority/contract drift, UX evidence graph, resolver performance | Pilot its own canonical gates after authenticated publication |
-| Application-Management | B4 | Live save/readback, bulk operations, cross-app isolation, p95 UI/API | **Pilot first, observation-only**, do not broaden mutation authority |
-| Bauman-master-ai-system | B4 | Curriculum/data authority, offline study continuity, learning state, UI | Track learner flows and source-of-truth drift |
-| BOIECH_AI | B3 | Lessons/progress persistence, offline value, safe revisions | Track critical study journeys and regressions |
-| RU_LIFE | B3 | Portable personal state, forms, responsive UX, local-first | UX/load benchmarks on representative mobile |
-| Health_Care | B5 | Sensitive record mutation, authorization, backup/restore | Strict fail-closed protected write tests, private artifacts |
-| NC03_Modem | B4 | LAN admin/security, local config, credential overwrite prevention | Device-safe tests; never substitute cloud mock for hardware PASS |
-| ROS-1-2 | B3 | Robot/local control determinism, safety boundaries, ros2 branch | Simulation and hardware validation independently identified |
-| Math_Bauman | B2 | Learning correctness, offline state, lightweight browser UI | Scoped functional tests; sample KPI cohorts permitted incomplete |
-| GrowUP_MyChildren | B5 | Sensitive child-data preservation, restore, authorization | B5 protected mutation and recovery gates |
-| Hardware_Simulation | B2 | Simulation reproducibility, performance on known fixtures | Deterministic numeric benchmark on known hardware |
-| MPC_PID_System | B3 | Controller/simulation regressions, mode switching, timing | Control numerical tests; do not accept visual-only PASS |
-| CAD_CAM_3D | B2 | Geometry integrity, export/mesh transformations, UI weight | Compare deterministic generated artifacts and workflows |
-| PriceReport_Tunggiabao | B3 | Quotation persistence/roundtrip, totals, offline export, user data | Readback and export equality on business fixtures |
-| pc-manager-desktop | B4 | Privileged mutations, restore, Windows-specific E2E, packaging | No remote shell/privileged assumption; real Windows test gate |
+**Unified scale mapping:** B0–B2 = **COMPACT** (small/medium), B3–B5 = **STRUCTURED** (large). The Blueprint Level remains the authoritative recorded level for existing governed projects. Risk L1–L3 is evaluated **per operation** and can require deeper testing/approval even in COMPACT. Project size affects execution overhead, never data/security protections.
 
-**Common execution-law mapping:** B0–B2 inherit COMPACT; B3–B5 inherit STRUCTURED. This profile never replaces the project-specific Blueprint Level or the L1/L2/L3 risk checks below, and it never grants constitutional or Production authority. A newly generated project must declare its Blueprint Level and inherit the applicable profile. Missing/unsupported levels are UNVERIFIED rather than silently assigned the small tier.
+### Existing governed projects — 15/15 classified from canonical declared levels
+
+| Repository | Declared Blueprint Level | Proposed execution profile | Situation / architecture drivers | First economical bounded work slice |
+| --- | --- | --- | --- | --- |
+| `Software-Blueprint-Hub` | B4 | **STRUCTURED** | Governance / contract / publication | Source-truth checks -> exact authority-set -> human review; no self-ratification |
+| `Bauman-master-ai-system` | B4 | **STRUCTURED** | Multi-module curriculum and learner state | One actual learner journey -> offline progress/readback -> integration regression |
+| `Application-Management` | B4 | **STRUCTURED** | Central operations, auth and multiple managed apps | Reproduce save/bulk issue -> safe patch -> per-app readback and scoped review |
+| `BOIECH_AI` | B3 | **STRUCTURED** | Lessons + progress persistence | One lesson -> progress save/readback -> offline/legacy regression |
+| `RU_LIFE` | B3 | **STRUCTURED** | Content packs, local-first state and service worker | One mobile pack journey -> offline reload -> SW/cache state proof |
+| `Health_Care` | B5 | **STRUCTURED** | High-sensitivity records and permissions | Access isolation -> restore/recovery on test data -> human authority gates |
+| `NC03_Modem` | B4 | **STRUCTURED** | Local network, credentials and device control | One real-device config path -> rollback -> safe device-specific verification |
+| `ROS-1-2` | B3 | **STRUCTURED** | ROS2 package/controller integration | One reproducible simulation -> boundary verification -> hardware gate where relevant |
+| `Math_Bauman` | B2 | **COMPACT** | Scoped educational calculator/learning tasks | One exercise flow -> correctness unit/regression -> state reload |
+| `GrowUP_MyChildren` | B5 | **STRUCTURED** | Sensitive child records and recovery | Privacy boundary -> record restore/readback -> no fake acceptance |
+| `Hardware_Simulation` | B2 | **COMPACT** | Numerical simulation and reproducibility | One deterministic fixture -> compare numerical output and runtime |
+| `MPC_PID_System` | B3 | **STRUCTURED** | Control algorithm modes and numerical safety | One mode transition -> deterministic control regression and timing |
+| `CAD_CAM_3D` | B2 | **COMPACT** | Geometry and export invariants | One geometry edit -> export roundtrip -> mesh and UI regression |
+| `PriceReport_Tunggiabao` | B3 | **STRUCTURED** | Quotation workflows and persistent pricing | One quote -> persisted total -> export/readback equality |
+| `pc-manager-desktop` | B4 | **STRUCTURED** | Privileged desktop actions, packaging and device approval | One Windows action -> real environment check -> signed packaging/rollback gate |
+
+**Declared-level counts:** 3 COMPACT + 12 STRUCTURED = 15 governed repositories. This is a planning map based on recorded identities and known work direction, **not** a 15-project runtime audit or per-repo enforcement receipt. Existing project levels may be reconsidered only through a reviewed canonical Project Profile change, not by casually editing this table.
+
+### Additional observed foundations — pending Project Profile and enrollment
+
+| Repository | Verified present situation | Proposed target | Why | Minimum safe first work |
+| --- | --- | --- | --- | --- |
+| `ECAD_Design` | Foundation-only README; no PCB editor capability verified | **B3 / STRUCTURED**, *provisional* | The intended Schematic -> ERC -> PCB -> DRC -> fabrication -> CAD interoperability chain comprises several dependent engineering subsystems | Agree one schematic/netlist contract and test a deterministic ERC slice; no simulated PCB-editor PASS |
+| `CAE_Simulation` | Foundation-only README; no real solver capability verified | **B3 / STRUCTURED**, *provisional* | Intended geometry -> material/load -> mesh -> solver -> evidence -> visualization -> CAD feedback requires numerical provenance and interface contracts | Validate one study/mesh input -> actual solver adapter -> reproducible result evidence; no simulated solver PASS |
+
+**Why STRUCTURED for a foundation?** Classify the intended supported system, not its present empty file count. Early implementation still begins with **one vertical slice**, not an expensive all-module scaffold or unnecessary management UI. Review B3 against the actual Project Profile and intended release before making it canonical.
+
+### New-project intake: context first, then proportionate plan
+
+A new request is **not enough by itself** to authenticate a Blueprint Level or grant permission. Before coding an ordinary new product:
+
+1. **Discover/reuse**: inspect the declared user problem, existing managed repos/components, target users, required journeys, current working behavior and budget. If already covered by an existing project/app/module, extend the owning project unless a separate product boundary is justified. No automatic extra repository or separate login/backend.
+2. **Capture intended scope**: record the product destination (not just the MVP): number of independent modules and essential journeys, external/cross-app contracts, standalone or shared-platform role, offline/persistent state, privileged hardware, high-sensitivity personal/child/health data, and credible impact of failure. Record unknowns as unknown rather than assuming false. Do not infer from file count, prompt length, agent preference or flashy UI.
+3. **Recommend Blueprint Level with short reasons**: B0 one-off/prototype; B1 small utility; B2 standalone product with persistence/multiple journeys; B3 multi-module or interconnected system; B4 shared platform, central management or privileged device control; B5 safety-critical/high-sensitivity software. The flags inform a **candidate** only; authorized Project Profile resolution must confirm the effective level.
+4. **Derive exactly one execution profile**: B0/B1/B2 COMPACT or B3/B4/B5 STRUCTURED. Independently assign change risk L1/L2/L3; high-risk writes/security/hardware/destructive operations require L3 checks and non-delegable approvals regardless of scale.
+5. **Plan from one verifiable vertical slice**: one user journey, owner, inputs/outputs, expected result, preserved behavior, direct file/test scope and next action. COMPACT keeps one short work queue and focused checks. STRUCTURED identifies contracts, dependencies, recovery and Work Package owners **without generating all planned modules**.
+6. **Execute and re-evaluate**: current Chat/connected tools first -> reproduce -> minimal fix/build -> relevant real tests -> readback -> reconcile -> next slice. Work/Cloud Browser or Codex is used only for a specific unavailable capability with scoped SHA-bound handoff. A failed or blocked slice cannot create fake DONE; independently safe tasks may continue.
+7. **Material change review, not continuous churn**: reassess the Blueprint Level/profile only if real scope changes introduce new sensitive data, hardware privilege, central identity/control, multi-app integration, critical failure risk or substantially broader subsystem dependencies. Record evidence, migration costs, preserved user data, review decision and version before changing canonical profile. Do not silently downgrade to save CI credit.
+
+**Advisory helper:** `proposeNewProjectBlueprintIntake(situation)` in the existing proposal-only evaluator turns a validated structured situation into a *suggested* B0–B5 and an initial minimal plan. Missing facts yield UNVERIFIED. The helper has no repository/discovery access, owner confirmation or authority to write canonical Project Profiles. Human/approved governance continues to control classification publication and any protected operations.
+
+**Universal activation boundary:** this classification and intake algorithm become binding only through ratification/atomic publication of the Constitution and appropriate per-project verified adoption. Until then the active Constitution is 1.2.0 and this section is a proposed migration plan, **not** a declaration that 17 repositories already obey 1.3.
 
 ### Risk-to-depth rule
 
