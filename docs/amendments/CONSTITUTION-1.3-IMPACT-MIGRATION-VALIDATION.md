@@ -310,11 +310,11 @@ Candidate R15–R20 in [the Agent reliability amendment](CONSTITUTION-1.3-AGENT-
 
 ### Checked-in candidate implementation
 
-- `scripts/agent-change-evidence-candidate.mjs`: pure `resolveExecutionScaleProfile({ blueprintLevel, operationRisk, protectedOperation })` maps B0–B2 to COMPACT and B3–B5 to STRUCTURED; explicit operation risk raises required checks for both without conferring authority. `evaluateExecutionContinuity` requires scale/risk evidence and structured Work Packages for large projects but permits a minimal single-goal compact workflow. Unknown scale is UNVERIFIED. These are candidate-only decisions; real Blueprint source binding remains future integration work.
+- `scripts/agent-change-evidence-candidate.mjs`: pure `resolveExecutionScaleProfile({ blueprintLevel, operationRisk, protectedOperation })` maps B0–B2 to COMPACT and B3–B5 to STRUCTURED; explicit operation risk raises required checks for both without conferring authority. `evaluateExecutionContinuity` requires scale/risk and **scoped test evidence at the exact revision**, rejects missing/failed/stale checks in both sizes, requires declared human review and L3 security/recovery tests on protected operations, and requires structured Work Packages for large projects while permitting a minimal single-goal compact workflow. Unknown scale remains UNVERIFIED. These are candidate-only decisions; real Blueprint source binding remains future integration work.
 - `scripts/agent-change-evidence-candidate.mjs`: pure `evaluateExecutionContinuity(snapshot)` detects stale HEAD/policy/goal checkpoint, unknown or cyclic dependencies, competing active packages, architectural/UX entropy, legacy regression, stale evidence, three failed remedies, resource exhaustion, missing original-goal acceptance, non-delegable review/release and absent deployment readback. It returns a **next action only**, not an autonomous executor.
 - The same existing file exports `buildMinimalWorkHandoff(snapshot)`, which uses named repo/branch/HEAD/goal ID/work slice/path hints and omits raw chat, secrets and arbitrary project data. It is **untrusted prompt projection**; the recipient MUST re-resolve live canonical permissions/evidence.
 - `tests/source-truth/agent-change-evidence-candidate.test.mjs`: synthetic deterministic NEG-21–30 and positive DAG/interrupt/resource/authority/handoff fixtures. These test the pure function, **not** persistent checkpoint storage, live browser, authenticated operator identity, real cross-app integration or Production.
-- Candidate branch history includes [Fast CI 38146810632](https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/38146810632) PASS at `a2b41ac234f4ced769795889178f79d2f049af89`, with two-scale proposal tests; full Release Gate was SKIPPED. This is unit-level draft evidence, not runtime/Production/Constitutional PASS. Recheck the exact final draft HEAD after further commits. Active law remains **1.2.0**.
+- Exact code/test draft head before this documentation update: `221aab4735fe9c50b9c1f9632e7e4459333ba097`. [Fast CI 38147029150](https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/38147029150) PASS: **76/76** proposal evaluator tests and **4/4** source-of-truth detector tests, with no failures or skipped tests inside those suites; the protected Release Gate job was **SKIPPED**. These are unit-level candidate outcomes, **not** authenticated runtime orchestration, constitutional compliance, human ratification or Production approval. Active law remains **1.2.0**.
 
 ### Bounded escalation matrix
 
@@ -347,6 +347,12 @@ A receiving Agent should:
 - **SCALE-07:** Project generation/templates and app adoption reflect this common law **only after publication**; an adoption manifest alone never certifies enforcement.
 
 The candidate code tests SCALE-01–06 with synthetic inputs; end-to-end implementation of universal inheritance/generation and real runtime continuation (SCALE-07) remains pending.
+
+### Universal invocation after real integration
+
+"Tiếp tục [nhiệm vụ] trong [dự án] theo Hiến pháp chung hiện hành. Xác định COMPACT hoặc STRUCTURED từ Blueprint Level đã xác minh, giữ nguyên mục tiêu gốc, xử lý tối đa bằng công cụ hiện có, sửa–test–tiếp tục qua các nhiệm vụ an toàn; chỉ bàn giao phần không thể tự làm cho Work/Codex với SHA, bằng chứng, file và phạm vi tối thiểu. Không tự cấp quyền hoặc báo hoàn thành khi thiếu chứng cứ."
+
+This is only a **convenience prompt**. A project must actually resolve its active law, Project Profile, allowed operations, Work Package and current evidence before execution; a chat sentence or generated prompt never substitutes for the authoritative record.
 
 ### Remaining proof before Constitutional activation
 
