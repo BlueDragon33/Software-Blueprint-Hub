@@ -50,7 +50,7 @@ Existing, verified repository surfaces:
 4. Do not ban new files or define fewer LOC as quality; distinct modules and legitimate fixtures remain allowed.
 5. Do not treat K2 First-Pass Fix Rate or K5 Reopen Rate as an automatic individual-PR hard gate.
 6. No uncontrolled write, destructive overwrite or silent Production approval.
-7. No cross-project source-of-truth; Application Management consumes metadata only.
+7. No cross-project business-data source-of-truth. The current Blueprint OS bridge remains metadata-only. R11–R14 propose an explicit, narrowly scoped Application-Management identity/device approval owner; no runtime authority changes occur in this draft. Clients remain authoritative for business data, entitlements and session enforcement.
 
 ## C. Project-level migration matrix — 15 governed repositories
 
@@ -218,3 +218,33 @@ Current review disposition: **IMPACT ANALYSIS PREPARED, MIGRATION AND TEST DESIG
 **Current disposition**: proposal implementation slice verified in Fast CI; **DRAFT, impact prepared but not human-reviewed; migration not executed; policy publication/human ratification gate remains CLOSED**.
 
 **Next prerequisite**: owner/authorized constitutional review of overlap with open draft PR #97, design approval for the implementation-ready candidate authority-set changes, and project-local real-world validation in a separate authorized phase. No merge, publication or propagation is implied by this experimental run.
+
+## K. Single control plane / shared device approval extension (2026-10-11)
+
+User requested one Application-Management entry point for device approval, management, orchestration and coherent UI, avoiding duplicated accounts and management endpoints. R11–R14 and [CONSTITUTION-1.3-SINGLE-CONTROL-PLANE.md](CONSTITUTION-1.3-SINGLE-CONTROL-PLANE.md) record that requirement as candidate law.
+
+Read-only source baseline:
+- Hub main: `6b66e0cf7fdc63f6a790b2cdd2db3102caf271bc`, active Constitution 1.2.0.
+- Existing PR #98 before this extension: `1b2cc9af2dccaca6b738210ad42660541786f7a0`.
+- Application-Management main: `c2fed811a47a63a5050ec806e8b3e4fd843480fd`.
+- Existing topology explicitly gives clients their own runtime, registry and audit, and separates operator devices from client devices. Its "no shared device registry" rule requires deliberate migration/clarification: one central approval owner with scoped client identity/session projections, not one shared unscoped table.
+- Universal Management Contract already supports Dynamic Catalog, guarded capabilities and zero-code app onboarding. Metadata connection is not authenticated shared identity or remote-admin readiness.
+- The live-readback/automation audit is historical evidence of app-owned policy paths; it does not prove a central identity broker exists today.
+
+| Impact surface | Proposed change | Required evidence before rollout |
+| --- | --- | --- |
+| Application-Management catalog and enrollment | Generic registration and a single operational approval owner | Verified app/environment registration, authenticated policy writes and matched readback |
+| Client device gates and login | Accept valid central scoped grants without another account/manual approval | Correct audience/issuer/device proof, session/nonce/expiry and permission tests |
+| Cross-origin browser and desktop paths | Reuse central identity without copying private signing keys or cookies | Real origin handoff and replay/CSRF/substitution tests; hardware/desktop checks where applicable |
+| Sub-clients | Explicit parent delegation instead of automatic new control heads | Parent/app scope isolation and approved sub-client mapping |
+| UI/presentation | Shared tokens, navigation/status conventions and device profile | Desktop/tablet/phone critical tasks and appropriate accessibility/human UX review |
+| Offline/local core | Provisioned bounded local verification/degraded behavior | Outage, expiry, revocation freshness and recovery tests without a mandatory new SaaS |
+| Adoption/template and contracts | Future management declaration and versioned federation seam | Old/new contract compatibility, staged adoption and truthful missing-capability states |
+
+**Version/compatibility decision remains open:** candidate label 1.3.0 is provisional. Review whether mandatory shared-approval semantics introduce a breaking governance/contract change; resolve PR #97 ordering and any required major/schema version before ratification. Do not silently change existing v1 contract semantics.
+
+Rollout: design/threat review → isolated Preview pilot → explicit central authority/scoped contract integration → one low-risk client → parent/sub-client → staged governed-repository migration. Keep high-sensitivity health/child-data and privileged desktop clients behind their stronger existing gates. Preserve old login/registry paths only as bounded migration adapters; retire them after verified parity, never after a manifest-only check.
+
+The observation-only K1–K5 pilot [Application-Management #337](https://github.com/BlueDragon33/Application-Management/issues/337) continues at its frozen Day-0 evidence revision. It does not test or activate R11–R14. Historical CI references in section J apply only to their named old revisions. This source extension requires fresh checks at its new head; none of the planned federation cases is marked implemented or PASS.
+
+Current extension status: **DRAFT / DESIGN ADDED / FEDERATION NOT IMPLEMENTED / NO CLIENT OR PRODUCTION CHANGE / NO RATIFICATION**.
