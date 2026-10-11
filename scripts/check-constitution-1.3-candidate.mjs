@@ -32,7 +32,9 @@ const owners = [
   "module:operations:release", "module:product:purpose", "module:governance:evolution",
   "module:product:purpose", "module:governance:architectural-longevity",
   "module:architecture:boundaries", "module:security:fortress-resilience",
-  "gate:quality:evidence", "module:product:purpose"
+  "gate:quality:evidence", "module:product:purpose",
+  "module:product:purpose", "module:architecture:structural-capacity",
+  "module:product:purpose", "module:governance:evolution"
 ];
 
 export function buildConstitutionCandidate(root = process.cwd()) {
@@ -71,8 +73,8 @@ export function buildConstitutionCandidate(root = process.cwd()) {
     if (manifest[name]?.path !== path) throw new Error("Non-canonical authority path " + name);
   }
   const matches = [...read(root, DRAFT).matchAll(/^\*\*(R\d+) — (.+)$/gm)];
-  if (matches.length !== 28 || matches.some((m, index) => m[1] !== "R" + (index + 1))) {
-    throw new Error("Candidate must contain exactly ordered R1–R28");
+  if (matches.length !== 32 || matches.some((m, index) => m[1] !== "R" + (index + 1))) {
+    throw new Error("Candidate must contain exactly ordered R1–R32");
   }
   const rules = matches.map((m, index) => ({
     id: m[1], requirementId: owners[index],
@@ -102,6 +104,29 @@ export function buildConstitutionCandidate(root = process.cwd()) {
   contract.policyVersion = "1.3.0";
   contract.constitutionTemplate.version = "1.3.0";
   contract.executionRules = rules;
+  // R29-R32 project profiles extend the existing authority set rather than
+  // spawning child constitutions, a second registry or literal 100/200 modules.
+  contract.academicProfiles = {
+    status: "constitutional-capacity-reference-not-runtime-proof",
+    base: "S100",
+    baseBands: [
+      "S01-10:source-ownership", "S11-20:learner-competencies",
+      "S21-30:curriculum-prerequisites", "S31-40:concepts-and-worked-examples",
+      "S41-50:authentic-practice", "S51-60:assessment-feedback",
+      "S61-70:discipline-specific-artifacts-when-applicable",
+      "S71-80:learning-state-evidence", "S81-90:accessible-ux-performance",
+      "S91-100:security-interoperability-reliability"
+    ],
+    russian: {
+      profile: "R200", inherits: "S100", extension: "R101-200",
+      appliesTo: "comprehensive-Russian-language-learning",
+      completion: "requires-linguistic-evidence-not-artificial-floor-count"
+    },
+    implementationQuota: false,
+    separateConstitution: false,
+    professionalReviewRequired: true,
+    verifiedMaturityFromThisContract: false
+  };
   contract.executionProfiles = {
     COMPACT: ["B0", "B1", "B2"], STRUCTURED: ["B3", "B4", "B5"],
     authority: "canonical-project-profile", riskRule: "L1-L3-per-operation-never-reduces-common-floor"
@@ -135,12 +160,12 @@ export function buildConstitutionCandidate(root = process.cwd()) {
     "module:architecture:boundaries": "Apply R2/R11/R25: one canonical owner, truthful catalog capability and independent B/E axes; no shadow registry.",
     "module:data:source-of-truth": "Apply R5: scoped version-safe writes, idempotency, readback and recovery.",
     "module:quality:evidence": "Apply R7/R10: bounded defect attempts and non-gamed quality cohorts.",
-    "module:governance:evolution": "Apply R8/R16/R22: durable scoped checkpoints, one dependency-aware work queue and capability-based economical handoffs.",
+    "module:governance:evolution": "Apply R8/R16/R22/R32: one authority, one bounded queue, learning satellite inheritance and economical handoffs without child constitutions.",
     "module:security:authority": "R12 federation remains migration-gated; declarations and trust boundaries apply immediately; no forged or stale central approval.",
     "gate:security:authority": "Apply R14/R19: operational device approval never implies constitutional, business-data, privileged or Production authority.",
-    "module:product:purpose": "Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28 additionally requires provenance, checked learning-state feedback and professional pedagogical acceptance for learning products.",
+    "module:product:purpose": "Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28/R29/R31 additionally require proven pedagogy, subject identity, unique practice and qualified Russian linguistic evidence where appropriate; no copy-paste curriculum or fake proficiency.",
     "module:operations:release": "Apply R20: distinguish code/test/merge/deploy/acceptance and require truthful cleanup, rollback and restart evidence.",
-    "module:architecture:structural-capacity": "Apply R18: measure architectural/UX entropy; no speculative scaffolds or destructive count reduction.",
+    "module:architecture:structural-capacity": "Apply R18/R30: measure entropy; S100 is long-term extensibility capacity, never a 100-file/feature quota.",
     "module:governance:architectural-longevity": "Apply R24: enrollment and reclassification require canonical profile/owner review; never downgrade risk for cost.",
     "module:security:fortress-resilience": "Apply R26: separate governance, operations and app data/releases; test least privilege, isolation and independent recovery.",
     "module:ux:product-elegance": "Apply R13: shared status vocabulary with task-appropriate responsive layouts and no duplicate approval surfaces.",
