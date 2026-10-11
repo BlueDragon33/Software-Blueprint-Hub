@@ -214,6 +214,8 @@ export function evaluateExecutionContinuity(snapshot) {
 
   const checkpoint = snapshot.checkpoint;
   if (checkpoint.headSha !== snapshot.headSha ||
+      checkpoint.repository !== snapshot.repository ||
+      checkpoint.branch !== snapshot.branch ||
       checkpoint.policyVersion !== snapshot.activePolicyVersion ||
       checkpoint.goalId !== snapshot.goal.id) {
     return result("UNVERIFIED", "RECONCILE_LIVE_STATE", null, ["STALE_CHECKPOINT"]);
@@ -222,12 +224,20 @@ export function evaluateExecutionContinuity(snapshot) {
     return result("BLOCKED", "RESOLVE_GOAL_CHANGE", null, ["UNAPPROVED_GOAL_DELTA"], true);
   }
   const work = snapshot.workPackages;
+  if (!Array.isArray(snapshot.unavailableResources ?? []) ||
+      (snapshot.unavailableResources ?? []).some((x) => !isNonEmpty(x)) ||
+      snapshot.goal.acceptance.some((x) => !isNonEmpty(x?.id)) ||
+      new Set(snapshot.goal.acceptance.map((x) => x.id)).size !== snapshot.goal.acceptance.length) {
+    return result("BLOCKED", "REBUILD_EXECUTION_SNAPSHOT", null, ["MALFORMED_EVIDENCE_OR_RESOURCES"]);
+  }
   const ids = new Map();
   const validStatuses = new Set(["READY", "ACTIVE", "BLOCKED", "VERIFIED", "DONE"]);
   for (const item of work) {
     if (!item || !isNonEmpty(item.id) || ids.has(item.id) ||
         !validStatuses.has(item.status) || !Array.isArray(item.dependsOn) ||
         item.dependsOn.some((d) => !isNonEmpty(d)) ||
+        (item.requires !== undefined &&
+          (!Array.isArray(item.requires) || item.requires.some((r) => !isNonEmpty(r)))) ||
         (item.attempts !== undefined &&
           (!Number.isSafeInteger(item.attempts) || item.attempts < 0))) {
       return result("BLOCKED", "REPAIR_WORK_GRAPH", null, ["INVALID_WORK_PACKAGE"]);
@@ -262,7 +272,9 @@ export function evaluateExecutionContinuity(snapshot) {
   }
 
   const legacy = snapshot.criticalJourneys ?? [];
-  if (!Array.isArray(legacy)) {
+  if (!Array.isArray(legacy) ||
+      legacy.some((journey) => !isNonEmpty(journey?.id)) ||
+      new Set(legacy.map((journey) => journey.id)).size !== legacy.length) {
     return result("UNVERIFIED", "VERIFY_LEGACY_JOURNEYS", null, ["INVALID_JOURNEY_EVIDENCE"]);
   }
   if (legacy.some((journey) => journey?.status === "FAIL")) {
