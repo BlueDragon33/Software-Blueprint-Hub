@@ -267,6 +267,7 @@ function execution() {
     activePolicyVersion: "1.2.0",
     blueprintLevel: "B4",
     operationRisk: "L2",
+    scopedChecks: [check("static"), check("regression"), check("integration")],
     goal: {
       id: "protect-save-flow", approved: true,
       acceptance: [{ id: "saved-data-roundtrip", status: "PASS", sourceSha: HEAD }]
@@ -616,4 +617,58 @@ test("R22: large scale handoff retains scoped project context without permission
   assert.match(h.prompt, /Execution scale: STRUCTURED/);
   assert.match(h.prompt, /Work package: "contract-test"/);
   assert.match(h.prompt, /Never self-ratify Constitution/);
+});
+
+test("Universal scale: invalid profile input null is UNVERIFIED, not an exception", () => {
+  assert.equal(profile(null).status, "UNVERIFIED");
+  assert.equal(profile([]).scale, null);
+});
+
+test("Shared constitutional floor: missing scoped checks cannot certify either size", () => {
+  for (const blueprintLevel of ["B0", "B3"]) {
+    const x = execution();
+    x.blueprintLevel = blueprintLevel;
+    delete x.scopedChecks;
+    const v = continuity(x);
+    assert.equal(v.state, "UNVERIFIED");
+    assert.equal(v.nextAction, "VERIFY_RISK_SCOPED_CHECKS");
+    assert.equal(v.authority.canonicalGatePass, false);
+  }
+});
+
+test("Small protected operation requires complete L3 checks and human gate", () => {
+  const x = execution();
+  x.blueprintLevel = "B1";
+  x.operationRisk = "L1";
+  x.protectedOperation = true;
+  x.humanGate = { required: true, approved: false };
+  assert.equal(continuity(x).nextAction, "VERIFY_RISK_SCOPED_CHECKS");
+  x.scopedChecks.push(
+    check("security"), check("recovery"), check("human-review")
+  );
+  assert.equal(continuity(x).nextAction, "OBTAIN_EXPLICIT_HUMAN_DECISION");
+  x.humanGate = { required: false, approved: false };
+  assert.equal(continuity(x).nextAction, "DECLARE_REQUIRED_HUMAN_GATE");
+});
+
+test("Small and large scales block failed or stale required tests", () => {
+  for (const blueprintLevel of ["B2", "B4"]) {
+    const failed = execution();
+    failed.blueprintLevel = blueprintLevel;
+    failed.scopedChecks[1].status = "FAIL";
+    assert.equal(continuity(failed).nextAction, "FIX_FAILED_SCOPED_CHECK");
+    const stale = execution();
+    stale.blueprintLevel = blueprintLevel;
+    stale.scopedChecks[1].sourceSha = BASE;
+    assert.equal(continuity(stale).nextAction, "VERIFY_RISK_SCOPED_CHECKS");
+  }
+});
+
+test("Scope check duplication never earns approval with extra PASS records", () => {
+  const x = execution();
+  x.scopedChecks.push(check("static"));
+  const v = continuity(x);
+  assert.equal(v.state, "BLOCKED");
+  assert.equal(v.nextAction, "REPAIR_SCOPED_CHECK_MANIFEST");
+  assert.equal(v.authority.productionRelease, false);
 });
