@@ -230,6 +230,9 @@ export function proposeEcosystemReference(context) {
   const federated = managed && federatedEcosystemCount >= 2 &&
     crossTrustProtocol && sharedContractCount >= 1;
   const suite = productCount >= 2 && sharedContractCount >= 1;
+  if (productCount > 1 && !managed && !suite) {
+    return reject("ASSESS_UNCONNECTED_PORTFOLIO");
+  }
   const level = federated ? "E3" : managed ? "E2" : suite ? "E1" : "E0";
   const focus = {
     E0: ["PRESERVE_STANDALONE_DATA_OWNER", "VALIDATE_PRODUCT_JOURNEY"],
