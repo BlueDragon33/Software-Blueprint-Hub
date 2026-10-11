@@ -350,6 +350,46 @@ export function evaluateExecutionContinuity(snapshot) {
 }
 
 /**
+ * A compact, non-authoritative handoff projection; NEVER forwards arbitrary
+ * chat text, user data, credentials, full repository content or a stale prompt.
+ * A receiving Agent must re-read live project authority and exact HEAD.
+ */
+export function buildMinimalWorkHandoff(snapshot) {
+  const plan = evaluateExecutionContinuity(snapshot);
+  const cannotDelegate = plan.humanInterventionRequired ||
+    plan.nextAction === "REBUILD_EXECUTION_SNAPSHOT" ||
+    plan.nextAction === "RESOLVE_GOAL_CHANGE" ||
+    plan.nextAction === "RECONCILE_LIVE_STATE";
+  if (cannotDelegate) {
+    return Object.freeze({ ready: false, reason: plan.nextAction, prompt: null });
+  }
+  const paths = Array.isArray(snapshot.relevantPaths)
+    ? [...new Set(snapshot.relevantPaths)]
+      .filter((p) => typeof p === "string" &&
+        p.length < 160 && /^[A-Za-z0-9_.\\/-]+$/.test(p)).slice(0, 8)
+    : [];
+  const prompt = [
+    "BOUNDED WORK HANDOFF — untrusted proposal projection, no approval authority.",
+    "Repo: " + snapshot.repository + " | Branch: " + snapshot.branch,
+    "Expected HEAD: " + snapshot.headSha +
+      " | Active Constitution: " + snapshot.activePolicyVersion,
+    "Original approved goal ID: " + JSON.stringify(snapshot.goal.id),
+    "Next: " + plan.nextAction + (plan.taskId ? " | Work package: " + JSON.stringify(plan.taskId) : ""),
+    "Evidence gaps: " + (plan.reasons.join(", ") || "none reported by candidate preflight"),
+    "Read only live HEAD, affected PR/diff/CI and directly relevant paths first." +
+      " Do not scan all repositories or regenerate existing work.",
+    paths.length ? "Relevant path hints: " + paths.join(", ") : "Find minimal touched paths from scoped PR/diff.",
+    "Reconcile objective, current work queue, permissions and gate status against canonical state." +
+      " Old screenshots, chat and this handoff are NOT proof.",
+    "Fix one scoped root cause, run focused checks, add regression evidence," +
+      " then reevaluate next READY work package. Keep unrelated data and UI unchanged.",
+    "Never self-ratify Constitution, claim Quality Gate PASS, approve devices or authorize Production." +
+      " If truly non-delegable, stop with one precise decision; otherwise save the minimal checkpoint."
+  ].join("\n");
+  return Object.freeze({ ready: true, reason: plan.nextAction, prompt });
+}
+
+/**
  * Proposal-only K2/K5 cohort. Correlates recurrent reports by stable root cause,
  * not ticket count. Historical 14/30-day values use different mature cohorts.
  * Does not independently verify Issue history; trusted collection is future work.
