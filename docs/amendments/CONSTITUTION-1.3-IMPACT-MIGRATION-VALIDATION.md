@@ -74,6 +74,8 @@ Source of repository/branch/Blueprint Level identity: control/constitution-gover
 | PriceReport_Tunggiabao | B3 | Quotation persistence/roundtrip, totals, offline export, user data | Readback and export equality on business fixtures |
 | pc-manager-desktop | B4 | Privileged mutations, restore, Windows-specific E2E, packaging | No remote shell/privileged assumption; real Windows test gate |
 
+**Common execution-law mapping:** B0–B2 inherit COMPACT; B3–B5 inherit STRUCTURED. This profile never replaces the project-specific Blueprint Level or the L1/L2/L3 risk checks below, and it never grants constitutional or Production authority. A newly generated project must declare its Blueprint Level and inherit the applicable profile. Missing/unsupported levels are UNVERIFIED rather than silently assigned the small tier.
+
 ### Risk-to-depth rule
 
 - B0 MICRO: define metric semantics and safe diff checks; insufficient evidence remains unverified, not FAIL solely due to lack of sample size.
@@ -290,16 +292,29 @@ Candidate R15–R20 in [the Agent reliability amendment](CONSTITUTION-1.3-AGENT-
 **Acceptance guardrail:** introducing R15–R20 must measurably reduce task drift, rework and duplicate surfaces without unacceptable CI/credit/time overhead. Calibrate with real task samples before hard enforcement. A proposal-only green evaluator cannot be called runtime continuity proof. Resolve the simultaneous draft PR #97 before any exact constitutional publication decision; active policy remains **1.2.0** until authenticated ratification and publication.
 
 
-## M. Chat-first execution and last-mile Work/Codex (2026-10-11)
+## M. Universal execution principle — two scales, capability-based delegation (2026-10-11)
 
-**Operating preference, not a claim of completion:** complete approximately 90–95% of *eligible engineering work* through ordinary connected Chat/GitHub tools. Use Work or Codex for the smallest technically necessary remaining slice, never as a default replacement for source inspection, tests and GitHub CI. The ratio is a workflow target, not a product-progress percentage or a permission to skip human gates.
+**Proposed constitutional obligation, not an optional productivity target:** every governed repository follows a shared goal → scoped change → verification → truthful handoff/closure discipline. Use authorized **current Chat and connected engineering tools first** for everything they can verify and safely change; only escalate the smallest blocked slice to Work/Cloud Browser or Codex when a **specific capability** requires that environment. There is **no percentage quota** for Chat versus Work/Codex and no automatic handoff after a fixed milestone. The executing environment does not gain authority by being more capable. The active Constitution remains 1.2.0 until valid human ratification and atomic publication.
+
+**Exactly two operational profiles, inherited by every project after publication:** `COMPACT` covers **B0–B2 (small/medium)**; `STRUCTURED` covers **B3–B5 (large)**. Existing Blueprint Levels remain intact; the execution profile adds no eighth pillar and no new control plane. Risk `L3` (identity, destructive operation, sensitive data, privileged device, Production, migration) elevates required **checks/authority for that operation** regardless of profile. A low-risk localized edit in a large project still uses proportionate tests.
+
+| Requirement | COMPACT B0–B2 | STRUCTURED B3–B5 |
+| --- | --- | --- |
+| Execution overhead | One approved goal, direct scoped file/test, one concise checkpoint only when necessary | Ordered canonical Work Packages, dependencies and checkpoint per meaningful transition |
+| Test strategy | Fast scoped static/unit/regression and relevant state/UI readback | Focused tests first, add affected contracts/integration, architecture and release checks where warranted |
+| Entropy restraint | Prevent unnecessary files, modules, dashboards and repeated user steps | Same prevention plus explicit ownership/dependency/UX/performance reconciliation |
+| Continuity | Next safe operation; preserve progress on interruption | Same plus safe parallel independent tasks and exact-SHA dependency reconciliation |
+| Human intervention | Only non-delegable authority/intent decision | Exactly the same boundary |
+
+**Mandatory floor for both profiles:** constitutional precedence, authenticated authority, original acceptance criteria, no regression or out-of-scope writes, real evidence, preserved data/legacy journeys and an honest terminal state. `COMPACT` means less bureaucracy, **not** weaker safety. `STRUCTURED` means stronger coordination, **not** permission to create redundant systems.
 
 ### Checked-in candidate implementation
 
+- `scripts/agent-change-evidence-candidate.mjs`: pure `resolveExecutionScaleProfile({ blueprintLevel, operationRisk, protectedOperation })` maps B0–B2 to COMPACT and B3–B5 to STRUCTURED; explicit operation risk raises required checks for both without conferring authority. `evaluateExecutionContinuity` requires scale/risk evidence and structured Work Packages for large projects but permits a minimal single-goal compact workflow. Unknown scale is UNVERIFIED. These are candidate-only decisions; real Blueprint source binding remains future integration work.
 - `scripts/agent-change-evidence-candidate.mjs`: pure `evaluateExecutionContinuity(snapshot)` detects stale HEAD/policy/goal checkpoint, unknown or cyclic dependencies, competing active packages, architectural/UX entropy, legacy regression, stale evidence, three failed remedies, resource exhaustion, missing original-goal acceptance, non-delegable review/release and absent deployment readback. It returns a **next action only**, not an autonomous executor.
 - The same existing file exports `buildMinimalWorkHandoff(snapshot)`, which uses named repo/branch/HEAD/goal ID/work slice/path hints and omits raw chat, secrets and arbitrary project data. It is **untrusted prompt projection**; the recipient MUST re-resolve live canonical permissions/evidence.
 - `tests/source-truth/agent-change-evidence-candidate.test.mjs`: synthetic deterministic NEG-21–30 and positive DAG/interrupt/resource/authority/handoff fixtures. These test the pure function, **not** persistent checkpoint storage, live browser, authenticated operator identity, real cross-app integration or Production.
-- Candidate branch CI reference (before this documentation edit): [Fast CI 38145484923](https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/38145484923) PASS on `809e77042feaf197325c76c3279bf34506d3292e`; protected Release Gate SKIPPED. Re-check exact head CI after further commits. Original active law is still **1.2.0**.
+- Candidate branch history includes [Fast CI 38146810632](https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/38146810632) PASS at `a2b41ac234f4ced769795889178f79d2f049af89`, with two-scale proposal tests; full Release Gate was SKIPPED. This is unit-level draft evidence, not runtime/Production/Constitutional PASS. Recheck the exact final draft HEAD after further commits. Active law remains **1.2.0**.
 
 ### Bounded escalation matrix
 
@@ -320,6 +335,18 @@ A receiving Agent should:
 2. Confirm intended unchanged behavior; reproduce the failure; fix only the owned code path; add focused regression test; rerun relevant CI once for the final coherent patch.
 3. Return one short outcome: exact SHA, affected paths, checks that passed/failed, user-facing behavior genuinely verified, remaining blockers, rollback note and next action.
 4. If blocked by tools/credits, record `PAUSED_RESOURCE` and exit without simulated deployment or user approval; keep safe independent tasks available for Chat.
+
+### Two-scale adversarial acceptance checks
+
+- **SCALE-01:** All B0/B1/B2 profiles select COMPACT; all B3/B4/B5 select STRUCTURED at the same exact policy/HEAD.
+- **SCALE-02:** Missing/forged Blueprint Level, unknown risk and mismatched policy refuse automatic COMPACT fallback.
+- **SCALE-03:** Compact may close a genuinely scoped small task without an invented multi-package plan, but must meet the original acceptance criteria and relevant regression checks.
+- **SCALE-04:** Structured cannot claim finish with an empty dependency-aware work queue.
+- **SCALE-05:** B1 handling a protected L3 operation still requires security/recovery/human-review evidence; B5 handling an L1 typo need not rerun every expensive gate.
+- **SCALE-06:** Handoff identifies the profile, exact SHA and minimally required files, includes no percentage target or credentials and grants no authority.
+- **SCALE-07:** Project generation/templates and app adoption reflect this common law **only after publication**; an adoption manifest alone never certifies enforcement.
+
+The candidate code tests SCALE-01–06 with synthetic inputs; end-to-end implementation of universal inheritance/generation and real runtime continuation (SCALE-07) remains pending.
 
 ### Remaining proof before Constitutional activation
 
