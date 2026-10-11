@@ -203,7 +203,9 @@ export function evaluateExecutionContinuity(snapshot) {
     humanInterventionRequired, authority: noAuthority
   });
   if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot) ||
-      !isNonEmpty(snapshot.repository) || !isNonEmpty(snapshot.branch) ||
+      !/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(snapshot.repository ?? "") ||
+      !/^[A-Za-z0-9_./-]+$/.test(snapshot.branch ?? "") ||
+      snapshot.branch.includes("..") || snapshot.branch.endsWith("/") ||
       !isSha(snapshot.headSha) || !isNonEmpty(snapshot.activePolicyVersion) ||
       !isNonEmpty(snapshot.goal?.id) || snapshot.goal.approved !== true ||
       !Array.isArray(snapshot.goal.acceptance) ||
@@ -366,7 +368,9 @@ export function buildMinimalWorkHandoff(snapshot) {
   const paths = Array.isArray(snapshot.relevantPaths)
     ? [...new Set(snapshot.relevantPaths)]
       .filter((p) => typeof p === "string" &&
-        p.length < 160 && /^[A-Za-z0-9_.\\/-]+$/.test(p)).slice(0, 8)
+        p.length < 160 && /^[A-Za-z0-9_.\\/-]+$/.test(p) &&
+        !p.startsWith("/") && !p.includes("..") &&
+        !/(^|\\/)\\.env(\\.|$)/.test(p)).slice(0, 8)
     : [];
   const prompt = [
     "BOUNDED WORK HANDOFF — untrusted proposal projection, no approval authority.",
