@@ -188,6 +188,35 @@ export function evaluateAgentChangeEvidence(change, policy = {}) {
 }
 
 /**
+ * Proposal-only Universal execution-law projection (R21/R22).
+ * B0–B2 = COMPACT, B3–B5 = STRUCTURED; operation risk may raise check depth
+ * but never grants human, constitutional, quality-gate or production authority.
+ * This does not classify projects from arbitrary prompt text: callers must
+ * supply the Blueprint Level from the independently resolved project profile.
+ */
+export function resolveExecutionScaleProfile({ blueprintLevel, operationRisk, protectedOperation = false } = {}) {
+  const authority = Object.freeze({
+    canonicalGatePass: false, constitutionalRatification: false, productionRelease: false
+  });
+  if (!/^B[0-5]$/.test(blueprintLevel ?? "") || !Object.hasOwn(REQUIRED, operationRisk) ||
+      typeof protectedOperation !== "boolean") {
+    return Object.freeze({
+      status: "UNVERIFIED", scale: null, checks: Object.freeze([]),
+      nextAction: "RESOLVE_CANONICAL_SCALE_AND_RISK", authority
+    });
+  }
+  const scale = Number(blueprintLevel[1]) <= 2 ? "COMPACT" : "STRUCTURED";
+  const risk = protectedOperation ? "L3" : operationRisk;
+  const checks = Object.freeze([...REQUIRED[risk]]);
+  return Object.freeze({
+    status: "READY_FOR_REVIEW", scale, blueprintLevel, effectiveRisk: risk,
+    executionMode: scale === "COMPACT" ? "FOCUSED_WORK_SLICE" : "DEPENDENCY_AWARE_WORK_QUEUE",
+    checks, escalation: "CURRENT_CONNECTED_CAPABILITIES_FIRST",
+    nextAction: "REVIEW_SCOPED_EXECUTION", authority
+  });
+}
+
+/**
  * Pure continuity preflight for the proposed R15–R20 protocol.
  * A snapshot is supplied by the caller and NOT authenticated by this function.
  * Results are advisory next actions, never a command to mutate any system or
@@ -212,6 +241,20 @@ export function evaluateExecutionContinuity(snapshot) {
       !Array.isArray(snapshot.workPackages) ||
       !snapshot.checkpoint || typeof snapshot.checkpoint !== "object") {
     return result("BLOCKED", "REBUILD_EXECUTION_SNAPSHOT", null, ["INVALID_EXECUTION_SNAPSHOT"]);
+  }
+
+  const executionProfile = resolveExecutionScaleProfile({
+    blueprintLevel: snapshot.blueprintLevel,
+    operationRisk: snapshot.operationRisk,
+    protectedOperation: snapshot.protectedOperation ?? false
+  });
+  if (executionProfile.status !== "READY_FOR_REVIEW") {
+    return result("UNVERIFIED", "RESOLVE_CANONICAL_SCALE_AND_RISK", null,
+      ["MISSING_OR_INVALID_EXECUTION_PROFILE"]);
+  }
+  if (executionProfile.scale === "STRUCTURED" && snapshot.workPackages.length === 0) {
+    return result("UNVERIFIED", "RECONCILE_STRUCTURED_WORK_QUEUE", null,
+      ["MISSING_STRUCTURED_WORK_PACKAGE"]);
   }
 
   const checkpoint = snapshot.checkpoint;
@@ -377,6 +420,11 @@ export function buildMinimalWorkHandoff(snapshot) {
     "Repo: " + snapshot.repository + " | Branch: " + snapshot.branch,
     "Expected HEAD: " + snapshot.headSha +
       " | Active Constitution: " + snapshot.activePolicyVersion,
+    "Execution scale: " + resolveExecutionScaleProfile({
+      blueprintLevel: snapshot.blueprintLevel,
+      operationRisk: snapshot.operationRisk,
+      protectedOperation: snapshot.protectedOperation ?? false
+    }).scale + " | Blueprint Level: " + snapshot.blueprintLevel,
     "Original approved goal ID: " + JSON.stringify(snapshot.goal.id),
     "Next: " + plan.nextAction + (plan.taskId ? " | Work package: " + JSON.stringify(plan.taskId) : ""),
     "Evidence gaps: " + (plan.reasons.join(", ") || "none reported by candidate preflight"),
