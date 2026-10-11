@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff } from "../../scripts/agent-change-evidence-candidate.mjs";
+import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff, resolveExecutionScaleProfile as profile } from "../../scripts/agent-change-evidence-candidate.mjs";
 
 const HEAD = "a".repeat(40);
 const BASE = "b".repeat(40);
@@ -265,6 +265,8 @@ function execution() {
     branch: "proposal/constitution-1-3-agent-reliability-20261009",
     headSha: HEAD,
     activePolicyVersion: "1.2.0",
+    blueprintLevel: "B4",
+    operationRisk: "L2",
     goal: {
       id: "protect-save-flow", approved: true,
       acceptance: [{ id: "saved-data-roundtrip", status: "PASS", sourceSha: HEAD }]
@@ -517,4 +519,101 @@ test("Unavailable browser resources can generate constrained handoff without fak
   assert.equal(v.ready, true);
   assert.match(v.prompt, /PAUSED_RESOURCE/);
   assert.match(v.prompt, /Old screenshots, chat and this handoff are NOT proof/);
+});
+
+test("R21: all six Blueprint Levels inherit precisely two universal execution scales", () => {
+  for (const level of ["B0", "B1", "B2"]) {
+    const v = profile({ blueprintLevel: level, operationRisk: "L1" });
+    assert.equal(v.scale, "COMPACT");
+    assert.equal(v.executionMode, "FOCUSED_WORK_SLICE");
+    assert.deepEqual(v.checks, ["static"]);
+    assert.equal(v.escalation, "CURRENT_CONNECTED_CAPABILITIES_FIRST");
+    assert.equal(v.authority.productionRelease, false);
+  }
+  for (const level of ["B3", "B4", "B5"]) {
+    const v = profile({ blueprintLevel: level, operationRisk: "L2" });
+    assert.equal(v.scale, "STRUCTURED");
+    assert.equal(v.executionMode, "DEPENDENCY_AWARE_WORK_QUEUE");
+    assert.deepEqual(v.checks, ["static", "regression", "integration"]);
+    assert.equal(v.authority.constitutionalRatification, false);
+  }
+});
+
+test("R21: a small project performing protected L3 work receives strong checks", () => {
+  const v = profile({ blueprintLevel: "B1", operationRisk: "L1", protectedOperation: true });
+  assert.equal(v.scale, "COMPACT");
+  assert.equal(v.effectiveRisk, "L3");
+  assert.deepEqual(v.checks, ["static", "regression", "integration", "security", "recovery", "human-review"]);
+  assert.equal(v.authority.productionRelease, false);
+});
+
+test("R21: a large project's low-risk change keeps focused tests", () => {
+  const v = profile({ blueprintLevel: "B5", operationRisk: "L1" });
+  assert.equal(v.scale, "STRUCTURED");
+  assert.deepEqual(v.checks, ["static"]);
+});
+
+test("R21: unknown scale/risk or forged profile label cannot default to COMPACT", () => {
+  for (const input of [
+    undefined, {}, { blueprintLevel: "B6", operationRisk: "L1" },
+    { blueprintLevel: "small", operationRisk: "L1" },
+    { blueprintLevel: "B1", operationRisk: "LOW" },
+    { blueprintLevel: "B1", operationRisk: "L2", protectedOperation: "false" }
+  ]) {
+    const v = profile(input);
+    assert.equal(v.status, "UNVERIFIED");
+    assert.equal(v.scale, null);
+    assert.equal(v.authority.canonicalGatePass, false);
+  }
+});
+
+test("R21: continuity cannot infer missing canonical Blueprint Level or risk", () => {
+  const x = execution();
+  delete x.blueprintLevel;
+  assert.equal(continuity(x).nextAction, "RESOLVE_CANONICAL_SCALE_AND_RISK");
+  x.blueprintLevel = "B1";
+  delete x.operationRisk;
+  assert.equal(continuity(x).state, "UNVERIFIED");
+});
+
+test("R21: compact work may finish with one focused goal and no Work Package bureaucracy", () => {
+  const x = execution();
+  x.blueprintLevel = "B2";
+  x.operationRisk = "L1";
+  x.workPackages = [];
+  const v = continuity(x);
+  assert.equal(v.state, "READY_FOR_REVIEW");
+  assert.equal(v.humanInterventionRequired, false);
+});
+
+test("R21: large projects cannot silently discard structured work queue", () => {
+  const x = execution();
+  x.blueprintLevel = "B4";
+  x.workPackages = [];
+  const v = continuity(x);
+  assert.equal(v.nextAction, "RECONCILE_STRUCTURED_WORK_QUEUE");
+  assert.equal(v.state, "UNVERIFIED");
+});
+
+test("R22: compact handoff communicates execution scale but never percentage quotas", () => {
+  const x = execution();
+  x.blueprintLevel = "B1";
+  x.operationRisk = "L1";
+  x.workPackages = [{ id: "quick-fix", status: "READY", dependsOn: [] }];
+  const h = buildMinimalWorkHandoff(x);
+  assert.equal(h.ready, true);
+  assert.match(h.prompt, /Execution scale: COMPACT/);
+  assert.equal(h.prompt.includes("90-95"), false);
+  assert.equal(h.prompt.includes("90–95"), false);
+  assert.equal(h.prompt.includes("Codebase scan all"), false);
+});
+
+test("R22: large scale handoff retains scoped project context without permission leakage", () => {
+  const x = execution();
+  x.workPackages = [{ id: "contract-test", status: "READY", dependsOn: [] }];
+  const h = buildMinimalWorkHandoff(x);
+  assert.equal(h.ready, true);
+  assert.match(h.prompt, /Execution scale: STRUCTURED/);
+  assert.match(h.prompt, /Work package: "contract-test"/);
+  assert.match(h.prompt, /Never self-ratify Constitution/);
 });
