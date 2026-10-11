@@ -120,7 +120,7 @@ jobs:
         run: pnpm check:boundaries
 
       - name: Unit, contract, authority, and PostgreSQL integration tests
-        run: pnpm test --reporter=default --reporter=json --outputFile.json=artifacts/vitest-results.json
+        run: pnpm exec vitest run --passWithNoTests --fileParallelism=false --reporter=default --reporter=json --outputFile.json=artifacts/vitest-results.json
 
       - name: Production build
         run: pnpm build

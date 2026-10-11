@@ -97,6 +97,7 @@ describe("Release Gate evidence manifest", () => {
     expect(workflow).toContain("--test-reporter=junit");
     expect(workflow).toContain("artifacts/source-truth-tests.xml");
     expect(workflow).toContain("--outputFile.json=artifacts/vitest-results.json");
+    expect(workflow).toContain("pnpm exec vitest run --passWithNoTests --fileParallelism=false");
   });
 
   it("rejects a non-exact revision instead of producing ambiguous evidence", async () => {
