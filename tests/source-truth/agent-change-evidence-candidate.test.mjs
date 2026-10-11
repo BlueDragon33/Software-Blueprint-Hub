@@ -1013,3 +1013,37 @@ test("Publication malformed or stale human ratification record cannot authorize 
   assert.equal(v.authority.productionRelease, false);
   assert.equal(v.authority.constitutionalPublication, false);
 });
+
+test("R7 finite repair: a repeated attempt without fresh diagnosis must stop", () => {
+  const x=execution();
+  x.workPackages=[{id:"broken-css",status:"ACTIVE",dependsOn:[],attempts:1}];
+  const v=continuity(x);
+  assert.equal(v.state,"BLOCKED");
+  assert.equal(v.nextAction,"REINVESTIGATE_WITH_NEW_EVIDENCE");
+  assert.deepEqual(v.reasons,["RETRY_WITHOUT_FRESH_EVIDENCE"]);
+  assert.equal(v.authority.canonicalGatePass,false);
+});
+
+test("R7 finite repair: a new hypothesis needs bounded SHA-bound observation", () => {
+  const x=execution();
+  x.workPackages=[{id:"broken-css",status:"ACTIVE",dependsOn:[],attempts:1,
+    retryEvidence:{kind:"NEW_OBSERVATION",summary:"computed style on dark background",
+      sourceSha:HEAD,hypothesisChanged:true}}];
+  assert.equal(continuity(x).nextAction,"EXECUTE_AND_VERIFY");
+  x.workPackages[0].retryEvidence.sourceSha=BASE;
+  assert.equal(continuity(x).nextAction,"REINVESTIGATE_WITH_NEW_EVIDENCE");
+  x.workPackages[0].retryEvidence.sourceSha=HEAD;
+  x.workPackages[0].retryEvidence.hypothesisChanged=false;
+  assert.equal(continuity(x).nextAction,"REINVESTIGATE_WITH_NEW_EVIDENCE");
+});
+
+test("R7 finite repair: independent safe work continues while failed hypothesis stops", () => {
+  const x=execution();
+  x.workPackages=[
+    {id:"bad-css",status:"ACTIVE",dependsOn:[],attempts:1},
+    {id:"lesson-order",status:"READY",dependsOn:[],attempts:0}
+  ];
+  const v=continuity(x);
+  assert.equal(v.nextAction,"EXECUTE_AND_VERIFY");
+  assert.equal(v.taskId,"lesson-order");
+});
