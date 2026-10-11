@@ -188,6 +188,156 @@ export function evaluateAgentChangeEvidence(change, policy = {}) {
 }
 
 /**
+ * Pure continuity preflight for the proposed R15–R20 protocol.
+ * A snapshot is supplied by the caller and NOT authenticated by this function.
+ * Results are advisory next actions, never a command to mutate any system or
+ * evidence of human acceptance, Constitutional PASS or Production authority.
+ */
+export function evaluateExecutionContinuity(snapshot) {
+  const noAuthority = Object.freeze({
+    canonicalGatePass: false, constitutionalRatification: false, productionRelease: false
+  });
+  const result = (state, nextAction, taskId = null, reasons = [],
+    humanInterventionRequired = false) => Object.freeze({
+    state, nextAction, taskId, reasons: Object.freeze([...reasons]),
+    humanInterventionRequired, authority: noAuthority
+  });
+  if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot) ||
+      !isNonEmpty(snapshot.repository) || !isNonEmpty(snapshot.branch) ||
+      !isSha(snapshot.headSha) || !isNonEmpty(snapshot.activePolicyVersion) ||
+      !isNonEmpty(snapshot.goal?.id) || snapshot.goal.approved !== true ||
+      !Array.isArray(snapshot.goal.acceptance) ||
+      !Array.isArray(snapshot.workPackages) ||
+      !snapshot.checkpoint || typeof snapshot.checkpoint !== "object") {
+    return result("BLOCKED", "REBUILD_EXECUTION_SNAPSHOT", null, ["INVALID_EXECUTION_SNAPSHOT"]);
+  }
+
+  const checkpoint = snapshot.checkpoint;
+  if (checkpoint.headSha !== snapshot.headSha ||
+      checkpoint.policyVersion !== snapshot.activePolicyVersion ||
+      checkpoint.goalId !== snapshot.goal.id) {
+    return result("UNVERIFIED", "RECONCILE_LIVE_STATE", null, ["STALE_CHECKPOINT"]);
+  }
+  if (snapshot.proposedGoalId && snapshot.proposedGoalId !== snapshot.goal.id) {
+    return result("BLOCKED", "RESOLVE_GOAL_CHANGE", null, ["UNAPPROVED_GOAL_DELTA"], true);
+  }
+  const work = snapshot.workPackages;
+  const ids = new Map();
+  const validStatuses = new Set(["READY", "ACTIVE", "BLOCKED", "VERIFIED", "DONE"]);
+  for (const item of work) {
+    if (!item || !isNonEmpty(item.id) || ids.has(item.id) ||
+        !validStatuses.has(item.status) || !Array.isArray(item.dependsOn) ||
+        item.dependsOn.some((d) => !isNonEmpty(d)) ||
+        (item.attempts !== undefined &&
+          (!Number.isSafeInteger(item.attempts) || item.attempts < 0))) {
+      return result("BLOCKED", "REPAIR_WORK_GRAPH", null, ["INVALID_WORK_PACKAGE"]);
+    }
+    ids.set(item.id, item);
+  }
+  const visiting = new Set();
+  const visited = new Set();
+  function visit(id) {
+    if (visiting.has(id)) return false;
+    if (visited.has(id)) return true;
+    const item = ids.get(id);
+    if (!item) return false;
+    visiting.add(id);
+    for (const parent of item.dependsOn) {
+      if (!ids.has(parent) || !visit(parent)) return false;
+    }
+    visiting.delete(id);
+    visited.add(id);
+    return true;
+  }
+  if (![...ids.keys()].every(visit)) {
+    return result("BLOCKED", "REPAIR_WORK_GRAPH", null, ["CYCLIC_OR_MISSING_DEPENDENCY"]);
+  }
+  if (work.filter((item) => item.status === "ACTIVE").length > 1) {
+    return result("BLOCKED", "RECONCILE_CONCURRENT_OWNERS", null, ["MULTIPLE_ACTIVE_OWNERS"]);
+  }
+  if (snapshot.entropy?.duplicateCanonicalOwner === true ||
+      snapshot.entropy?.redundantCriticalSurface === true ||
+      snapshot.entropy?.unjustifiedDependency === true) {
+    return result("BLOCKED", "REMOVE_UNJUSTIFIED_COMPLEXITY", null, ["ARCHITECTURE_UX_ENTROPY"]);
+  }
+
+  const legacy = snapshot.criticalJourneys ?? [];
+  if (!Array.isArray(legacy)) {
+    return result("UNVERIFIED", "VERIFY_LEGACY_JOURNEYS", null, ["INVALID_JOURNEY_EVIDENCE"]);
+  }
+  if (legacy.some((journey) => journey?.status === "FAIL")) {
+    return result("BLOCKED", "REPAIR_LEGACY_REGRESSION", null, ["CRITICAL_JOURNEY_FAILED"]);
+  }
+  if (legacy.some((journey) => !isNonEmpty(journey?.id) ||
+        journey.status !== "PASS" || journey.sourceSha !== snapshot.headSha)) {
+    return result("UNVERIFIED", "VERIFY_LEGACY_JOURNEYS", null, ["MISSING_OR_STALE_JOURNEY_EVIDENCE"]);
+  }
+
+  const closed = (id) => ["VERIFIED", "DONE"].includes(ids.get(id)?.status);
+  const stale = work.find((item) => closed(item.id) && item.evidenceSha !== snapshot.headSha);
+  if (stale) {
+    return result("UNVERIFIED", "REVERIFY_WORK_PACKAGE", stale.id, ["STALE_COMPLETION_EVIDENCE"]);
+  }
+  const eligible = (item) =>
+    item.dependsOn.every(closed) && (item.status === "READY" || item.status === "ACTIVE");
+  const active = work.find((item) => item.status === "ACTIVE");
+  const resourceAvailable = (item) =>
+    !item.requires || item.requires.every((name) =>
+      !(snapshot.unavailableResources ?? []).includes(name));
+  const candidates = [active, ...work.filter((item) => item.status === "READY")]
+    .filter(Boolean).filter(eligible);
+  const executable = candidates.find((item) =>
+    (item.attempts ?? 0) < 3 && resourceAvailable(item));
+  if (executable) {
+    const reset = active && (active.attempts ?? 0) >= 3;
+    return result("CONTINUE", "EXECUTE_AND_VERIFY", executable.id,
+      reset ? ["REINVESTIGATE_OTHER_PACKAGE:" + active.id] : []);
+  }
+  if (active && (active.attempts ?? 0) >= 3) {
+    return result("BLOCKED", "REINVESTIGATE_ROOT_CAUSE", active.id,
+      ["THREE_DISTINCT_FAILED_ATTEMPTS"]);
+  }
+  if (candidates.some((item) => !resourceAvailable(item))) {
+    return result("UNVERIFIED", "PAUSED_RESOURCE", candidates[0].id,
+      ["REQUIRED_CAPABILITY_UNAVAILABLE"]);
+  }
+  const pending = work.filter((item) => !closed(item.id));
+  if (pending.length > 0) {
+    return result("BLOCKED", "RECONCILE_BLOCKED_DEPENDENCIES", pending[0].id,
+      ["NO_ELIGIBLE_WORK_PACKAGE"]);
+  }
+
+  const acceptance = snapshot.goal.acceptance;
+  if (acceptance.length === 0 ||
+      acceptance.some((item) => !isNonEmpty(item?.id) ||
+        item.status !== "PASS" || item.sourceSha !== snapshot.headSha)) {
+    return result("UNVERIFIED", "VERIFY_ORIGINAL_PROMPT_ACCEPTANCE", null,
+      ["ORIGINAL_GOAL_NOT_EVIDENCED"]);
+  }
+  if (snapshot.humanGate?.required === true &&
+      snapshot.humanGate.approved !== true) {
+    return result("BLOCKED", "OBTAIN_EXPLICIT_HUMAN_DECISION", null,
+      ["NON_DELEGABLE_HUMAN_GATE"], true);
+  }
+  if (snapshot.release?.required === true) {
+    if (snapshot.release.authorized !== true) {
+      return result("BLOCKED", "OBTAIN_EXPLICIT_RELEASE_AUTHORITY", null,
+        ["NON_DELEGABLE_PRODUCTION_GATE"], true);
+    }
+    if (snapshot.release.deployedSha !== snapshot.headSha) {
+      return result("UNVERIFIED", "RUN_AUTHORIZED_RELEASE_GATE", null,
+        ["DEPLOYMENT_NOT_EVIDENCED_AT_HEAD"]);
+    }
+    if (snapshot.release.readback !== "MATCH") {
+      return result("UNVERIFIED", "VERIFY_DEPLOYED_READBACK", null,
+        ["PRODUCTION_READBACK_NOT_PROVEN"]);
+    }
+  }
+  return result("READY_FOR_REVIEW", "REVIEW_PRODUCT_CLOSURE", null,
+    ["CALLER_EVIDENCE_NOT_INDEPENDENTLY_AUTHENTICATED"]);
+}
+
+/**
  * Proposal-only K2/K5 cohort. Correlates recurrent reports by stable root cause,
  * not ticket count. Historical 14/30-day values use different mature cohorts.
  * Does not independently verify Issue history; trusted collection is future work.
