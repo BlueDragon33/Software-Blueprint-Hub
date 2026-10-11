@@ -591,6 +591,81 @@ export function buildMinimalWorkHandoff(snapshot) {
 }
 
 /**
+ * Advisory pre-publication preflight. It cannot authenticate a ratification,
+ * publish a constitution, mutate canonical state, or authorize Production.
+ * Its claims are caller supplied and require external trusted readback.
+ */
+export function evaluateConstitutionPublicationPreflight(input) {
+  const authority = Object.freeze({
+    constitutionalRatification: false,
+    constitutionalPublication: false,
+    canonicalGatePass: false,
+    productionRelease: false
+  });
+  const blocked = new Set();
+  const unverified = new Set();
+  const output = () => Object.freeze({
+    status: blocked.size ? "BLOCKED" : unverified.size ? "UNVERIFIED" : "READY_FOR_INDEPENDENT_REVIEW",
+    blocked: Object.freeze([...blocked].sort()),
+    unverified: Object.freeze([...unverified].sort()),
+    authority
+  });
+  if (!input || typeof input !== "object" || Array.isArray(input) ||
+      !isSha(input.candidateSha) ||
+      !/^\\d+\\.\\d+\\.\\d+$/.test(input.targetVersion ?? "") ||
+      !/^\\d+\\.\\d+\\.\\d+$/.test(input.activeVersion ?? "")) {
+    blocked.add("INVALID_PUBLICATION_CANDIDATE");
+    return output();
+  }
+  if (input.targetVersion === input.activeVersion) blocked.add("VERSION_NOT_ADVANCED");
+  const proposals = input.competingProposals;
+  if (!Array.isArray(proposals) || proposals.some((p) => !isNonEmpty(p?.id) ||
+      !/^\\d+\\.\\d+\\.\\d+$/.test(p.version ?? ""))) {
+    unverified.add("MISSING_VERSION_COLLISION_REVIEW");
+  } else {
+    const collisions = proposals.filter((p) =>
+      p.version === input.targetVersion && p.resolved !== true);
+    if (collisions.length > 0) blocked.add("UNRESOLVED_CONSTITUTION_VERSION_COLLISION");
+  }
+  if (input.changeCompatibility?.reviewed !== true ||
+      input.changeCompatibility?.targetSha !== input.candidateSha) {
+    unverified.add("MISSING_COMPATIBILITY_AND_SCOPE_REVIEW");
+  }
+  if (input.migration?.impactReviewed !== true ||
+      input.migration?.stagedPlanReviewed !== true) {
+    unverified.add("MIGRATION_PLAN_NOT_REVIEWED");
+  }
+  if (input.independentReview?.approved !== true ||
+      input.independentReview?.sourceSha !== input.candidateSha) {
+    unverified.add("MISSING_INDEPENDENT_REVIEW_AT_HEAD");
+  }
+  if (input.fullReleaseGate?.status !== "PASS" ||
+      input.fullReleaseGate?.sourceSha !== input.candidateSha ||
+      !Number.isSafeInteger(input.fullReleaseGate?.runId) ||
+      input.fullReleaseGate.runId <= 0) {
+    unverified.add("MISSING_FULL_RELEASE_GATE_AT_HEAD");
+  }
+  const names = ["normativeDocument", "machineContract", "universalTemplate",
+    "policySource", "versionManifest", "validatorTests"];
+  const components = input.authoritySet;
+  if (!components || typeof components !== "object" ||
+      names.some((name) => components[name]?.sourceSha !== input.candidateSha ||
+        components[name]?.policyVersion !== input.targetVersion)) {
+    unverified.add("INCOMPLETE_ATOMIC_AUTHORITY_SET");
+  }
+  const ratification = input.ratification;
+  if (ratification?.authenticatedHuman !== true ||
+      ratification?.appendOnlyRecorded !== true ||
+      !isNonEmpty(ratification?.recordId) ||
+      ratification?.sourceSha !== input.candidateSha ||
+      ratification?.policyVersion !== input.targetVersion) {
+    blocked.add("AUTHENTICATED_EXACT_REVISION_HUMAN_RATIFICATION_REQUIRED");
+  }
+  // READY_FOR_INDEPENDENT_REVIEW is never PUBLISHED, even with trusted claims.
+  return output();
+}
+
+/**
  * Proposal-only K2/K5 cohort. Correlates recurrent reports by stable root cause,
  * not ticket count. Historical 14/30-day values use different mature cohorts.
  * Does not independently verify Issue history; trusted collection is future work.
