@@ -269,7 +269,7 @@ function execution() {
       id: "protect-save-flow", approved: true,
       acceptance: [{ id: "saved-data-roundtrip", status: "PASS", sourceSha: HEAD }]
     },
-    checkpoint: { headSha: HEAD, policyVersion: "1.2.0", goalId: "protect-save-flow" },
+    checkpoint: { repository: "BlueDragon33/Software-Blueprint-Hub", branch: "proposal/constitution-1-3-agent-reliability-20261009", headSha: HEAD, policyVersion: "1.2.0", goalId: "protect-save-flow" },
     workPackages: [{ id: "WP-1", status: "DONE", dependsOn: [], evidenceSha: HEAD }],
     criticalJourneys: [{ id: "legacy-save-flow", status: "PASS", sourceSha: HEAD }],
     unavailableResources: [],
