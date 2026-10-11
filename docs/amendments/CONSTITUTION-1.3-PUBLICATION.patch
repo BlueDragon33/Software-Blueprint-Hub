@@ -665,7 +665,7 @@ index a6879a6..4ed7c58 100644
        {
          id: "gate:operations:dependency-sovereignty",
 diff --git a/packages/application/src/constitution-authority.ts b/packages/application/src/constitution-authority.ts
-index 2a07a6c..47f8f91 100644
+index 9c6f1e1..d7121d6 100644
 --- a/packages/application/src/constitution-authority.ts
 +++ b/packages/application/src/constitution-authority.ts
 @@ -25,7 +25,7 @@ export type {

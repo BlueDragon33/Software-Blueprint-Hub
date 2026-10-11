@@ -32,6 +32,7 @@ import {
 } from "../../packages/core/src";
 
 class FakeAuthorityRepository implements AuthorityRepository {
+  readonly revoked = new Set<string>();
   async resolvePrincipal(): Promise<PrincipalRecord> {
     throw new Error("not used");
   }
@@ -39,7 +40,7 @@ class FakeAuthorityRepository implements AuthorityRepository {
     throw new Error("not used");
   }
   async isSystemOwner(principalId: string): Promise<boolean> {
-    return principalId === "principal:owner";
+    return ["principal:owner", "principal:successor"].includes(principalId) && !this.revoked.has(principalId);
   }
   async findProjectRole(): Promise<ProjectRole | null> {
     return null;
@@ -169,9 +170,11 @@ function service(
   lifecycleAttestationVerifier?: ConstitutionLifecycleAttestationVerifier
 ) {
   const repository = new FakeConstitutionRepository();
-  const authority = new AuthorityService(new FakeAuthorityRepository());
+  const authorityRepository = new FakeAuthorityRepository();
+  const authority = new AuthorityService(authorityRepository);
   return {
     repository,
+    authorityRepository,
     service: new ConstitutionAuthorityApplicationService(
       repository,
       authority,
@@ -809,4 +812,21 @@ describe("CA-002/CA-003 Constitution Authority application service", () => {
     ).rejects.toThrow(/propagation state/i);
   });
 
+});
+
+describe("publication approval revocation", () => {
+  it.each([false, true])("rejects a ratifier revoked before/during provider verification (%s)", async during => {
+    let revoke = () => {};
+    const verifier = { id: "test:verified-provider", verify: async () => { if (during) revoke(); return true; } };
+    const { service: app, repository, authorityRepository } = service(verifier);
+    const record = await ratifiedAmendment(app);
+    revoke = () => { authorityRepository.revoked.add("principal:owner"); };
+    if (!during) revoke();
+    await expect(app.publishFromTrustedAttestation({ principalId: "principal:successor" }, {
+      amendmentId: record.proposal.id, expectedRecordVersion: record.recordVersion,
+      attestation: authoritySetAttestation(), note: "Verified publication"
+    }, now)).rejects.toThrow(/non-revoked human approval/);
+    expect(repository.publication).toBeNull();
+    expect(repository.record?.state).toBe("ratified");
+  });
 });

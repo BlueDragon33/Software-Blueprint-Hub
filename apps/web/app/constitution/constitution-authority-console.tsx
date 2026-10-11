@@ -12,6 +12,8 @@ import { type FormEvent, useState, useTransition } from "react";
 
 import {
   createConstitutionAmendmentAction,
+  prepareConstitutionPublicationAction,
+  publishActivatedConstitutionAction,
   openConstitutionRatificationAction,
   recordConstitutionStageEvidenceAction,
   submitConstitutionRatificationAction
@@ -143,6 +145,17 @@ export function ConstitutionAuthorityConsole({
     );
   }
 
+  function publication(form: HTMLFormElement, amendment: CanonicalConstitutionAmendmentRecord, activate: boolean) {
+    const data = new FormData(form);
+    const input = { amendmentId: amendment.proposal.id, expectedRecordVersion: amendment.recordVersion,
+      ciRunId: String(data.get("ciRunId") ?? ""), note: String(data.get("note") ?? "") };
+    run(async () => {
+      if (activate) return publishActivatedConstitutionAction(input);
+      const result = await prepareConstitutionPublicationAction(input);
+      return { ...result, message: result.seal ? `${result.message} ${result.seal}` : result.message };
+    });
+  }
+
   if (!canManage) {
     return (
       <section className="constitution-center-section constitution-authority-console">
@@ -169,7 +182,7 @@ export function ConstitutionAuthorityConsole({
           <h2>Canonical amendment workspace</h2>
           <p>
             Drafts, stage evidence and human ratification are persisted
-            canonically. Publication is intentionally unavailable in this phase.
+            canonically. Publication requires authenticated ratification and verified repository and runtime activation.
           </p>
         </div>
         <StatusChip tone="success">System Owner authority</StatusChip>
@@ -435,15 +448,16 @@ export function ConstitutionAuthorityConsole({
                 ) : null}
 
                 {amendment.state === "ratified" ? (
-                  <div className="constitution-state-boundary">
-                    <strong>Human ratification recorded.</strong>
-                    <span>
-                      Atomic publication now requires a trusted CI authority-set
-                      attestation verified by configured infrastructure. Manual
-                      publication input is intentionally unavailable, and this
-                      state grants zero Production authority.
-                    </span>
-                  </div>
+                  <form className="constitution-command-form constitution-ratification-form" onSubmit={(event) => event.preventDefault()}>
+                    <h4>Publish the ratified Constitution</h4>
+                    <p>Verify the approved candidate and Full Gate before applying its sealed patch. Publication is recorded only when the canonical repository and this deployed runtime match all approved bytes. Production authority remains separate.</p>
+                    <label>Full Release Gate run ID<input name="ciRunId" inputMode="numeric" required disabled={pending} /></label>
+                    <label>Publication evidence note<textarea name="note" required rows={2} disabled={pending} /></label>
+                    <div className="constitution-decision-actions">
+                      <button className="secondary-button" type="button" disabled={pending} onClick={(event) => { if (event.currentTarget.form) publication(event.currentTarget.form, amendment, false); }}>Verify publication candidate</button>
+                      <button className="primary-button" type="button" disabled={pending} onClick={(event) => { if (event.currentTarget.form) publication(event.currentTarget.form, amendment, true); }}>Record verified activation</button>
+                    </div>
+                  </form>
                 ) : null}
 
                 {amendment.state === "published" ? (

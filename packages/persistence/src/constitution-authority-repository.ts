@@ -697,6 +697,19 @@ export class PostgresConstitutionAuthorityRepository
 
     try {
       await this.prisma.$transaction(async (tx) => {
+        // Hold current Constitutional Authority through publication append/CAS.
+        const owners = await tx.$queryRaw<{ ownerPrincipalId: string }[]>(Prisma.sql`
+          SELECT "ownerPrincipalId" FROM "SystemBootstrap" WHERE id = 'system' FOR SHARE
+        `);
+        const decision = record.ratificationDecisionId ? await tx.constitutionRatificationDecision.findUnique({ where: { id: record.ratificationDecisionId } }) : null;
+        if (!owners[0] || owners[0].ownerPrincipalId !== publication.publishedByActorId ||
+            !decision || decision.reviewerActorId !== owners[0].ownerPrincipalId ||
+            decision.amendmentId !== record.proposal.id || decision.amendmentRecordVersion !== expectedRecordVersion - 1 ||
+            decision.decision !== "approve" || decision.source !== "authenticated-user-action" ||
+            decision.humanRatification !== true || decision.productionReleaseAuthority !== false) {
+          throw new TypeError("Publication authority/ratification was revoked before transaction");
+        }
+
         const result = await tx.constitutionAmendment.updateMany({
           where: {
             id: record.proposal.id,

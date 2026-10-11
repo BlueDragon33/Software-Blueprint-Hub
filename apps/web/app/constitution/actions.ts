@@ -172,3 +172,33 @@ export async function submitConstitutionRatificationAction(
     return failure(error);
   }
 }
+
+export interface ConstitutionPublicationCommand {
+  readonly amendmentId: string;
+  readonly expectedRecordVersion: number;
+  readonly ciRunId: string;
+  readonly note: string;
+}
+
+export async function prepareConstitutionPublicationAction(input: ConstitutionPublicationCommand): Promise<ConstitutionCommandResult & { readonly seal?: string }> {
+  try {
+    const actor = await resolveWebActor();
+    const candidate = await getBlueprintServerRuntime().constitutionAuthority.preparePublication(actor, input);
+    return { ok: true, message: "Ratified candidate and exact GitHub Full Gate verified. Apply the approved patch through the existing release process, then verify canonical/runtime activation.",
+      seal: `${candidate.attestation.sourceRevision} · ${candidate.attestation.authoritySetDigest} · patch ${candidate.publicationPatchDigest}` };
+  } catch (error) { return failure(error); }
+}
+
+export async function publishActivatedConstitutionAction(input: ConstitutionPublicationCommand): Promise<ConstitutionCommandResult> {
+  try {
+    const actor = await resolveWebActor();
+    const runtime = getBlueprintServerRuntime();
+    const candidate = await runtime.constitutionAuthority.preparePublication(actor, input);
+    await runtime.constitutionAuthority.publishFromTrustedAttestation(actor, {
+      amendmentId: input.amendmentId, expectedRecordVersion: input.expectedRecordVersion,
+      attestation: candidate.attestation, note: input.note
+    }, new Date().toISOString());
+    revalidatePath("/constitution");
+    return { ok: true, message: "Canonical repository and this runtime match the ratified authority set; append-only publication recorded. Production authority remains separate." };
+  } catch (error) { return failure(error); }
+}

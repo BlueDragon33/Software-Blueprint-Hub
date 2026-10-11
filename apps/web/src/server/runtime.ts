@@ -3,6 +3,8 @@ import {
   type BlueprintServerRuntime
 } from "@blueprint-os/runtime";
 
+import { resolveGitHubPublicationToken } from "../auth/server-actor";
+
 declare global {
   var __blueprintServerRuntime: BlueprintServerRuntime | undefined;
 }
@@ -18,7 +20,8 @@ function requireDatabaseUrl(): string {
 export function getBlueprintServerRuntime(): BlueprintServerRuntime {
   if (!globalThis.__blueprintServerRuntime) {
     globalThis.__blueprintServerRuntime = createBlueprintServerRuntime(
-      requireDatabaseUrl()
+      requireDatabaseUrl(),
+      resolveGitHubPublicationToken
     );
   }
 

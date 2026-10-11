@@ -19,13 +19,14 @@ interface BlueprintJwtClaims {
   readonly blueprintProviderSubject?: unknown;
   readonly sub?: unknown;
   readonly email?: unknown;
+  readonly blueprintGitHubAccessToken?: unknown;
 }
 
 function claimString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-export async function resolveWebIdentity(): Promise<WebAuthenticatedIdentity | null> {
+async function resolveWebClaims(): Promise<BlueprintJwtClaims | null> {
   const secret = process.env.AUTH_SECRET?.trim();
   if (!secret) {
     return null;
@@ -47,9 +48,18 @@ export async function resolveWebIdentity(): Promise<WebAuthenticatedIdentity | n
     secureCookie
   })) as BlueprintJwtClaims | null;
 
-  if (!token) {
-    return null;
-  }
+  return token;
+}
+
+// Remains inside the encrypted HttpOnly Auth.js session and server-only GitHub requests.
+export async function resolveGitHubPublicationToken(): Promise<string | null> {
+  const token = await resolveWebClaims();
+  return token?.blueprintProvider === "github" ? claimString(token.blueprintGitHubAccessToken) : null;
+}
+
+export async function resolveWebIdentity(): Promise<WebAuthenticatedIdentity | null> {
+  const token = await resolveWebClaims();
+  if (!token) return null;
 
   const provider = claimString(token.blueprintProvider) ?? "github";
   const providerSubject =

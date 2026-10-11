@@ -608,4 +608,25 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     ]);
   });
 
+  it("rejects authority revoked before the publication transaction without appending rows", async () => {
+    const actor = await owner();
+    const app = new ConstitutionAuthorityApplicationService(repository, authority, { id: "test:provider", verify: async () => true });
+    const ratified = await createRatifiedAmendment(app, actor);
+    const successor = await authority.resolveIdentity({ provider: "github", providerSubject: "ca002-successor" });
+    await prisma.systemBootstrap.update({ where: { id: "system" }, data: { ownerPrincipalId: successor.id } });
+    const attestation = authoritySetAttestation();
+    const evidence = { id: "constitution-evidence:revoked-publication", amendmentId: ratified.proposal.id, kind: "publication" as const,
+      source: "trusted-ci-attestation:test", revision: attestation.sourceRevision, digest: attestation.authoritySetDigest,
+      note: "Revoked publication must fail", recordedByActorId: actor.principalId, createdAt: "2026-10-12T00:00:00.000Z" };
+    const publication = { id: "constitution-publication:revoked", amendmentId: ratified.proposal.id,
+      amendmentRecordVersion: ratified.recordVersion, policyVersion: attestation.policyVersion, publishedByActorId: actor.principalId,
+      sourceRevision: attestation.sourceRevision, ciRunId: attestation.ciRunId, authoritySetDigest: attestation.authoritySetDigest,
+      components: attestation.components, publishedAt: evidence.createdAt, productionReleaseAuthority: false as const };
+    await expect(repository.appendPublicationAndUpdate(publication, evidence, {
+      ...ratified, state: "published", recordVersion: ratified.recordVersion + 1, publicationEvidenceId: evidence.id, updatedAt: evidence.createdAt
+    }, ratified.recordVersion)).rejects.toThrow(/revoked before transaction/);
+    expect(await prisma.constitutionPublication.count()).toBe(0);
+    expect((await repository.findAmendmentById(ratified.proposal.id))?.state).toBe("ratified");
+  });
+
 });

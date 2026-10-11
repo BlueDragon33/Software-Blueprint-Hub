@@ -5,7 +5,7 @@ export default defineConfig({
   testMatch: "**/*.pw.ts",
   fullyParallel: false,
   retries: 0,
-  reporter: [["list"], ["html", { outputFolder: "playwright-report", open: "never" }]],
+  reporter: [["list"], ["html", { outputFolder: "playwright-report", open: "never" }], ["json", { outputFile: "artifacts/playwright-results.json" }]],
   use: {
     baseURL: "http://127.0.0.1:3000",
     trace: "retain-on-failure"
