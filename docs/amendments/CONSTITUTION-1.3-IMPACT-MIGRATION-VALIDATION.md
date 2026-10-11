@@ -539,3 +539,86 @@ An application can be B5 yet E0 when standalone, or B1/B2 yet belong inside E2 t
 **Independent final review corrections:** pre-publication checks now reconstruct the exact sealed 1.2 baseline after 1.3 activation and verify the regenerated patch against active canonical bytes; they do not require unreviewed follow-on edits. The same patch includes local self-adoption and target-version projection headers, while preserving every historical app observation and attestation unchanged. Runtime activation still requires authenticated publication. Unsupported filters, blending, backdrop filters and text-fill overrides return UNVERIFIED in computed-style contrast fixtures. Ratification SHA/digest values wrap in the existing mobile form. Regression tests reproduced the activation and false-contrast failures before these fixes.
 
 **Concurrent HEAD recovery:** PR #98 advanced to `9035f7961fb5f792daeff0abb54e989192db081e` during final review. Its strengthened R7/R17 and new R28, plus the existing Bauman intervention Section P, were preserved and integrated rather than overwritten. R28 binds to the existing product-purpose requirement and professional learning acceptance; no Bauman product changes, new CMS or pedagogy approval are performed here. Its contrast reference is consolidated into Section 11 of the same candidate, not a competing version.
+
+## S. Bauman Hub ecosystem academic constitution — S100 and R200 (draft, scope: constitutional architecture only)
+
+**Decision and boundary:** All academic satellites keep their own disciplinary character but inherit **one** universal law and its existing seven Century-Grade qualities. Bauman Hub is a governed **E2 target architecture**, not a new sovereign constitution. Each academic satellite inherits an **S100 long-horizon extensibility reference** (ten capability bands), while a **comprehensive Russian-language teaching satellite inherits S100 + R101–200 specialist extension = R200**. No application code, UI, subject JSON, user data, rollout flag, learner progress or Production deployment is changed by this section. Active law remains **1.2.0** until constitutionally ratified and published.
+
+### Structural crosswalk — four independent dimensions
+
+| Axis | What it decides | Bauman example | What it never proves |
+| --- | --- | --- | --- |
+| **B0–B5** | Per-project engineering depth and risk; B0–B2 COMPACT, B3–B5 STRUCTURED | Bauman Hub registered B4; a satellite within it is **not** implicitly another registered project with an invented B-level | Completed features or learner mastery |
+| **E0–E3** | Portfolio topology and trust/dependency/ownership boundaries | Bauman/BlueDragon aims at E2; authenticated whole-ecosystem maturity still needs real evidence | Whether a course is pedagogically useful |
+| **S100** | Common academic satellite evolution *capacity reference* | AI, Math, Research, Systems, Ergonomics, control/robotics courses, other supported subjects | A hundred existing modules, a hundred green tests or 100% progress |
+| **R200** | S100 plus 100 **Russian-specific future capability positions** for comprehensive Russian learning | Dedicated Russian-language satellite when its approved scope calls for comprehensive listen/speak/read/write and academic language | Automatic superiority, teacher-verified CEFR level, authentic pronunciation grading |
+
+### S100 ten-zone capacity blueprint — all satellites inherit applicable governance
+
+| Zone | Long-term capacity concern | Minimum duty at today's adoption |
+| --- | --- | --- |
+| **S01–10** | Learner-facing purpose, data owner, official source boundaries | One subject owner and truthful provenance |
+| **S11–20** | Outcomes, competency map and learner starting point | Measurable outcomes; no label-only lessons |
+| **S21–30** | Prerequisite/semester/module/lesson dependencies | Learner-readable recommended next step |
+| **S31–40** | Subject knowledge, worked examples and misconceptions | One technically checked worked example where needed |
+| **S41–50** | Active practice and suitable interaction modes | Authentic practice, no fake mandatory interactive feature |
+| **S51–60** | Assessment, formative feedback and mastery evidence | Checked answers with learning feedback; no fabricated achievement |
+| **S61–70** | Specialized labs/simulations/deliverables | Real adapter/artifact **or justified NOT_APPLICABLE** |
+| **S71–80** | Progress continuity, records, review and personal state | Persist/readback and migration-safe progress owner |
+| **S81–90** | Usable design, assistive access, responsive/offline performance | Computed contrast, readable text, keyboard/touch where applicable |
+| **S91–100** | Privacy, security, contracts, ecosystem interoperability, resilience | Versioned boundaries, reversible local change and truthful integration status |
+
+The **ten zone numbers are a conceptual roadmap**, not a hundred mandatory implementation units. The system must never auto-create empty pages, endpoints, contracts or tests to “fill floors”. A band can hold future legitimate capabilities and may have **PLANNED**, **IMPLEMENTED**, **VERIFIED**, **UNVERIFIED** or **NOT_APPLICABLE** status per concrete relevant capability. A filled schema is not a verified learner experience. Map ownership and justified gaps in the **existing** Project Profile or academic review record, not a parallel 100-item database.
+
+### Subject individuality — same professional baseline, different learning engines
+
+| Family | Core identity and authentic practice | What should vary by subject |
+| --- | --- | --- |
+| Mathematics | Concept -> derivation -> solved proof/example -> independently checked problem | Formula rendering, proof checking, plots and constraints |
+| Programming / Data / AI | Executable examples -> measured output -> debugging or metric interpretation | Sandbox, dataset provenance, model/SQL/Python correctness and resource budget |
+| Systems / Signal / Control / Robotics | Model -> parameterized experiment -> physical/numerical validity -> uncertainty | Simulation with tested units, conditions, stability and hardware safety |
+| Research / Thesis | Question -> literature/method -> reproducible artifact -> limitations and defense | Provenance, evidence chain, methodological rigor and review |
+| Ergonomics / HMI | User–Task–Context -> measurement -> improvement hypothesis -> comparative test | Task success, errors, accessibility/attention and real usability observations |
+| Russian | Comprehensible language input -> pronunciation/listening -> guided dialogue/reading/writing -> transfer | R200 extension, reliable audio/phonetics/stress, handwriting, feedback and graded progression |
+
+**Forbidden convergence:** cloning the exact ten-tab navigation, cloned question stems and equal-length filler into all subjects; replacing correct disciplinary pedagogy with unrelated AI/UGV examples; adding simulations when the learning outcome needs text, dialogue, proof or field practice; giving each satellite independent accounts/registries or incompatible colors. **Required convergence:** identity/access boundaries, shared semantic UX tokens and verified contrast, learning evidence semantics, provenance, progress export/readback and versioned app-management contracts as actually authorized.
+
+### Russian R101–200 — specialized extension above S100
+
+| Extension zone | Pedagogical capability horizon | Real evidence / no-fake rule |
+| --- | --- | --- |
+| **R101–110** | Cyrillic printed forms, recognition and handwriting | Read/write evidence distinct from mere font display |
+| **R111–120** | Speech sounds, articulation and phoneme discrimination | Trustworthy recordings and observable phonetic exercises |
+| **R121–130** | Word stress, unstressed vowels, rhythm and intonation | Correct stress annotation and contrastive listening |
+| **R131–140** | Listening comprehension from Pre-A0 to academic contexts | Graded real audio and comprehension checks |
+| **R141–150** | Speaking turns, dialogue, role-play and interaction repairs | Responses assessed transparently; no fictional fluency |
+| **R151–160** | Contextual vocabulary, images, retrieval and spaced review | Meaningful contexts and evidenced review, not isolated word count |
+| **R161–170** | Grammar embedded in meaningful sentences and conversation | Correct forms, usage feedback and alternative expressions |
+| **R171–180** | Reading strategies, genre and progressive technical texts | Comprehension with traceable materials |
+| **R181–190** | Handwriting, dictation, correspondence and academic writing | Human-readable feedback and rubric |
+| **R191–200** | Daily-life Russian in Russia, technical/academic Russian, oral defense and adaptive consolidation | Real task transfer, language-expert review and honest CEFR/proficiency limits |
+
+Pedagogical sequencing is **not** identical to the band order: listen–speak-first with Cyrillic print and handwriting in parallel may be appropriate; comprehension, vocabulary, stress and grammar interleave by need. The full 200-band capability roadmap **does not require** all 200 implemented before releasing one safe Pre-A0 lesson, and **does not justify** awarding proficiency absent evidence. Specialized content is optional per stage but its scientific, linguistic and accessibility obligations are not optional when presented as working.
+
+### Constitutional precedence and future-project intake
+
+1. **One universal law and seven quality pillars** (Software-Blueprint-Hub).
+2. **Ecosystem profile** governs role split between policy owner, Application-Management operations and independently owned business data; E2 maturity must be verified separately.
+3. **Academic satellite profile** inherits S100 baseline and names its unique instructional identity; **Russian specialization** additionally requires R200 extension only for a comprehensive Russian-language product.
+4. **Project Blueprint Level** assigns COMPACT/STRUCTURED workload and **change risk** independently sets checks, while one bounded learning journey is the default first implementation.
+5. **Evidence and permission**: technical/static test, learner experience, subject matter review, ratification, publication and Production authorization are distinct decisions. No derived profile may weaken a higher authority.
+
+**Future request triage:** Is this an existing satellite capability? Does it need a separate app? What is the source and teacher/institutional evidence? What is the learner's goal? Which of the ten S100 capacity bands and specialist R bands genuinely apply? Does the requested work affect identity/progress/privileged runtime? Pick one minimal educational journey before creating any code; preserve the user's progress and avoid creating a new dashboard, 100 empty modules or another constitution.
+
+### Proposal acceptance criteria and next lawful boundary
+
+- **ACA-01** One effective universal policy, no alternative “Satellite Constitution”/“Russian Constitution” product or source of truth.
+- **ACA-02** All satellites inherit S100 capacity principles with authentic subject-specific learning profile; Russian comprehensive learning declares additional R200 while generic Russia-life information does not automatically become R200.
+- **ACA-03** Current B-level/scale and E-level topology are untouched; no automatic reclassification from 100/200 marketing vocabulary.
+- **ACA-04** Every real lesson shown as READY has domain-specific objective, justified learning sequence, worked example/practice, checked assessment, source boundary, feedback and readback evidence appropriate to its content.
+- **ACA-05** No synthetic audio, simulated pronunciation mastery, fake expert review, made-up Bauman syllabus or forced simulations; unsupported items remain UNVERIFIED/PLANNED.
+- **ACA-06** Shared shell is consistent in semantics and accessible colors, but course interface affordances and pedagogical interactions vary by subject. Final browser-computed contrast and teacher/learner UX remain separate real acceptance gates.
+- **ACA-07** Scope is **constitutional drafting only**. No subject data, JS/CSS, runtime state, release or canonical authority mutation from this drafting request.
+- **ACA-08** Update the **existing** 1.3 candidate preparation tests/authority owner mapping to include R29–R32 before ratification; otherwise a generated R1–R28-only sealed patch is stale and cannot be approved or published.
+
+**Final status:** New clauses R29–R32 and this section are **proposal only**; the active 1.2.0 law's Century-Grade principles remain authoritative. The reviewed 1.3.0 authority set must be regenerated at a new exact SHA, pass every established gate and receive authenticated human ratification before publication. Separate app adoption, Russian pedagogical review and Production release require their own real evidence.
