@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff, resolveExecutionScaleProfile as profile } from "../../scripts/agent-change-evidence-candidate.mjs";
+import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff, resolveExecutionScaleProfile as profile, proposeNewProjectBlueprintIntake as intake } from "../../scripts/agent-change-evidence-candidate.mjs";
 
 const HEAD = "a".repeat(40);
 const BASE = "b".repeat(40);
@@ -671,4 +671,88 @@ test("Scope check duplication never earns approval with extra PASS records", () 
   assert.equal(v.state, "BLOCKED");
   assert.equal(v.nextAction, "REPAIR_SCOPED_CHECK_MANIFEST");
   assert.equal(v.authority.productionRelease, false);
+});
+
+function situation() {
+  return {
+    purpose: "A scoped engineering app", stage: "foundation",
+    criticalJourneys: 2, independentModules: 1, crossAppContracts: 0,
+    persistentUserState: true, highSensitivityData: false,
+    privilegedControl: false, criticalFailureImpact: false, sharedPlatformRole: false
+  };
+}
+
+test("New project intake: standalone moderate product gets COMPACT B2", () => {
+  const x = intake(situation());
+  assert.equal(x.status, "PROPOSAL_ONLY");
+  assert.equal(x.recommendedBlueprintLevel, "B2");
+  assert.equal(x.scale, "COMPACT");
+  assert.equal(x.nextAction, "REVIEW_AND_RECORD_CANONICAL_PROJECT_PROFILE");
+  assert.equal(x.authority.canonicalGatePass, false);
+  assert.ok(x.plan.includes("DELIVER_ONE_SCOPED_VERTICAL_SLICE"));
+});
+
+test("New project intake: a multidisciplinary foundation plans for intended B3 scale", () => {
+  const x = situation();
+  x.criticalJourneys = 5;
+  x.independentModules = 5;
+  x.crossAppContracts = 1;
+  const answer = intake(x);
+  assert.equal(answer.scale, "STRUCTURED");
+  assert.equal(answer.recommendedBlueprintLevel, "B3");
+  assert.equal(answer.stage, "foundation");
+  assert.ok(answer.plan.includes("DELIVER_ONE_CONTRACTED_VERTICAL_SLICE"));
+});
+
+test("New project intake: platform and privileged cross-app control require STRUCTURED B4", () => {
+  for (const field of ["sharedPlatformRole", "privilegedControl"]) {
+    const x = situation();
+    x[field] = true;
+    const a = intake(x);
+    assert.equal(a.recommendedBlueprintLevel, "B4");
+    assert.equal(a.scale, "STRUCTURED");
+    assert.equal(a.authority.productionRelease, false);
+  }
+});
+
+test("New project intake: high-sensitivity records and safety-critical tasks trigger B5", () => {
+  for (const field of ["highSensitivityData", "criticalFailureImpact"]) {
+    const x = situation();
+    x[field] = true;
+    const a = intake(x);
+    assert.equal(a.recommendedBlueprintLevel, "B5");
+    assert.equal(a.scale, "STRUCTURED");
+    assert.equal(a.authority.constitutionalRatification, false);
+  }
+});
+
+test("New project intake: micro task and tiny utility use compact B0/B1", () => {
+  const x = situation();
+  x.criticalJourneys = 0;
+  x.independentModules = 0;
+  x.persistentUserState = false;
+  assert.equal(intake(x).recommendedBlueprintLevel, "B0");
+  x.criticalJourneys = 1;
+  assert.equal(intake(x).recommendedBlueprintLevel, "B1");
+});
+
+test("New project intake: incomplete/invalid context must not silently select small", () => {
+  for (const x of [null, [], {}, { ...situation(), criticalJourneys: -1 },
+    { ...situation(), sharedPlatformRole: undefined },
+    { ...situation(), stage: "unknown" },
+    { ...situation(), criticalJourneys: "4" }]) {
+    const answer = intake(x);
+    assert.equal(answer.status, "UNVERIFIED");
+    assert.equal(answer.scale, null);
+    assert.deepEqual(answer.plan, []);
+  }
+});
+
+test("New project intake: authoritative project level cannot be replaced by an intake guess", () => {
+  const a = intake({ ...situation(), independentModules: 5 });
+  assert.equal(a.recommendedBlueprintLevel, "B3");
+  assert.equal(a.nextAction, "REVIEW_AND_RECORD_CANONICAL_PROJECT_PROFILE");
+  assert.equal(a.authority.canonicalGatePass, false);
+  // The existing project must still use its independently recorded level.
+  assert.equal(profile({ blueprintLevel: "B2", operationRisk: "L1" }).scale, "COMPACT");
 });
