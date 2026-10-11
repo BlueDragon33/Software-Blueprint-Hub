@@ -491,8 +491,17 @@ export function evaluateExecutionContinuity(snapshot) {
       !(snapshot.unavailableResources ?? []).includes(name));
   const candidates = [active, ...work.filter((item) => item.status === "READY")]
     .filter(Boolean).filter(eligible);
+  // R7 evidence delta is caller-supplied and untrusted; do not retry a
+  // previously attempted hypothesis without a recorded new observation.
+  const newEvidence = (item) =>
+    (item.attempts ?? 0) === 0 || (
+      item.retryEvidence?.kind === "NEW_OBSERVATION" &&
+      isNonEmpty(item.retryEvidence?.summary) &&
+      item.retryEvidence.sourceSha === snapshot.headSha &&
+      item.retryEvidence.hypothesisChanged === true
+    );
   const executable = candidates.find((item) =>
-    (item.attempts ?? 0) < 3 && resourceAvailable(item));
+    (item.attempts ?? 0) < 3 && resourceAvailable(item) && newEvidence(item));
   if (executable) {
     const reset = active && (active.attempts ?? 0) >= 3;
     return result("CONTINUE", "EXECUTE_AND_VERIFY", executable.id,
@@ -501,6 +510,12 @@ export function evaluateExecutionContinuity(snapshot) {
   if (active && (active.attempts ?? 0) >= 3) {
     return result("BLOCKED", "REINVESTIGATE_ROOT_CAUSE", active.id,
       ["THREE_DISTINCT_FAILED_ATTEMPTS"]);
+  }
+  const repeatedNoEvidence = candidates.find((item) =>
+    (item.attempts ?? 0) > 0 && !newEvidence(item));
+  if (repeatedNoEvidence) {
+    return result("BLOCKED", "REINVESTIGATE_WITH_NEW_EVIDENCE", repeatedNoEvidence.id,
+      ["RETRY_WITHOUT_FRESH_EVIDENCE"]);
   }
   if (candidates.some((item) => !resourceAvailable(item))) {
     return result("UNVERIFIED", "PAUSED_RESOURCE", candidates[0].id,
