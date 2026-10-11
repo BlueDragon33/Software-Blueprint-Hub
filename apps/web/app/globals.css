@@ -5828,3 +5828,13 @@ textarea:focus-visible,
     grid-template-columns: repeat(3, minmax(2rem, 1fr));
   }
 }
+
+.constitution-ratification-form,
+.constitution-ratification-form > * {
+  min-width: 0;
+}
+
+.constitution-ratification-form code {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}

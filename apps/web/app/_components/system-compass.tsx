@@ -37,7 +37,7 @@ export function SystemCompass({
         </div>
         <div className="system-compass-badges">
           <StatusChip tone="info">Storey {projection.currentStorey.number} / {projection.currentStorey.total}</StatusChip>
-          <StatusChip tone="warning">Production not authorized</StatusChip>
+          <StatusChip tone="warning">Production authority is separate</StatusChip>
         </div>
       </header>
 
@@ -47,7 +47,7 @@ export function SystemCompass({
           <small>STOREY</small>
         </div>
         <div>
-          <p className="section-kicker">Active Work Package</p>
+          <p className="section-kicker">{projection.activeWork.status === "complete" ? "Accepted Work Package" : "Active Work Package"}</p>
           <h3>{projection.activeWork.id} · {projection.activeWork.title}</h3>
           <p>{projection.activeWork.reason}</p>
         </div>
@@ -87,7 +87,9 @@ export function SystemCompass({
             ) : (
               <p className="system-compass-note">
                 No lower dependency blocker is recorded for {projection.activeWork.id}.
-                Continue only with that Work Package's own acceptance criteria and exact evidence.
+                {projection.activeWork.status === "complete"
+                  ? "Acceptance is bound to the displayed exact-revision evidence."
+                  : "Continue only with that Work Package's own acceptance criteria and exact evidence."}
               </p>
             )}
           </article>

@@ -99,6 +99,11 @@ jobs:
       - name: Source-of-truth detector self-test
         run: pnpm test:truth
 
+      - name: Inactive constitutional candidate and adversarial tests
+        run: |
+          node --test tests/source-truth/agent-change-evidence-candidate.test.mjs tests/source-truth/constitution-1.3-candidate.test.mjs tests/source-truth/constitution-contrast.test.mjs
+          node scripts/check-constitution-1.3-candidate.mjs --write-evidence
+
       - name: Generated contract drift
         run: pnpm contracts:check
 

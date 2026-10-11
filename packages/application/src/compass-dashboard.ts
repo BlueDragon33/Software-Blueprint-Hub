@@ -1,4 +1,6 @@
-import type { HumanProfessionalReviewDecisionRecord } from "@blueprint-os/core";
+import type { HumanProfessionalReviewDecisionRecord, QualityGateEvidenceBundle } from "@blueprint-os/core";
+import { buildCompassAcceptancePreflight, compassAcceptanceReceipt } from "./compass-acceptance";
+import type { ConstitutionalComplianceAudit } from "./constitutional-compliance";
 
 export type CompassWorkStatus = "complete" | "active" | "next";
 
@@ -253,7 +255,12 @@ function freezeWorkItem(item: CompassWorkItem): CompassWorkItem {
 }
 
 export function getBlueprintCompassProjection(
-  reviewDecision: CompassHumanReviewDecision | null = null
+  reviewDecision: CompassHumanReviewDecision | null = null,
+  acceptance?: {
+    readonly revision: string | null;
+    readonly gateBundles: readonly QualityGateEvidenceBundle[];
+    readonly constitutionAudit: ConstitutionalComplianceAudit | null;
+  }
 ): BlueprintCompassProjection {
   const approved =
     reviewDecision?.decision === "approve" &&
@@ -300,20 +307,35 @@ export function getBlueprintCompassProjection(
     reason:
       "An authenticated human approval is recorded against the exact current P9-019 review candidate."
   });
+  const receipt = acceptance?.revision && /^[a-f0-9]{40}$/.test(acceptance.revision)
+    ? compassAcceptanceReceipt({ revision: acceptance.revision, gateBundles: acceptance.gateBundles })
+    : null;
+  // A receipt cannot bypass the current review or constitutional prerequisites.
+  // Legacy baseline callers have no live audit; canonical readers always supply it.
+  const preflight = acceptance ? buildCompassAcceptancePreflight({
+      reviewDecision,
+      constitutionAudit: acceptance?.constitutionAudit ?? null
+    }) : null;
+  const accepted = receipt?.accepted === true && preflight?.state === "ready-for-final-evidence";
+  const locked = preflight?.state === "locked";
   const p9020 = freezeWorkItem({
     id: "P9-020",
     title: "Compass Acceptance Gate",
     storey: 20,
-    status: "active",
+    status: accepted ? "complete" : "active",
     reason:
-      "P9-019 human sign-off is recorded. Final ecosystem reference acceptance may now evaluate exact evidence without granting Production authority."
+      accepted
+        ? `Canonical P9-020 acceptance is recorded for deployed revision ${acceptance?.revision}. Acceptance grants no Production authority.`
+        : locked
+          ? "Final Compass acceptance is dependency locked. Resolve the current review and constitutional blockers before evaluating acceptance evidence."
+          : "P9-019 human sign-off is recorded. Final ecosystem reference acceptance may now evaluate exact evidence without granting Production authority."
   });
 
   return Object.freeze({
     ...pendingProjection,
     activeWork: p9020,
     workSequence: Object.freeze([p9018, p9019, p9020]),
-    dependencyBlockers: Object.freeze([]),
+    dependencyBlockers: Object.freeze([...(preflight?.blockers ?? [])]),
     evidence: Object.freeze([
       ...pendingProjection.evidence,
       Object.freeze({
@@ -321,14 +343,32 @@ export function getBlueprintCompassProjection(
         revision: reviewDecision.candidateReviewedRevision,
         source: "Authenticated append-only human professional review decision",
         result: "pass" as const
-      })
+      }),
+      ...(accepted ? [Object.freeze({
+        label: "P9-020 Compass Acceptance",
+        revision: acceptance!.revision!,
+        source: receipt!.evidenceSource!,
+        result: "pass" as const
+      })] : [])
     ]),
-    nextActions: Object.freeze([
+    nextActions: Object.freeze(accepted ? [
+      "Inspect the canonical acceptance receipt for this deployed revision.",
+      "Revalidate P9-020 at every changed revision; an older receipt does not certify a new deployment.",
+      "Any new Production release requires separate exact-revision authority."
+    ] : locked ? [
+      "Resolve the displayed constitutional and professional review blockers before running P9-020.",
+      "Re-read canonical prerequisites after remediation; previous receipts cannot unlock current blockers.",
+      "Any new Production release requires separate exact-revision authority."
+    ] : [
       "Run P9-020 Compass Acceptance Gate against the exact approved review candidate and current source-of-truth.",
       "Fail closed on any source-of-truth contradiction, authority leakage, unresolved P0/P1 or evidence revision mismatch.",
       "Production publish remains separate and unauthorized until a real deployment provider plus explicit external execution succeeds."
     ]),
     truthNote:
-      "P9-019 human sign-off is recorded for the exact candidate. P9-020 is active, but Production release authority remains false and no deployment is implied."
+      accepted
+        ? "P9-019 approval and the exact-revision P9-020 receipt are read from canonical state. This projection grants no Production release authority."
+        : locked
+          ? "Canonical acceptance prerequisites are locked. Neither a previous receipt nor this projection overrides current blockers or grants Production authority."
+          : "P9-019 human sign-off is recorded for the exact candidate. P9-020 is active, but Production release authority remains false and no deployment is implied."
   });
 }

@@ -918,15 +918,25 @@ function publicationCandidate() {
     changeCompatibility: { reviewed: true, targetSha: HEAD },
     migration: { impactReviewed: true, stagedPlanReviewed: true },
     independentReview: { approved: true, sourceSha: HEAD },
-    fullReleaseGate: { status: "PASS", sourceSha: HEAD, runId: 1234567 },
+    authoritySetDigest: "sha256:" + "a".repeat(64),
+    publicationPatchDigest: "sha256:" + "b".repeat(64),
+    fullReleaseGate: {
+      status: "PASS", sourceSha: HEAD, runId: 1234567,
+      workflowPath: ".github/workflows/release-gate.yml",
+      artifact: { name: "release-gate-evidence-" + HEAD, digest: "sha256:" + "c".repeat(64) },
+      jobs: [{ id: 12345, status: "completed", conclusion: "success", sourceSha: HEAD }],
+      tests: { failed: 0, skipped: 0, cancelled: 0, passed: 120 }
+    },
     authoritySet: Object.fromEntries([
       "normativeDocument", "machineContract", "universalTemplate",
       "policySource", "versionManifest", "validatorTests"
-    ].map((name) => [name, { sourceSha: HEAD, policyVersion: "1.3.0" }])),
+    ].map((name) => [name, { sourceSha: HEAD, policyVersion: "1.3.0", digest: "sha256:" + "d".repeat(64) }])),
     ratification: {
       authenticatedHuman: true, appendOnlyRecorded: true,
       recordId: "constitution-ratification:fixture-123",
-      sourceSha: HEAD, policyVersion: "1.3.0"
+      sourceSha: HEAD, policyVersion: "1.3.0", source: "authenticated-user-action",
+      decision: "approve", amendmentId: "amendment:fixture", amendmentRecordVersion: 4,
+      authoritySetDigest: "sha256:" + "a".repeat(64)
     }
   };
 }
@@ -1046,4 +1056,27 @@ test("R7 finite repair: independent safe work continues while failed hypothesis 
   const v=continuity(x);
   assert.equal(v.nextAction,"EXECUTE_AND_VERIFY");
   assert.equal(v.taskId,"lesson-order");
+});
+
+test("Publication preflight never accepts version labels without sealed component bytes", () => {
+  const x = publicationCandidate();
+  delete x.authoritySet.machineContract.digest;
+  assert.ok(publication(x).unverified.includes("INCOMPLETE_ATOMIC_AUTHORITY_SET"));
+});
+
+test("Publication preflight requires actual Full Gate provenance, not a green boolean", () => {
+  for (const field of ["workflowPath", "artifact", "jobs", "tests"]) {
+    const x = publicationCandidate();
+    delete x.fullReleaseGate[field];
+    assert.ok(publication(x).unverified.includes("MISSING_FULL_RELEASE_GATE_AT_HEAD"));
+  }
+  const x = publicationCandidate();
+  x.fullReleaseGate.tests.skipped = 1;
+  assert.ok(publication(x).unverified.includes("MISSING_FULL_RELEASE_GATE_AT_HEAD"));
+});
+
+test("Publication preflight binds the human decision to sealed law, not self-declared booleans", () => {
+  const x = publicationCandidate();
+  x.ratification.authoritySetDigest = "sha256:" + "e".repeat(64);
+  assert.ok(publication(x).blocked.includes("AUTHENTICATED_EXACT_REVISION_HUMAN_RATIFICATION_REQUIRED"));
 });

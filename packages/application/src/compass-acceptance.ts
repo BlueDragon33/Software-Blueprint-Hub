@@ -43,7 +43,10 @@ function criterion(
 
 export function buildCompassAcceptancePreflight(input?: {
   readonly reviewCandidate?: HumanProfessionalReviewCandidate;
-  readonly reviewDecision?: HumanProfessionalReviewDecisionRecord | null;
+  readonly reviewDecision?: Pick<HumanProfessionalReviewDecisionRecord,
+    "decision" | "candidateReviewedRevision" | "candidateEvidenceDigest" |
+    "humanSignoff" | "p9020TransitionAllowed" | "productionReleaseAuthority"
+  > | null;
   readonly constitutionAudit?: ConstitutionalComplianceAudit | null;
 }): CompassAcceptancePreflight {
   const candidate = input?.reviewCandidate ?? p9019ProfessionalReviewCandidate;
@@ -212,19 +215,37 @@ export function verifyFinalReleaseGateMetadata(input: {
     throw new Error("Final Release Gate did not PASS on the exact deployment revision.");
   }
 
-  const job = input.jobs.find((item) => item.name === "release-gate" && item.conclusion === "success");
+  const jobs = input.jobs.filter((item) => item.name === "release-gate");
+  const job = jobs.length === 1 && jobs[0]?.conclusion === "success" ? jobs[0] : null;
   const requiredSteps = [
+    "Verify exact release revision checkout",
+    "Generate Prisma Client",
+    "Validate Prisma schema",
+    "Migrate empty PostgreSQL database",
+    "Verify migration status",
     "Universal Constitution compliance",
     "Constitution authority-set atomicity",
+    "Constitution ecosystem snapshot",
+    "Constitution compliance matrix snapshot",
     "Source-of-truth contradiction gate",
+    "Source-of-truth detector self-test",
+    "Generated contract drift",
+    "Schema compatibility",
+    "Lint",
+    "Typecheck",
+    "Architecture boundaries",
     "Unit, contract, authority, and PostgreSQL integration tests",
     "Production build",
+    "Seed canonical Project Registry E2E data",
+    "Install Playwright Chromium",
     "App Shell E2E + screenshots",
-    "Generate Release Gate evidence manifest"
+    "Generate Release Gate evidence manifest",
+    "Upload Human UX and operational evidence"
   ];
-  if (!job || requiredSteps.some((name) =>
-    !job.steps?.some((step) => step.name === name && step.conclusion === "success")
-  )) {
+  if (!job || requiredSteps.some((name) => {
+    const matches = job.steps?.filter((step) => step.name === name) ?? [];
+    return matches.length !== 1 || matches[0]?.conclusion !== "success";
+  })) {
     throw new Error("Final Release Gate is missing a required successful audit step.");
   }
 

@@ -1,3 +1,7 @@
+import { CONSTITUTION_POLICY_VERSION } from "../../packages/application/src";
+
+const [policyMajor, policyMinor] = CONSTITUTION_POLICY_VERSION.split(".").map(Number);
+const TARGET_VERSION = `${policyMajor}.${policyMinor + 1}.0`;
 import { createHash } from "node:crypto";
 
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
@@ -78,7 +82,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
   }
 
   function authoritySetAttestation() {
-    const policyVersion = "1.3.0";
+    const policyVersion = TARGET_VERSION;
     const components = [
       {
         id: "normative-document" as const,
@@ -141,7 +145,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     const draft = await app.createDraft(
       actor,
       {
-        targetPolicyVersion: "1.3.0",
+        targetPolicyVersion: TARGET_VERSION,
         title: "Atomic publication amendment",
         problem: "Constitution authority files must publish as one exact set.",
         rationale: "Partial publication would create conflicting law sources.",
@@ -159,7 +163,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 1,
         kind: "impact",
         source: "review",
-        revision: "revision:impact",
+        revision: authoritySetAttestation().sourceRevision,
         digest,
         note: "Impact evidence."
       },
@@ -172,8 +176,8 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 2,
         kind: "migration",
         source: "migration-plan",
-        revision: "revision:migration",
-        digest,
+        revision: authoritySetAttestation().sourceRevision,
+        digest: authoritySetAttestation().authoritySetDigest,
         note: "Migration evidence."
       },
       "2026-09-28T02:32:00.000Z"
@@ -201,7 +205,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     const draft = await service.createDraft(
       actor,
       {
-        targetPolicyVersion: "1.3.0",
+        targetPolicyVersion: TARGET_VERSION,
         title: "Durability evidence amendment",
         problem: "Upgrade ageing evidence is underspecified.",
         rationale: "Long-lived projects require repeatable ageing proof.",
@@ -226,7 +230,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 1,
         kind: "impact",
         source: "github-actions:impact",
-        revision: "revision:impact",
+        revision: authoritySetAttestation().sourceRevision,
         digest,
         note: "Impact analysis covers all governed repositories."
       },
@@ -258,7 +262,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     const draft = await service.createDraft(
       actor,
       {
-        targetPolicyVersion: "1.3.0",
+        targetPolicyVersion: TARGET_VERSION,
         title: "Concurrency amendment",
         problem: "Concurrent constitutional edits must not overwrite each other.",
         rationale: "A constitutional record requires exact revision protection.",
@@ -277,7 +281,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 1,
         kind: "impact",
         source: "review",
-        revision: "revision:impact",
+        revision: authoritySetAttestation().sourceRevision,
         digest,
         note: "First writer advances the record."
       },
@@ -303,7 +307,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     const draft = await service.createDraft(
       actor,
       {
-        targetPolicyVersion: "1.3.0",
+        targetPolicyVersion: TARGET_VERSION,
         title: "Ratification amendment",
         problem: "Constitution publication needs an authenticated human decision.",
         rationale: "AI and CI evidence cannot substitute for ratification.",
@@ -322,7 +326,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 1,
         kind: "impact",
         source: "review",
-        revision: "revision:impact",
+        revision: authoritySetAttestation().sourceRevision,
         digest,
         note: "Impact evidence."
       },
@@ -335,8 +339,8 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 2,
         kind: "migration",
         source: "migration-plan",
-        revision: "revision:migration",
-        digest,
+        revision: authoritySetAttestation().sourceRevision,
+        digest: authoritySetAttestation().authoritySetDigest,
         note: "Migration evidence."
       },
       "2026-09-28T02:22:00.000Z"
@@ -431,7 +435,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     expect(publications).toHaveLength(1);
     expect(publications[0]).toMatchObject({
       amendmentRecordVersion: 5,
-      policyVersion: "1.3.0",
+      policyVersion: TARGET_VERSION,
       sourceRevision: "c".repeat(40),
       ciRunId: "36365074322",
       authoritySetDigest: authoritySetAttestation().authoritySetDigest,
@@ -515,7 +519,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
             kind: "constitution-propagation-attestation",
             source: "trusted-constitution-lifecycle-attestation",
             policyId: "blueprint-os:universal-century-grade",
-            policyVersion: "1.3.0",
+            policyVersion: TARGET_VERSION,
             amendmentId: published.amendment.proposal.id,
             publicationId: published.publication.id,
             sourceRevision: "d".repeat(40),
@@ -546,7 +550,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
           kind: "constitution-verification-attestation",
           source: "trusted-constitution-lifecycle-attestation",
           policyId: "blueprint-os:universal-century-grade",
-          policyVersion: "1.3.0",
+          policyVersion: TARGET_VERSION,
           amendmentId: propagating.proposal.id,
           publicationId: published.publication.id,
           sourceRevision: "e".repeat(40),

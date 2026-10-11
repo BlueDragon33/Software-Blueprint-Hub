@@ -1,0 +1,624 @@
+diff --git a/docs/UNIVERSAL-CONSTITUTION.md b/docs/UNIVERSAL-CONSTITUTION.md
+index 0960c2a..ab165cf 100644
+--- a/docs/UNIVERSAL-CONSTITUTION.md
++++ b/docs/UNIVERSAL-CONSTITUTION.md
+@@ -1,7 +1,7 @@
+ # Blueprint OS — Universal Constitution
+ 
+ Policy ID: `blueprint-os:universal-century-grade`
+-Policy version: **1.2.0**
++Policy version: **1.3.0**
+ Status: **ACTIVE UNIVERSAL LAW**
+ 
+ The constitutions are long-lived engineering laws. Project Profile and Blueprint Level determine their depth; no project is exempt from basic discipline.
+@@ -145,3 +145,131 @@ Every project inherits seven non-negotiable construction qualities. Their **impl
+ - **B5 CRITICAL**: add deep threat modeling, audit, DR, strict change control and independent verification.
+ 
+ These levels are proposals to be validated in Phase 2/3, not permanently hard-coded.
++
++## 10. Universal execution and ecosystem discipline
++
++Federated identity behavior in R11–R14 is migration-gated. Immediately require accurate capability declarations, explicit owners, least privilege, revocation/freshness design and no invented approval. Existing account/authentication and offline protections remain until an authorized, compatible implementation passes CP-01–CP-13 and the relevant project gates. Unsupported federation is UNVERIFIED, not exempt or compliant. No device is silently bulk-approved; central grants never imply constitutional, privileged business-data or Production authority. E2 is an architectural target until authenticated interoperability and isolation are evidenced; E3 requires independent ecosystem authorities.
++
++### 10.R1
++
++**R1 — Bounded, evidence-anchored changes.** Every substantive Agent change has a target repository, exact base/head revision, user goal, allowed scope, known baseline, risk tier, applicable checks, observed result and explicit unresolved blockers. Prompt text and chat memory never become source-of-truth.
++
++### 10.R2
++
++**R2 — Preserve before extending.** Prefer modifying the correct existing module and retiring verified obsolete paths over parallel files, adapters, UI surfaces and state stores. New modules are valid only with distinct ownership, justified responsibility and tested integration. No unconditional ban on new files or simplistic line-count/complexity score.
++
++### 10.R3
++
++**R3 — No unverified success.** A change may be called verified only for the checks actually run at its exact revision. Distinguish CODED, STATIC-TESTED, INTEGRATION-VERIFIED, REAL-UX-VERIFIED, DEPLOYED and OBSERVED. Successful CI/build/adoption checks do not confer Product PASS, Constitutional compliance or Production authority.
++
++### 10.R4
++
++**R4 — Root-cause and regression discipline.** Reproduce a defect where practical; identify the first divergence from expected canonical behavior; implement the smallest coherent fix; add regression protection; compare affected existing critical journeys. Never bypass a failing check, weaken assertions, hide errors, add arbitrary sleeps or relabel failing evidence to PASS.
++
++### 10.R5
++
++**R5 — Safe overwrites, idempotency and recovery.** No Agent may silently overwrite unrelated files, user data, canonical records, settings, devices, secrets, migration history or deployed state. Enforce version/concurrency checks, operation scope, explicit authority and recovery appropriate to risk. A source-file replacement is not equivalent to permission for destructive runtime mutation.
++
++### 10.R6
++
++**R6 — Performance and UX non-degradation.** Risk-appropriate automated measurements must compare important interactive journeys with an identified baseline, using reproducible environments and uncertainty controls. A numerically green benchmark never substitutes for critical human UX review.
++
++### 10.R7
++
++**R7 — Evidence-gated bounded autonomy and finite repair loop.** Every software defect follows one bounded loop: **(1) identify the observable failure and falsifiable root-cause hypothesis -> (2) modify the smallest declared owner/scope -> (3) run focused tests plus directly affected regressions -> (4) evaluate evidence and either close, revert, or re-investigate.** Record baseline/expected behavior, exact base/head SHA, touched files, observed test result and a clear stop predicate. **Never repeat a failed patch or the same hypothesis without materially new evidence**, regardless of available time/credits. On one failed attempt, first examine new logs/diffs and challenge the hypothesis before any second change; a different correction requires a distinct evidence-backed diagnosis. Hard cap: after **three genuinely different attempted remedies of the same root defect**, stop all speculative writes and enter root-cause investigation/review, not an automatic human approval request. Unrelated independent READY work may continue if safe, but **no looping, new documents, dashboards, refactors or broader UI redesign merely to consume steps or simulate progress**. Safe documentation is justified only to record a durable decision/contract or acceptance proof in an existing canonical owner.
++
++### 10.R8
++
++**R8 — Continuous traceability.** Record work package, decision, known defects, measured baselines, change/evidence revisions, current blockers and next safe action in durable project-controlled state. Resume long tasks by checking live canonical state and HEAD, not by treating an old chat completion message as fact.
++
++### 10.R9
++
++**R9 — Proportional enforcement.** Small localized changes require focused checks; behavioral changes require integration and relevant critical-journey checks; authority, persistent data, schema, privileged devices, destructive actions and Production require stronger established gates. Missing mandatory evidence is UNVERIFIED or BLOCKED as appropriate, never synthetic PASS.
++
++### 10.R10
++
++**R10 — Metrics are evidence, not permission.** Optimizing a metric by suppressing defects, skipping tests, minimizing files at the expense of architecture or moving incidents to other Issues is prohibited. Trend metrics guide improvement but may not override an outstanding severe defect or canonical authority boundaries.
++
++### 10.R11
++
++**R11 — One ecosystem management entry point.** Every governed application and newly generated application must provide a versioned Application-Management discovery/management contract, publish truthful capabilities, and support enrollment into the existing Dynamic Catalog without per-app edits to the central dashboard, routes or environment-name lists. Application-Management is the shared operational management and orchestration entry point. Sub-apps/modules are managed through an explicit parent delegation contract; do not create independent control services or registries solely to repeat an existing approval function. App registration is not device approval, user login, remote-admin readiness or Production acceptance.
++
++### 10.R12
++
++**R12 — Shared device approval and identity, scoped automatic acceptance.** Every protected app must support automatic device enrollment and verification of a current Application-Management-issued approval for its declared app/environment/capabilities. A device already approved under an applicable central policy is accepted without another per-app personal account or manual approval. A new device may be auto-approved only by a configured, authorized central policy after the required identity/proof checks; otherwise it remains pending for review in Application-Management. An app cannot make an unknown, revoked or out-of-scope device trusted by self-declaration. Ordinary app access shares the central identity and approval decision; app-specific entitlements, sensitive operations, session enforcement and audit remain scoped to the owning app. Define secure cross-origin handoff, replay protection, revocation/freshness and offline/degraded behavior before claiming implementation.
++
++### 10.R13
++
++**R13 — Coherent presentation and bounded topology.** Application-Management supplies a shared application catalog, navigation vocabulary, permission/status semantics and versioned presentation profile. Clients reuse these conventions and adapt task layout to desktop/tablet/phone and input capabilities without adding parallel dashboards, duplicated approval screens or mandatory login stacks. Viewport, category and visual consistency never grant security authority. Reuse an existing app runtime/adapter for management where practical; a separate backend/origin/provider requires a measured capability/security/offline justification, ownership and exit path, not merely another app name.
++
++### 10.R14
++
++**R14 — Explicit central-control boundaries.** Central membership/device approval is an authenticated, scoped operational decision, not universal administrator privilege, constitutional ratification, canonical Quality Gate PASS, professional acceptance, payment entitlement or Production release authority. Keep the control-plane operator-device registry distinct from managed end-user device identities and from per-app sessions/entitlements. Centralize the approval decision and orchestration, not all business databases, private user records, client signing keys or provider credentials. Block/revoke updates must invalidate affected grants within an explicit project risk budget; source unavailability cannot silently renew trust. Metadata-only/static/local apps declare their applicable management level honestly and must never advertise a nonexistent approval backend.
++
++### 10.R15
++
++**R15 — Prompt-to-product execution contract.** The user's approved objective, current canonical project state and effective Constitution form a versioned execution contract: target repo/branch, exact HEAD, requested end state, acceptance criteria, protected invariants, out-of-scope changes, authority limits and ordered work packages. Resolve conflicts by existing authority precedence; the latest prompt may refine ordinary tasks but cannot silently replace approved goals or grant restricted rights. Treat each meaningful new request as a reviewed scope delta, not a reason to discard unfinished work.
++
++### 10.R16
++
++**R16 — One active critical path, bounded work queue.** Reconcile existing implementation and remaining gaps before proposing new modules. Maintain one visible active work package and an ordered, dependency-aware queue (READY / ACTIVE / BLOCKED / VERIFIED / DONE), with one next executable action and an explicit completion predicate per package. Parallelize only genuinely independent changes with non-overlapping ownership and revision-safe integration; do not fork duplicate approaches, dashboards or task logs. Prefer finishing, verifying and retiring obsolete paths to opening more speculative work.
++
++### 10.R17
++
++**R17 — Continuous verified execution with an explicit evaluation exit.** Within one authorized interactive or scheduled execution, proceed **diagnose -> one scoped change -> focused test -> assess -> stop/continue only with new evidence**; protect the approved goal, existing critical journeys, canonical state and exact SHA. A PASS completes only the work slice whose acceptance has been evidenced; a FAIL returns to diagnosis, not blind retry. A persistent failure may move to a safe independent package without reopening the failed scope or silently replacing its acceptance condition. Treat added files/UI/tokens/dependencies as cost requiring justification. Checkpoint only facts and one next action; never claim continuous background execution where the environment cannot perform it.
++
++### 10.R18
++
++**R18 — Architectural and UX entropy budget.** Every substantive change checks net-new complexity against the existing baseline: canonical ownership, new dependencies, duplicated logic, routes/cards/buttons, dead branches, package/build weight and affected user journeys. New surface/abstraction must have distinct user value, lifecycle owner, retirement/migration plan where relevant and proportional verification. Remove verified obsolete paths in the same bounded change when safe; do not delete useful tests, history or necessary modular boundaries to artificially lower counts. No optional redesign or convenience UI expansion may displace the approved task.
++
++### 10.R19
++
++**R19 — Intervention only for a genuine authority or capability boundary.** Distinguish (A) an engineering defect the Agent can diagnose/fix, (B) a recoverable tool/network/quota outage needing a durable checkpoint and later resumption, and (C) a non-delegable decision. Only C requires a human decision: authenticated constitutional ratification, explicit new Production/protected/destructive authority, access/identity the Agent cannot lawfully obtain, a true conflict in product intent with no safe default, or a mandatory qualified human acceptance. After three meaningfully distinct failed remedies, stop speculative patches and re-investigate; this is **not automatically a request to the user**. Do not weaken gates, reroute approvals, or claim success because credits or tools are exhausted.
++
++### 10.R20
++
++**R20 — End-to-end finish and clean handoff.** A package is DONE only when its acceptance criteria and affected existing critical journeys are evidenced at the exact revision; product completion additionally requires remaining-scope reconciliation, no unresolved release-blocking defects, verified persistence/security/performance/UX as applicable, dependency cleanup, truthful release/rollback status and post-release observation when authorized. Separate CODE COMPLETE, TEST VERIFIED, MERGED, DEPLOYED and USER ACCEPTED; no status implies the next. Persist the smallest useful restart checkpoint and remaining blockers so a new session resumes without re-auditing the full repository or treating chat as canonical truth.
++
++### 10.R21
++
++**R21 — Universal execution law, two implementation scales.** Every governed project, including newly generated projects, inherits the **same** constitutional obligation to preserve the approved objective, reconcile real state, complete safe work continuously, repair root causes, verify existing critical journeys, minimize complexity/cost, truthfully report evidence and stop only at a genuine capability or human-authority boundary. This is binding constitutional behavior **only after valid ratification/publication**, not an optional per-project prompt or a quota-based completion promise. Use exactly two proportionate execution profiles mapped from the existing Blueprint Levels: **COMPACT (small/medium: B0–B2)** and **STRUCTURED (large: B3–B5)**. Project risk can increase required verification and approval but never reduce these shared invariants. No new Constitution product, project registry, management dashboard, mandatory model/provider or extra source of truth.
++
++### 10.R22
++
++**R22 — Do maximum eligible work in the current connected environment.** For both profiles, the executing Chat/Agent should finish analysis, precise repository edits, scoped tests, CI diagnosis, regression fixes, reviews and truthful project bookkeeping through its **already authorized, connected capabilities** before delegating. Work/Cloud Browser is justified only by a real authenticated GUI/cross-app workflow or tool capability boundary; Codex/full local environment only by a concrete native build, complex localized refactor or environment-specific test not feasible with the current tools. Escalation is **capability-based and minimal**, not a fixed percentage of work, an automatic phase, or a replacement for engineering judgement. The handoff must include only exact HEAD/policy, accepted goal, minimal affected paths, failing evidence, permitted action, next bounded task and clear return criteria. Reuse the same project state; do not trigger a full repository/network scan or duplicate work unless evidence requires it.
++
++### 10.R23
++
++**R23 — Situational intake and context-aware task planning for all new projects.** Before generating a repository, UI, schema, prompt, or sprint plan, the executing Agent must inspect whether the new request belongs in an existing governed project, and capture enough of the **intended supported product** (not just a foundation scaffold) to justify a Project Profile: primary users and job-to-be-done, critical workflows, module and integration boundaries, ownership, persistence/offline constraints, high-sensitivity data, privileged devices, consequences of failure, resource and provider budget, and acceptance evidence. Unknown high-consequence facts remain UNVERIFIED; they cannot be defaulted to false in order to assign a smaller project. Propose a documented B0–B5 Blueprint Level and inherit COMPACT/STRUCTURED under R21 only after confirming against the existing canonical Project Profile process. Work direction starts with **one validated user journey / vertical slice** with explicit non-goals, verification, current-state reuse and the smallest dependency path, not a complete speculative module scaffold. Plan subsequent slices from observed evidence and evolving constraints, not from an unbounded mega-prompt.
++
++### 10.R24
++
++**R24 — Portfolio inheritance, scale review and safe reclassification.** Existing governed repositories inherit their execution profile solely from their recorded canonical Blueprint Level; project-specific category labels, chat notes, rollout tables or a suggested new-project level are **not authority**. A repository discovered outside the governed manifest is an enrollment **candidate** until its Project Profile, ownership and authorized registry entry are established; never represent its status as adopted/compliant merely because it exists on GitHub. Re-evaluate scale only on material changes to scope, sensitivity, privileged capabilities, shared identity/control plane, cross-project dependencies or failure severity; record before/after levels, reasons, migration costs, affected gates, release/rollback impact and approved owner. No quiet downclassification to reduce testing. The common safeguards, verification and human-authority floor remain mandatory for both scales. Automatic future classification is **recommendation plus confirmation**, not a new self-approving registry or a new management app.
++
++### 10.R25
++
++**R25 — Independent ecosystem reference axis.** A large application and an ecosystem of many independently evolving applications are distinct architectural kinds. Retain B0–B5 for **per-project engineering depth** and COMPACT/STRUCTURED for **per-project execution overhead**. Add a strictly orthogonal **E0–E3 ecosystem topology classification** to guide cross-project coordination, not to redefine a repository's Blueprint Level or create a third project execution mode. E0 = standalone project; E1 = coordinated product suite with concrete shared contracts; E2 = managed multi-domain ecosystem with separately scoped constitutional governance and operational orchestration; E3 = federation of multiple independently governed ecosystems with an explicit cross-trust protocol. Assess intended topology and verified runtime links separately: a list of repositories or a shared name alone never proves integrated SSO, production federation or ecosystem readiness. A project's E-level cannot self-grant any requirement/gate PASS.
++
++### 10.R26
++
++**R26 — Ecosystem architecture, sovereignty and dependency discipline.** At E2/E3, describe **roles and trust boundaries** within the existing platforms: constitutional authority and Blueprint engineering guidance remain with Software-Blueprint-Hub; day-to-day app catalog, scoped device enrollment and coordination belong with Application-Management when correctly authorized; each managed application owns its business data, user journey, app-specific permissions, runtime health and release evidence. Cross-app interaction is contract/version-based and least-privilege with explicit failure/degraded modes. Define identity, policy, shared UI vocabulary, interoperability, observability, security blast radius, backup and exit paths **without** creating a second canonical registry, universal user-data database, shadow constitution, duplicate dashboard, common superadmin, mandatory paid dependency or single shared release switch. Ecosystem success requires user-facing interoperability and independently verified cross-product critical journeys, not simply a high repository count, CI percentage or prestigious brand analogy.
++
++### 10.R27
++
++**R27 — Ecosystem-first situational planning and bounded evolution.** Before creating a new app or upgrading a platform, ask whether the feature belongs in an existing product, a shared contract, a management-plane service or a new independent bounded context. Assess domain ownership, product autonomy, actual cross-product journeys, core/adapter boundaries, compatibility/version migrations, identity/security domains, organizational/technical cost and planned failure isolation. Determine each project's B-level and execution mode **and** its proposed ecosystem position, including E-level at the relevant portfolio root. Work from one end-to-end vertical slice across only the minimum necessary participants; expand one dependency edge at a time, test interoperation and independent rollback before deeper federation. Ecosystem E-level promotion/demotion must be reviewed against topology and real integration evidence, not automatic from project creation or from one Agent's claimed readiness. Future ecosystems must inherit the same decision logic, preserve separate Production/human gates and avoid reimplementing central capabilities per client.
++
++### 10.R28
++
++**R28 — Content-bearing software must have instructional architecture and real learning acceptance.** A learning app, course satellite or educational ecosystem must preserve one curriculum source of truth and an **explicit provenance boundary** between official institutional study-plan facts, independently verified external materials, and AI-authored supplemental learning content. Structure material as **program -> subject -> prerequisite/semester -> module -> lesson -> practice -> feedback/assessment -> durable evidence -> review**, with a dependency-aware and learner-readable route; subject-specific variations are legitimate, indiscriminate fixed ten-tab shells are not. Before declaring a lesson READY, verify real learning objectives, prerequisite correctness, substantive explanations and worked examples, discipline-appropriate assessment with checked answers, actionable error feedback, meaningful resource references, accessibility and stable learning-state readback. Generic rephrased templates, repeated boilerplate tasks, fabricated citations, empty simulations, aspirational features and synthetic mastery **must be flagged as DRAFT/UNVERIFIED**, not promoted by JSON validity or green code CI. Refactor existing subject owners in bounded, risk-prioritized vertical slices, preserve user progress and prior credible content, retire obsolete duplicate tabs/overrides only after parity testing, and require representative professional pedagogical review before broad rollout. UI legibility additionally inherits the computed-contrast obligations consolidated into this same amendment when ratified, but this R28 does **not** create duplicate contrast thresholds, runtime authority or a new content CMS.
++
++## 11. Computed contrast and legibility
++
++1. A component's foreground and background form one inseparable semantic contrast contract. Light text on dark/gradient/media surfaces, dark text on light surfaces; any reverse pairing must first prove sufficient contrast.
++2. At minimum **WCAG 2.2 AA**: normal text **4.5:1**; large text (>=24px normal or >=14pt (56/3 CSS px) bold) **3:1**; meaningful non-text UI boundaries and state indicators **3:1**. Correctly disabled controls use the applicable WCAG exemption, but avoid illegible disabled text where feasible.
++3. The requirement covers page titles, body text, descriptions, counters, KPI numbers, labels/captions, hint text, buttons, tabs, active/hover/focus/selected states, responsive layouts and supported themes.
++4. For gradients, images, overlays and transparency, prove the **rendered foreground against the final composited background** at representative and worst-case positions. Require an appropriate scrim/opaque text panel if adequate contrast cannot be guaranteed throughout the surface.
++5. A component must not inherit a visually incompatible global color rule. Prefer shared semantic tokens and scoped surface variants; do not accumulate indiscriminate `!important` overrides. Resolve cascade conflicts at the canonical design-system owner.
++6. Browser acceptance must measure `getComputedStyle` values and rendered background/surface colors after all CSS and theme overrides load. Check desktop and mobile. CI cannot be declared PASS from static token existence alone, nor by changing test thresholds instead of repairing the defect.
++7. Contrast is a **release-blocking UX gate** for newly changed user-facing UI. For existing deployments, report PASS/FAIL/UNVERIFIED truthfully, prioritize inaccessible surfaces and migrate via scoped work packages. Do not claim blanket compliance without verification.
++
++Contrast strengthens gate:ux:commercial-quality and never replaces human UX acceptance. Existing deployments retain truthful FAIL/UNVERIFIED until scoped remediation and measured verification.
+diff --git a/control/universal-constitution.contract.json b/control/universal-constitution.contract.json
+index c258a38..b839f08 100644
+--- a/control/universal-constitution.contract.json
++++ b/control/universal-constitution.contract.json
+@@ -1,10 +1,10 @@
+ {
+   "schemaVersion": "1.0.0",
+   "policyId": "blueprint-os:universal-century-grade",
+-  "policyVersion": "1.2.0",
++  "policyVersion": "1.3.0",
+   "constitutionTemplate": {
+     "id": "template:constitution:universal-v1",
+-    "version": "1.2.0"
++    "version": "1.3.0"
+   },
+   "inheritanceRule": "mandatory-all-projects",
+   "depthRule": "blueprint-level-scales-depth-never-removes-pillar",
+@@ -65,5 +65,228 @@
+     "uiOverride": true,
+     "aiOverride": true,
+     "implicitProductionAuthority": true
++  },
++  "executionRules": [
++    {
++      "id": "R1",
++      "requirementId": "gate:quality:evidence",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R1"
++    },
++    {
++      "id": "R2",
++      "requirementId": "module:architecture:boundaries",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R2"
++    },
++    {
++      "id": "R3",
++      "requirementId": "gate:quality:evidence",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R3"
++    },
++    {
++      "id": "R4",
++      "requirementId": "gate:durability:ageing-regression",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R4"
++    },
++    {
++      "id": "R5",
++      "requirementId": "module:data:source-of-truth",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R5"
++    },
++    {
++      "id": "R6",
++      "requirementId": "gate:ux:commercial-quality",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R6"
++    },
++    {
++      "id": "R7",
++      "requirementId": "module:quality:evidence",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R7"
++    },
++    {
++      "id": "R8",
++      "requirementId": "module:governance:evolution",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R8"
++    },
++    {
++      "id": "R9",
++      "requirementId": "gate:quality:evidence",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R9"
++    },
++    {
++      "id": "R10",
++      "requirementId": "module:quality:evidence",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R10"
++    },
++    {
++      "id": "R11",
++      "requirementId": "module:architecture:boundaries",
++      "enforcement": "immediate-boundaries-migration-gated-functionality",
++      "normativeSection": "10.R11"
++    },
++    {
++      "id": "R12",
++      "requirementId": "module:security:authority",
++      "enforcement": "immediate-boundaries-migration-gated-functionality",
++      "normativeSection": "10.R12"
++    },
++    {
++      "id": "R13",
++      "requirementId": "module:ux:product-elegance",
++      "enforcement": "immediate-boundaries-migration-gated-functionality",
++      "normativeSection": "10.R13"
++    },
++    {
++      "id": "R14",
++      "requirementId": "gate:security:authority",
++      "enforcement": "immediate-boundaries-migration-gated-functionality",
++      "normativeSection": "10.R14"
++    },
++    {
++      "id": "R15",
++      "requirementId": "module:product:purpose",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R15"
++    },
++    {
++      "id": "R16",
++      "requirementId": "module:governance:evolution",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R16"
++    },
++    {
++      "id": "R17",
++      "requirementId": "gate:quality:evidence",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R17"
++    },
++    {
++      "id": "R18",
++      "requirementId": "module:architecture:structural-capacity",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R18"
++    },
++    {
++      "id": "R19",
++      "requirementId": "gate:security:authority",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R19"
++    },
++    {
++      "id": "R20",
++      "requirementId": "module:operations:release",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R20"
++    },
++    {
++      "id": "R21",
++      "requirementId": "module:product:purpose",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R21"
++    },
++    {
++      "id": "R22",
++      "requirementId": "module:governance:evolution",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R22"
++    },
++    {
++      "id": "R23",
++      "requirementId": "module:product:purpose",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R23"
++    },
++    {
++      "id": "R24",
++      "requirementId": "module:governance:architectural-longevity",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R24"
++    },
++    {
++      "id": "R25",
++      "requirementId": "module:architecture:boundaries",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R25"
++    },
++    {
++      "id": "R26",
++      "requirementId": "module:security:fortress-resilience",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R26"
++    },
++    {
++      "id": "R27",
++      "requirementId": "gate:quality:evidence",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R27"
++    },
++    {
++      "id": "R28",
++      "requirementId": "module:product:purpose",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R28"
++    }
++  ],
++  "executionProfiles": {
++    "COMPACT": [
++      "B0",
++      "B1",
++      "B2"
++    ],
++    "STRUCTURED": [
++      "B3",
++      "B4",
++      "B5"
++    ],
++    "authority": "canonical-project-profile",
++    "riskRule": "L1-L3-per-operation-never-reduces-common-floor"
++  },
++  "ecosystemReference": {
++    "axis": "orthogonal-to-blueprint-level",
++    "levels": [
++      "E0",
++      "E1",
++      "E2",
++      "E3"
++    ],
++    "classificationAuthority": "reviewed-existing-project-profile-and-canonical-membership",
++    "operationalMaturity": "requires-exact-authenticated-cross-app-evidence",
++    "productionReleaseAuthority": false
++  },
++  "managementMigration": {
++    "requirementIds": [
++      "module:architecture:boundaries",
++      "module:security:authority",
++      "module:ux:product-elegance",
++      "gate:security:authority"
++    ],
++    "immediate": "truthful-capabilities-scoped-ownership-no-implicit-trust",
++    "functionality": "migration-gated-CP-01-through-CP-13-and-project-acceptance",
++    "centralOwner": "Application-Management",
++    "constitutionalOwner": "Software-Blueprint-Hub",
++    "businessDataOwner": "owning-application",
++    "unsupportedStatus": "UNVERIFIED",
++    "productionReleaseAuthority": false
++  },
++  "computedContrast": {
++    "requirementId": "gate:ux:commercial-quality",
++    "standard": "WCAG-2.2-AA",
++    "normalTextRatio": 4.5,
++    "largeTextRatio": 3,
++    "meaningfulNonTextRatio": 3,
++    "largeTextNormalCssPx": 24,
++    "largeTextBoldCssPx": 18.666666666666668,
++    "evidence": "browser-final-computed-composited-colors-desktop-mobile-states-themes",
++    "complexSurfaceWithoutRenderedEvidence": "UNVERIFIED",
++    "disabledException": "applicable-WCAG-exemption-only"
+   }
+ }
+diff --git a/packages/application/src/foundation-templates.ts b/packages/application/src/foundation-templates.ts
+index a6879a6..49d2173 100644
+--- a/packages/application/src/foundation-templates.ts
++++ b/packages/application/src/foundation-templates.ts
+@@ -23,7 +23,7 @@ const levelTemplate = (
+ export const universalConstitutionTemplateV1 = Object.freeze({
+     schemaVersion: "1.0.0",
+     id: "template:constitution:universal-v1",
+-    version: "1.2.0",
++    version: "1.3.0",
+     authorityLayer: "constitution",
+     requirements: [
+       {
+@@ -31,7 +31,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         kind: "module",
+         depth: "basic",
+         tags: ["product"],
+-        description: "Define users, jobs-to-be-done, constraints, and success evidence."
++        description: "Define users, jobs-to-be-done, constraints, and success evidence. Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28 additionally requires provenance, checked learning-state feedback and professional pedagogical acceptance for learning products."
+       },
+       {
+         id: "module:architecture:boundaries",
+@@ -39,7 +39,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         depth: "standard",
+         tags: ["architecture"],
+         dependsOn: ["module:product:purpose"],
+-        description: "Define ownership, contracts, and dependency direction."
++        description: "Define ownership, contracts, and dependency direction. Apply R2/R11/R25: one canonical owner, truthful catalog capability and independent B/E axes; no shadow registry."
+       },
+       {
+         id: "module:data:source-of-truth",
+@@ -47,7 +47,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         depth: "standard",
+         tags: ["data"],
+         dependsOn: ["module:architecture:boundaries"],
+-        description: "Define canonical state, identity, versions, and lifecycle."
++        description: "Define canonical state, identity, versions, and lifecycle. Apply R5: scoped version-safe writes, idempotency, readback and recovery."
+       },
+       {
+         id: "module:security:authority",
+@@ -55,7 +55,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         depth: "standard",
+         tags: ["security"],
+         dependsOn: ["module:architecture:boundaries"],
+-        description: "Define trust boundaries, authentication, and authorization."
++        description: "Define trust boundaries, authentication, and authorization. R12 federation remains migration-gated; declarations and trust boundaries apply immediately; no forged or stale central approval."
+       },
+       {
+         id: "module:ux:information-architecture",
+@@ -71,7 +71,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         depth: "standard",
+         tags: ["quality"],
+         dependsOn: ["module:architecture:boundaries"],
+-        description: "Define measurable tests, defects, gates, and evidence."
++        description: "Define measurable tests, defects, gates, and evidence. Apply R7/R10: bounded defect attempts and non-gamed quality cohorts."
+       },
+       {
+         id: "module:operations:release",
+@@ -79,7 +79,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         depth: "standard",
+         tags: ["operations"],
+         dependsOn: ["module:quality:evidence"],
+-        description: "Define exact-revision promotion, recovery, and observability."
++        description: "Define exact-revision promotion, recovery, and observability. Apply R20: distinguish code/test/merge/deploy/acceptance and require truthful cleanup, rollback and restart evidence."
+       },
+       {
+         id: "module:governance:evolution",
+@@ -87,7 +87,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         depth: "standard",
+         tags: ["governance"],
+         dependsOn: ["module:architecture:boundaries"],
+-        description: "Define ADR, compatibility, deprecation, and debt policy."
++        description: "Define ADR, compatibility, deprecation, and debt policy. Apply R8/R16/R22: durable scoped checkpoints, one dependency-aware work queue and capability-based economical handoffs."
+       },
+       {
+         id: "module:architecture:structural-capacity",
+@@ -96,7 +96,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         tags: ["architecture", "capacity", "longevity"],
+         dependsOn: ["module:architecture:boundaries"],
+         description:
+-          "Preserve a credible future-scale path without speculative overbuilding or irreversible coupling."
++          "Preserve a credible future-scale path without speculative overbuilding or irreversible coupling. Apply R18: measure architectural/UX entropy; no speculative scaffolds or destructive count reduction."
+       },
+       {
+         id: "module:governance:architectural-longevity",
+@@ -108,7 +108,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+           "module:governance:evolution"
+         ],
+         description:
+-          "Keep domain meaning portable across framework, provider, UI-library and AI-vendor evolution."
++          "Keep domain meaning portable across framework, provider, UI-library and AI-vendor evolution. Apply R24: enrollment and reclassification require canonical profile/owner review; never downgrade risk for cost."
+       },
+       {
+         id: "module:ux:product-elegance",
+@@ -117,7 +117,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         tags: ["ux", "design-system", "longevity"],
+         dependsOn: ["module:ux:information-architecture"],
+         description:
+-          "Define a calm, coherent and deliberately responsive visual system designed to age gracefully."
++          "Define a calm, coherent and deliberately responsive visual system designed to age gracefully. Apply R13: shared status vocabulary with task-appropriate responsive layouts and no duplicate approval surfaces."
+       },
+       {
+         id: "module:ux:premium-usability",
+@@ -156,7 +156,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+           "module:operations:release"
+         ],
+         description:
+-          "Apply defense in depth, least privilege, blast-radius containment, protected canonical state and tested recovery."
++          "Apply defense in depth, least privilege, blast-radius containment, protected canonical state and tested recovery. Apply R26: separate governance, operations and app data/releases; test least privilege, isolation and independent recovery."
+       },
+       {
+         id: "module:architecture:operational-sovereignty",
+@@ -177,7 +177,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         depth: "standard",
+         tags: ["quality"],
+         dependsOn: ["module:quality:evidence"],
+-        description: "PASS requires revision-specific evidence."
++        description: "PASS requires revision-specific evidence. Require exact revision, scope, truthful status, risk-appropriate checks, continuity and ecosystem evidence under R1/R3/R9/R17/R27; metrics never grant permission."
+       },
+       {
+         id: "gate:security:authority",
+@@ -185,7 +185,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         depth: "standard",
+         tags: ["security"],
+         dependsOn: ["module:security:authority"],
+-        description: "Protected mutations require trusted authorization."
++        description: "Protected mutations require trusted authorization. Apply R14/R19: operational device approval never implies constitutional, business-data, privileged or Production authority."
+       },
+       {
+         id: "gate:ux:human-acceptance",
+@@ -214,7 +214,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+           "module:ux:premium-usability"
+         ],
+         description:
+-          "PASS requires coherent visual quality and efficient realistic user journeys, not merely functional UI."
++          "PASS requires coherent visual quality and efficient realistic user journeys, not merely functional UI. R6 and WCAG 2.2 AA require measured final rendered/composited contrast: text 4.5:1, large text 3:1 (24px normal or 14pt bold), meaningful non-text 3:1; desktop/mobile/themes/states, fail-closed unknown colors and complex backgrounds, real human UX."
+       },
+       {
+         id: "gate:durability:ageing-regression",
+@@ -223,7 +223,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
+         tags: ["maintenance", "quality", "longevity"],
+         dependsOn: ["module:maintenance:long-term-durability"],
+         description:
+-          "PASS requires regression evidence appropriate to expected lifetime, upgrade risk and compatibility surface."
++          "PASS requires regression evidence appropriate to expected lifetime, upgrade risk and compatibility surface. Apply R4: reproduce, diagnose first divergence, minimal coherent fix and affected critical-journey regression."
+       },
+       {
+         id: "gate:operations:dependency-sovereignty",
+diff --git a/packages/application/src/constitution-authority.ts b/packages/application/src/constitution-authority.ts
+index 2a07a6c..47f8f91 100644
+--- a/packages/application/src/constitution-authority.ts
++++ b/packages/application/src/constitution-authority.ts
+@@ -25,7 +25,7 @@ export type {
+ } from "@blueprint-os/core";
+ 
+ export const CONSTITUTION_POLICY_ID = "blueprint-os:universal-century-grade" as const;
+-export const CONSTITUTION_POLICY_VERSION = "1.2.0" as const;
++export const CONSTITUTION_POLICY_VERSION = "1.3.0" as const;
+ export const CONSTITUTION_AUTHORITY_PROMPT_VERSION =
+   "constitution-authority-prompt:v1" as const;
+ 
+diff --git a/control/universal-constitution-version.json b/control/universal-constitution-version.json
+index 2d19bfc..aa7986f 100644
+--- a/control/universal-constitution-version.json
++++ b/control/universal-constitution-version.json
+@@ -1,23 +1,23 @@
+ {
+   "schemaVersion": "1.0.0",
+   "policyId": "blueprint-os:universal-century-grade",
+-  "policyVersion": "1.2.0",
++  "policyVersion": "1.3.0",
+   "normativeDocument": {
+     "path": "docs/UNIVERSAL-CONSTITUTION.md",
+-    "version": "1.2.0"
++    "version": "1.3.0"
+   },
+   "machineContract": {
+     "path": "control/universal-constitution.contract.json",
+-    "version": "1.2.0"
++    "version": "1.3.0"
+   },
+   "universalTemplate": {
+     "path": "packages/application/src/foundation-templates.ts",
+     "id": "template:constitution:universal-v1",
+-    "version": "1.2.0"
++    "version": "1.3.0"
+   },
+   "policySource": {
+     "path": "packages/application/src/constitution-authority.ts",
+-    "version": "1.2.0"
++    "version": "1.3.0"
+   },
+   "productionReleaseAuthority": false
+ }
+diff --git a/.blueprint/constitution-adoption.json b/.blueprint/constitution-adoption.json
+index 2b474fb..f2cc20f 100644
+--- a/.blueprint/constitution-adoption.json
++++ b/.blueprint/constitution-adoption.json
+@@ -1,7 +1,7 @@
+ {
+   "schemaVersion": "1.0.0",
+   "policyId": "blueprint-os:universal-century-grade",
+-  "policyVersion": "1.2.0",
++  "policyVersion": "1.3.0",
+   "projectId": "project:blueprint-os",
+   "blueprintLevel": "B4",
+   "enforcementMode": "enforced",
+diff --git a/control/constitution-ecosystem-snapshot.json b/control/constitution-ecosystem-snapshot.json
+index a4ee8ab..a7e567a 100644
+--- a/control/constitution-ecosystem-snapshot.json
++++ b/control/constitution-ecosystem-snapshot.json
+@@ -2,7 +2,7 @@
+   "schemaVersion": "1.0.0",
+   "source": "github-default-branch-snapshot",
+   "policyId": "blueprint-os:universal-century-grade",
+-  "activePolicyVersion": "1.2.0",
++  "activePolicyVersion": "1.3.0",
+   "repositories": [
+     {
+       "repository": "BlueDragon33/Software-Blueprint-Hub",
+diff --git a/control/constitution-compliance-snapshot.json b/control/constitution-compliance-snapshot.json
+index 74c62f9..a95e7c5 100644
+--- a/control/constitution-compliance-snapshot.json
++++ b/control/constitution-compliance-snapshot.json
+@@ -2,7 +2,7 @@
+   "schemaVersion": "1.0.0",
+   "source": "operator-verified-repository-scan",
+   "policyId": "blueprint-os:universal-century-grade",
+-  "policyVersion": "1.2.0",
++  "policyVersion": "1.3.0",
+   "observations": [
+     {
+       "repository": "BlueDragon33/Software-Blueprint-Hub",

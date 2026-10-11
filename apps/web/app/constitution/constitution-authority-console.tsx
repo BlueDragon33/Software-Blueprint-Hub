@@ -2,6 +2,7 @@
 
 import type {
   CanonicalConstitutionAmendmentRecord,
+  ConstitutionEvidenceRecord,
   ConstitutionEvidenceKind,
   ConstitutionRatificationDecisionKind
 } from "@blueprint-os/application";
@@ -19,6 +20,7 @@ import {
 interface ConstitutionAuthorityConsoleProps {
   readonly canManage: boolean;
   readonly amendments: readonly CanonicalConstitutionAmendmentRecord[];
+  readonly evidence: readonly ConstitutionEvidenceRecord[];
 }
 
 function list(value: FormDataEntryValue | null): readonly string[] {
@@ -52,7 +54,8 @@ function stateTone(
 
 export function ConstitutionAuthorityConsole({
   canManage,
-  amendments
+  amendments,
+  evidence
 }: ConstitutionAuthorityConsoleProps) {
   const router = useRouter();
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -249,6 +252,9 @@ export function ConstitutionAuthorityConsole({
           </div>
         ) : (
           amendments.map((amendment) => {
+            const candidate = evidence.find((item) =>
+              item.amendmentId === amendment.proposal.id && item.kind === "migration" &&
+              amendment.migrationEvidenceIds.includes(item.id));
             const evidenceKind =
               amendment.state === "draft"
                 ? ("impact" as const)
@@ -384,8 +390,10 @@ export function ConstitutionAuthorityConsole({
                     <h4>Human ratification decision</h4>
                     <p>
                       This decision is append-only and binds amendment record v
-                      {amendment.recordVersion}. Publication remains separate.
+                      {amendment.recordVersion} and its reviewed candidate below. Publication remains separate.
                     </p>
+                    <p>Candidate Git revision: <code>{candidate?.revision ?? "UNVERIFIED"}</code></p>
+                    <p>Reviewed authority-set digest: <code>{candidate?.digest ?? "UNVERIFIED"}</code></p>
                     <label>
                       Mandatory decision note
                       <textarea

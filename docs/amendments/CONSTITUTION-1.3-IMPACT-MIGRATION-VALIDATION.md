@@ -26,7 +26,7 @@ Existing, verified repository surfaces:
 | .github/workflows/ci.yml + release-gate.yml | Fast CI and deeper release evidence | Prevent fast green from being misreported as Human UX/Production PASS; do not force full expensive CI for low-risk edits |
 | Application-Management Development Live Mode | Autonomous main deployment with regression; heavier gates reserved for Release Mode | Define what is permitted for live development and when L2/L3 requires integration/real-state verification |
 
-**Collision check:** existing draft PR #97 proposes measurable computed contrast UX gate. Treat that proposal as an independent amendment candidate. Do not duplicate its WCAG/contrast authority within 1.3. Coordinate impact and version sequencing at publication time, rebase/renumber candidate as needed. Neither PR is evidence of active 1.3 law.
+**Collision resolution in final review:** PR #97's computed contrast proposal is incorporated into this single PR #98 candidate, under the existing `gate:ux:commercial-quality`. The preserved proposal file identifies consolidation; #97 must not publish an independent 1.3.0. Neither PR is active law. If another version publishes before ratification, invalidate and rebuild this candidate from the real new baseline.
 
 ### Assessment by subsystem
 
@@ -495,3 +495,47 @@ An application can be B5 yet E0 when standalone, or B1/B2 yet belong inside E2 t
 
 **Current verified status:** academic source/file inspection and candidate code/test patch on PR #329 are *not* whole-course UX or pedagogy acceptance. Publication of 1.3 itself remains separately governed by authenticated human ratification and full Release Gate. The PR #97 contrast proposal must be reconciled with 1.3 rather than copied as another conflicting WCAG law.
 
+## Q. Final review implementation plan and restart ledger (2026-10-11)
+
+**Goal:** produce one sealed, inactive 1.3.0 publication candidate and exact-revision evidence, preserving active 1.2.0 until authenticated ratification and publication.
+**Architecture:** reuse canonical authority paths, validator, locked template/resolver and append-only amendment evidence. A generated publication patch is an inactive review artifact, not a second Constitution or registry. Its temporary overlay is validated with the existing authority-set checker; it never changes the current runtime policy.
+**Spec:** Section O and `docs/CONSTITUTION-AUTHORITY-PROTOCOL.v1.md`; implementation is authorized by the final-review work request.
+
+### Task 1 — exact ratification binding
+- [ ] Add regression tests: another SHA, another authority digest, missing/malformed candidate evidence and mismatched human decision cannot publish.
+- [ ] Use the existing immutable impact/migration evidence IDs as the seal: both reviews refer to the candidate SHA; migration evidence digest is the generated authority-set digest. Opening approval validates this seal; publication compares the exact trusted attestation to it and to the human-approved record version. No new database or approval ledger.
+- [ ] Show the existing review evidence in the existing ratification form; no new dashboard.
+- [ ] Run application and PostgreSQL authority tests; preserve historical append-only records.
+
+### Task 2 — one complete inactive authority set
+- [ ] Consolidate #97 contrast text into #98; keep R1–R28 and seven existing pillars.
+- [ ] Explicit immediate obligations: bounded evidence, profiles, ownership/security declarations, accurate capability/status reporting and applicable contrast verification. Central federation functionality remains implementation/migration gated; missing implementation is UNVERIFIED, never exempt/compliant by design.
+- [ ] Generate one patch from existing draft text into the canonical normative document, contract, locked template, policy constant and version manifest. Reuse existing requirement IDs, bind each R rule to owners, preserve schema compatibility and all seven pillars.
+- [ ] Validate the generated overlay with the existing checker and Blueprint resolver; exercise negative computed-style contrast fixtures on desktop/mobile. Preserve current 1.2.0 files and actual adoption snapshots.
+
+### Task 3 — exact evidence and authority handoff
+- [ ] Include the candidate and new negative tests in both Fast and Full Gate paths; run Full Gate once the reviewed candidate is coherent, inspect jobs/artifacts and SHA.
+- [ ] Demonstrate durable interrupted/resumed scoped work. Attempt authenticated cross-app journey only on available authorized Preview; no synthetic human approval or invented federation.
+- [ ] Obtain independent review; fix identified material defects. Prepare canonical review evidence values and an authenticated approval handoff. No merge/publish/propagation before valid ratification; Production remains separately gated.
+
+**Review focus:** substituted publication SHA/digest; stale evidence/decision versions; malformed contrast colors; profile/risk downclassification; draft federation mistaken for runtime capability.
+**Recovery checkpoint:** initial PR #98 SHA `dc67f39ea8337a4bea4b13be0322013747ed06a7`; main advanced to `2952ba75567162b496dc3d007ff260c9b55db6b8` and was merged into the isolated review checkout. Initial 105 candidate tests and 11 focused application/CLI tests passed. Preview showed Policy 1.2.0 and System Owner authentication required. No ratification or publication performed.
+
+## R. Consolidated compatibility decision, evidence seal and remaining authority boundary
+
+**Version class:** 1.3.0 is a compatible minor strengthening of evidence, ownership, execution and accessibility obligations. No existing v1 federation contract or login/session semantics are changed by this review. R11–R14's immediate duties are truthful readiness, explicit authority/ownership and fail-closed trust; the federated access experience is separately migration-gated until CP-01–CP-13 and the affected app acceptance criteria are proven. A later breaking federation implementation requires its own reviewed protocol/schema version. No unsupported app is marked compliant by this distinction.
+
+**Single candidate:** the retained #97 proposal supplies computed contrast law once to #98. `scripts/check-constitution-1.3-candidate.mjs` derives a bounded inactive `CONSTITUTION-1.3-PUBLICATION.patch` from the existing draft and active four-component set, applies it in a temporary overlay with canonical paths and runs the existing atomicity checker. The overlay includes all R1–R28, seven unchanged pillars, two execution scales, independent E0–E3 topology, scoped control-plane migration and computed contrast. Machine rules map to existing locked requirements; the actual Blueprint resolver proves inheritance without inventing gate PASS. Active document, contract, template, policy and version/adoption manifests remain 1.2.0.
+
+**Seal and human workflow:** GitHub CI records `artifacts/constitution-1.3-authority-set.json`, `constitution-1.3-candidate.json` and `release-gate-evidence.json`. Review their exact source revision, four-component digest and full publication-patch digest. Record impact evidence at that Git SHA and migration evidence at the same SHA with the generated authority-set digest; include the reviewed patch digest and Full Gate artifact/run reference in the append-only evidence note. The existing authenticated service verifies this seal before opening/approving ratification and rejects publication with another SHA/digest or another amendment/version decision. The existing form displays the sealed review values; an AI/CI fixture is never a human approval.
+
+**Publication activation remains separate:** the current live runtime intentionally has no configured trusted publication/lifecycle attestation verifier and no publication action. Do not mistake a unit-test verifier or generated JSON for that infrastructure. After the authenticated boundary is available, publication execution must use a real configured verifier and apply the exact approved patch, atomically synchronize the self-adoption/runtime snapshot projections without rewriting other apps' observations, then read back all canonical digests. A PostgreSQL publication record alone does not activate repository/runtime law. No automatic merge, propagation or Production permission is granted here.
+
+**Local verification limitations:** 125 Node adversarial/source tests passed, and typecheck passed after generating Prisma. The first complete local Vitest attempt ran 240 passing tests but could not evaluate the database workspace suite because no DATABASE_URL/PostgreSQL was available (32 integration tests skipped); it is not Full Gate PASS. Local browser installation also returned a truncated download. Exact GitHub Full Gate with its real isolated PostgreSQL and Chromium is required; do not weaken/skip those checks to compensate.
+
+**Restart pilot:** work was resumed after main drift by rechecking live GitHub refs and merging only the current main changes, then reading this checkpoint and rerunning the affected evidence suites. A future resume must recheck HEAD, active 1.2.0, candidate-patch regeneration and current CI; changed source invalidates the sealed candidate. This is a real scoped repository-work recovery, not CP federation proof. Authenticated Preview cross-app enrollment/revoke/readback remains UNVERIFIED until the actual owner session and implemented compatible client boundary are available.
+
+
+**Independent final review corrections:** pre-publication checks now reconstruct the exact sealed 1.2 baseline after 1.3 activation and verify the regenerated patch against active canonical bytes; they do not require unreviewed follow-on edits. The same patch includes local self-adoption and target-version projection headers, while preserving every historical app observation and attestation unchanged. Runtime activation still requires authenticated publication. Unsupported filters, blending, backdrop filters and text-fill overrides return UNVERIFIED in computed-style contrast fixtures. Ratification SHA/digest values wrap in the existing mobile form. Regression tests reproduced the activation and false-contrast failures before these fixes.
+
+**Concurrent HEAD recovery:** PR #98 advanced to `9035f7961fb5f792daeff0abb54e989192db081e` during final review. Its strengthened R7/R17 and new R28, plus the existing Bauman intervention Section P, were preserved and integrated rather than overwritten. R28 binds to the existing product-purpose requirement and professional learning acceptance; no Bauman product changes, new CMS or pedagogy approval are performed here. Its contrast reference is consolidated into Section 11 of the same candidate, not a competing version.

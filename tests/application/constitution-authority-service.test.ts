@@ -1,3 +1,7 @@
+import { CONSTITUTION_POLICY_VERSION } from "../../packages/application/src";
+
+const [policyMajor, policyMinor] = CONSTITUTION_POLICY_VERSION.split(".").map(Number);
+const TARGET_VERSION = `${policyMajor}.${policyMinor + 1}.0`;
 import { createHash } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
@@ -149,7 +153,7 @@ const digest = "sha256:" + "a".repeat(64);
 
 function draftInput() {
   return {
-    targetPolicyVersion: "1.3.0",
+    targetPolicyVersion: TARGET_VERSION,
     title: "Strengthen long-term durability",
     problem: "Ageing evidence needs a stronger universal definition.",
     rationale: "Prevent build success from being treated as durability proof.",
@@ -194,7 +198,7 @@ function sha(value: string): string {
 }
 
 function authoritySetAttestation(
-  policyVersion = "1.3.0"
+  policyVersion = TARGET_VERSION
 ): ConstitutionAuthoritySetAttestation {
   const components = [
     {
@@ -263,7 +267,7 @@ function propagationAttestation(
     kind: "constitution-propagation-attestation",
     source: "trusted-constitution-lifecycle-attestation",
     policyId: "blueprint-os:universal-century-grade",
-    policyVersion: "1.3.0",
+    policyVersion: TARGET_VERSION,
     amendmentId,
     publicationId,
     sourceRevision: "d".repeat(40),
@@ -287,7 +291,7 @@ function verificationAttestation(
     kind: "constitution-verification-attestation",
     source: "trusted-constitution-lifecycle-attestation",
     policyId: "blueprint-os:universal-century-grade",
-    policyVersion: "1.3.0",
+    policyVersion: TARGET_VERSION,
     amendmentId,
     publicationId,
     sourceRevision: "e".repeat(40),
@@ -315,7 +319,7 @@ async function ratifiedAmendment(
       expectedRecordVersion: 1,
       kind: "impact",
       source: "review",
-      revision: "revision:impact",
+      revision: authoritySetAttestation().sourceRevision,
       digest,
       note: "Impact evidence."
     },
@@ -328,8 +332,8 @@ async function ratifiedAmendment(
       expectedRecordVersion: 2,
       kind: "migration",
       source: "migration-plan",
-      revision: "revision:migration",
-      digest,
+      revision: authoritySetAttestation().sourceRevision,
+      digest: authoritySetAttestation().authoritySetDigest,
       note: "Migration evidence."
     },
     "2026-09-28T01:02:00.000Z"
@@ -367,7 +371,7 @@ describe("CA-002/CA-003 Constitution Authority application service", () => {
     await expect(
       app.createDraft(
         owner,
-        { ...draftInput(), targetPolicyVersion: "1.2.0" },
+        { ...draftInput(), targetPolicyVersion: CONSTITUTION_POLICY_VERSION },
         now
       )
     ).rejects.toThrow(/greater than the active Constitution version/i);
@@ -387,7 +391,7 @@ describe("CA-002/CA-003 Constitution Authority application service", () => {
         expectedRecordVersion: 1,
         kind: "impact",
         source: "github-actions:impact-analysis",
-        revision: "revision:impact-001",
+        revision: authoritySetAttestation().sourceRevision,
         digest,
         note: "Impact review covers all governed repositories."
       },
@@ -404,8 +408,8 @@ describe("CA-002/CA-003 Constitution Authority application service", () => {
         expectedRecordVersion: 2,
         kind: "migration",
         source: "blueprint-os:migration-plan",
-        revision: "revision:migration-001",
-        digest,
+        revision: authoritySetAttestation().sourceRevision,
+        digest: authoritySetAttestation().authoritySetDigest,
         note: "Migration waves preserve truthful non-compliance."
       },
       "2026-09-28T01:02:00.000Z"
@@ -576,7 +580,7 @@ describe("CA-002/CA-003 Constitution Authority application service", () => {
     expect(result.amendment.state).toBe("published");
     expect(result.amendment.recordVersion).toBe(6);
     expect(result.amendment.productionReleaseAuthority).toBe(false);
-    expect(result.publication.policyVersion).toBe("1.3.0");
+    expect(result.publication.policyVersion).toBe(TARGET_VERSION);
     expect(result.publication.authoritySetDigest).toBe(
       authoritySetAttestation().authoritySetDigest
     );
@@ -585,6 +589,55 @@ describe("CA-002/CA-003 Constitution Authority application service", () => {
     expect(
       repository.evidence.some((item) => item.kind === "publication")
     ).toBe(true);
+  });
+
+  it.each(["revision", "digest", "decision"])(
+    "rejects publication substituted after human ratification: %s",
+    async (substitution) => {
+      const { service: app, repository } = service({
+        id: "test:trusted-ci-verifier", verify: async () => true
+      });
+      const ratified = await ratifiedAmendment(app);
+      const original = authoritySetAttestation();
+      const attestation = substitution === "revision"
+        ? { ...original, sourceRevision: "b".repeat(40) }
+        : substitution === "digest"
+          ? authoritySetAttestation("1.3.1")
+          : original;
+      if (substitution === "digest") {
+        // Same target version, valid recomputed aggregate, different law bytes.
+        const components = original.components.map((item) =>
+          item.id === "normative-document" ? { ...item, digest: sha("other law") } : item);
+        Object.assign(attestation, {
+          policyVersion: original.policyVersion, components,
+          authoritySetDigest: sha(JSON.stringify(stable({
+            policyId: original.policyId, policyVersion: original.policyVersion, components
+          })))
+        });
+      }
+      if (substitution === "decision") {
+        repository.decisions[0] = {
+          ...repository.decisions[0]!, amendmentId: "amendment:unrelated"
+        };
+      }
+      await expect(app.publishFromTrustedAttestation(owner, {
+        amendmentId: ratified.proposal.id,
+        expectedRecordVersion: ratified.recordVersion, attestation,
+        note: "Attempt substituted candidate."
+      }, "2026-09-28T01:05:00.000Z")).rejects.toThrow(/ratified|candidate|approval record/i);
+      expect(repository.publication).toBeNull();
+      expect(repository.record?.state).toBe("ratified");
+    }
+  );
+
+  it("cannot open approval with an unsealed candidate revision", async () => {
+    const { service: app, repository } = service();
+    const ratified = await ratifiedAmendment(app);
+    repository.record = { ...ratified, state: "migration-ready", recordVersion: 3 };
+    repository.evidence[1] = { ...repository.evidence[1]!, revision: "revision:unsealed" };
+    await expect(app.openRatification(owner, ratified.proposal.id, 3,
+      "2026-09-28T01:03:00.000Z")).rejects.toThrow(/candidate|exact.*revision/i);
+    expect(repository.record.state).toBe("migration-ready");
   });
 
 

@@ -12,6 +12,7 @@ const REQUIRED = Object.freeze({
 
 const isSha = (value) => typeof value === "string" && SHA.test(value);
 const isNonEmpty = (value) => typeof value === "string" && value.trim().length > 0;
+const isDigest = (value) => typeof value === "string" && /^sha256:[a-f0-9]{64}$/.test(value);
 
 export function evaluateAgentChangeEvidence(change, policy = {}) {
   const blocked = new Set();
@@ -662,21 +663,35 @@ export function evaluateConstitutionPublicationPreflight(input) {
   if (input.fullReleaseGate?.status !== "PASS" ||
       input.fullReleaseGate?.sourceSha !== input.candidateSha ||
       !Number.isSafeInteger(input.fullReleaseGate?.runId) ||
-      input.fullReleaseGate.runId <= 0) {
+      input.fullReleaseGate.runId <= 0 ||
+      ![".github/workflows/release-gate.yml", ".github/workflows/ci.yml"].includes(input.fullReleaseGate?.workflowPath) ||
+      input.fullReleaseGate?.artifact?.name !== "release-gate-evidence-" + input.candidateSha ||
+      !isDigest(input.fullReleaseGate?.artifact?.digest) ||
+      !Array.isArray(input.fullReleaseGate?.jobs) || input.fullReleaseGate.jobs.length === 0 ||
+      input.fullReleaseGate.jobs.some((job) => !Number.isSafeInteger(job?.id) || job.id <= 0 ||
+        job.status !== "completed" || job.conclusion !== "success" || job.sourceSha !== input.candidateSha) ||
+      !Number.isSafeInteger(input.fullReleaseGate?.tests?.passed) || input.fullReleaseGate.tests.passed <= 0 ||
+      input.fullReleaseGate?.tests?.failed !== 0 || input.fullReleaseGate?.tests?.skipped !== 0 ||
+      input.fullReleaseGate?.tests?.cancelled !== 0) {
     unverified.add("MISSING_FULL_RELEASE_GATE_AT_HEAD");
   }
   const names = ["normativeDocument", "machineContract", "universalTemplate",
     "policySource", "versionManifest", "validatorTests"];
   const components = input.authoritySet;
   if (!components || typeof components !== "object" ||
+      !isDigest(input.authoritySetDigest) || !isDigest(input.publicationPatchDigest) ||
       names.some((name) => components[name]?.sourceSha !== input.candidateSha ||
-        components[name]?.policyVersion !== input.targetVersion)) {
+        components[name]?.policyVersion !== input.targetVersion || !isDigest(components[name]?.digest))) {
     unverified.add("INCOMPLETE_ATOMIC_AUTHORITY_SET");
   }
   const ratification = input.ratification;
   if (ratification?.authenticatedHuman !== true ||
       ratification?.appendOnlyRecorded !== true ||
       !isNonEmpty(ratification?.recordId) ||
+      ratification?.source !== "authenticated-user-action" || ratification?.decision !== "approve" ||
+      !isNonEmpty(ratification?.amendmentId) ||
+      !Number.isSafeInteger(ratification?.amendmentRecordVersion) || ratification.amendmentRecordVersion <= 0 ||
+      !isDigest(ratification?.authoritySetDigest) || ratification.authoritySetDigest !== input.authoritySetDigest ||
       ratification?.sourceSha !== input.candidateSha ||
       ratification?.policyVersion !== input.targetVersion) {
     blocked.add("AUTHENTICATED_EXACT_REVISION_HUMAN_RATIFICATION_REQUIRED");
