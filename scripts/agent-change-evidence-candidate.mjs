@@ -612,15 +612,20 @@ export function evaluateConstitutionPublicationPreflight(input) {
   });
   if (!input || typeof input !== "object" || Array.isArray(input) ||
       !isSha(input.candidateSha) ||
-      !/^\\d+\\.\\d+\\.\\d+$/.test(input.targetVersion ?? "") ||
-      !/^\\d+\\.\\d+\\.\\d+$/.test(input.activeVersion ?? "")) {
+      !/^\d+\.\d+\.\d+$/.test(input.targetVersion ?? "") ||
+      !/^\d+\.\d+\.\d+$/.test(input.activeVersion ?? "")) {
     blocked.add("INVALID_PUBLICATION_CANDIDATE");
     return output();
   }
-  if (input.targetVersion === input.activeVersion) blocked.add("VERSION_NOT_ADVANCED");
+  const targetParts = input.targetVersion.split(".").map(Number);
+  const activeParts = input.activeVersion.split(".").map(Number);
+  const targetIsNewer = targetParts.some((part, i) =>
+    part > activeParts[i] && targetParts.slice(0, i)
+      .every((prior, j) => prior === activeParts[j]));
+  if (!targetIsNewer) blocked.add("VERSION_NOT_ADVANCED");
   const proposals = input.competingProposals;
   if (!Array.isArray(proposals) || proposals.some((p) => !isNonEmpty(p?.id) ||
-      !/^\\d+\\.\\d+\\.\\d+$/.test(p.version ?? ""))) {
+      !/^\d+\.\d+\.\d+$/.test(p.version ?? ""))) {
     unverified.add("MISSING_VERSION_COLLISION_REVIEW");
   } else {
     const collisions = proposals.filter((p) =>
