@@ -1,35 +1,28 @@
 # P9-019 — Current Evidence Refresh Request
 
-Status: **COMPLETE — VERCEL-BUILD-READY EVIDENCE CAPTURED / HUMAN SIGN-OFF STILL REQUIRED**
+Status: **EVIDENCE CAPTURED / LIVE PREVIEW AUTH BLOCKED / HUMAN SIGN-OFF REQUIRED**
 
-Purpose:
-Refresh human professional review evidence after making the Vercel `apps/web` build reproducibly generate the Prisma client before Next.js compilation.
+Refresh the human review candidate after PR #99 changed the Home and Compass progress reader. Old human approval and acceptance remain historical; they do not certify the new candidate or deployment.
 
-Baseline:
-- source main before this remediation: `89c47202742f4a8ecd738a238f344b0b4fe2fb70`;
-- refreshed review revision: `c3aa400985fb7dff94525abf5e8e91a37a3ec272`;
-- prior reviewed revision: `f936d3e4eb6a56671415e9f500b0935159baf49d`;
-- Production authority remains false.
+## Captured candidate evidence
 
-Deployment remediation covered:
-- `apps/web` runs repository-root `prisma:generate` as `prebuild`;
-- generated Prisma sources remain gitignored;
-- Vercel Preview for the exact refreshed revision completed successfully;
-- no manual Vercel Build Command override is required.
+- prior source main: `6b66e0cf7fdc63f6a790b2cdd2db3102caf271bc`;
+- reviewed application revision: `877e6b6734cbb1fab05064ba4a5c392f7fc71572`;
+- prior candidate: `c3aa400985fb7dff94525abf5e8e91a37a3ec272`;
+- push full Release Gate: `38124196972` in `.github/workflows/ci.yml`;
+- artifact: `11696805462`;
+- downloaded ZIP digest verified: `sha256:d94614984876ac27febc12666a3360c347e8ece5f6786082acdb2a368b8c2b8a`;
+- 266 unit/integration and 63 desktop/tablet/mobile E2E tests passed, no skipped tests;
+- nine representative responsive images visually inspected; see P9-019-HUMAN-PROFESSIONAL-REVIEW.md for the scoped surfaces;
+- Vercel Preview `dpl_DtK2n4X8SXVM5YPW2eacfXXBDcBY`: READY at this exact revision.
 
-Captured evidence:
-- full Release Gate run: `36544183321` — PASS;
-- Human UX artifact: `11021761834`;
-- artifact digest: `sha256:47b4cb0ddcf60712d2249a4f7f704ba9fc89633b110dfc1fa4b8418e2a908ca4`;
-- migrations / Constitution / source-of-truth / lint / typecheck / architecture — PASS;
-- unit + authority + PostgreSQL integration tests — PASS;
-- production build — PASS;
-- desktop/tablet/mobile Playwright E2E — PASS;
-- Vercel deployment status for the exact revision — SUCCESS.
+## Remaining gates
 
-Evidence rule:
-- this run is review input only;
-- it cannot create human sign-off, P9-020 acceptance or Production authority;
-- P9-019 remains ACTIVE until an authenticated human action records a decision against this exact refreshed candidate;
-- after binding candidate metadata to the reviewed revision above, the final PR head must pass a supplemental full Release Gate before merge; that supplemental run validates the metadata-bearing application state but does not replace the candidate's reviewed revision or manufacture approval.
-- this file intentionally does not record the supplemental run ID afterward, so the verified final head remains exact for merge.
+- Live Preview readiness is BLOCKED by missing GitHub OAuth. Configure valid Preview OAuth and callback, then rebuild and verify authenticated journeys and safe write/readback. Do not change Production credentials or bypass login.
+- This push gate is review input, not the manual final P9-020 evidence artifact.
+- A fresh authenticated human decision must match this candidate revision and artifact digest. The agent cannot submit or manufacture it.
+- The metadata-bearing PR head must pass a supplemental full gate before merge. Its run validates that application state and does not replace the reviewed candidate revision.
+- The final deployed revision needs its own manual Release Gate and canonical P9-020 receipt after current prerequisites unlock.
+- Any new Production release requires separate authority for the exact final revision. Production remains at `6c86b0596462bf3fbd2594e9788d42c9ebb5e557`.
+
+No canonical decision, PASS, publication or release authority is created by this file.

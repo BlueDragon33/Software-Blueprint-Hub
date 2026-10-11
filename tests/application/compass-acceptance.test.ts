@@ -172,13 +172,29 @@ describe("P9-020 exact-revision receipt", () => {
     html_url: "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/123"
   };
   const steps = [
+    "Verify exact release revision checkout",
+    "Generate Prisma Client",
+    "Validate Prisma schema",
+    "Migrate empty PostgreSQL database",
+    "Verify migration status",
     "Universal Constitution compliance",
     "Constitution authority-set atomicity",
+    "Constitution ecosystem snapshot",
+    "Constitution compliance matrix snapshot",
     "Source-of-truth contradiction gate",
+    "Source-of-truth detector self-test",
+    "Generated contract drift",
+    "Schema compatibility",
+    "Lint",
+    "Typecheck",
+    "Architecture boundaries",
     "Unit, contract, authority, and PostgreSQL integration tests",
     "Production build",
+    "Seed canonical Project Registry E2E data",
+    "Install Playwright Chromium",
     "App Shell E2E + screenshots",
-    "Generate Release Gate evidence manifest"
+    "Generate Release Gate evidence manifest",
+    "Upload Human UX and operational evidence"
   ].map((name) => ({ name, conclusion: "success" }));
   const metadata = {
     revision,
@@ -193,6 +209,22 @@ describe("P9-020 exact-revision receipt", () => {
     expect(() => verifyFinalReleaseGateMetadata({ ...metadata, run: { ...run, head_sha: "c".repeat(40) } })).toThrow(/exact/);
     expect(() => verifyFinalReleaseGateMetadata({ ...metadata, jobs: [{ ...metadata.jobs[0], steps: steps.slice(1) }] })).toThrow(/audit step/);
     expect(() => verifyFinalReleaseGateMetadata({ ...metadata, artifacts: [] })).toThrow(/artifact/);
+  });
+
+  it("rejects a green run when mandatory checks are skipped or omitted", () => {
+    for (const name of ["Migrate empty PostgreSQL database", "Verify migration status", "Lint", "Typecheck", "Architecture boundaries", "Schema compatibility", "Constitution compliance matrix snapshot"]) {
+      for (const altered of [
+        steps.filter(step => step.name !== name),
+        steps.map(step => step.name === name ? { ...step, conclusion: "skipped" } : step)
+      ]) {
+        expect(() => verifyFinalReleaseGateMetadata({ ...metadata, jobs: [{ ...metadata.jobs[0], steps: altered }] })).toThrow(/audit step/);
+      }
+    }
+  });
+
+  it("rejects ambiguous duplicate audit jobs and steps", () => {
+    expect(() => verifyFinalReleaseGateMetadata({ ...metadata, jobs: [...metadata.jobs, { ...metadata.jobs[0], conclusion: "skipped" }] })).toThrow(/audit step/);
+    expect(() => verifyFinalReleaseGateMetadata({ ...metadata, jobs: [{ ...metadata.jobs[0], steps: [...steps, { name: "Production build", conclusion: "skipped" }] }] })).toThrow(/audit step/);
   });
 
   it("does not treat a bare PASS gate or a mismatched revision as acceptance", () => {

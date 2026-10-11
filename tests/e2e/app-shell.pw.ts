@@ -1084,13 +1084,16 @@ test("P9-019 exposes an explicit human review surface without automated sign-off
   await expect(reviewedScope.getByText("tablet", { exact: true })).toBeVisible();
   await expect(reviewedScope.getByText("mobile", { exact: true })).toBeVisible();
   await expect(
-    reviewedScope.getByText("Quality & revision-specific evidence", {
+    reviewedScope.getByText("Canonical Project Workspace / Quality", {
       exact: true
     })
   ).toBeVisible();
   await expect(
-    reviewedScope.getByText("Release & Lessons", { exact: true })
+    reviewedScope.getByText("Compass Acceptance preflight", { exact: true })
   ).toBeVisible();
+  await expect(
+    reviewedScope.getByText("Release & Lessons", { exact: true })
+  ).toHaveCount(0);
 
   const approve = page.getByRole("button", { name: "Approve P9-019" });
   await expect(approve).toBeDisabled();

@@ -4,22 +4,28 @@ Status: **REVIEW CANDIDATE — HUMAN SIGN-OFF REQUIRED**
 
 ## Evidence reviewed
 
-- exact application revision: `c3aa400985fb7dff94525abf5e8e91a37a3ec272`;
-- full Release Gate run: `36544183321` — PASS;
-- screenshot artifact: `11021761834`;
-- artifact digest: `sha256:47b4cb0ddcf60712d2249a4f7f704ba9fc89633b110dfc1fa4b8418e2a908ca4`;
+- exact application revision: `877e6b6734cbb1fab05064ba4a5c392f7fc71572`;
+- full Release Gate run: `38124196972` — PASS;
+- screenshot artifact: `11696805462`;
+- artifact digest: `sha256:d94614984876ac27febc12666a3360c347e8ece5f6786082acdb2a368b8c2b8a`;
 - desktop, tablet/iPad-class and mobile evidence inspected;
-- representative surfaces reviewed: Projects/Compass, canonical workspace, Constitution/Compliance, Quality, Portfolio, Data Lifecycle, Prompt, Knowledge/Reference Case, Releases/Lessons.
+- visual review sampled nine images: Projects/Compass on all three viewports; professional review desktop; readiness mobile; acceptance preflight mobile; workspace desktop; Quality mobile; Constitution tablet;
+- automated regression covered 266 unit/integration tests and 63 desktop/tablet/mobile E2E tests, with no skipped tests;
+- downloaded ZIP SHA-256 independently matched the GitHub artifact digest above.
 
 ## Refresh reason
 
-The previous candidate became stale after the Vercel monorepo build was hardened so ephemeral deployments regenerate the gitignored Prisma client before `next build`. The current candidate is bound to the exact build-remediated revision and refreshed responsive Human UX evidence. Vercel Preview for this exact revision completed successfully.
+PR #99 repaired inconsistent Home/Compass/Acceptance progress by reading authority-filtered canonical state and exact-revision receipts. The reviewed product surface changed, so the prior candidate and its human decision cannot approve this refreshed candidate.
+
+The evidence run above is the push full gate in `.github/workflows/ci.yml`, not the manual final P9-020 gate. A separate manual exact-revision Release Gate and canonical acceptance receipt remain required.
+
+Vercel Preview `dpl_DtK2n4X8SXVM5YPW2eacfXXBDcBY` is READY at the reviewed revision, but live readiness reports missing GitHub OAuth for main. Authenticated Preview review and real Preview write/readback are BLOCKED. The isolated CI runtime and its screenshots do not prove those live journeys. Production remains on `6c86b0596462bf3fbd2594e9788d42c9ebb5e557` without authority for a new release.
 
 ## Professional review findings
 
 ### Blocking defects
 
-No P0/P1 defect was observed in the refreshed captured evidence.
+No P0/P1 layout defect was observed in the nine sampled CI images. This is a scoped visual observation; live Preview authentication remains blocked as recorded above.
 
 ### Remediated — Quality mobile evidence length
 
