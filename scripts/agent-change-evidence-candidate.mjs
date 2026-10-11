@@ -194,7 +194,9 @@ export function evaluateAgentChangeEvidence(change, policy = {}) {
  * This does not classify projects from arbitrary prompt text: callers must
  * supply the Blueprint Level from the independently resolved project profile.
  */
-export function resolveExecutionScaleProfile({ blueprintLevel, operationRisk, protectedOperation = false } = {}) {
+export function resolveExecutionScaleProfile(input = {}) {
+  const normalized = input && typeof input === "object" && !Array.isArray(input) ? input : {};
+  const { blueprintLevel, operationRisk, protectedOperation = false } = normalized;
   const authority = Object.freeze({
     canonicalGatePass: false, constitutionalRatification: false, productionRelease: false
   });
@@ -268,6 +270,37 @@ export function evaluateExecutionContinuity(snapshot) {
   if (snapshot.proposedGoalId && snapshot.proposedGoalId !== snapshot.goal.id) {
     return result("BLOCKED", "RESOLVE_GOAL_CHANGE", null, ["UNAPPROVED_GOAL_DELTA"], true);
   }
+  // Evidence in this proposal is caller-supplied; independent validation remains
+  // required by the real canonical Quality Gate. Never accept missing checks as PASS.
+  const scopedChecks = snapshot.scopedChecks;
+  if (!Array.isArray(scopedChecks)) {
+    return result("UNVERIFIED", "VERIFY_RISK_SCOPED_CHECKS", null,
+      ["MISSING_SCOPED_CHECK_EVIDENCE"]);
+  }
+  const scopedIds = new Set();
+  for (const check of scopedChecks) {
+    if (!isNonEmpty(check?.id) || scopedIds.has(check.id)) {
+      return result("BLOCKED", "REPAIR_SCOPED_CHECK_MANIFEST", null,
+        ["DUPLICATE_OR_INVALID_SCOPED_CHECK"]);
+    }
+    scopedIds.add(check.id);
+    if (check.status === "FAIL") {
+      return result("BLOCKED", "FIX_FAILED_SCOPED_CHECK", null, ["FAILED_SCOPED_CHECK:" + check.id]);
+    }
+    if (check.status !== "PASS" || check.sourceSha !== snapshot.headSha) {
+      return result("UNVERIFIED", "VERIFY_RISK_SCOPED_CHECKS", null,
+        ["STALE_OR_INCOMPLETE_SCOPED_CHECK:" + check.id]);
+    }
+  }
+  if (executionProfile.checks.some((id) => !scopedIds.has(id))) {
+    return result("UNVERIFIED", "VERIFY_RISK_SCOPED_CHECKS", null,
+      ["MISSING_REQUIRED_SCOPED_CHECKS"]);
+  }
+  if (executionProfile.effectiveRisk === "L3" && snapshot.humanGate?.required !== true) {
+    return result("BLOCKED", "DECLARE_REQUIRED_HUMAN_GATE", null,
+      ["L3_HUMAN_AUTHORITY_BOUNDARY_MISSING"]);
+  }
+
   const work = snapshot.workPackages;
   if (!Array.isArray(snapshot.unavailableResources ?? []) ||
       (snapshot.unavailableResources ?? []).some((x) => !isNonEmpty(x)) ||
@@ -424,7 +457,8 @@ export function buildMinimalWorkHandoff(snapshot) {
       blueprintLevel: snapshot.blueprintLevel,
       operationRisk: snapshot.operationRisk,
       protectedOperation: snapshot.protectedOperation ?? false
-    }).scale + " | Blueprint Level: " + snapshot.blueprintLevel,
+    }).scale + " | Blueprint Level: " + snapshot.blueprintLevel +
+      " | Scoped risk: " + (snapshot.protectedOperation === true ? "L3" : snapshot.operationRisk),
     "Original approved goal ID: " + JSON.stringify(snapshot.goal.id),
     "Next: " + plan.nextAction + (plan.taskId ? " | Work package: " + JSON.stringify(plan.taskId) : ""),
     "Evidence gaps: " + (plan.reasons.join(", ") || "none reported by candidate preflight"),
