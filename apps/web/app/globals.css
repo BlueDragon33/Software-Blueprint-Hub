@@ -5469,6 +5469,7 @@ textarea:focus-visible,
 
 .constitution-command-feedback {
   margin: 0;
+  overflow-wrap: anywhere;
   padding: 0.8rem 1rem;
   border: 1px solid rgba(127, 127, 127, 0.24);
   border-radius: 0.75rem;
