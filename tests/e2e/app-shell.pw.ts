@@ -1282,8 +1282,14 @@ test("System Owner can open the canonical amendment workspace without automated 
     page.getByText(/manual publication data is not trusted/i)
   ).toBeVisible();
   await expect(
-    page.getByText(/Publication is intentionally unavailable in this phase/i)
+    page.getByText(/Publication requires authenticated ratification and verified repository and runtime activation/i)
   ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Verify publication candidate", exact: true })
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Record verified activation", exact: true })
+  ).toHaveCount(0);
   await expect(
     page.getByRole("heading", {
       name: "Constitution adoption across governed repositories"
