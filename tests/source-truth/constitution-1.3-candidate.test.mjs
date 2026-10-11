@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { buildConstitutionCandidate } from "../../scripts/check-constitution-1.3-candidate.mjs";
 
-test("one inactive candidate seals all 28 rules, contrast and canonical component paths", () => {
+test("one inactive candidate seals all 32 rules, contrast and canonical component paths", () => {
   const before = readFileSync("control/universal-constitution-version.json", "utf8");
   const run = spawnSync(process.execPath, ["scripts/check-constitution-1.3-candidate.mjs", "--json"],
     { encoding: "utf8" });
@@ -15,7 +15,7 @@ test("one inactive candidate seals all 28 rules, contrast and canonical componen
   assert.equal(result.status, JSON.parse(before).policyVersion === "1.2.0" ? "INACTIVE_CANDIDATE_VERIFIED" : "ACTIVE_AUTHORITY_SET_VERIFIED");
   assert.equal(result.activePolicyVersion, JSON.parse(before).policyVersion);
   assert.equal(result.candidatePolicyVersion, "1.3.0");
-  assert.equal(result.ruleCount, 28);
+  assert.equal(result.ruleCount, 32);
   assert.equal(result.contrastIncluded, true);
   assert.equal(result.componentCount, 4);
   assert.match(result.authoritySetDigest, /^sha256:[a-f0-9]{64}$/);

@@ -32,7 +32,9 @@ const owners = [
   "module:operations:release", "module:product:purpose", "module:governance:evolution",
   "module:product:purpose", "module:governance:architectural-longevity",
   "module:architecture:boundaries", "module:security:fortress-resilience",
-  "gate:quality:evidence", "module:product:purpose"
+  "gate:quality:evidence", "module:product:purpose",
+  "module:product:purpose", "module:architecture:structural-capacity",
+  "module:product:purpose", "module:architecture:boundaries"
 ];
 
 export function buildConstitutionCandidate(root = process.cwd()) {
@@ -71,8 +73,8 @@ export function buildConstitutionCandidate(root = process.cwd()) {
     if (manifest[name]?.path !== path) throw new Error("Non-canonical authority path " + name);
   }
   const matches = [...read(root, DRAFT).matchAll(/^\*\*(R\d+) — (.+)$/gm)];
-  if (matches.length !== 28 || matches.some((m, index) => m[1] !== "R" + (index + 1))) {
-    throw new Error("Candidate must contain exactly ordered R1–R28");
+  if (matches.length !== 32 || matches.some((m, index) => m[1] !== "R" + (index + 1))) {
+    throw new Error("Candidate must contain exactly ordered R1–R32");
   }
   const rules = matches.map((m, index) => ({
     id: m[1], requirementId: owners[index],
@@ -120,6 +122,20 @@ export function buildConstitutionCandidate(root = process.cwd()) {
     businessDataOwner: "owning-application", unsupportedStatus: "UNVERIFIED",
     productionReleaseAuthority: false
   };
+  contract.academicCapacityReference = {
+    requirementIds: [...new Set(rules.slice(28).map((r) => r.requirementId))],
+    S100: { applicability: "governed-academic-satellites", bands: Array.from({ length: 10 }, (_, i) =>
+      ({ from: i * 10 + 1, to: (i + 1) * 10 })) },
+    R200: { applicability: "comprehensive-russian-learning-only", inherits: "S100",
+      bands: Array.from({ length: 10 }, (_, i) => ({ from: 101 + i * 10, to: 110 + i * 10 })) },
+    meaning: "capacity-reference-not-literal-implemented-layers",
+    featureQuota: false, classificationAxis: "independent-of-B-and-E",
+    recordOwner: "existing-project-profile-or-academic-review",
+    capabilityStatuses: ["PLANNED", "IMPLEMENTED", "VERIFIED", "NOT_APPLICABLE", "UNVERIFIED"],
+    unsupportedStatus: "UNVERIFIED", notApplicableRequiresJustification: true,
+    acceptance: "provenance-domain-specific-learner-journey-and-qualified-review",
+    bandCountProvesLearningOrImplementation: false, productionReleaseAuthority: false
+  };
   contract.computedContrast = {
     requirementId: "gate:ux:commercial-quality", standard: "WCAG-2.2-AA",
     normalTextRatio: 4.5, largeTextRatio: 3, meaningfulNonTextRatio: 3,
@@ -132,15 +148,15 @@ export function buildConstitutionCandidate(root = process.cwd()) {
     'version: "1.2.0"', 'version: "1.3.0"');
   const ownerSummaries = {
     "gate:quality:evidence": "Require exact revision, scope, truthful status, risk-appropriate checks, continuity and ecosystem evidence under R1/R3/R9/R17/R27; metrics never grant permission.",
-    "module:architecture:boundaries": "Apply R2/R11/R25: one canonical owner, truthful catalog capability and independent B/E axes; no shadow registry.",
+    "module:architecture:boundaries": "Apply R2/R11/R25: one canonical owner, truthful catalog capability and independent B/E axes; no shadow registry. R32 academic profiles inherit one universal authority and existing study-plan ownership; no parallel constitutions or automatic S100/R200 implementation.",
     "module:data:source-of-truth": "Apply R5: scoped version-safe writes, idempotency, readback and recovery.",
     "module:quality:evidence": "Apply R7/R10: bounded defect attempts and non-gamed quality cohorts.",
     "module:governance:evolution": "Apply R8/R16/R22: durable scoped checkpoints, one dependency-aware work queue and capability-based economical handoffs.",
     "module:security:authority": "R12 federation remains migration-gated; declarations and trust boundaries apply immediately; no forged or stale central approval.",
     "gate:security:authority": "Apply R14/R19: operational device approval never implies constitutional, business-data, privileged or Production authority.",
-    "module:product:purpose": "Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28 additionally requires provenance, checked learning-state feedback and professional pedagogical acceptance for learning products.",
+    "module:product:purpose": "Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28 additionally requires provenance, checked learning-state feedback and professional pedagogical acceptance for learning products. R29 preserves disciplinary identity and rejects cloned shells. R31 comprehensive Russian profiles require independent linguistic/pedagogical evidence; synthetic mastery never passes.",
     "module:operations:release": "Apply R20: distinguish code/test/merge/deploy/acceptance and require truthful cleanup, rollback and restart evidence.",
-    "module:architecture:structural-capacity": "Apply R18: measure architectural/UX entropy; no speculative scaffolds or destructive count reduction.",
+    "module:architecture:structural-capacity": "Apply R18: measure architectural/UX entropy; no speculative scaffolds or destructive count reduction. R30 S100 is ten capacity bands in an existing profile/review, never a literal feature quota.",
     "module:governance:architectural-longevity": "Apply R24: enrollment and reclassification require canonical profile/owner review; never downgrade risk for cost.",
     "module:security:fortress-resilience": "Apply R26: separate governance, operations and app data/releases; test least privilege, isolation and independent recovery.",
     "module:ux:product-elegance": "Apply R13: shared status vocabulary with task-appropriate responsive layouts and no duplicate approval surfaces.",
