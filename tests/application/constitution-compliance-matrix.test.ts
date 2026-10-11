@@ -173,7 +173,7 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
     });
 
     expect(matrix.migrationRequiredRepositories).toBe(0);
-    expect(matrix.blockedRepositories).toBe(0);
+    expect(matrix.blockedRepositories).toBe(1);
     expect(matrix.repositories[0]?.complianceState).toBe("blocked");
     expect(
       matrix.repositories[0]?.blockers.some((blocker) =>

@@ -4,6 +4,7 @@ import { ActionGroup, AppShell, EmptyState, StatusChip } from "@blueprint-os/ui"
 
 import { resolveWebActor } from "../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../src/server/runtime";
+import { loadCompassProjection } from "../src/server/compass-projection";
 import { RetryCurrentView } from "./_components/retry-current-view";
 import { SystemCompass } from "./_components/system-compass";
 
@@ -71,8 +72,12 @@ export default async function HomePage() {
   }
 
   let items;
+  let compass;
   try {
-    items = await getBlueprintServerRuntime().registry.list(actor);
+    [items, compass] = await Promise.all([
+      getBlueprintServerRuntime().registry.list(actor),
+      loadCompassProjection(actor).catch(() => null)
+    ]);
   } catch {
     return (
       <AppShell>
@@ -139,7 +144,15 @@ export default async function HomePage() {
           </ActionGroup>
         </header>
 
-        <SystemCompass compact />
+        {compass ? <SystemCompass compact projection={compass} /> : (
+          <section className="registry-state registry-state-error" role="alert">
+            <div>
+              <h2>System Compass is temporarily unavailable.</h2>
+              <p>Canonical progress could not be read. Retry to load the current state.</p>
+            </div>
+            <RetryCurrentView label="Retry System Compass" />
+          </section>
+        )}
 
         {items.length === 0 ? (
           <EmptyState
