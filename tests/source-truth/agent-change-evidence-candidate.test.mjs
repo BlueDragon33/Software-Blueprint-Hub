@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff, resolveExecutionScaleProfile as profile, proposeNewProjectBlueprintIntake as intake } from "../../scripts/agent-change-evidence-candidate.mjs";
+import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff, resolveExecutionScaleProfile as profile, proposeNewProjectBlueprintIntake as intake, proposeEcosystemReference as ecosystem } from "../../scripts/agent-change-evidence-candidate.mjs";
 
 const HEAD = "a".repeat(40);
 const BASE = "b".repeat(40);
@@ -805,4 +805,103 @@ test("Later scope expansion may suggest reclassification but never alters record
   const currentCanonical = profile({ blueprintLevel: "B2", operationRisk: "L1" });
   assert.equal(currentCanonical.scale, "COMPACT");
   assert.equal(currentCanonical.authority.productionRelease, false);
+});
+
+function ecosystemContext() {
+  return {
+    productCount: 15, domainCount: 5, sharedContractCount: 2,
+    governanceOwner: "Software-Blueprint-Hub",
+    operationsOwner: "Application-Management",
+    federatedEcosystemCount: 0, crossTrustProtocol: false
+  };
+}
+
+test("E-scale: existing 15-repository portfolio is a PROPOSED E2 architecture, not verified E2 operation", () => {
+  const manifest = JSON.parse(readFileSync(
+    new URL("../../control/constitution-governed-repositories.json", import.meta.url), "utf8"
+  ));
+  const v = ecosystem({ ...ecosystemContext(), productCount: manifest.repositories.length });
+  assert.equal(v.proposedEcosystemLevel, "E2");
+  assert.equal(v.status, "PROPOSAL_ONLY");
+  assert.equal(v.operationalMaturity, "UNVERIFIED");
+  assert.equal(v.projectClassificationUnchanged, true);
+  assert.ok(v.firstProofTargets.includes("VERIFY_CROSS_PRODUCT_READBACK_AND_ISOLATION"));
+  assert.equal(v.authority.constitutionalRatification, false);
+  assert.equal(v.authority.productionRelease, false);
+});
+
+test("E-scale: standalone B5 application does not become an ecosystem because of its complexity", () => {
+  const v = ecosystem({
+    ...ecosystemContext(), productCount: 1, domainCount: 1,
+    sharedContractCount: 0, governanceOwner: null, operationsOwner: null
+  });
+  assert.equal(v.proposedEcosystemLevel, "E0");
+  assert.equal(v.operationalMaturity, "UNVERIFIED");
+  assert.equal(profile({ blueprintLevel: "B5", operationRisk: "L1" }).scale, "STRUCTURED");
+});
+
+test("E-scale: versioned collaboration can establish E1 suite without central ecosystem role", () => {
+  const v = ecosystem({
+    ...ecosystemContext(), productCount: 2, domainCount: 1,
+    sharedContractCount: 1, governanceOwner: null, operationsOwner: null
+  });
+  assert.equal(v.proposedEcosystemLevel, "E1");
+  assert.ok(v.firstProofTargets.includes("VERSION_SHARED_CONTRACTS"));
+});
+
+test("E-scale: no one may label disconnected projects as a working ecosystem", () => {
+  const v = ecosystem({
+    ...ecosystemContext(), productCount: 3, domainCount: 3,
+    sharedContractCount: 0, governanceOwner: null, operationsOwner: null
+  });
+  assert.equal(v.status, "UNVERIFIED");
+  assert.equal(v.proposedEcosystemLevel, null);
+  assert.equal(v.nextAction, "ASSESS_UNCONNECTED_PORTFOLIO");
+});
+
+test("E-scale: governance and operations owners cannot silently collapse to one superadmin", () => {
+  const v = ecosystem({ ...ecosystemContext(), operationsOwner: "Software-Blueprint-Hub" });
+  assert.equal(v.status, "UNVERIFIED");
+  assert.equal(v.nextAction, "REVIEW_ECOSYSTEM_AUTHORITY_SEPARATION");
+  assert.equal(v.authority.productionRelease, false);
+});
+
+test("E-scale: multiple existing apps do not imply E3 federation", () => {
+  const v = ecosystem({ ...ecosystemContext(), federatedEcosystemCount: 1, crossTrustProtocol: true });
+  assert.equal(v.proposedEcosystemLevel, "E2");
+  assert.equal(v.operationalMaturity, "UNVERIFIED");
+});
+
+test("E-scale: E3 only when two separately governed ecosystems plan explicit cross-trust", () => {
+  const v = ecosystem({ ...ecosystemContext(), federatedEcosystemCount: 2, crossTrustProtocol: true });
+  assert.equal(v.proposedEcosystemLevel, "E3");
+  assert.ok(v.firstProofTargets.includes("VERIFY_CROSS_AUTHORITY_REVOCATION_AND_FAILOVER"));
+  assert.equal(v.authority.canonicalGatePass, false);
+});
+
+test("E-scale: missing risk/topology evidence does not infer E2 from project count alone", () => {
+  for (const x of [null, {}, [], { ...ecosystemContext(), domainCount: 0 },
+    { ...ecosystemContext(), sharedContractCount: -1 },
+    { ...ecosystemContext(), governanceOwner: "owner with spaces" },
+    { ...ecosystemContext(), crossTrustProtocol: "true" },
+    { ...ecosystemContext(), productCount: 2, domainCount: 3 }]) {
+    const v = ecosystem(x);
+    assert.equal(v.status, "UNVERIFIED");
+    assert.equal(v.proposedEcosystemLevel, null);
+    assert.equal(v.authority.productionRelease, false);
+  }
+});
+
+test("E-scale: new standalone project intake keeps B-scale and ecosystem scale independent", () => {
+  const proposed = intake(situation());
+  assert.equal(proposed.recommendedBlueprintLevel, "B2");
+  const topology = ecosystem({
+    productCount: 1, domainCount: 1, sharedContractCount: 0,
+    governanceOwner: null, operationsOwner: null,
+    federatedEcosystemCount: 0, crossTrustProtocol: false
+  });
+  assert.equal(proposed.scale, "COMPACT");
+  assert.equal(topology.proposedEcosystemLevel, "E0");
+  assert.equal(proposed.authority.canonicalGatePass, false);
+  assert.equal(topology.authority.canonicalGatePass, false);
 });
