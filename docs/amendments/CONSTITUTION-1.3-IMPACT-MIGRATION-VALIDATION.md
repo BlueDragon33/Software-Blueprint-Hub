@@ -290,3 +290,42 @@ Candidate R15–R20 in [the Agent reliability amendment](CONSTITUTION-1.3-AGENT-
 **Acceptance guardrail:** introducing R15–R20 must measurably reduce task drift, rework and duplicate surfaces without unacceptable CI/credit/time overhead. Calibrate with real task samples before hard enforcement. A proposal-only green evaluator cannot be called runtime continuity proof. Resolve the simultaneous draft PR #97 before any exact constitutional publication decision; active policy remains **1.2.0** until authenticated ratification and publication.
 
 
+## M. Chat-first execution and last-mile Work/Codex (2026-10-11)
+
+**Operating preference, not a claim of completion:** complete approximately 90–95% of *eligible engineering work* through ordinary connected Chat/GitHub tools. Use Work or Codex for the smallest technically necessary remaining slice, never as a default replacement for source inspection, tests and GitHub CI. The ratio is a workflow target, not a product-progress percentage or a permission to skip human gates.
+
+### Checked-in candidate implementation
+
+- `scripts/agent-change-evidence-candidate.mjs`: pure `evaluateExecutionContinuity(snapshot)` detects stale HEAD/policy/goal checkpoint, unknown or cyclic dependencies, competing active packages, architectural/UX entropy, legacy regression, stale evidence, three failed remedies, resource exhaustion, missing original-goal acceptance, non-delegable review/release and absent deployment readback. It returns a **next action only**, not an autonomous executor.
+- The same existing file exports `buildMinimalWorkHandoff(snapshot)`, which uses named repo/branch/HEAD/goal ID/work slice/path hints and omits raw chat, secrets and arbitrary project data. It is **untrusted prompt projection**; the recipient MUST re-resolve live canonical permissions/evidence.
+- `tests/source-truth/agent-change-evidence-candidate.test.mjs`: synthetic deterministic NEG-21–30 and positive DAG/interrupt/resource/authority/handoff fixtures. These test the pure function, **not** persistent checkpoint storage, live browser, authenticated operator identity, real cross-app integration or Production.
+- Candidate branch CI reference (before this documentation edit): [Fast CI 38145484923](https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/38145484923) PASS on `809e77042feaf197325c76c3279bf34506d3292e`; protected Release Gate SKIPPED. Re-check exact head CI after further commits. Original active law is still **1.2.0**.
+
+### Bounded escalation matrix
+
+| Stay in Chat (default) | Work only if unavoidable | Codex only if unavoidable |
+| --- | --- | --- |
+| Targeted GitHub HEAD/PR/diff/log checks, root cause, minimal code patch, contract/unit/regression tests and CI, scoped docs, PR review, routine authorized merges | Real logged-in multi-screen Preview journey, blocked OAuth/cloud-browser-only UI and device UX evidence that a connector cannot obtain | High-complexity local refactor or platform-specific build/test requiring a full working tree or native environment not available to Chat/GitHub |
+| Publish truthful checkpoint at resource boundary and continue independent ready tasks | Use the existing app URL/session, not a fresh parallel site or account | Operate on bounded paths and explicit failing tests, not a broad redesign |
+
+Never use either tool merely because Fast CI is red: first inspect failing job/line and attempt a minimal repair through Chat. Neither Work nor Codex receives authority to ratify policy, approve Human UX, bypass security gates or release to Production.
+
+### One-turn compact handoff contract
+
+Supply **only** project/repo and branch, currently observed exact HEAD, active policy version, approved goal ID + acceptance tests, active Work Package, list of relevant files and failing check/run, scoped permitted actions, remaining blockers, and one concrete next operation. Include a reminder to check for HEAD drift and use the exact live repository/canonical state as truth. **Do not** paste full chat transcripts, old code dumps, entire repo trees, credentials or 15-repository status scans.
+
+A receiving Agent should:
+
+1. Inspect `HEAD`, targeted `git diff`, failing CI job log, relevant test/file and authority state; explicitly invalidate stale evidence.
+2. Confirm intended unchanged behavior; reproduce the failure; fix only the owned code path; add focused regression test; rerun relevant CI once for the final coherent patch.
+3. Return one short outcome: exact SHA, affected paths, checks that passed/failed, user-facing behavior genuinely verified, remaining blockers, rollback note and next action.
+4. If blocked by tools/credits, record `PAUSED_RESOURCE` and exit without simulated deployment or user approval; keep safe independent tasks available for Chat.
+
+### Remaining proof before Constitutional activation
+
+- Real app-owned checkpoint persistence/readback and interruption-resume pilot for one low-risk project, followed by one multi-package scenario, using authentic project evidence.
+- Review compatibility and conflict with PR #97; prepare the exact authority set and honest Release Gate evidence.
+- Human constitutional ratification, atomic publication and staged per-project adoption through the existing governance protocol. Production release remains separately authorized.
+
+This proposal does not assert that those activities have already succeeded.
+
