@@ -188,6 +188,66 @@ export function evaluateAgentChangeEvidence(change, policy = {}) {
 }
 
 /**
+ * R25–R27 candidate: classify an ecosystem's proposed *topology*, not
+ * implementation maturity. Inputs are assertions from a reviewed situational
+ * brief, not evidence collected or authenticated by this pure function.
+ * Existing per-project B0–B5 and L1–L3 policies remain untouched.
+ */
+export function proposeEcosystemReference(context) {
+  const authority = Object.freeze({
+    canonicalGatePass: false, constitutionalRatification: false,
+    productionRelease: false
+  });
+  const reject = (reason) => Object.freeze({
+    status: "UNVERIFIED", proposedEcosystemLevel: null, operationalMaturity: "UNVERIFIED",
+    nextAction: reason, authority
+  });
+  if (!context || typeof context !== "object" || Array.isArray(context)) {
+    return reject("GATHER_ECOSYSTEM_TOPOLOGY");
+  }
+  const { productCount, domainCount, sharedContractCount,
+    governanceOwner, operationsOwner, federatedEcosystemCount,
+    crossTrustProtocol } = context;
+  const counts = [productCount, domainCount, sharedContractCount, federatedEcosystemCount];
+  if (counts.some((n) => !Number.isSafeInteger(n) || n < 0 || n > 100000) ||
+      productCount < 1 || domainCount < 1 || domainCount > productCount ||
+      typeof crossTrustProtocol !== "boolean" ||
+      ![governanceOwner, operationsOwner].every((x) =>
+        x === null || x === undefined ||
+        (typeof x === "string" && x.length > 0 && x.length <= 128 &&
+          /^[A-Za-z0-9_.:/-]+$/.test(x)))) {
+    return reject("GATHER_ECOSYSTEM_TOPOLOGY");
+  }
+  const hasGovernance = isNonEmpty(governanceOwner);
+  const hasOperations = isNonEmpty(operationsOwner);
+  // Role separation is substantive; no magic superadmin or implicit merger.
+  if (hasGovernance && hasOperations && governanceOwner === operationsOwner &&
+      productCount >= 3 && domainCount >= 2) {
+    return reject("REVIEW_ECOSYSTEM_AUTHORITY_SEPARATION");
+  }
+  const managed = productCount >= 3 && domainCount >= 2 &&
+    hasGovernance && hasOperations;
+  const federated = managed && federatedEcosystemCount >= 2 &&
+    crossTrustProtocol && sharedContractCount >= 1;
+  const suite = productCount >= 2 && sharedContractCount >= 1;
+  const level = federated ? "E3" : managed ? "E2" : suite ? "E1" : "E0";
+  const focus = {
+    E0: ["PRESERVE_STANDALONE_DATA_OWNER", "VALIDATE_PRODUCT_JOURNEY"],
+    E1: ["VERSION_SHARED_CONTRACTS", "VERIFY_ONE_CROSS_PRODUCT_JOURNEY"],
+    E2: ["SEPARATE_POLICY_AND_OPERATIONS_PLANES", "VERIFY_SCOPED_APP_ENROLLMENT",
+      "VERIFY_CROSS_PRODUCT_READBACK_AND_ISOLATION"],
+    E3: ["REVIEW_FEDERATED_TRUST_CONTRACT", "VERIFY_CROSS_AUTHORITY_REVOCATION_AND_FAILOVER"]
+  };
+  return Object.freeze({
+    status: "PROPOSAL_ONLY", proposedEcosystemLevel: level,
+    operationalMaturity: "UNVERIFIED",
+    projectClassificationUnchanged: true,
+    nextAction: "REVIEW_CANONICAL_ECOSYSTEM_TOPOLOGY_AND_REAL_EVIDENCE",
+    firstProofTargets: Object.freeze(focus[level]), authority
+  });
+}
+
+/**
  * Advisory intake for a NEW project before a canonical Project Profile exists.
  * Model the intended supported product, NOT the number of files in its seed.
  * No inputs are authenticated: the owner must confirm scope/level through the
