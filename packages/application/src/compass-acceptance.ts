@@ -43,7 +43,10 @@ function criterion(
 
 export function buildCompassAcceptancePreflight(input?: {
   readonly reviewCandidate?: HumanProfessionalReviewCandidate;
-  readonly reviewDecision?: HumanProfessionalReviewDecisionRecord | null;
+  readonly reviewDecision?: Pick<HumanProfessionalReviewDecisionRecord,
+    "decision" | "candidateReviewedRevision" | "candidateEvidenceDigest" |
+    "humanSignoff" | "p9020TransitionAllowed" | "productionReleaseAuthority"
+  > | null;
   readonly constitutionAudit?: ConstitutionalComplianceAudit | null;
 }): CompassAcceptancePreflight {
   const candidate = input?.reviewCandidate ?? p9019ProfessionalReviewCandidate;

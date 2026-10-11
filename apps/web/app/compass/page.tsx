@@ -1,36 +1,11 @@
 import Link from "next/link";
 
-import {
-  getBlueprintCompassProjection,
-  p9019ProfessionalReviewCandidate
-} from "@blueprint-os/application";
 import { ActionGroup, AppShell } from "@blueprint-os/ui";
 import { CompassArchitectureMap } from "../_components/compass-architecture-map";
 import { SystemCompass } from "../_components/system-compass";
-import { resolveWebActor } from "../../src/auth/server-actor";
-import { getBlueprintServerRuntime } from "../../src/server/runtime";
+import { loadCompassProjection } from "../../src/server/compass-projection";
 
 export const dynamic = "force-dynamic";
-
-async function loadCompassProjection() {
-  const actor = await resolveWebActor();
-  if (!actor) {
-    return getBlueprintCompassProjection();
-  }
-
-  const runtime = getBlueprintServerRuntime();
-  const canReview = await runtime.authority.can(
-    actor,
-    p9019ProfessionalReviewCandidate.projectId,
-    "PROJECT_REVIEW"
-  );
-  if (!canReview) {
-    return getBlueprintCompassProjection();
-  }
-
-  const decision = await runtime.professionalReview.currentDecision(actor);
-  return getBlueprintCompassProjection(decision);
-}
 
 export default async function CompassPage() {
   const projection = await loadCompassProjection();

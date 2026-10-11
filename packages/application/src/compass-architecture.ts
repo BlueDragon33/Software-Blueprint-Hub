@@ -48,7 +48,8 @@ export function resolveCompassArchitecture(
   return Object.freeze(
     definitions.map((storey) => {
       const state: CompassStoreyState =
-        storey.number < compass.currentStorey.number
+        storey.number < compass.currentStorey.number ||
+        (storey.number === compass.currentStorey.number && compass.activeWork.status === "complete")
           ? "accepted-baseline"
           : storey.number === compass.currentStorey.number
             ? "active"
