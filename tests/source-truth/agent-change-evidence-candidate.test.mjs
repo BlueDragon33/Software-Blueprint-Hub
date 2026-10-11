@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff, resolveExecutionScaleProfile as profile, proposeNewProjectBlueprintIntake as intake } from "../../scripts/agent-change-evidence-candidate.mjs";
 
@@ -755,4 +756,53 @@ test("New project intake: authoritative project level cannot be replaced by an i
   assert.equal(a.authority.canonicalGatePass, false);
   // The existing project must still use its independently recorded level.
   assert.equal(profile({ blueprintLevel: "B2", operationRisk: "L1" }).scale, "COMPACT");
+});
+
+test("Canonical governed manifest maps every existing repository to one profile", () => {
+  const source = new URL("../../control/constitution-governed-repositories.json", import.meta.url);
+  const manifest = JSON.parse(readFileSync(source, "utf8"));
+  assert.equal(manifest.schemaVersion, "1.0.0");
+  assert.ok(Array.isArray(manifest.repositories));
+  const seen = new Set();
+  for (const entry of manifest.repositories) {
+    assert.ok(entry.repository.startsWith("BlueDragon33/"));
+    assert.ok(entry.projectId.startsWith("project:"));
+    assert.ok(entry.branch.length > 0);
+    assert.equal(seen.has(entry.repository), false, "duplicate registered project");
+    seen.add(entry.repository);
+    // This assertion reads exact authoritative level. No per-project shadow map.
+    const v = profile({ blueprintLevel: entry.blueprintLevel, operationRisk: "L1" });
+    assert.equal(v.status, "READY_FOR_REVIEW");
+    assert.equal(v.scale, Number(entry.blueprintLevel.slice(1)) <= 2 ? "COMPACT" : "STRUCTURED");
+    assert.equal(v.authority.canonicalGatePass, false);
+  }
+  // Snapshot evidence: 15 governance entries plus two observed unenrolled
+  // foundations on the 2026-10-11 review date; later valid registry additions
+  // can grow without requiring a test rewrite.
+  assert.ok(seen.size >= 15);
+});
+
+test("New foundation candidates cannot fabricate authority or enrollment", () => {
+  for (const purpose of ["Schematic-to-PCB design", "Engineering solver and CAD feedback"]) {
+    const a = intake({ ...situation(), purpose, independentModules: 5,
+      criticalJourneys: 5, crossAppContracts: 1, persistentUserState: true });
+    assert.equal(a.scale, "STRUCTURED");
+    assert.equal(a.recommendedBlueprintLevel, "B3");
+    assert.equal(a.nextAction, "REVIEW_AND_RECORD_CANONICAL_PROJECT_PROFILE");
+    assert.equal(a.authority.constitutionalRatification, false);
+    assert.equal(a.authority.productionRelease, false);
+  }
+});
+
+test("Later scope expansion may suggest reclassification but never alters recorded level", () => {
+  const before = intake({ ...situation(), criticalJourneys: 1, independentModules: 1,
+    persistentUserState: false });
+  const after = intake({ ...situation(), criticalJourneys: 5, independentModules: 4,
+    crossAppContracts: 1 });
+  assert.equal(before.scale, "COMPACT");
+  assert.equal(after.scale, "STRUCTURED");
+  assert.equal(before.nextAction, after.nextAction);
+  const currentCanonical = profile({ blueprintLevel: "B2", operationRisk: "L1" });
+  assert.equal(currentCanonical.scale, "COMPACT");
+  assert.equal(currentCanonical.authority.productionRelease, false);
 });
