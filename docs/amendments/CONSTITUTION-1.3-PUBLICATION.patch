@@ -1,5 +1,5 @@
 diff --git a/docs/UNIVERSAL-CONSTITUTION.md b/docs/UNIVERSAL-CONSTITUTION.md
-index 0960c2a..ab165cf 100644
+index 0960c2a..bc0c9a9 100644
 --- a/docs/UNIVERSAL-CONSTITUTION.md
 +++ b/docs/UNIVERSAL-CONSTITUTION.md
 @@ -1,7 +1,7 @@
@@ -11,7 +11,7 @@ index 0960c2a..ab165cf 100644
  Status: **ACTIVE UNIVERSAL LAW**
  
  The constitutions are long-lived engineering laws. Project Profile and Blueprint Level determine their depth; no project is exempt from basic discipline.
-@@ -145,3 +145,131 @@ Every project inherits seven non-negotiable construction qualities. Their **impl
+@@ -145,3 +145,147 @@ Every project inherits seven non-negotiable construction qualities. Their **impl
  - **B5 CRITICAL**: add deep threat modeling, audit, DR, strict change control and independent verification.
  
  These levels are proposals to be validated in Phase 2/3, not permanently hard-coded.
@@ -132,6 +132,22 @@ index 0960c2a..ab165cf 100644
 +
 +**R28 — Content-bearing software must have instructional architecture and real learning acceptance.** A learning app, course satellite or educational ecosystem must preserve one curriculum source of truth and an **explicit provenance boundary** between official institutional study-plan facts, independently verified external materials, and AI-authored supplemental learning content. Structure material as **program -> subject -> prerequisite/semester -> module -> lesson -> practice -> feedback/assessment -> durable evidence -> review**, with a dependency-aware and learner-readable route; subject-specific variations are legitimate, indiscriminate fixed ten-tab shells are not. Before declaring a lesson READY, verify real learning objectives, prerequisite correctness, substantive explanations and worked examples, discipline-appropriate assessment with checked answers, actionable error feedback, meaningful resource references, accessibility and stable learning-state readback. Generic rephrased templates, repeated boilerplate tasks, fabricated citations, empty simulations, aspirational features and synthetic mastery **must be flagged as DRAFT/UNVERIFIED**, not promoted by JSON validity or green code CI. Refactor existing subject owners in bounded, risk-prioritized vertical slices, preserve user progress and prior credible content, retire obsolete duplicate tabs/overrides only after parity testing, and require representative professional pedagogical review before broad rollout. UI legibility additionally inherits the computed-contrast obligations consolidated into this same amendment when ratified, but this R28 does **not** create duplicate contrast thresholds, runtime authority or a new content CMS.
 +
++### 10.R29
++
++**R29 — Satellite identity, shared minimum and subject-specific pedagogy.** Each academic satellite in a governed learning ecosystem must inherit the **same universal Constitution, seven Century-Grade construction qualities, canonical authority and data/UX/security/provenance floor**. It must also declare **one distinct subject-specific learning identity**: audience and entry knowledge, core disciplinary questions, authentic kinds of worked examples, suitable modes of practice or simulation (including “not applicable”), assessment/feedback criteria, specialist vocabulary, source classifications and an accessible presentation suited to the subject. Consistency means identical reliability, truthfulness and navigation semantics, **not identical lesson scripts, ten-tab dashboards, cloned subject engines, arbitrary theme palettes or synthetic simulations**. A shared platform owns stable cross-subject primitives and interoperability contracts; a subject owns its syllabus mapping, pedagogy, evidence and specialist presentation. Every subject’s unique components must justify their instructional value, reuse shared accessibility/color controls and preserve learner state. A proposed satellite cannot be marked professionally accepted merely for existing in the catalog, passing JSON validation or rendering a common shell.
++
++### 10.R30
++
++**R30 — Century-Grade S100 architectural capacity for every satellite.** Interpret the requested **“100 floors” (S100)** as a *long-horizon capacity and evolution reference*, **not** a requirement to implement 100 literal layers, screens, files, services, tests, abilities or milestones. Every satellite Project Profile shall describe a credible future extension path across ten stable bands: **S01–10** product ownership and source truth; **S11–20** audience/competencies and outcomes; **S21–30** curriculum alignment and prerequisite sequencing; **S31–40** disciplinary concepts, explanation and worked examples; **S41–50** appropriate interactions/practice; **S51–60** assessment and actionable feedback; **S61–70** authentic labs/simulations/artifacts when applicable; **S71–80** individual learning state, evidence and safe resume; **S81–90** inclusive UX/contrast, performance, device and offline constraints; **S91–100** security, provenance, interoperability, maintainability and measured evolution. The bands are a **governance mapping for future capabilities**, not mandatory 10 subsystems or feature quota. At adoption, capture *one concise ten-band applicability/owner/gap map using the existing Project Profile or review record*, not a hundred empty records or new dashboards. Build only demonstrated learner value, use B0–B5 COMPACT/STRUCTURED proportional engineering, and verify each delivered vertical slice at exact SHA. Status per applicable capability stays **PLANNED / IMPLEMENTED / VERIFIED / NOT_APPLICABLE / UNVERIFIED**, with NOT_APPLICABLE justified; unknown future functions cannot be counted as built or tested.
++
++### 10.R31
++
++**R31 — Russian R200 specialized capacity and non-interchangeable educational gates.** A comprehensive Russian-language learning satellite of Bauman Hub shall target **R200**: **inherits all S100 common architectural bands unchanged** and **adds specialist extension bands R101–200**, not 200 literal code layers or 100 compulsory extra widgets. **R101–110** Cyrillic recognition and printed/handwritten forms; **R111–120** articulation, phonemes and listening discrimination; **R121–130** stress, vowel reduction, rhythm and intonation; **R131–140** graded listening comprehension; **R141–150** speaking, role-play and intelligible interaction; **R151–160** contextual core vocabulary, retrieval and spaced review; **R161–170** grammar in meaningful utterances; **R171–180** authentic graded reading and terminology; **R181–190** writing, dictation, handwriting and communicative texts; **R191–200** functional life-in-Russia/technical and academic Russian, assessments, adaptation and trustworthy proficiency evidence. The learning progression is **adaptive and user-goal-led**, including listen/speak-first routes with parallel Cyrillic print/handwriting acquisition when useful; it must not rigidly postpone one skill or falsify teacher-level proficiency. Russian-specific gates require **real native-quality audio/reference provenance, stress correctness, listen/speak interaction, Cyrillic usability, handwriting feedback where supported, learning-science-consistent review, responsive/offline continuity and independent linguistic/pedagogical validation**. Speech recognition confidence or simulated rubric scores are **not authenticated pronunciation mastery**; absent recordings/providers stay UNVERIFIED with honest alternatives. A short Russian phrase widget or a general Russia-life app does **not** automatically become R200; comprehensive Russian curricula must declare this profile and justify actual coverage.
++
++### 10.R32
++
++**R32 — One ecosystem academic inheritance contract, no proliferating constitutions.** The **universal normative law** remains in Software-Blueprint-Hub; **Bauman Hub E2 target architecture** derives a **non-sovereign learning ecosystem application profile** from it; satellites inherit S100 and declare their own specialty; Russian declares R200 **as an extension of S100**, never an independent constitution or authority. Resolve precedence as: effective universal law and authenticated authority → reviewed ecosystem Project Profile and existing study-plan ownership → satellite-specific instructional profile and canonical records → scoped work package. Subject design decisions can specialize pedagogy and presentation but cannot weaken source provenance, real QA, accessibility, user-data isolation, secured identity, cross-app contract or human review. For new satellites, evaluate reuse vs new module, academic evidence, S100/R200 applicability, B level, current risk and bounded first learning vertical slice **before** generating code. Any disputed official syllabus/credential or non-delegable language/content acceptance remains PENDING/UNVERIFIED until qualified review; do not silently promote generated content as institutional fact. The ecosystem may measure verified user capability, navigation clarity, reuse, lack of duplicated shells and cost; it shall **never** represent nominal floor count, number of generated lessons or a green CI badge as learning quality. Constitutional publication, adoption and Production promotion retain separate established gates.
++
 +## 11. Computed contrast and legibility
 +
 +1. A component's foreground and background form one inseparable semantic contrast contract. Light text on dark/gradient/media surfaces, dark text on light surfaces; any reverse pairing must first prove sufficient contrast.
@@ -144,7 +160,7 @@ index 0960c2a..ab165cf 100644
 +
 +Contrast strengthens gate:ux:commercial-quality and never replaces human UX acceptance. Existing deployments retain truthful FAIL/UNVERIFIED until scoped remediation and measured verification.
 diff --git a/control/universal-constitution.contract.json b/control/universal-constitution.contract.json
-index c258a38..b839f08 100644
+index c258a38..312ca42 100644
 --- a/control/universal-constitution.contract.json
 +++ b/control/universal-constitution.contract.json
 @@ -1,10 +1,10 @@
@@ -160,7 +176,7 @@ index c258a38..b839f08 100644
    },
    "inheritanceRule": "mandatory-all-projects",
    "depthRule": "blueprint-level-scales-depth-never-removes-pillar",
-@@ -65,5 +65,228 @@
+@@ -65,5 +65,339 @@
      "uiOverride": true,
      "aiOverride": true,
      "implicitProductionAuthority": true
@@ -333,8 +349,119 @@ index c258a38..b839f08 100644
 +      "requirementId": "module:product:purpose",
 +      "enforcement": "immediate-evidence-obligation",
 +      "normativeSection": "10.R28"
++    },
++    {
++      "id": "R29",
++      "requirementId": "module:product:purpose",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R29"
++    },
++    {
++      "id": "R30",
++      "requirementId": "module:architecture:structural-capacity",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R30"
++    },
++    {
++      "id": "R31",
++      "requirementId": "module:product:purpose",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R31"
++    },
++    {
++      "id": "R32",
++      "requirementId": "module:architecture:boundaries",
++      "enforcement": "immediate-evidence-obligation",
++      "normativeSection": "10.R32"
 +    }
 +  ],
++  "academicProfiles": {
++    "status": "constitutional-capacity-reference-not-runtime-proof",
++    "requirementIds": [
++      "module:product:purpose",
++      "module:architecture:structural-capacity",
++      "module:architecture:boundaries"
++    ],
++    "applicability": "governed-academic-satellites",
++    "classificationAxis": "independent-of-B-and-E",
++    "recordOwner": "existing-project-profile-or-academic-review",
++    "capabilityStatuses": [
++      "PLANNED",
++      "IMPLEMENTED",
++      "VERIFIED",
++      "NOT_APPLICABLE",
++      "UNVERIFIED"
++    ],
++    "unsupportedStatus": "UNVERIFIED",
++    "notApplicableRequiresJustification": true,
++    "productionReleaseAuthority": false,
++    "base": "S100",
++    "baseBands": [
++      "S01-10:source-ownership",
++      "S11-20:learner-competencies",
++      "S21-30:curriculum-prerequisites",
++      "S31-40:concepts-and-worked-examples",
++      "S41-50:authentic-practice",
++      "S51-60:assessment-feedback",
++      "S61-70:discipline-specific-artifacts-when-applicable",
++      "S71-80:learning-state-evidence",
++      "S81-90:accessible-ux-performance",
++      "S91-100:security-interoperability-reliability"
++    ],
++    "russian": {
++      "profile": "R200",
++      "inherits": "S100",
++      "extension": "R101-200",
++      "appliesTo": "comprehensive-Russian-language-learning",
++      "completion": "requires-linguistic-evidence-not-artificial-floor-count",
++      "extensionBands": [
++        {
++          "from": 101,
++          "to": 110
++        },
++        {
++          "from": 111,
++          "to": 120
++        },
++        {
++          "from": 121,
++          "to": 130
++        },
++        {
++          "from": 131,
++          "to": 140
++        },
++        {
++          "from": 141,
++          "to": 150
++        },
++        {
++          "from": 151,
++          "to": 160
++        },
++        {
++          "from": 161,
++          "to": 170
++        },
++        {
++          "from": 171,
++          "to": 180
++        },
++        {
++          "from": 181,
++          "to": 190
++        },
++        {
++          "from": 191,
++          "to": 200
++        }
++      ]
++    },
++    "implementationQuota": false,
++    "separateConstitution": false,
++    "professionalReviewRequired": true,
++    "verifiedMaturityFromThisContract": false
++  },
 +  "executionProfiles": {
 +    "COMPACT": [
 +      "B0",
@@ -390,7 +517,7 @@ index c258a38..b839f08 100644
    }
  }
 diff --git a/packages/application/src/foundation-templates.ts b/packages/application/src/foundation-templates.ts
-index a6879a6..49d2173 100644
+index a6879a6..4ed7c58 100644
 --- a/packages/application/src/foundation-templates.ts
 +++ b/packages/application/src/foundation-templates.ts
 @@ -23,7 +23,7 @@ const levelTemplate = (
@@ -407,7 +534,7 @@ index a6879a6..49d2173 100644
          depth: "basic",
          tags: ["product"],
 -        description: "Define users, jobs-to-be-done, constraints, and success evidence."
-+        description: "Define users, jobs-to-be-done, constraints, and success evidence. Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28 additionally requires provenance, checked learning-state feedback and professional pedagogical acceptance for learning products."
++        description: "Define users, jobs-to-be-done, constraints, and success evidence. Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28 additionally requires provenance, checked learning-state feedback and professional pedagogical acceptance for learning products. R29 preserves disciplinary identity and rejects cloned shells. R31 comprehensive Russian profiles require independent linguistic/pedagogical evidence; synthetic mastery never passes."
        },
        {
          id: "module:architecture:boundaries",
@@ -416,7 +543,7 @@ index a6879a6..49d2173 100644
          tags: ["architecture"],
          dependsOn: ["module:product:purpose"],
 -        description: "Define ownership, contracts, and dependency direction."
-+        description: "Define ownership, contracts, and dependency direction. Apply R2/R11/R25: one canonical owner, truthful catalog capability and independent B/E axes; no shadow registry."
++        description: "Define ownership, contracts, and dependency direction. Apply R2/R11/R25: one canonical owner, truthful catalog capability and independent B/E axes; no shadow registry. R32 academic profiles inherit one universal authority and existing study-plan ownership; no parallel constitutions or automatic S100/R200 implementation."
        },
        {
          id: "module:data:source-of-truth",
@@ -470,7 +597,7 @@ index a6879a6..49d2173 100644
          dependsOn: ["module:architecture:boundaries"],
          description:
 -          "Preserve a credible future-scale path without speculative overbuilding or irreversible coupling."
-+          "Preserve a credible future-scale path without speculative overbuilding or irreversible coupling. Apply R18: measure architectural/UX entropy; no speculative scaffolds or destructive count reduction."
++          "Preserve a credible future-scale path without speculative overbuilding or irreversible coupling. Apply R18: measure architectural/UX entropy; no speculative scaffolds or destructive count reduction. R30 S100 is ten capacity bands in an existing profile/review, never a literal feature quota."
        },
        {
          id: "module:governance:architectural-longevity",

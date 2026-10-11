@@ -26,6 +26,13 @@ describe("inactive constitutional candidate resolution", () => {
     const inherited = new Set(resolved.requirements.map((r) => r.id));
     for (const rule of candidate.rules) expect(inherited.has(rule.requirementId)).toBe(true);
     expect(candidate.contract.pillars).toHaveLength(7);
+    expect(candidate.rules).toHaveLength(32);
+    expect(candidate.contract.academicProfiles.baseBands).toHaveLength(10);
+    expect(candidate.contract.academicProfiles.russian.extensionBands).toHaveLength(10);
+    expect(candidate.contract.academicProfiles.russian.inherits).toBe("S100");
+    expect(candidate.contract.academicProfiles.russian.appliesTo).toBe("comprehensive-Russian-language-learning");
+    expect(candidate.contract.academicProfiles.implementationQuota).toBe(false);
+    expect(candidate.contract.academicProfiles.unsupportedStatus).toBe("UNVERIFIED");
     expect(candidate.contract.executionProfiles.COMPACT).toEqual(["B0", "B1", "B2"]);
     expect(candidate.contract.executionProfiles.STRUCTURED).toEqual(["B3", "B4", "B5"]);
     expect(candidate.contract.managementMigration.unsupportedStatus).toBe("UNVERIFIED");

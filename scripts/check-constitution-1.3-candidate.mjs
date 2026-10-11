@@ -34,7 +34,7 @@ const owners = [
   "module:architecture:boundaries", "module:security:fortress-resilience",
   "gate:quality:evidence", "module:product:purpose",
   "module:product:purpose", "module:architecture:structural-capacity",
-  "module:product:purpose", "module:governance:evolution"
+  "module:product:purpose", "module:architecture:boundaries"
 ];
 
 export function buildConstitutionCandidate(root = process.cwd()) {
@@ -108,6 +108,13 @@ export function buildConstitutionCandidate(root = process.cwd()) {
   // spawning child constitutions, a second registry or literal 100/200 modules.
   contract.academicProfiles = {
     status: "constitutional-capacity-reference-not-runtime-proof",
+    requirementIds: [...new Set(rules.slice(28).map((r) => r.requirementId))],
+    applicability: "governed-academic-satellites",
+    classificationAxis: "independent-of-B-and-E",
+    recordOwner: "existing-project-profile-or-academic-review",
+    capabilityStatuses: ["PLANNED", "IMPLEMENTED", "VERIFIED", "NOT_APPLICABLE", "UNVERIFIED"],
+    unsupportedStatus: "UNVERIFIED", notApplicableRequiresJustification: true,
+    productionReleaseAuthority: false,
     base: "S100",
     baseBands: [
       "S01-10:source-ownership", "S11-20:learner-competencies",
@@ -120,7 +127,8 @@ export function buildConstitutionCandidate(root = process.cwd()) {
     russian: {
       profile: "R200", inherits: "S100", extension: "R101-200",
       appliesTo: "comprehensive-Russian-language-learning",
-      completion: "requires-linguistic-evidence-not-artificial-floor-count"
+      completion: "requires-linguistic-evidence-not-artificial-floor-count",
+      extensionBands: Array.from({ length: 10 }, (_, i) => ({ from: 101 + i * 10, to: 110 + i * 10 }))
     },
     implementationQuota: false,
     separateConstitution: false,
@@ -157,15 +165,15 @@ export function buildConstitutionCandidate(root = process.cwd()) {
     'version: "1.2.0"', 'version: "1.3.0"');
   const ownerSummaries = {
     "gate:quality:evidence": "Require exact revision, scope, truthful status, risk-appropriate checks, continuity and ecosystem evidence under R1/R3/R9/R17/R27; metrics never grant permission.",
-    "module:architecture:boundaries": "Apply R2/R11/R25: one canonical owner, truthful catalog capability and independent B/E axes; no shadow registry.",
+    "module:architecture:boundaries": "Apply R2/R11/R25: one canonical owner, truthful catalog capability and independent B/E axes; no shadow registry. R32 academic profiles inherit one universal authority and existing study-plan ownership; no parallel constitutions or automatic S100/R200 implementation.",
     "module:data:source-of-truth": "Apply R5: scoped version-safe writes, idempotency, readback and recovery.",
     "module:quality:evidence": "Apply R7/R10: bounded defect attempts and non-gamed quality cohorts.",
-    "module:governance:evolution": "Apply R8/R16/R22/R32: one authority, one bounded queue, learning satellite inheritance and economical handoffs without child constitutions.",
+    "module:governance:evolution": "Apply R8/R16/R22: durable scoped checkpoints, one dependency-aware work queue and capability-based economical handoffs.",
     "module:security:authority": "R12 federation remains migration-gated; declarations and trust boundaries apply immediately; no forged or stale central approval.",
     "gate:security:authority": "Apply R14/R19: operational device approval never implies constitutional, business-data, privileged or Production authority.",
-    "module:product:purpose": "Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28/R29/R31 additionally require proven pedagogy, subject identity, unique practice and qualified Russian linguistic evidence where appropriate; no copy-paste curriculum or fake proficiency.",
+    "module:product:purpose": "Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28 additionally requires provenance, checked learning-state feedback and professional pedagogical acceptance for learning products. R29 preserves disciplinary identity and rejects cloned shells. R31 comprehensive Russian profiles require independent linguistic/pedagogical evidence; synthetic mastery never passes.",
     "module:operations:release": "Apply R20: distinguish code/test/merge/deploy/acceptance and require truthful cleanup, rollback and restart evidence.",
-    "module:architecture:structural-capacity": "Apply R18/R30: measure entropy; S100 is long-term extensibility capacity, never a 100-file/feature quota.",
+    "module:architecture:structural-capacity": "Apply R18: measure architectural/UX entropy; no speculative scaffolds or destructive count reduction. R30 S100 is ten capacity bands in an existing profile/review, never a literal feature quota.",
     "module:governance:architectural-longevity": "Apply R24: enrollment and reclassification require canonical profile/owner review; never downgrade risk for cost.",
     "module:security:fortress-resilience": "Apply R26: separate governance, operations and app data/releases; test least privilege, isolation and independent recovery.",
     "module:ux:product-elegance": "Apply R13: shared status vocabulary with task-appropriate responsive layouts and no duplicate approval surfaces.",
