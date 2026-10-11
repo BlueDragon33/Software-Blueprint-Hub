@@ -1143,11 +1143,13 @@ test("P9-020 acceptance preflight remains locked before human sign-off", async (
     page.getByRole("heading", { name: "System Compass" })
   ).toBeVisible();
   await expect(page.getByText("P9-019", { exact: true }).first()).toBeVisible();
+  // Canonical Compass now displays each live preflight blocker by stable ID.
+  // Assert both, rather than the retired generic pending-projection wording.
   await expect(
-    page.getByText(
-      "P9-019 human professional sign-off has not been recorded for the exact current review candidate.",
-      { exact: true }
-    )
+    page.getByText("p9-019-human-signoff-required", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("universal-constitution-non-compliant", { exact: true })
   ).toBeVisible();
   await expect(
     page.getByText(/P9-001 is complete\. P9-002 is therefore/)
