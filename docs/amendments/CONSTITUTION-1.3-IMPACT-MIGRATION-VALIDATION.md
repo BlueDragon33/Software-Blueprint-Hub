@@ -116,50 +116,6 @@ A new request is **not enough by itself** to authenticate a Blueprint Level or g
 
 Blueprint Level indicates minimum depth. A specific high-risk operation raises the gate even within a lower-level project. Do not demand web LCP on an offline CLI/control loop; define the corresponding workload-relevant latency metric.
 
-## N. Ecosystem reference model — architecture above project scale (proposal, 2026-10-11)
-
-**User need:** A portfolio of many long-lived, independently deployable products resembles a campus of high-rise buildings, not one taller building. B0–B5 measure the rigor/complexity of each *building*, while E0–E3 describe the **topology and governance of the campus**. The aspirational 100-storey metaphor stands for structural longevity, not a literal count of implemented stories, a quality score, or parity with Apple/Samsung/Huawei.
-
-### Two axes and the current Bauman/BlueDragon Hub
-
-| Dimension | This ecosystem's proposed role | Evidence available / limitation |
-| --- | --- | --- |
-| Project-level B0–B5 | `Software-Blueprint-Hub` B4 authority-engineering hub; `Application-Management` B4 scoped operational management plane; 13 other registered repositories retain their respective B2–B5 levels | Canonical governed manifest has **15 registered repositories total**, not 15 managed apps plus the Hub. Individual B-levels remain valid |
-| Portfolio topology E0–E3 | **E2 Managed Multi-Domain Ecosystem — proposed target** | Registered diverse projects and separate governance/operations roles establish architectural intent. They **do not** prove authenticated interoperation or uniform runtime E2 maturity |
-| E3 federation | **Not currently justified**; future horizon only for 2+ independent ecosystem authorities with a verified cross-trust agreement | No E3 federation is established by the repository list or the Bauman Hub product name |
-| Newly discovered portfolio seeds | `ECAD_Design` / `CAE_Simulation` provisionally B3 STRUCTURED and potential future E2 members | They are not on the 15-repository canonical membership list and their README describes foundation-only capability; verify Profile/enrollment before counting them as governed |
-
-An application can be B5 yet E0 when standalone, or B1/B2 yet belong inside E2 through a **scoped** contract. This keeps **two project execution modes** (COMPACT/STRUCTURED) unchanged. Ecosystem work coordinates them at the portfolio root, rather than generating a third CI/test regime for every app edit.
-
-### Required ecosystem dimensions (assess individually; do not compress into one fake score)
-
-1. **Architecture and boundaries:** product/domain ownership, core/adapters, contracts and anti-corruption boundaries; no duplicate writable owner of app business state.
-2. **Governance and operational sovereignty:** Constitution authority vs app-management authority vs per-app privileges and user data; authenticated delegation, revocation, exact policy versions and clear rollback.
-3. **Interoperability/identity:** actual versioned app registration, proven device grant scope, session handoff where permitted, compatibility, traceability and offline degraded behavior. A directory link is **not** integration.
-4. **Product experience:** consistent discoverability, navigation vocabulary and account UX **without** identical bloated UIs or unnecessary per-app personal accounts; product independence remains.
-5. **Reliability and scale:** blast-radius containment, failure isolation, independent deployments, real cross-app journey verification, capacity observations and backups/recovery appropriate to each boundary.
-6. **Economy and ownership:** credit/CI/runtime/provider budgets, dependency minimization, exit paths and proof that shared modules really reduce duplication rather than add operational burden.
-7. **Portfolio evidence and growth:** which apps are enrolled, covered by exact-sha tests, actually compatible and verified in the field; unknown/missing evidence stays UNVERIFIED. Metrics must show *verified* integrated surfaces separately from *listed* products.
-
-**Central platform principle:** Blueprint OS owns constitutional engineering governance, not user accounts or product records; Application-Management manages a scoped app/device coordination contract only after real authorization; each managed product owns sensitive business data, domain rules, entitlements, UX and independent release gate. Neither central plane should become an all-powerful Production deployer or a mandatory single shared data store.
-
-### Proportionate implementation for present and future ecosystems
-
-| Decision stage | Action (minimal sufficient work) | Mandatory stop condition |
-| --- | --- | --- |
-| Portfolio discovery | Read canonical manifest, exact branches/HEADs and app contracts; identify actual product domains and declared governance/operations owners | Missing ownership, contradictory membership or inferred privileges |
-| Situational classification | Recommend E0/E1/E2/E3 based on **topology/roles**; separately classify each project B0–B5 and each work item L1/L2/L3 | E2/E3 asserted from app counts, branding or untested integration alone |
-| One vertical interoperability slice | Select two necessary participants and one real end-to-end user journey, with shared versioned contracts and owner-scoped test data | New dashboard, duplicated registry/login, out-of-scope write, cross-tenant data leak |
-| Contract + identity safety | Test grant scope, expired/revoked approval, compatibility, failure mode and independent recovery (as applicable) | No real authenticated evidence for high-privilege integration |
-| Staged expansion | Enroll next app only after existing slice readback/rollback passes, preserving local-first/offline users and separate releases | False PASS, uncontrolled batch migration or unbounded all-repo scan |
-| E3 graduation | Prove two independent ecosystems and real cross-trust: identity, revocation, failover and data sovereignty | A single centrally owned 15-app portfolio pretending to be a federation |
-
-**Proposal-only algorithm:** `proposeEcosystemReference(context)` returns a topology suggestion and explicitly `operationalMaturity: UNVERIFIED` with no authority or mutation. Its inputs are situational claims, not authenticated evidence. Unknown, invalid or disconnected portfolio relationships cannot silently claim E2; the same-governance/same-operations-owner case calls for authority-separation review. To declare real E2 operations, separately verify current access/identity, end-to-end flows and cross-app isolation using the authorized tools and gates.
-
-**Migration without disruption:** Leave `control/constitution-governed-repositories.json` and existing B-levels untouched in this proposal; this E-level is a portfolio-level overlay to be ratified and added through the existing canonical Profile / law / registry authority set. Do **not** create a second portfolio ledger, all-app shared DB, a global rewrite or an always-on workflow. A future app inherits the active Constitution and is proposed for the ecosystem only after membership, boundaries, scope and evidence are checked.
-
-**Validation plan:** exact-manifest composition fixture, E0 standalone high-risk app, E1 contract suite, E2 management with independent owners, E3 independent federation, stale/missing topology, false-federation prevention and fail-closed authority. Pure function tests are not an integration pilot. Actual E2 maturity needs one cross-app authenticated test, scoped revoke/failover demonstration, truthful release/rollback matrix and independent human/governance review where required. Active Constitution remains 1.2.0 pending ratification/publication.
-
 ## D. Proposed 1.3 rollout — measurable, reversible
 
 **Wave 0 — design-only / current PR**
@@ -434,4 +390,77 @@ This is only a **convenience prompt**. A project must actually resolve its activ
 - Human constitutional ratification, atomic publication and staged per-project adoption through the existing governance protocol. Production release remains separately authorized.
 
 This proposal does not assert that those activities have already succeeded.
+
+## N. Ecosystem reference model — architecture above project scale (proposal, 2026-10-11)
+
+**User need:** A portfolio of many long-lived, independently deployable products resembles a campus of high-rise buildings, not one taller building. B0–B5 measure the rigor/complexity of each *building*, while E0–E3 describe the **topology and governance of the campus**. The aspirational 100-storey metaphor stands for structural longevity, not a literal count of implemented stories, a quality score, or parity with Apple/Samsung/Huawei.
+
+### Two axes and the current Bauman/BlueDragon Hub
+
+| Dimension | This ecosystem's proposed role | Evidence available / limitation |
+| --- | --- | --- |
+| Project-level B0–B5 | `Software-Blueprint-Hub` B4 authority-engineering hub; `Application-Management` B4 scoped operational management plane; 13 other registered repositories retain their respective B2–B5 levels | Canonical governed manifest has **15 registered repositories total**, not 15 managed apps plus the Hub. Individual B-levels remain valid |
+| Portfolio topology E0–E3 | **E2 Managed Multi-Domain Ecosystem — proposed target** | Registered diverse projects and separate governance/operations roles establish architectural intent. They **do not** prove authenticated interoperation or uniform runtime E2 maturity |
+| E3 federation | **Not currently justified**; future horizon only for 2+ independent ecosystem authorities with a verified cross-trust agreement | No E3 federation is established by the repository list or the Bauman Hub product name |
+| Newly discovered portfolio seeds | `ECAD_Design` / `CAE_Simulation` provisionally B3 STRUCTURED and potential future E2 members | They are not on the 15-repository canonical membership list and their README describes foundation-only capability; verify Profile/enrollment before counting them as governed |
+
+An application can be B5 yet E0 when standalone, or B1/B2 yet belong inside E2 through a **scoped** contract. This keeps **two project execution modes** (COMPACT/STRUCTURED) unchanged. Ecosystem work coordinates them at the portfolio root, rather than generating a third CI/test regime for every app edit.
+
+### Required ecosystem dimensions (assess individually; do not compress into one fake score)
+
+1. **Architecture and boundaries:** product/domain ownership, core/adapters, contracts and anti-corruption boundaries; no duplicate writable owner of app business state.
+2. **Governance and operational sovereignty:** Constitution authority vs app-management authority vs per-app privileges and user data; authenticated delegation, revocation, exact policy versions and clear rollback.
+3. **Interoperability/identity:** actual versioned app registration, proven device grant scope, session handoff where permitted, compatibility, traceability and offline degraded behavior. A directory link is **not** integration.
+4. **Product experience:** consistent discoverability, navigation vocabulary and account UX **without** identical bloated UIs or unnecessary per-app personal accounts; product independence remains.
+5. **Reliability and scale:** blast-radius containment, failure isolation, independent deployments, real cross-app journey verification, capacity observations and backups/recovery appropriate to each boundary.
+6. **Economy and ownership:** credit/CI/runtime/provider budgets, dependency minimization, exit paths and proof that shared modules really reduce duplication rather than add operational burden.
+7. **Portfolio evidence and growth:** which apps are enrolled, covered by exact-sha tests, actually compatible and verified in the field; unknown/missing evidence stays UNVERIFIED. Metrics must show *verified* integrated surfaces separately from *listed* products.
+
+**Central platform principle:** Blueprint OS owns constitutional engineering governance, not user accounts or product records; Application-Management manages a scoped app/device coordination contract only after real authorization; each managed product owns sensitive business data, domain rules, entitlements, UX and independent release gate. Neither central plane should become an all-powerful Production deployer or a mandatory single shared data store.
+
+### Proportionate implementation for present and future ecosystems
+
+| Decision stage | Action (minimal sufficient work) | Mandatory stop condition |
+| --- | --- | --- |
+| Portfolio discovery | Read canonical manifest, exact branches/HEADs and app contracts; identify actual product domains and declared governance/operations owners | Missing ownership, contradictory membership or inferred privileges |
+| Situational classification | Recommend E0/E1/E2/E3 based on **topology/roles**; separately classify each project B0–B5 and each work item L1/L2/L3 | E2/E3 asserted from app counts, branding or untested integration alone |
+| One vertical interoperability slice | Select two necessary participants and one real end-to-end user journey, with shared versioned contracts and owner-scoped test data | New dashboard, duplicated registry/login, out-of-scope write, cross-tenant data leak |
+| Contract + identity safety | Test grant scope, expired/revoked approval, compatibility, failure mode and independent recovery (as applicable) | No real authenticated evidence for high-privilege integration |
+| Staged expansion | Enroll next app only after existing slice readback/rollback passes, preserving local-first/offline users and separate releases | False PASS, uncontrolled batch migration or unbounded all-repo scan |
+| E3 graduation | Prove two independent ecosystems and real cross-trust: identity, revocation, failover and data sovereignty | A single centrally owned 15-app portfolio pretending to be a federation |
+
+**Proposal-only algorithm:** `proposeEcosystemReference(context)` returns a topology suggestion and explicitly `operationalMaturity: UNVERIFIED` with no authority or mutation. Its inputs are situational claims, not authenticated evidence. Unknown, invalid or disconnected portfolio relationships cannot silently claim E2; the same-governance/same-operations-owner case calls for authority-separation review. To declare real E2 operations, separately verify current access/identity, end-to-end flows and cross-app isolation using the authorized tools and gates.
+
+**Migration without disruption:** Leave `control/constitution-governed-repositories.json` and existing B-levels untouched in this proposal; this E-level is a portfolio-level overlay to be ratified and added through the existing canonical Profile / law / registry authority set. Do **not** create a second portfolio ledger, all-app shared DB, a global rewrite or an always-on workflow. A future app inherits the active Constitution and is proposed for the ecosystem only after membership, boundaries, scope and evidence are checked.
+
+**Validation plan:** exact-manifest composition fixture, E0 standalone high-risk app, E1 contract suite, E2 management with independent owners, E3 independent federation, stale/missing topology, false-federation prevention and fail-closed authority. Pure function tests are not an integration pilot. Actual E2 maturity needs one cross-app authenticated test, scoped revoke/failover demonstration, truthful release/rollback matrix and independent human/governance review where required. Active Constitution remains 1.2.0 pending ratification/publication.
+
+## O. Constitutional 1.3 final-review, ratification and release checklist — bounded Work handoff (2026-10-11)
+
+**Status on preparation:** DRAFT; active law **1.2.0**. This is an actionable release-readiness brief, not an authorization to ratify or publish. User preference to finalize is not itself the protocol-required authenticated, append-only ratification record. The Work operator must read the live state again and verify exact current HEAD before any action.
+
+### Concrete pre-publication findings
+
+| Review item | Status at drafting | Required resolution |
+| --- | --- | --- |
+| Two competing 1.3.0 drafts | PR #98 (R1–R27) and PR #97 (computed contrast UX) are both unratified and target **the same version** | Review once; consolidate coherent constitutional scope or sequence them under explicitly distinct version identifiers. Never publish incompatible dual 1.3.0 authority sets |
+| Candidate vs enforceable law | R15–R27 have candidate prose and synthetic unit tests; R11–R14 centralized identity/device federation are **design-only** | Derive one implementable normative set and exact mandatory vs migration-gated obligations; prove the existing canonical template/contract/resolver can enforce it. Do not imply federated account/device approval is live |
+| Cross-repo adoption | 15 repositories are listed with B-levels; two engineering foundations are not enrolled | Revalidate latest list; do not mark any app as 1.3-compliant without exact per-project evidence. Record per-app compatibility owners, staged rollout and fallback |
+| E2 ecosystem maturity | Intent, distinct planes and a membership list are known; live cross-app identity/isolation is not proven | Verify one scoped cross-app journey including onboarding, permission/revocation and isolated failure/readback. Treat E2 as architectural target until evidence passes |
+| Release provenance | Draft Fast CI is green, protected full Release Gate was SKIPPED | After coherent atomic authority-set assembly, run full exact-SHA checks and inspect evidence, not only console status |
+| Ratification authority | No authenticated/append-only exact-revision human ratification recorded in PR | Obtain human constitutional decision through the existing authorized path, bind decision to candidate digest/SHA, and keep it separate from Production permission |
+| Recovery and supportability | Migration/rollback principles documented, not tested across 15 applications | Preserve published 1.2.0 history, verify restore/forward corrective-release plan, required app compatibility and clear error/reporting on non-adopted projects |
+
+### Work/Codex execution route with minimum credit
+
+1. **REVALIDATE STATE:** Check GitHub PR #98, PR #97, current `main`, existing 1.2.0 authority manifest and `docs/CONSTITUTION-AUTHORITY-PROTOCOL.v1.md`. Read the PR diff, this Section O and targeted tests first. No full repository scan and no repeated 15-repo sweep unless a detected drift justifies it.
+2. **INDEPENDENT REVIEW:** Identify contradictions between PR #97 WCAG contrast and PR #98 R1–R27, whether the 1.3 changes are compatible or need a different version class, unchecked security/privacy/release implications, missing test evidence and unnecessary UI/code layers. Document decisions with exact SHA; fix only detected defects, not unrelated app interfaces.
+3. **CONSOLIDATE ONE CANDIDATE:** Determine how computed contrast enters the same authorized constitutional version or a sequential later version. Define R11–R14 enforceable capability declarations vs separate future central identity implementation. Bind B0–B5, COMPACT/STRUCTURED and E0–E3 to existing Project Profile, template and governance contracts **without another registry or policy engine**.
+4. **PILOT AND VERIFY:** Minimum authentic implementation: one low-risk interrupted/resumed work package and one authorized scoped cross-app enrollment/revoke/readback where available. Fail closed if no authenticated Preview/device identity is accessible; report precisely unverified surfaces. Run focused checks, then once coherent run exact-revision Full Release Gate and independent review of security/UX/contracts.
+5. **AUTHENTICATED HUMAN RATIFICATION GATE:** Show exact candidate diff/version/digest and unresolved blockers in the existing authorized ratification interface to the designated constitutional authority. If no authenticated ratification can be recorded, output `RATIFICATION_READY` or `BLOCKED` **without** publication. An ordinary chat authorization or this handoff is not ratification.
+6. **ATOMIC PUBLICATION, IF AUTHORIZED:** Publish only after actual authenticated human approval for this exact version. Update normative document, machine contract, universal template, policy source, version manifest, validator/tests and immutable authority record together. Read back canonical digest and policy version. Do not convert a PR merge into implied constitutional publication.
+7. **STAGED PROPAGATION:** Roll out per B-level/risk/E-boundary in batches, starting with the already scoped pilot; report per-app adoption separately from compliance. Do not promote or redeploy Production without separately granted Production authority.
+8. **FINAL ONE-PAGE RESULT:** Exact branch/HEAD, amendment ID/version/digest, what passed and failed, authenticated ratification record reference if it exists, atomic publication evidence if it exists, per-repository adoption status and **one** next blocker/operation. Never say fully published if the active manifest and runtime law still show 1.2.0.
+
+**Stop behavior:** Continue autonomous, reversible engineering fixes within allowed scope. A missing login/authentication, unsafe trust boundary, disputed amendment/version precedence or required human acceptance is a genuine authority stop, not a reason to invent evidence. If Work quota or browser access is unavailable, leave a minimal checkpoint and return unchanged authority state. No unattended/background-work promise.
 
