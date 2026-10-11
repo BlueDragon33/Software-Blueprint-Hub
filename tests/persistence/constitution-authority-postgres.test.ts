@@ -53,7 +53,25 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
   });
 
   afterAll(async () => {
-    await prisma.$disconnect();
+    try {
+      // E2E shares this isolated CI database; do not leave synthetic ratifications.
+      await prisma.$transaction(async tx => {
+        const fixtures = await tx.constitutionAmendment.findMany({
+          where: { proposedBy: { provider: "github", providerSubject: { startsWith: "ca002-" } } },
+          select: { id: true }
+        });
+        const ids = fixtures.map(row => row.id);
+        if (!ids.length) return;
+        const children = { amendmentId: { in: ids } };
+        await tx.constitutionPublication.deleteMany({ where: children });
+        await tx.constitutionRatificationDecision.deleteMany({ where: children });
+        await tx.constitutionEvidence.deleteMany({ where: children });
+        await tx.constitutionAmendmentRevision.deleteMany({ where: children });
+        await tx.constitutionAmendment.deleteMany({ where: { id: { in: ids } } });
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   });
 
   async function owner() {
