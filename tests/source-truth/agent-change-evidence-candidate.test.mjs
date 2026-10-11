@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity } from "../../scripts/agent-change-evidence-candidate.mjs";
+import { evaluateAgentChangeEvidence as evaluate, summarizeFixCohorts, evaluateExecutionContinuity as continuity, buildMinimalWorkHandoff } from "../../scripts/agent-change-evidence-candidate.mjs";
 
 const HEAD = "a".repeat(40);
 const BASE = "b".repeat(40);
@@ -469,4 +469,52 @@ test("Invalid resource, requires and duplicate acceptance data blocks without th
     mutate(x);
     assert.equal(continuity(x).state, "BLOCKED");
   }
+});
+
+test("Compact handoff names exact branch, HEAD and next package without full-repo scan", () => {
+  const x = execution();
+  x.workPackages = [{ id: "WP-continue", status: "READY", dependsOn: [] }];
+  x.relevantPaths = ["packages/application/src/compass-acceptance.ts", "tests/application/compass-acceptance.test.ts"];
+  const h = buildMinimalWorkHandoff(x);
+  assert.equal(h.ready, true);
+  assert.match(h.prompt, /Expected HEAD: a{40}/);
+  assert.match(h.prompt, /Work package: "WP-continue"/);
+  assert.match(h.prompt, /Read only live HEAD, affected PR\/diff\/CI/);
+  assert.match(h.prompt, /Never self-ratify Constitution/);
+  assert.ok(h.prompt.length < 2000);
+  assert.equal(h.prompt.includes("no approval authority"), true);
+});
+
+test("Handoff excludes arbitrary input/secret fields and invalid path hints", () => {
+  const x = execution();
+  x.secret = "SHOULD_NOT_BE_IN_PROMPT";
+  x.chatHistory = "SHOULD_NOT_BE_IN_PROMPT";
+  x.relevantPaths = ["relative/path.ts", "../../../.env\nLEAK", "relative/path.ts"];
+  const h = buildMinimalWorkHandoff(x);
+  assert.equal(h.ready, true);
+  assert.equal(h.prompt.includes("SHOULD_NOT_BE_IN_PROMPT"), false);
+  assert.equal(h.prompt.includes("LEAK"), false);
+  assert.equal(h.prompt.split("relative/path.ts").length, 2);
+});
+
+test("Invalid, stale or non-delegable decision never generates Work approval prompt", () => {
+  const invalid = buildMinimalWorkHandoff(null);
+  assert.equal(invalid.ready, false);
+  assert.equal(invalid.prompt, null);
+  const stale = execution();
+  stale.checkpoint.headSha = BASE;
+  assert.equal(buildMinimalWorkHandoff(stale).prompt, null);
+  const human = execution();
+  human.humanGate = { required: true, approved: false };
+  assert.equal(buildMinimalWorkHandoff(human).prompt, null);
+});
+
+test("Unavailable browser resources can generate constrained handoff without fake PASS", () => {
+  const x = execution();
+  x.workPackages = [{ id: "verify-preview", status: "ACTIVE", dependsOn: [], requires: ["browser"] }];
+  x.unavailableResources = ["browser"];
+  const v = buildMinimalWorkHandoff(x);
+  assert.equal(v.ready, true);
+  assert.match(v.prompt, /PAUSED_RESOURCE/);
+  assert.match(v.prompt, /Old screenshots, chat and this handoff are NOT proof/);
 });
