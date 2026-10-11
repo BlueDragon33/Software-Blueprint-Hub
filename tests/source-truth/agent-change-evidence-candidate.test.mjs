@@ -448,3 +448,25 @@ test("Adversarial malformed execution snapshot never throws or marks approval", 
     assert.equal(v.authority.productionRelease, false);
   }
 });
+
+test("Checkpoint identity: same SHA on another repo/branch is stale", () => {
+  const x = execution();
+  x.branch = "main";
+  assert.equal(continuity(x).nextAction, "RECONCILE_LIVE_STATE");
+  x.branch = x.checkpoint.branch;
+  x.repository = "BlueDragon33/Other";
+  assert.equal(continuity(x).nextAction, "RECONCILE_LIVE_STATE");
+});
+
+test("Invalid resource, requires and duplicate acceptance data blocks without throwing", () => {
+  for (const mutate of [
+    (x) => { x.unavailableResources = "browser"; },
+    (x) => { x.workPackages[0].requires = "browser"; },
+    (x) => { x.workPackages[0].requires = [null]; },
+    (x) => { x.goal.acceptance.push({ ...x.goal.acceptance[0] }); }
+  ]) {
+    const x = execution();
+    mutate(x);
+    assert.equal(continuity(x).state, "BLOCKED");
+  }
+});
