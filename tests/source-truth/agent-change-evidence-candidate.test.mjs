@@ -995,6 +995,8 @@ test("Publication rejects invalid candidate and no-op constitutional version", (
   const x = publicationCandidate();
   x.targetVersion = "1.2.0";
   assert.ok(publication(x).blocked.includes("VERSION_NOT_ADVANCED"));
+  x.targetVersion = "1.1.9";
+  assert.ok(publication(x).blocked.includes("VERSION_NOT_ADVANCED"));
 });
 
 test("Publication missing proposal collision review must not pass", () => {
