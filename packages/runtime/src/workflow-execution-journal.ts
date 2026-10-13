@@ -124,7 +124,11 @@ export class PostgresWorkflowExecutionJournal implements WorkflowExecutionJourna
           filesTouched: item.filesTouched as string[],
           tokensUsed: item.tokensUsed
         };
-        assertObservation(observation);
+        try {
+          assertObservation(observation);
+        } catch {
+          throw new TypeError("Corrupted workflow execution journal");
+        }
         return Object.freeze(observation);
       }))
     });
