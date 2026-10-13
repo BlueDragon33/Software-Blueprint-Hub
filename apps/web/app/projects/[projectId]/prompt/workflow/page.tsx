@@ -8,6 +8,7 @@ import { loadProjectWorkspace } from "../../../../../src/server/project-workspac
 import {
   isRegisteredGovernedProject,
   previewRegisteredWorkflowRoot,
+  readRegisteredWorkflowReadiness,
   registeredWorkflowNodes,
   registeredWorkflowSummaries
 } from "../../../../../src/server/prompt-workflow";
@@ -37,6 +38,8 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
   const root = selected?.rootNodeIds[0];
   let preview: Awaited<ReturnType<typeof previewRegisteredWorkflowRoot>> | null = null;
   let previewError = "";
+  let readiness: Awaited<ReturnType<typeof readRegisteredWorkflowReadiness>> | null = null;
+  let readinessError = "";
 
   if (selected && root) {
     try {
@@ -48,6 +51,16 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
     }
   } else if (selected) {
     previewError = "This workflow has no previewable root node.";
+  }
+
+  if (selected) {
+    try {
+      readiness = await readRegisteredWorkflowReadiness(
+        workspace.actor, workspace.projectId, selected.workflowId
+      );
+    } catch (error) {
+      readinessError = error instanceof Error ? error.message : "Verified readiness unavailable";
+    }
   }
 
   return (
@@ -110,6 +123,9 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
                 key={selected.workflowId}
                 nodes={nodes}
                 rootNodeIds={selected.rootNodeIds}
+                readiness={readiness?.plan ?? null}
+                receiptVerificationConfigured={readiness?.receiptVerificationConfigured ?? false}
+                readinessError={readinessError}
                 preview={preview && root ? {
                   rootNodeId: root,
                   content: preview.projection.content,

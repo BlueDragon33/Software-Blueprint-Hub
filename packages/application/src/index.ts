@@ -261,6 +261,8 @@ export * from "./prompt-workflow-registry";
 
 export * from "./prompt-workflow-graph";
 
+export * from "./prompt-workflow-orchestration";
+
 export type { WorkflowNode } from "./prompt-workflow-core.mjs";
 
 export * from "./foundation-templates";
