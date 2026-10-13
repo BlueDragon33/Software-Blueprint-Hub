@@ -1,3 +1,7 @@
+import { CONSTITUTION_POLICY_VERSION } from "../../packages/application/src";
+
+const [policyMajor, policyMinor] = CONSTITUTION_POLICY_VERSION.split(".").map(Number);
+const TARGET_VERSION = `${policyMajor}.${policyMinor + 1}.0`;
 import { createHash } from "node:crypto";
 
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
@@ -49,7 +53,25 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
   });
 
   afterAll(async () => {
-    await prisma.$disconnect();
+    try {
+      // E2E shares this isolated CI database; do not leave synthetic ratifications.
+      await prisma.$transaction(async tx => {
+        const fixtures = await tx.constitutionAmendment.findMany({
+          where: { proposedBy: { provider: "github", providerSubject: { startsWith: "ca002-" } } },
+          select: { id: true }
+        });
+        const ids = fixtures.map(row => row.id);
+        if (!ids.length) return;
+        const children = { amendmentId: { in: ids } };
+        await tx.constitutionPublication.deleteMany({ where: children });
+        await tx.constitutionRatificationDecision.deleteMany({ where: children });
+        await tx.constitutionEvidence.deleteMany({ where: children });
+        await tx.constitutionAmendmentRevision.deleteMany({ where: children });
+        await tx.constitutionAmendment.deleteMany({ where: { id: { in: ids } } });
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
   });
 
   async function owner() {
@@ -78,7 +100,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
   }
 
   function authoritySetAttestation() {
-    const policyVersion = "1.3.0";
+    const policyVersion = TARGET_VERSION;
     const components = [
       {
         id: "normative-document" as const,
@@ -141,7 +163,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     const draft = await app.createDraft(
       actor,
       {
-        targetPolicyVersion: "1.3.0",
+        targetPolicyVersion: TARGET_VERSION,
         title: "Atomic publication amendment",
         problem: "Constitution authority files must publish as one exact set.",
         rationale: "Partial publication would create conflicting law sources.",
@@ -159,7 +181,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 1,
         kind: "impact",
         source: "review",
-        revision: "revision:impact",
+        revision: authoritySetAttestation().sourceRevision,
         digest,
         note: "Impact evidence."
       },
@@ -172,8 +194,8 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 2,
         kind: "migration",
         source: "migration-plan",
-        revision: "revision:migration",
-        digest,
+        revision: authoritySetAttestation().sourceRevision,
+        digest: authoritySetAttestation().authoritySetDigest,
         note: "Migration evidence."
       },
       "2026-09-28T02:32:00.000Z"
@@ -201,7 +223,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     const draft = await service.createDraft(
       actor,
       {
-        targetPolicyVersion: "1.3.0",
+        targetPolicyVersion: TARGET_VERSION,
         title: "Durability evidence amendment",
         problem: "Upgrade ageing evidence is underspecified.",
         rationale: "Long-lived projects require repeatable ageing proof.",
@@ -226,7 +248,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 1,
         kind: "impact",
         source: "github-actions:impact",
-        revision: "revision:impact",
+        revision: authoritySetAttestation().sourceRevision,
         digest,
         note: "Impact analysis covers all governed repositories."
       },
@@ -258,7 +280,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     const draft = await service.createDraft(
       actor,
       {
-        targetPolicyVersion: "1.3.0",
+        targetPolicyVersion: TARGET_VERSION,
         title: "Concurrency amendment",
         problem: "Concurrent constitutional edits must not overwrite each other.",
         rationale: "A constitutional record requires exact revision protection.",
@@ -277,7 +299,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 1,
         kind: "impact",
         source: "review",
-        revision: "revision:impact",
+        revision: authoritySetAttestation().sourceRevision,
         digest,
         note: "First writer advances the record."
       },
@@ -303,7 +325,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     const draft = await service.createDraft(
       actor,
       {
-        targetPolicyVersion: "1.3.0",
+        targetPolicyVersion: TARGET_VERSION,
         title: "Ratification amendment",
         problem: "Constitution publication needs an authenticated human decision.",
         rationale: "AI and CI evidence cannot substitute for ratification.",
@@ -322,7 +344,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 1,
         kind: "impact",
         source: "review",
-        revision: "revision:impact",
+        revision: authoritySetAttestation().sourceRevision,
         digest,
         note: "Impact evidence."
       },
@@ -335,8 +357,8 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
         expectedRecordVersion: 2,
         kind: "migration",
         source: "migration-plan",
-        revision: "revision:migration",
-        digest,
+        revision: authoritySetAttestation().sourceRevision,
+        digest: authoritySetAttestation().authoritySetDigest,
         note: "Migration evidence."
       },
       "2026-09-28T02:22:00.000Z"
@@ -431,7 +453,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     expect(publications).toHaveLength(1);
     expect(publications[0]).toMatchObject({
       amendmentRecordVersion: 5,
-      policyVersion: "1.3.0",
+      policyVersion: TARGET_VERSION,
       sourceRevision: "c".repeat(40),
       ciRunId: "36365074322",
       authoritySetDigest: authoritySetAttestation().authoritySetDigest,
@@ -515,7 +537,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
             kind: "constitution-propagation-attestation",
             source: "trusted-constitution-lifecycle-attestation",
             policyId: "blueprint-os:universal-century-grade",
-            policyVersion: "1.3.0",
+            policyVersion: TARGET_VERSION,
             amendmentId: published.amendment.proposal.id,
             publicationId: published.publication.id,
             sourceRevision: "d".repeat(40),
@@ -546,7 +568,7 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
           kind: "constitution-verification-attestation",
           source: "trusted-constitution-lifecycle-attestation",
           policyId: "blueprint-os:universal-century-grade",
-          policyVersion: "1.3.0",
+          policyVersion: TARGET_VERSION,
           amendmentId: propagating.proposal.id,
           publicationId: published.publication.id,
           sourceRevision: "e".repeat(40),
@@ -602,6 +624,27 @@ describePostgres("CA-002/CA-003 Constitution Authority PostgreSQL integration", 
     expect(revisions.map((row) => row.recordVersion)).toEqual([
       1, 2, 3, 4, 5, 6, 7, 8
     ]);
+  });
+
+  it("rejects authority revoked before the publication transaction without appending rows", async () => {
+    const actor = await owner();
+    const app = new ConstitutionAuthorityApplicationService(repository, authority, { id: "test:provider", verify: async () => true });
+    const ratified = await createRatifiedAmendment(app, actor);
+    const successor = await authority.resolveIdentity({ provider: "github", providerSubject: "ca002-successor" });
+    await prisma.systemBootstrap.update({ where: { id: "system" }, data: { ownerPrincipalId: successor.id } });
+    const attestation = authoritySetAttestation();
+    const evidence = { id: "constitution-evidence:revoked-publication", amendmentId: ratified.proposal.id, kind: "publication" as const,
+      source: "trusted-ci-attestation:test", revision: attestation.sourceRevision, digest: attestation.authoritySetDigest,
+      note: "Revoked publication must fail", recordedByActorId: actor.principalId, createdAt: "2026-10-12T00:00:00.000Z" };
+    const publication = { id: "constitution-publication:revoked", amendmentId: ratified.proposal.id,
+      amendmentRecordVersion: ratified.recordVersion, policyVersion: attestation.policyVersion, publishedByActorId: actor.principalId,
+      sourceRevision: attestation.sourceRevision, ciRunId: attestation.ciRunId, authoritySetDigest: attestation.authoritySetDigest,
+      components: attestation.components, publishedAt: evidence.createdAt, productionReleaseAuthority: false as const };
+    await expect(repository.appendPublicationAndUpdate(publication, evidence, {
+      ...ratified, state: "published", recordVersion: ratified.recordVersion + 1, publicationEvidenceId: evidence.id, updatedAt: evidence.createdAt
+    }, ratified.recordVersion)).rejects.toThrow(/revoked before transaction/);
+    expect(await prisma.constitutionPublication.count()).toBe(0);
+    expect((await repository.findAmendmentById(ratified.proposal.id))?.state).toBe("ratified");
   });
 
 });

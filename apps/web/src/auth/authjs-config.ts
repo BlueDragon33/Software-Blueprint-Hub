@@ -35,6 +35,9 @@ export function createAuthJsConfig(
         if (account?.provider) {
           token.blueprintProvider = account.provider;
         }
+        if (account?.provider === "github" && account.access_token) {
+          token.blueprintGitHubAccessToken = account.access_token;
+        }
         if (account?.providerAccountId) {
           token.blueprintProviderSubject = account.providerAccountId;
         }

@@ -15,6 +15,7 @@ import {
 } from "@blueprint-os/core";
 
 export type {
+  ConstitutionEvidenceRecord,
   CanonicalConstitutionAmendmentRecord,
   ConstitutionAuthoritySetAttestation,
   ConstitutionAuthoritySetComponent,
@@ -24,7 +25,7 @@ export type {
 } from "@blueprint-os/core";
 
 export const CONSTITUTION_POLICY_ID = "blueprint-os:universal-century-grade" as const;
-export const CONSTITUTION_POLICY_VERSION = "1.2.0" as const;
+export const CONSTITUTION_POLICY_VERSION = "1.3.0" as const;
 export const CONSTITUTION_AUTHORITY_PROMPT_VERSION =
   "constitution-authority-prompt:v1" as const;
 
@@ -413,8 +414,17 @@ const authoritySetPaths: Readonly<Record<
   "policy-version": "packages/application/src/constitution-authority.ts"
 });
 
+export interface ConstitutionPublicationCandidate {
+  readonly attestation: ConstitutionAuthoritySetAttestation;
+  readonly patch: string;
+  readonly publicationPatchDigest: string;
+  readonly artifactDigest: string;
+  readonly files: Readonly<Record<string, string>>;
+}
+
 export interface ConstitutionPublicationAttestationVerifier {
   readonly id: string;
+  prepare?(revision: string, runId: string): Promise<ConstitutionPublicationCandidate>;
   verify(
     attestation: ConstitutionAuthoritySetAttestation
   ): Promise<boolean>;
@@ -1056,6 +1066,7 @@ export class ConstitutionAuthorityApplicationService {
       amendmentId,
       expectedRecordVersion
     );
+    await this.requireReviewedCandidate(current);
     const transition = transitionConstitutionAmendment(current, {
       action: "open-ratification"
     });
@@ -1083,6 +1094,8 @@ export class ConstitutionAuthorityApplicationService {
         "Constitution amendment must be ratification-ready before a human decision"
       );
     }
+
+    if (input.decision === "approve") await this.requireReviewedCandidate(current);
 
     const timestamp = requireIsoTimestamp(now);
     const decisionId = `constitution-ratification:${randomUUID()}`;
@@ -1114,6 +1127,33 @@ export class ConstitutionAuthorityApplicationService {
   }
 
 
+  async preparePublication(actor: AuthenticatedActor | null, input: {
+    readonly amendmentId: string; readonly expectedRecordVersion: number; readonly ciRunId: string;
+  }): Promise<ConstitutionPublicationCandidate> {
+    await this.authority.requireConstitutionalAuthority(actor);
+    const current = await this.requireExactAmendment(input.amendmentId, input.expectedRecordVersion);
+    await this.requireValidRatification(current);
+    if (!this.publicationAttestationVerifier?.prepare) throw new TypeError("Trusted publication preparation is unavailable");
+    const seal = await this.requireReviewedCandidate(current);
+    const candidate = await this.publicationAttestationVerifier.prepare(seal.revision, input.ciRunId);
+    if (candidate.attestation.authoritySetDigest !== seal.digest || candidate.attestation.sourceRevision !== seal.revision ||
+        candidate.attestation.policyVersion !== current.proposal.targetPolicyVersion) throw new TypeError("Publication candidate does not match ratified seal");
+    await this.authority.requireConstitutionalAuthority(actor);
+    await this.requireValidRatification(await this.requireExactAmendment(input.amendmentId, input.expectedRecordVersion));
+    return candidate;
+  }
+
+  private async requireValidRatification(current: CanonicalConstitutionAmendmentRecord): Promise<void> {
+    if (current.state !== "ratified" || !current.ratificationDecisionId) throw new TypeError("Constitution publication requires an exact human-ratified amendment");
+    const decision = await this.repository.findRatificationDecisionById(current.ratificationDecisionId);
+    if (!decision || decision.decision !== "approve" || decision.amendmentId !== current.proposal.id ||
+        decision.amendmentRecordVersion !== current.recordVersion - 1 || decision.source !== "authenticated-user-action" ||
+        decision.humanRatification !== true || decision.productionReleaseAuthority !== false ||
+        !(await this.authority.canExerciseConstitutionalAuthority({ principalId: decision.reviewerActorId }))) {
+      throw new TypeError("Constitution publication requires a valid, non-revoked human approval record");
+    }
+  }
+
   async publishFromTrustedAttestation(
     actor: AuthenticatedActor | null,
     input: ConstitutionPublicationSubmission,
@@ -1130,26 +1170,7 @@ export class ConstitutionAuthorityApplicationService {
       input.amendmentId,
       input.expectedRecordVersion
     );
-    if (current.state !== "ratified" || !current.ratificationDecisionId) {
-      throw new TypeError(
-        "Constitution publication requires an exact human-ratified amendment"
-      );
-    }
-
-    const ratificationDecision =
-      await this.repository.findRatificationDecisionById(
-        current.ratificationDecisionId
-      );
-    if (
-      !ratificationDecision ||
-      ratificationDecision.decision !== "approve" ||
-      ratificationDecision.humanRatification !== true ||
-      ratificationDecision.productionReleaseAuthority !== false
-    ) {
-      throw new TypeError(
-        "Constitution publication requires a valid human approval record"
-      );
-    }
+    await this.requireValidRatification(current);
 
     const attestation = validateConstitutionAuthoritySetAttestation(
       input.attestation
@@ -1159,6 +1180,13 @@ export class ConstitutionAuthorityApplicationService {
         "Constitution authority-set policy version does not match the ratified amendment target"
       );
     }
+    const candidate = await this.requireReviewedCandidate(current);
+    if (attestation.sourceRevision !== candidate.revision ||
+        attestation.authoritySetDigest !== candidate.digest) {
+      throw new TypeError(
+        "Constitution publication must match the exact ratified candidate SHA and authority-set digest"
+      );
+    }
     if (
       !(await this.publicationAttestationVerifier.verify(attestation))
     ) {
@@ -1166,6 +1194,9 @@ export class ConstitutionAuthorityApplicationService {
         `Constitution authority-set attestation was not verified by ${this.publicationAttestationVerifier.id}`
       );
     }
+
+    await this.authority.requireConstitutionalAuthority(actor);
+    await this.requireValidRatification(await this.requireExactAmendment(input.amendmentId, input.expectedRecordVersion));
 
     const timestamp = requireIsoTimestamp(now);
     const note = nonEmpty(input.note, "publication note");
@@ -1376,6 +1407,25 @@ export class ConstitutionAuthorityApplicationService {
       actor!.principalId,
       "CONSTITUTION_VERIFIED"
     );
+  }
+
+  private async requireReviewedCandidate(
+    current: CanonicalConstitutionAmendmentRecord
+  ): Promise<ConstitutionEvidenceRecord> {
+    const evidence = await this.repository.listEvidence(current.proposal.id);
+    const impact = evidence.find((item) =>
+      current.impactEvidenceIds.includes(item.id) && item.kind === "impact");
+    const migration = evidence.find((item) =>
+      current.migrationEvidenceIds.includes(item.id) && item.kind === "migration");
+    if (!impact || !migration ||
+        !/^[a-f0-9]{40}$/.test(migration.revision) ||
+        impact.revision !== migration.revision ||
+        !/^sha256:[a-f0-9]{64}$/.test(migration.digest)) {
+      throw new TypeError(
+        "Ratification requires reviewed candidate evidence at one exact Git revision; migration digest must seal the authority set"
+      );
+    }
+    return migration;
   }
 
   private async requireExactAmendment(

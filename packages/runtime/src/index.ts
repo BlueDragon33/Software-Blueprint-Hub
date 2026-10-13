@@ -1,5 +1,6 @@
 import {
   ConstitutionAuthorityApplicationService,
+  CONSTITUTION_POLICY_VERSION,
   ConstitutionLockedTemplateCatalog,
   foundationBlueprintTemplatesV1,
   GovernanceApplicationService,
@@ -14,6 +15,7 @@ import {
   universalConstitutionTemplateV1,
   WorkQualityApplicationService
 } from "@blueprint-os/application";
+import { GitHubConstitutionPublicationVerifier } from "./constitution-publication";
 import { AuthorityService } from "@blueprint-os/core";
 import {
   createPrismaClient,
@@ -44,7 +46,8 @@ export interface BlueprintServerRuntime {
 }
 
 export function createBlueprintServerRuntime(
-  connectionString: string
+  connectionString: string,
+  publicationTokenProvider?: () => Promise<string | null>
 ): BlueprintServerRuntime {
   if (!connectionString.trim()) {
     throw new Error("DATABASE_URL is required to create Blueprint server runtime");
@@ -57,7 +60,13 @@ export function createBlueprintServerRuntime(
     new PostgresConstitutionAuthorityRepository(prisma);
   const constitutionAuthority = new ConstitutionAuthorityApplicationService(
     constitutionAuthorityRepository,
-    authority
+    authority,
+    new GitHubConstitutionPublicationVerifier({
+      runtimePolicyVersion: CONSTITUTION_POLICY_VERSION,
+      ...(publicationTokenProvider ? { tokenProvider: publicationTokenProvider } : {}),
+      ...(process.env.VERCEL_GIT_COMMIT_SHA ? { runtimeRevision: process.env.VERCEL_GIT_COMMIT_SHA } : {}),
+      ...(process.env.CONSTITUTION_GITHUB_READ_TOKEN ? { token: process.env.CONSTITUTION_GITHUB_READ_TOKEN } : {})
+    })
   );
   const profileRepository = new PostgresProjectProfileRepository(prisma);
   const workRepository = new PostgresWorkQualityRepository(prisma);

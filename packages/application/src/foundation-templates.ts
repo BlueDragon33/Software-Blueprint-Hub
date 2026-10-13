@@ -23,7 +23,7 @@ const levelTemplate = (
 export const universalConstitutionTemplateV1 = Object.freeze({
     schemaVersion: "1.0.0",
     id: "template:constitution:universal-v1",
-    version: "1.2.0",
+    version: "1.3.0",
     authorityLayer: "constitution",
     requirements: [
       {
@@ -31,7 +31,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         kind: "module",
         depth: "basic",
         tags: ["product"],
-        description: "Define users, jobs-to-be-done, constraints, and success evidence."
+        description: "Define users, jobs-to-be-done, constraints, and success evidence. Apply R15/R21/R23: preserved objective, canonical B0–B2 COMPACT/B3–B5 STRUCTURED and context-aware vertical-slice intake. R28 additionally requires provenance, checked learning-state feedback and professional pedagogical acceptance for learning products. R29 preserves disciplinary identity and rejects cloned shells. R31 comprehensive Russian profiles require independent linguistic/pedagogical evidence; synthetic mastery never passes."
       },
       {
         id: "module:architecture:boundaries",
@@ -39,7 +39,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         depth: "standard",
         tags: ["architecture"],
         dependsOn: ["module:product:purpose"],
-        description: "Define ownership, contracts, and dependency direction."
+        description: "Define ownership, contracts, and dependency direction. Apply R2/R11/R25: one canonical owner, truthful catalog capability and independent B/E axes; no shadow registry. R32 academic profiles inherit one universal authority and existing study-plan ownership; no parallel constitutions or automatic S100/R200 implementation."
       },
       {
         id: "module:data:source-of-truth",
@@ -47,7 +47,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         depth: "standard",
         tags: ["data"],
         dependsOn: ["module:architecture:boundaries"],
-        description: "Define canonical state, identity, versions, and lifecycle."
+        description: "Define canonical state, identity, versions, and lifecycle. Apply R5: scoped version-safe writes, idempotency, readback and recovery."
       },
       {
         id: "module:security:authority",
@@ -55,7 +55,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         depth: "standard",
         tags: ["security"],
         dependsOn: ["module:architecture:boundaries"],
-        description: "Define trust boundaries, authentication, and authorization."
+        description: "Define trust boundaries, authentication, and authorization. R12 federation remains migration-gated; declarations and trust boundaries apply immediately; no forged or stale central approval."
       },
       {
         id: "module:ux:information-architecture",
@@ -71,7 +71,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         depth: "standard",
         tags: ["quality"],
         dependsOn: ["module:architecture:boundaries"],
-        description: "Define measurable tests, defects, gates, and evidence."
+        description: "Define measurable tests, defects, gates, and evidence. Apply R7/R10: bounded defect attempts and non-gamed quality cohorts."
       },
       {
         id: "module:operations:release",
@@ -79,7 +79,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         depth: "standard",
         tags: ["operations"],
         dependsOn: ["module:quality:evidence"],
-        description: "Define exact-revision promotion, recovery, and observability."
+        description: "Define exact-revision promotion, recovery, and observability. Apply R20: distinguish code/test/merge/deploy/acceptance and require truthful cleanup, rollback and restart evidence."
       },
       {
         id: "module:governance:evolution",
@@ -87,7 +87,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         depth: "standard",
         tags: ["governance"],
         dependsOn: ["module:architecture:boundaries"],
-        description: "Define ADR, compatibility, deprecation, and debt policy."
+        description: "Define ADR, compatibility, deprecation, and debt policy. Apply R8/R16/R22: durable scoped checkpoints, one dependency-aware work queue and capability-based economical handoffs."
       },
       {
         id: "module:architecture:structural-capacity",
@@ -96,7 +96,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         tags: ["architecture", "capacity", "longevity"],
         dependsOn: ["module:architecture:boundaries"],
         description:
-          "Preserve a credible future-scale path without speculative overbuilding or irreversible coupling."
+          "Preserve a credible future-scale path without speculative overbuilding or irreversible coupling. Apply R18: measure architectural/UX entropy; no speculative scaffolds or destructive count reduction. R30 S100 is ten capacity bands in an existing profile/review, never a literal feature quota."
       },
       {
         id: "module:governance:architectural-longevity",
@@ -108,7 +108,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
           "module:governance:evolution"
         ],
         description:
-          "Keep domain meaning portable across framework, provider, UI-library and AI-vendor evolution."
+          "Keep domain meaning portable across framework, provider, UI-library and AI-vendor evolution. Apply R24: enrollment and reclassification require canonical profile/owner review; never downgrade risk for cost."
       },
       {
         id: "module:ux:product-elegance",
@@ -117,7 +117,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         tags: ["ux", "design-system", "longevity"],
         dependsOn: ["module:ux:information-architecture"],
         description:
-          "Define a calm, coherent and deliberately responsive visual system designed to age gracefully."
+          "Define a calm, coherent and deliberately responsive visual system designed to age gracefully. Apply R13: shared status vocabulary with task-appropriate responsive layouts and no duplicate approval surfaces."
       },
       {
         id: "module:ux:premium-usability",
@@ -156,7 +156,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
           "module:operations:release"
         ],
         description:
-          "Apply defense in depth, least privilege, blast-radius containment, protected canonical state and tested recovery."
+          "Apply defense in depth, least privilege, blast-radius containment, protected canonical state and tested recovery. Apply R26: separate governance, operations and app data/releases; test least privilege, isolation and independent recovery."
       },
       {
         id: "module:architecture:operational-sovereignty",
@@ -177,7 +177,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         depth: "standard",
         tags: ["quality"],
         dependsOn: ["module:quality:evidence"],
-        description: "PASS requires revision-specific evidence."
+        description: "PASS requires revision-specific evidence. Require exact revision, scope, truthful status, risk-appropriate checks, continuity and ecosystem evidence under R1/R3/R9/R17/R27; metrics never grant permission."
       },
       {
         id: "gate:security:authority",
@@ -185,7 +185,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         depth: "standard",
         tags: ["security"],
         dependsOn: ["module:security:authority"],
-        description: "Protected mutations require trusted authorization."
+        description: "Protected mutations require trusted authorization. Apply R14/R19: operational device approval never implies constitutional, business-data, privileged or Production authority."
       },
       {
         id: "gate:ux:human-acceptance",
@@ -214,7 +214,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
           "module:ux:premium-usability"
         ],
         description:
-          "PASS requires coherent visual quality and efficient realistic user journeys, not merely functional UI."
+          "PASS requires coherent visual quality and efficient realistic user journeys, not merely functional UI. R6 and WCAG 2.2 AA require measured final rendered/composited contrast: text 4.5:1, large text 3:1 (24px normal or 14pt bold), meaningful non-text 3:1; desktop/mobile/themes/states, fail-closed unknown colors and complex backgrounds, real human UX."
       },
       {
         id: "gate:durability:ageing-regression",
@@ -223,7 +223,7 @@ export const universalConstitutionTemplateV1 = Object.freeze({
         tags: ["maintenance", "quality", "longevity"],
         dependsOn: ["module:maintenance:long-term-durability"],
         description:
-          "PASS requires regression evidence appropriate to expected lifetime, upgrade risk and compatibility surface."
+          "PASS requires regression evidence appropriate to expected lifetime, upgrade risk and compatibility surface. Apply R4: reproduce, diagnose first divergence, minimal coherent fix and affected critical-journey regression."
       },
       {
         id: "gate:operations:dependency-sovereignty",

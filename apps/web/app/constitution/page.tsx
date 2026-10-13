@@ -10,6 +10,7 @@ import {
 } from "@blueprint-os/application";
 import type {
   CanonicalConstitutionAmendmentRecord,
+  ConstitutionEvidenceRecord,
   ConstitutionComplianceMatrix,
   ConstitutionComplianceObservation,
   ConstitutionPropagationProjection,
@@ -101,6 +102,7 @@ export default async function ConstitutionCenterPage() {
   const actor = await resolveWebActor();
   let canManage = false;
   let amendments: readonly CanonicalConstitutionAmendmentRecord[] = [];
+  let evidence: readonly ConstitutionEvidenceRecord[] = [];
   let propagation: ConstitutionPropagationProjection | null = null;
   let complianceMatrix: ConstitutionComplianceMatrix | null = null;
 
@@ -109,6 +111,9 @@ export default async function ConstitutionCenterPage() {
     canManage = await runtime.authority.canExerciseConstitutionalAuthority(actor);
     if (canManage) {
       amendments = await runtime.constitutionAuthority.list(actor);
+      const workspaces = await Promise.all(amendments.map((amendment) =>
+        runtime.constitutionAuthority.read(actor, amendment.proposal.id)));
+      evidence = workspaces.flatMap((workspace) => workspace?.evidence ?? []);
       propagation = loadPropagationProjection();
       complianceMatrix = loadComplianceMatrix(propagation);
     }
@@ -236,6 +241,7 @@ export default async function ConstitutionCenterPage() {
         </section>
 
         <ConstitutionAuthorityConsole
+          evidence={evidence}
           canManage={canManage}
           amendments={amendments}
         />

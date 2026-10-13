@@ -1,8 +1,16 @@
 import { encode } from "@auth/core/jwt";
+import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { p9019ProfessionalReviewCandidate } from "../../packages/application/src/professional-review";
 
 const e2eAuthSecret = process.env.AUTH_SECRET ?? "";
+const activePolicyVersion = (JSON.parse(readFileSync("control/universal-constitution-version.json", "utf8")) as { policyVersion: string }).policyVersion;
+const adoptionSnapshot = JSON.parse(readFileSync("control/constitution-ecosystem-snapshot.json", "utf8")) as {
+  repositories: { manifest: { policyVersion: string } }[];
+};
+// Publication preserves observed versions. Stale observations must become migration-required.
+const expectedCurrentRepositories = adoptionSnapshot.repositories.filter(row => row.manifest.policyVersion === activePolicyVersion).length;
+const expectedMigrationRepositories = adoptionSnapshot.repositories.length - expectedCurrentRepositories;
 
 const registryAlphaName = "Registry Alpha canonical";
 const registryBetaName = "Registry Beta canonical";
@@ -1203,6 +1211,7 @@ test("Constitution Center exposes authority separation and prompt governance", a
   await expect(
     page.getByRole("heading", { name: "Constitution Center" })
   ).toBeVisible();
+  await expect(page.getByText(`Policy ${activePolicyVersion}`, { exact: true })).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Century-grade universal pillars" })
   ).toBeVisible();
@@ -1282,15 +1291,21 @@ test("System Owner can open the canonical amendment workspace without automated 
     page.getByText(/manual publication data is not trusted/i)
   ).toBeVisible();
   await expect(
-    page.getByText(/Publication is intentionally unavailable in this phase/i)
+    page.getByText(/Publication requires authenticated ratification and verified repository and runtime activation/i)
   ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Verify publication candidate", exact: true })
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Record verified activation", exact: true })
+  ).toHaveCount(0);
   await expect(
     page.getByRole("heading", {
       name: "Constitution adoption across governed repositories"
     })
   ).toBeVisible();
   await expect(
-    page.getByText("15 / 15 current", { exact: true })
+    page.getByText(`${expectedCurrentRepositories} / 15 current`, { exact: true })
   ).toBeVisible();
   const propagationMatrix = page.locator(".constitution-propagation");
   await expect(
@@ -1314,16 +1329,16 @@ test("System Owner can open the canonical amendment workspace without automated 
     complianceMatrix
       .locator(".constitution-compliance-metrics article")
       .filter({ hasText: "Unverified" })
-      .getByText("15", { exact: true })
+      .getByText(String(expectedCurrentRepositories), { exact: true })
   ).toBeVisible();
   await expect(
     complianceMatrix
       .locator(".constitution-compliance-metrics article")
       .filter({ hasText: "Migration / blocked" })
-      .getByText("0", { exact: true })
+      .getByText(String(expectedMigrationRepositories), { exact: true })
   ).toBeVisible();
   await expect(
-    propagationMatrix.getByText("current", { exact: true }).first()
+    propagationMatrix.getByText(expectedMigrationRepositories ? "migration-required" : "current", { exact: true }).first()
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: /deploy|pass quality|auto.*pass/i })

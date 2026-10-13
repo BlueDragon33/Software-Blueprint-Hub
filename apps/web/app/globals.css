@@ -5469,6 +5469,7 @@ textarea:focus-visible,
 
 .constitution-command-feedback {
   margin: 0;
+  overflow-wrap: anywhere;
   padding: 0.8rem 1rem;
   border: 1px solid rgba(127, 127, 127, 0.24);
   border-radius: 0.75rem;
@@ -5827,4 +5828,14 @@ textarea:focus-visible,
   .constitution-compliance-pillar-strip {
     grid-template-columns: repeat(3, minmax(2rem, 1fr));
   }
+}
+
+.constitution-ratification-form,
+.constitution-ratification-form > * {
+  min-width: 0;
+}
+
+.constitution-ratification-form code {
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
