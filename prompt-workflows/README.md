@@ -61,6 +61,12 @@ If the trusted adapter is unavailable, continue in read-only planning mode or bl
 - No default action merges, publishes or approves Production. Human-dependent review gates cannot be auto-PASSed by a prompt.
 - Restrict external tools/providers by explicit scoped permission, cost and resilience budget.
 
+## Phase 3: multi-project registry integration
+
+A centralized manifest is selectable only if its `project.id` and `project.repo` match an entry in `control/constitution-governed-repositories.json`. The registry covers governed projects *even when no prompt workflow has been authored*. Such a project displays **not assigned**, not a fabricated default. One or several manifests may belong to a project; IDs must be globally unambiguous. The Next.js build uses a deterministic generated static-import list; whenever central workflow manifests change, regenerate with `pnpm generate:prompts`. `pnpm check:prompts` catches stale generated imports during CI. Application repositories do not receive copied prompt bundles.
+
+A governed repository entry does not mean the corresponding Project Profile exists in the canonical Blueprint OS database, the user is authorized to read it, or it has a verified workflow adoption receipt. The Project Workspace enforces `PROJECT_READ` *before* describing a project's workflows. Workflow candidate preview checks the real branch HEAD and refuses successor nodes/human gates. The registry is metadata: it grants neither project access nor workflow execution, Gate PASS or Production release.
+
 ## Next integration milestones (NOT implemented by this foundation)
 
 A. Expose typed workflow registry and validation in Blueprint OS.
