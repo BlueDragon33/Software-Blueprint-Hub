@@ -69,11 +69,17 @@ export async function verifiedRepoHead(repo: string): Promise<string> {
     encodeURIComponent(owner) + "/" + encodeURIComponent(name) +
     "/branches/" + encodeURIComponent(registered.branch);
 
+  // Use only a trusted server-side scoped read token or the authenticated
+  // caller's GitHub session. The token never leaves api.github.com.
+  const token = await resolveGitHubPublicationToken() ??
+    process.env.WORKFLOW_RECEIPT_GITHUB_READ_TOKEN?.trim() ?? null;
   const response = await fetch(url, {
     cache: "no-store",
+    redirect: "error",
     headers: {
       Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28"
+      "X-GitHub-Api-Version": "2022-11-28",
+      ...(token ? { Authorization: "Bearer " + token } : {})
     },
     signal: AbortSignal.timeout(8000)
   });
