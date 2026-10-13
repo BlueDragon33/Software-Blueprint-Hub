@@ -1,0 +1,294 @@
+{
+  "schemaVersion": "1.0.0",
+  "workflowId": "app-management-visa-form-recovery",
+  "workflowVersion": "1.0.0",
+  "status": "candidate",
+  "templateId": "engineering-node@1.0.0",
+  "project": {
+    "id": "application-management",
+    "repo": "BlueDragon33/Application-Management",
+    "constitutionMinVersion": "1.3.0",
+    "area": "Visa/KD-MID intake form",
+    "architectureDepthTarget": 100
+  },
+  "nodes": [
+    {
+      "id": "inventory",
+      "stage": "DISCOVER",
+      "role": "Production Debugger",
+      "goal": "Identify the exact active application HEAD, existing Visa/KD-MID form paths, failure reports and canonical design boundaries. Do not scan the whole repository.",
+      "dependsOn": [],
+      "inputs": [
+        "GitHub HEAD and latest relevant diff",
+        "existing form contract and failing user journey"
+      ],
+      "outputs": [
+        "scoped file map with SHA",
+        "reproducible failure inventory"
+      ],
+      "acceptance": [
+        "each finding cites a real path and revision",
+        "unknown environments remain explicitly unknown"
+      ],
+      "evidence": [
+        "GitHub SHA",
+        "scoped path references"
+      ],
+      "allowedActions": [
+        "read diff, HEAD, relevant files and existing test logs"
+      ],
+      "forbiddenActions": [
+        "full repository scan",
+        "fake completion"
+      ],
+      "budget": {
+        "maxAttempts": 2,
+        "maxFiles": 12,
+        "maxTokenEstimate": 7000
+      },
+      "onFailure": "BLOCK",
+      "humanGate": false
+    },
+    {
+      "id": "reproduce",
+      "stage": "SPECIFY",
+      "role": "QA Lead",
+      "goal": "Write falsifiable acceptance and reproduce the uppercase-without-diacritics checkbox behavior, local draft restoration and actual submit failure before implementation.",
+      "dependsOn": [
+        "inventory"
+      ],
+      "inputs": [
+        "verified failing user journey",
+        "current form validation rules"
+      ],
+      "outputs": [
+        "failing regression case identifiers",
+        "acceptance matrix"
+      ],
+      "acceptance": [
+        "test must first fail for the original defect",
+        "mandatory fields and email exceptions remain explicit"
+      ],
+      "evidence": [
+        "test names and failure logs"
+      ],
+      "allowedActions": [
+        "run scoped tests",
+        "inspect form behavior"
+      ],
+      "forbiddenActions": [
+        "guess root cause",
+        "disable tests"
+      ],
+      "budget": {
+        "maxAttempts": 2,
+        "maxFiles": 10,
+        "maxTokenEstimate": 7000
+      },
+      "onFailure": "BLOCK",
+      "humanGate": false
+    },
+    {
+      "id": "root-cause",
+      "stage": "DESIGN",
+      "role": "Principal Software Engineer",
+      "goal": "Locate one causal data-flow or state-management defect and propose the smallest contract-consistent repair with privacy and rollback considerations.",
+      "dependsOn": [
+        "reproduce"
+      ],
+      "inputs": [
+        "failure evidence",
+        "current component/service ownership"
+      ],
+      "outputs": [
+        "root-cause statement",
+        "change boundary and rollback plan"
+      ],
+      "acceptance": [
+        "root cause accounts for the observed failure",
+        "no new duplicate business state is introduced"
+      ],
+      "evidence": [
+        "relevant source lines",
+        "repro linkage"
+      ],
+      "allowedActions": [
+        "read scoped code",
+        "propose patch"
+      ],
+      "forbiddenActions": [
+        "unrelated refactor",
+        "invent server state"
+      ],
+      "budget": {
+        "maxAttempts": 2,
+        "maxFiles": 12,
+        "maxTokenEstimate": 8500
+      },
+      "onFailure": "BLOCK",
+      "humanGate": false
+    },
+    {
+      "id": "patch",
+      "stage": "IMPLEMENT",
+      "role": "Senior Full-Stack Engineer",
+      "goal": "Apply a minimal repair preserving user-entered drafts, transform only checked fields to uppercase non-accented text, and keep email untouched.",
+      "dependsOn": [
+        "root-cause"
+      ],
+      "inputs": [
+        "approved scoped change plan",
+        "current branch HEAD"
+      ],
+      "outputs": [
+        "code diff",
+        "focused tests"
+      ],
+      "acceptance": [
+        "checkbox semantics match requirement",
+        "draft survives reload on the same device",
+        "no regressions to email and submit flows"
+      ],
+      "evidence": [
+        "commit SHA",
+        "test log"
+      ],
+      "allowedActions": [
+        "edit scoped app code",
+        "add narrow regression tests"
+      ],
+      "forbiddenActions": [
+        "alter unrelated modules",
+        "report unrun tests as PASS"
+      ],
+      "budget": {
+        "maxAttempts": 3,
+        "maxFiles": 16,
+        "maxTokenEstimate": 12000
+      },
+      "onFailure": "BLOCK",
+      "humanGate": false
+    },
+    {
+      "id": "verify",
+      "stage": "TEST",
+      "role": "QA Automation Engineer",
+      "goal": "Run focused unit/integration/regression tests, then the affected end-to-end forms and approval feedback loop.",
+      "dependsOn": [
+        "patch"
+      ],
+      "inputs": [
+        "patch exact SHA",
+        "existing CI and test plan"
+      ],
+      "outputs": [
+        "signed-off evidence candidate matrix",
+        "new defect report if any"
+      ],
+      "acceptance": [
+        "all asserted behavior tied to actual execution",
+        "failures block dependent nodes"
+      ],
+      "evidence": [
+        "CI run URLs",
+        "log excerpts",
+        "app revision SHA"
+      ],
+      "allowedActions": [
+        "execute tests",
+        "capture real results"
+      ],
+      "forbiddenActions": [
+        "weaken assertions",
+        "fabricate screenshots"
+      ],
+      "budget": {
+        "maxAttempts": 2,
+        "maxFiles": 10,
+        "maxTokenEstimate": 9000
+      },
+      "onFailure": "BLOCK",
+      "humanGate": false
+    },
+    {
+      "id": "ux-review",
+      "stage": "REVIEW",
+      "role": "Human UX Reviewer and Accessibility Auditor",
+      "goal": "Review real form usability including disabled submit/error states, responsive layout, red-to-green feedback and recovery using Preview; record blockers.",
+      "dependsOn": [
+        "verify"
+      ],
+      "inputs": [
+        "verified Preview build",
+        "actual UI and scenario cases"
+      ],
+      "outputs": [
+        "human-review findings",
+        "acceptance evidence or blocker"
+      ],
+      "acceptance": [
+        "critical form journeys observed in Preview",
+        "P0/P1 issues remain blocking"
+      ],
+      "evidence": [
+        "reviewer acknowledgement",
+        "real Preview artifact"
+      ],
+      "allowedActions": [
+        "read and inspect Preview",
+        "propose UX fixes"
+      ],
+      "forbiddenActions": [
+        "self-assert human sign-off",
+        "infer usability from CI"
+      ],
+      "budget": {
+        "maxAttempts": 2,
+        "maxFiles": 8,
+        "maxTokenEstimate": 7000
+      },
+      "onFailure": "BLOCK",
+      "humanGate": true
+    },
+    {
+      "id": "release-check",
+      "stage": "RELEASE",
+      "role": "Release Engineer",
+      "goal": "Assemble exact revision, dependency and Production authorization readiness report. Only execute deployment through the existing separately authorized release path.",
+      "dependsOn": [
+        "ux-review"
+      ],
+      "inputs": [
+        "exact accepted SHA",
+        "all required gates and evidence",
+        "authenticated release authority"
+      ],
+      "outputs": [
+        "release-ready or blocked handoff with provenance"
+      ],
+      "acceptance": [
+        "all required gates have trusted evidence",
+        "Production action remains blocked without separate authority"
+      ],
+      "evidence": [
+        "gate evidence IDs",
+        "release authorization receipt if actually granted"
+      ],
+      "allowedActions": [
+        "prepare release checklist",
+        "propose deployment"
+      ],
+      "forbiddenActions": [
+        "authorize own Production release",
+        "publish from CI green alone"
+      ],
+      "budget": {
+        "maxAttempts": 1,
+        "maxFiles": 6,
+        "maxTokenEstimate": 4500
+      },
+      "onFailure": "BLOCK",
+      "humanGate": true
+    }
+  ]
+}
