@@ -49,6 +49,6 @@ jobs:
       - name: Typecheck Next.js project workspace
         run: pnpm --filter @blueprint-os/web typecheck
       - name: Candidate projection authorization and drift tests
-        run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts
+        run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts tests/application/prompt-workflow-execution.test.ts
       - name: Visual Workflow Studio semantic SSR tests
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
