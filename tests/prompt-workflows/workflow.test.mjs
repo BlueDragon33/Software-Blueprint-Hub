@@ -47,7 +47,7 @@ test("infinite attempt budget and missing acceptance evidence are rejected", () 
 });
 
 test("projection never invents a source revision or approval", () => {
-  const context = { projectId: "application-management", repository: "BlueDragon33/Application-Management",
+  const context = { projectId: "project:application-management", repository: "BlueDragon33/Application-Management",
     appHead: "a".repeat(40), canonicalDigest: "sha256:" + "b".repeat(64), policyVersion: "1.3.0" };
   const rendered = renderNodePromptCandidate(original, "inventory", context);
   assert.match(rendered, /READ-ONLY PROJECTION CANDIDATE/);
