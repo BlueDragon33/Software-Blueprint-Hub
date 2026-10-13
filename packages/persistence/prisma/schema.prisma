@@ -391,3 +391,32 @@ model ConstitutionPublication {
   @@index([publishedByActorId, publishedAt])
   @@index([authoritySetDigest])
 }
+
+
+/// Durable, one-time execution claim. It never expires for nonce replay
+/// purposes: expiresAt controls the grant lifetime, not safe key reuse.
+model WorkflowExecutionClaim {
+  requestId   String   @id @db.VarChar(80)
+  expiresAt   DateTime @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  attempts    WorkflowExecutionObservation[]
+
+  @@index([createdAt])
+}
+
+/// Immutable per-attempt observation, scoped to its already-claimed request.
+/// No updates or deletions are exposed through the journal adapter.
+model WorkflowExecutionObservation {
+  requestId         String   @db.VarChar(80)
+  attempt           Int
+  outcome           String   @db.VarChar(24)
+  observationDigest String?  @db.VarChar(80)
+  evidenceReferences Json
+  filesTouched      Json
+  tokensUsed        Int
+  createdAt         DateTime @default(now()) @db.Timestamptz(6)
+  claim             WorkflowExecutionClaim @relation(fields: [requestId], references: [requestId], onDelete: Restrict)
+
+  @@id([requestId, attempt])
+  @@index([createdAt])
+}
