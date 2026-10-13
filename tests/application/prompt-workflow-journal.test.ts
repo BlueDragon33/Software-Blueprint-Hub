@@ -16,7 +16,7 @@ const record: WorkflowAttemptRecord = {
 
 function fixture() {
   const claimed = new Set<string>();
-  const attempts = new Map<string, WorkflowAttemptRecord>();
+  const attempts = new Map<string, WorkflowAttemptRecord & { requestId: string }>();
   const db = {
     workflowExecutionClaim: {
       create: vi.fn(async ({ data }: { data: { requestId: string; expiresAt: Date } }) => {
