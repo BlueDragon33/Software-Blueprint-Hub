@@ -54,6 +54,10 @@ jobs:
         run: |
           node --test tests/source-truth/constitution-1.3-candidate.test.mjs tests/source-truth/constitution-contrast.test.mjs
           node scripts/check-constitution-1.3-candidate.mjs
+      - name: Central prompt workflow contract validation
+        run: node scripts/check-prompt-workflows.mjs
+      - name: Central prompt workflow adversarial regression
+        run: node --test tests/prompt-workflows/workflow.test.mjs
       - name: Development mode
         run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
 
