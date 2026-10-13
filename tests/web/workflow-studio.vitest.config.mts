@@ -1,15 +1,12 @@
 import { defineConfig } from "vitest/config";
 
-// Next.js preserves JSX for its own compiler; isolated Vitest SSR needs JSX
-// transformed instead. Scope this override only to the workflow-studio tests.
+// Vite 8 uses Oxc, not esbuild, for JSX transform. Override only this
+// isolated Next.js component test, leaving the app's JSX-preserve policy intact.
 export default defineConfig({
-  esbuild: {
-    jsx: "automatic",
-    jsxImportSource: "react",
-    tsconfigRaw: {
-      compilerOptions: {
-        jsx: "react-jsx"
-      }
+  oxc: {
+    jsx: {
+      runtime: "automatic",
+      importSource: "react"
     }
   },
   test: {
