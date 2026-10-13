@@ -102,3 +102,12 @@ Dispatch MUST pass all gates:
 Runner errors, out-of-scope file reports, invalid evidence, exhausted budgets, repeated identical failure fingerprints, source drift and grant expiry terminate the loop. Runner success means **submitted-for-verification**, never a signed completion receipt, QA PASS, human sign-off or authorized release. Evidence issuance is independent from execution.
 
 **Status:** only the reusable execution/recovery core and adversarial tests are implemented. No real signing issuer, durable journal, executor connector, authorization runtime or execute button has been installed. Automation remains DISABLED until those independent components and their authority/evidence gates are integrated and reviewed. Actual logged-in Preview UX and Production release remain separately gated.
+
+
+## Phase 5C — durable execution journal integration
+
+The canonical PostgreSQL/Prisma runtime now exposes **workflowExecutionJournal**, backed by WorkflowExecutionClaim and WorkflowExecutionObservation. Its only write operations are claim() (unique, permanently non-reusable request ID) and append() (immutable observation keyed by request ID and attempt). Read-only read() supports human audit/recovery investigation, **never resuming or recycling a spent signed grant**. The migration is **20261013124900_phase5c_workflow_execution_journal** and MUST be applied to the environment's real PostgreSQL database before use. Adding the migration to main, generating Prisma Client, and passing typecheck are NOT proof it has run against Production.
+
+Security behavior: database unique primary keys prevent concurrent double claim and duplicate attempt writes across processes; a missing prior claim cannot acquire an observation; unexpected database failures propagate and block execution. No upsert/update/delete or expiry-based grant recycling exists. Postgres check constraints additionally enforce valid attempt sequence number, outcome class and non-negative tokens. Any execution still requires the independent signed-grant, adopted-workflow, permission, fresh source and trusted receipt gates established in Phase 5B.
+
+**Not activated:** no signing/private keys, execution endpoint, scoped executor provider, receipt issuer, Production migration or authenticated browser review were enabled here. Durable journal is a ready-to-wire runtime dependency, not a switch granting execution permission. No signed completion or Quality Gate PASS is synthesized.

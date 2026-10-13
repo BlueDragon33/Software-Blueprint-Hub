@@ -16,6 +16,8 @@ import {
   WorkQualityApplicationService
 } from "@blueprint-os/application";
 import { GitHubConstitutionPublicationVerifier } from "./constitution-publication";
+import { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
+export { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 import { AuthorityService } from "@blueprint-os/core";
 import {
   createPrismaClient,
@@ -43,6 +45,8 @@ export interface BlueprintServerRuntime {
   readonly workQuality: WorkQualityApplicationService;
   readonly prompts: PromptProjectionApplicationService;
   readonly professionalReview: HumanProfessionalReviewApplicationService;
+  /** Dormant until a separately authorized executor is integrated. */
+  readonly workflowExecutionJournal: PostgresWorkflowExecutionJournal;
 }
 
 export function createBlueprintServerRuntime(
@@ -119,6 +123,7 @@ export function createBlueprintServerRuntime(
     professionalReviewRepository,
     authority
   );
+  const workflowExecutionJournal = new PostgresWorkflowExecutionJournal(prisma);
 
   return Object.freeze({
     prisma,
@@ -132,7 +137,8 @@ export function createBlueprintServerRuntime(
     releases,
     workQuality,
     prompts,
-    professionalReview
+    professionalReview,
+    workflowExecutionJournal
   });
 }
 

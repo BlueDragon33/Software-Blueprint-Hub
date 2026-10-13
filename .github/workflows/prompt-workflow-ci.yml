@@ -6,6 +6,10 @@ on:
       - "packages/application/src/prompt-workflow-*.mjs"
       - "packages/application/src/prompt-workflow-*.d.mts"
       - "packages/application/src/prompt-workflow-*.ts"
+      - "packages/runtime/src/workflow-execution-journal.ts"
+      - "packages/runtime/src/index.ts"
+      - "packages/persistence/prisma/schema.prisma"
+      - "packages/persistence/prisma/migrations/**"
       - "scripts/generate-prompt-workflow-imports.mjs"
       - "packages/application/src/index.ts"
       - "scripts/prompt-workflow-*.mjs"
@@ -44,11 +48,13 @@ jobs:
         run: pnpm check:prompts
       - name: Workflow graph adversarial tests
         run: pnpm test:prompts
+      - name: Typecheck durable persistence adapter
+        run: pnpm --filter @blueprint-os/persistence typecheck && pnpm --filter @blueprint-os/runtime typecheck
       - name: Typecheck application adapter
         run: pnpm --filter @blueprint-os/application typecheck
       - name: Typecheck Next.js project workspace
         run: pnpm --filter @blueprint-os/web typecheck
       - name: Candidate projection authorization and drift tests
-        run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts tests/application/prompt-workflow-execution.test.ts
+        run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-journal.test.ts
       - name: Visual Workflow Studio semantic SSR tests
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
