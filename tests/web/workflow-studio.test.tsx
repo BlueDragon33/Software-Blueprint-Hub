@@ -1,10 +1,14 @@
 import { readFileSync } from "node:fs";
-import { renderToStaticMarkup } from "react-dom/server";
-import { createElement } from "react";
+import { createRequire } from "node:module";
 import { describe, expect, it } from "vitest";
 
 import type { WorkflowNode } from "../../packages/application/src/prompt-workflow-core.mjs";
 import { WorkflowStudio } from "../../apps/web/app/projects/[projectId]/prompt/workflow/workflow-studio";
+
+// pnpm isolates React dependencies within @blueprint-os/web, not repository root.
+const fromWeb = createRequire(new URL("../../apps/web/package.json", import.meta.url));
+const { renderToStaticMarkup } = fromWeb("react-dom/server") as { renderToStaticMarkup: (element: unknown) => string };
+const { createElement } = fromWeb("react") as { createElement: (...args: unknown[]) => unknown };
 
 const manifest = JSON.parse(readFileSync(
   new URL("../../prompt-workflows/projects/application-management.visa-recovery.v1.json", import.meta.url), "utf8"
