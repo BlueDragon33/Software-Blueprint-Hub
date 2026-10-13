@@ -6,6 +6,7 @@ on:
       - "packages/application/src/prompt-workflow-*.mjs"
       - "packages/application/src/prompt-workflow-*.d.mts"
       - "packages/application/src/prompt-workflow-*.ts"
+      - "scripts/generate-prompt-workflow-imports.mjs"
       - "packages/application/src/index.ts"
       - "scripts/prompt-workflow-*.mjs"
       - "tests/application/prompt-workflow-*.test.ts"
@@ -46,4 +47,4 @@ jobs:
       - name: Typecheck Next.js project workspace
         run: pnpm --filter @blueprint-os/web typecheck
       - name: Candidate projection authorization and drift tests
-        run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts
+        run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts

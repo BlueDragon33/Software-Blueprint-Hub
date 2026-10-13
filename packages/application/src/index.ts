@@ -257,6 +257,8 @@ export * from "./prompt-projection";
 
 export * from "./prompt-workflow-projection";
 
+export * from "./prompt-workflow-registry";
+
 export * from "./foundation-templates";
 
 export * from "./project-registry";

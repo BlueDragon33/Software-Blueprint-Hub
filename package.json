@@ -25,8 +25,9 @@
     "test:truth": "node --test tests/source-truth/source-truth-detector.test.mjs",
     "constitution:check": "node scripts/check-constitution-adoption.mjs",
     "constitution:authority-set": "node scripts/check-constitution-authority-set.mjs",
-    "check:prompts": "node scripts/check-prompt-workflows.mjs",
-    "test:prompts": "node --test tests/prompt-workflows/workflow.test.mjs"
+    "check:prompts": "node scripts/check-prompt-workflows.mjs && node scripts/generate-prompt-workflow-imports.mjs --check",
+    "test:prompts": "node --test tests/prompt-workflows/workflow.test.mjs",
+    "generate:prompts": "node scripts/generate-prompt-workflow-imports.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
