@@ -49,7 +49,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^[a-z][a-z0-9-]{1,79}$"
+          "pattern": "^project:[a-z][a-z0-9-]+$"
         },
         "repo": {
           "type": "string",
