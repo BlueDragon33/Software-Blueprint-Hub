@@ -84,3 +84,21 @@ A completion is **never inferred** from a prompt, a green CI badge, a repository
 The server optionally reads Hub-central receipt arrays at `prompt-workflows/receipts/{projectId}/{workflowId}.json` from the live Hub `main`, only when `WORKFLOW_ATTESTATION_PUBLIC_KEYS_JSON` has pinned Ed25519 PEM public keys under the exact project ID and issuer ID. `WORKFLOW_RECEIPT_GITHUB_READ_TOKEN` is an optional read-only GitHub API token for private repositories. Signing private keys must never be committed, put into a workflow manifest, sent to browsers or exposed via prompts. The evidence verifier currently supports only immutable `github:OWNER/REPO@<40-character HEAD>#path/file` references inside the governed application's repository, with a capped file size and exact SHA-256 match. If the trust store is absent, all completion receipts remain unverified and root nodes are only candidate previews. A 404 for the receipt collection means no recorded attestations, **not** a successful completed step.
 
 The system does **not** yet issue receipts, enroll authorized issuers, accept human reviews, persist user actions, execute agents, automatically fix application code or elevate application management authority. Those are separate reviewed phases requiring authenticated persistence and scoped permission. Do not create sample signed receipts in Production or fake gates. The UI reports the current verified receipt count and shows which dependencies remain blocked. Authentic browser review remains a separate acceptance gate.
+
+
+## Phase 5B — trusted execution and bounded recovery core
+
+The protected execution engine adds an **opt-in server-side API contract** in `packages/application/src/prompt-workflow-execution.ts`. This is not an enabled agent, GitHub workflow, job scheduler, application mutation endpoint or Production deployment.
+
+Dispatch MUST pass all gates:
+
+1. Trusted canonical project authorization by the host, with exactly matched project ID, repository, HEAD, Constitution, workflow digest/version/template/node. The host must recheck application HEAD and canonical revision before every attempt.
+2. Workflow must be `approved` **and** an independent trusted constitutional adoption authority must attest real adoption. Changing the JSON status alone does not grant authority.
+3. A short-lived Ed25519-signed issuer grant (maximum one hour) specifying node, mode, exact path scope, attempts/files/token limits. A separate execution-permission check must authorize that issuer.
+4. Fresh dependency readiness recomputed using the server's trusted signed completion receipt source. No caller-invented ready IDs or green-CI assumptions.
+5. A durable atomic replay-claim journal; each attempt's observation must be durably appended before another attempt. There is no in-memory fallback.
+6. A separately installed typed scoped executor accepting ONLY `inspect-scoped`, `edit-scoped` or `test-scoped` plus allowlisted paths and bounded budgets. No arbitrary command/shell or broad remote process execution API is supplied.
+
+Runner errors, out-of-scope file reports, invalid evidence, exhausted budgets, repeated identical failure fingerprints, source drift and grant expiry terminate the loop. Runner success means **submitted-for-verification**, never a signed completion receipt, QA PASS, human sign-off or authorized release. Evidence issuance is independent from execution.
+
+**Status:** only the reusable execution/recovery core and adversarial tests are implemented. No real signing issuer, durable journal, executor connector, authorization runtime or execute button has been installed. Automation remains DISABLED until those independent components and their authority/evidence gates are integrated and reviewed. Actual logged-in Preview UX and Production release remain separately gated.
