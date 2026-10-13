@@ -4,12 +4,12 @@ import {
   ProjectWorkspaceFrame,
   ProjectWorkspaceState
 } from "../../_components/project-workspace";
-import { loadProjectWorkspace } from "../../../../../../src/server/project-workspace";
+import { loadProjectWorkspace } from "../../../../../src/server/project-workspace";
 import {
   candidateVisaWorkflowStages,
   previewVisaWorkflowRoot,
   VISA_WORKFLOW_PROJECT_ID
-} from "../../../../../../src/server/prompt-workflow";
+} from "../../../../../src/server/prompt-workflow";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +53,7 @@ export default async function WorkflowPreviewPage({ params }: Props) {
             This is a controlled, read-only multi-node production workflow owned by
             Blueprint OS. It does not authorize execution, Quality Gate PASS or Production release.
           </p>
-          <Link href={"../prompt"}>Back to canonical Prompt Workspace</Link>
+          <Link href={"/projects/" + encodeURIComponent(workspace.projectId) + "/prompt"}>Back to canonical Prompt Workspace</Link>
         </div>
       </section>
 
