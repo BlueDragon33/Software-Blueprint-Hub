@@ -10,7 +10,7 @@ import { createHash, createPublicKey, verify as verifySignature } from "node:cry
 
 import type { NodeSourceContext, WorkflowManifest, WorkflowNode } from "./prompt-workflow-core.mjs";
 import { validateWorkflow } from "./prompt-workflow-core.mjs";
-import { workflowManifestDigest } from "./prompt-workflow-orchestration";
+import { workflowManifestDigest, type WorkflowReadinessPlan } from "./prompt-workflow-orchestration";
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const SHA = /^[a-f0-9]{40}$/;
@@ -91,6 +91,11 @@ export interface WorkflowAttemptResult {
   readonly evidenceReferences: readonly string[];
   readonly filesTouched: readonly string[];
   readonly tokensUsed: number;
+}
+
+export interface WorkflowExecutionFreshness {
+  /** Verify *both* current canonical revision and application HEAD before each action. */
+  assertCurrent(context: NodeSourceContext): Promise<void>;
 }
 
 export interface WorkflowScopedExecutor {
@@ -285,18 +290,28 @@ export async function executeBoundedWorkflowNode(
   grantInput: unknown,
   workflow: WorkflowManifest,
   context: NodeSourceContext,
-  readyNodeIds: readonly string[],
+  readiness: WorkflowReadinessPlan,
   authority: WorkflowExecutionAuthority,
   journal: WorkflowExecutionJournal,
   runner: WorkflowScopedExecutor,
-  now: Date = new Date()
+  freshness: WorkflowExecutionFreshness,
+  clock: () => Date = () => new Date()
 ): Promise<WorkflowExecutionReport> {
   const { grant, node } = await verifyWorkflowExecutionGrant(
-    grantInput, workflow, context, authority, now
+    grantInput, workflow, context, authority, clock()
   );
-  if (!readyNodeIds.includes(node.id)) {
-    throw new Error("No verified dependency readiness for node");
+  if (readiness.workflowId !== workflow.workflowId ||
+      readiness.workflowVersion !== workflow.workflowVersion ||
+      readiness.workflowDigest !== workflowManifestDigest(workflow) ||
+      readiness.appHead !== context.appHead ||
+      readiness.canonicalDigest !== context.canonicalDigest ||
+      readiness.policyVersion !== context.policyVersion ||
+      readiness.readOnly !== true ||
+      !readiness.readyNodeIds.includes(node.id) ||
+      readiness.nodes.find((item) => item.id === node.id)?.state !== "available") {
+    throw new Error("No verified source-bound dependency readiness for node");
   }
+  await freshness.assertCurrent(context);
   const requestId = "sha256:" + createHash("sha256")
     .update(workflowExecutionGrantSigningPayload(grant))
     .digest("hex");
@@ -315,6 +330,14 @@ export async function executeBoundedWorkflowNode(
     });
 
   for (let i = 1; i <= grant.maxAttempts; i++) {
+    if (clock().getTime() >= Date.parse(grant.expiresAt)) {
+      return finish("stopped", "Grant expired before next action");
+    }
+    try {
+      await freshness.assertCurrent(context);
+    } catch {
+      return finish("stopped", "Canonical source or repository HEAD changed; reauthorize");
+    }
     const action: WorkflowScopedAction = Object.freeze({
       requestId, projectId: context.projectId, repository: context.repository,
       appHead: context.appHead, nodeId: node.id,
