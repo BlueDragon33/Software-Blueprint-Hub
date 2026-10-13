@@ -13,6 +13,7 @@ on:
       - "tests/prompt-workflows/**"
       - "apps/web/src/server/prompt-workflow.ts"
       - "apps/web/app/projects/**/prompt/**"
+      - "tests/web/workflow-studio.test.tsx"
       - "prompt-workflows/**"
       - ".github/workflows/prompt-workflow-ci.yml"
   workflow_dispatch:
@@ -47,4 +48,4 @@ jobs:
       - name: Typecheck Next.js project workspace
         run: pnpm --filter @blueprint-os/web typecheck
       - name: Candidate projection authorization and drift tests
-        run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts
+        run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/web/workflow-studio.test.tsx
