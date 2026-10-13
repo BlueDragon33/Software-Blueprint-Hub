@@ -179,6 +179,14 @@ export async function buildWorkflowReadiness(
       !/^\d+\.\d+\.\d+$/.test(context.policyVersion)) {
     throw new TypeError("Unverified or mismatched canonical workflow context");
   }
+  const parsedVersion = context.policyVersion.split(".").map(Number);
+  const minimumVersion = workflow.project.constitutionMinVersion.split(".").map(Number);
+  for (let i = 0; i < minimumVersion.length; i++) {
+    if (parsedVersion[i]! < minimumVersion[i]!) {
+      throw new Error("Active Constitution policy is below the workflow minimum");
+    }
+    if (parsedVersion[i]! > minimumVersion[i]!) break;
+  }
   const digest = workflowManifestDigest(workflow);
   const known = new Set(workflow.nodes.map((node) => node.id));
   // Source must be a protected, server-supplied provider. The caller is already
