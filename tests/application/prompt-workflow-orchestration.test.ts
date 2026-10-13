@@ -153,6 +153,9 @@ describe("Phase 5 signed evidence workflow planning", () => {
       list: async () => [signed]
     }, { publicKeyFor: () => pub }, { verify: async () => true });
     expect(result.acceptedReceipts).toBe(0);
+    await expect(buildWorkflowReadiness(workflow, { ...context, policyVersion: "1.2.0" },
+      { list: async () => [] }, { publicKeyFor: () => pub }, { verify: async () => true }))
+      .rejects.toThrow("below the workflow minimum");
     await expect(buildWorkflowReadiness(workflow, { ...context, appHead: "unverified" },
       { list: async () => [] }, { publicKeyFor: () => pub }, { verify: async () => true }))
       .rejects.toThrow("Unverified");
