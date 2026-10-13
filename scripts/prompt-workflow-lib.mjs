@@ -24,7 +24,7 @@ export function validateWorkflow(workflow) {
   if (!RECORD(workflow.project)) {
     fail("project", "expected object");
   } else {
-    if (!ID.test(workflow.project.id ?? "")) fail("project.id", "invalid project ID");
+    if (!/^project:[a-z][a-z0-9-]+$/.test(workflow.project.id ?? "")) fail("project.id", "invalid project ID");
     if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(workflow.project.repo ?? "")) fail("project.repo", "expected owner/repository");
     if (!SEMVER.test(workflow.project.constitutionMinVersion ?? "")) fail("project.constitutionMinVersion", "invalid Constitution version");
     if (!NONEMPTY(workflow.project.area)) fail("project.area", "missing area");
