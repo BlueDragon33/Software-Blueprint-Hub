@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildConstitutionComplianceMatrix,
   buildConstitutionPropagationProjection,
+  CONSTITUTION_POLICY_VERSION,
   centuryGradePillarDefinitions,
   constitutionalGateIds,
   type ConstitutionComplianceAttestation,
@@ -196,53 +197,66 @@ describe("CA-006 Constitutional Compliance Matrix", () => {
     });
   });
 
-  it("projects the checked-in ecosystem truth as 15 current adoptions with compliance still unverified", () => {
-    const registry = JSON.parse(
-      readFileSync("control/constitution-governed-repositories.json", "utf8")
-    ) as {
-      policyId: string;
-      repositories: GovernedRepositoryDefinition[];
-    };
-    const adoptionSnapshot = JSON.parse(
-      readFileSync("control/constitution-ecosystem-snapshot.json", "utf8")
-    ) as {
-      activePolicyVersion: string;
-      repositories: GovernedRepositoryAdoptionSnapshot[];
-    };
-    const complianceSnapshot = JSON.parse(
-      readFileSync("control/constitution-compliance-snapshot.json", "utf8")
-    ) as {
-      observations: ConstitutionComplianceObservation[];
-    };
+  it.each([
+    { activePolicyVersion: "1.2.0", current: 15, migrating: 0, state: "current", complianceState: "unverified" },
+    { activePolicyVersion: "1.3.0", current: 0, migrating: 15, state: "migration-required", complianceState: "migration-required" }
+  ] as const)(
+    "preserves historical 1.2 observations under authority $activePolicyVersion without granting mutation or PASS",
+    ({ activePolicyVersion, current, migrating, state, complianceState }) => {
+      const registry = JSON.parse(
+        readFileSync("control/constitution-governed-repositories.json", "utf8")
+      ) as {
+        policyId: string;
+        repositories: GovernedRepositoryDefinition[];
+      };
+      const adoptionSnapshot = JSON.parse(
+        readFileSync("control/constitution-ecosystem-snapshot.json", "utf8")
+      ) as {
+        activePolicyVersion: string;
+        repositories: GovernedRepositoryAdoptionSnapshot[];
+      };
+      const complianceSnapshot = JSON.parse(
+        readFileSync("control/constitution-compliance-snapshot.json", "utf8")
+      ) as {
+        observations: ConstitutionComplianceObservation[];
+      };
 
-    const ecosystemPropagation = buildConstitutionPropagationProjection({
-      policyId: registry.policyId,
-      activePolicyVersion: adoptionSnapshot.activePolicyVersion,
-      governedRepositories: registry.repositories,
-      snapshots: adoptionSnapshot.repositories
-    });
-    const matrix = buildConstitutionComplianceMatrix({
-      propagation: ecosystemPropagation,
-      observations: complianceSnapshot.observations
-    });
+      expect(adoptionSnapshot.activePolicyVersion).toBe(CONSTITUTION_POLICY_VERSION);
+      expect(adoptionSnapshot.repositories).toHaveLength(15);
+      expect([...new Set(adoptionSnapshot.repositories.map((item) => item.manifest?.policyVersion))]).toEqual(["1.2.0"]);
 
-    expect(ecosystemPropagation.currentRepositories).toBe(15);
-    expect(matrix.totalRepositories).toBe(15);
-    expect(matrix.compliantRepositories).toBe(0);
-    expect(matrix.nonCompliantRepositories).toBe(0);
-    expect(matrix.unverifiedRepositories).toBe(15);
-    expect(matrix.migrationRequiredRepositories).toBe(0);
-    expect(matrix.blockedRepositories).toBe(0);
-    expect(
-      matrix.repositories.find(
-        (item) => item.repository === "BlueDragon33/pc-manager-desktop"
-      )
-    ).toMatchObject({
-      complianceState: "unverified",
-      migrationState: "current",
-      productionReleaseAuthority: false
-    });
-    expect(matrix.productionReleaseAuthority).toBe(false);
-    expect(matrix.automaticPassAllowed).toBe(false);
-  });
+      const ecosystemPropagation = buildConstitutionPropagationProjection({
+        policyId: registry.policyId,
+        activePolicyVersion,
+        governedRepositories: registry.repositories,
+        snapshots: adoptionSnapshot.repositories
+      });
+      const matrix = buildConstitutionComplianceMatrix({
+        propagation: ecosystemPropagation,
+        observations: complianceSnapshot.observations
+      });
+
+      expect(ecosystemPropagation.currentRepositories).toBe(current);
+      expect(ecosystemPropagation.migrationRequiredRepositories).toBe(migrating);
+      expect(matrix.totalRepositories).toBe(15);
+      expect(matrix.compliantRepositories).toBe(0);
+      expect(matrix.nonCompliantRepositories).toBe(0);
+      expect(matrix.unverifiedRepositories).toBe(current);
+      expect(matrix.migrationRequiredRepositories).toBe(migrating);
+      expect(matrix.blockedRepositories).toBe(0);
+      expect(
+        matrix.repositories.find(
+          (item) => item.repository === "BlueDragon33/pc-manager-desktop"
+        )
+      ).toMatchObject({
+        complianceState,
+        migrationState: state,
+        adoptedPolicyVersion: "1.2.0",
+        exactEvidenceRevisions: [],
+        productionReleaseAuthority: false
+      });
+      expect(matrix.productionReleaseAuthority).toBe(false);
+      expect(matrix.automaticPassAllowed).toBe(false);
+    }
+  );
 });
