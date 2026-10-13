@@ -20,12 +20,12 @@ describe("Visual Workflow Studio semantic and fail-closed output", () => {
     }));
     expect(markup.match(/aria-pressed="/g)).toHaveLength(7);
     expect(markup).toContain("aria-label=\"Workflow diagram");
-    expect(markup).toContain("Inspect");
+    expect(markup).toContain("Required inputs");
     expect(markup).toContain("Preview unavailable");
     expect(markup).toContain("Verified project HEAD unavailable");
     expect(markup).toContain("Evidence required");
     expect(markup).toContain("Human gate");
-    expect(markup).toContain("on failure");
+    expect(markup).toContain("On failure: BLOCK");
     expect(markup).not.toContain("Gate PASS recorded");
     expect(markup.match(/marker-end=/g)).toHaveLength(6);
   });
