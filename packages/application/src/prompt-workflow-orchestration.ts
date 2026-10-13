@@ -235,11 +235,20 @@ export async function buildWorkflowReadiness(
   // Even a valid receipt is only usable if all its dependency receipts are
   // also valid for the EXACT SAME workflow, app HEAD and canonical revision.
   const accepted = new Set<string>();
-  for (const node of workflow.nodes) {
-    if (verified.has(node.id) && node.dependsOn.every((id) => accepted.has(id))) {
-      accepted.add(node.id);
-    }
-  }
+  // Manifest order is not necessarily topological within one stage. Resolve
+  // dependencies recursively; the central manifest validator rejects cycles.
+  const nodesById = new Map(workflow.nodes.map((node) => [node.id, node]));
+  const checked = new Map<string, boolean>();
+  const isAccepted = (id: string): boolean => {
+    const cached = checked.get(id);
+    if (cached !== undefined) return cached;
+    const node = nodesById.get(id)!;
+    const valid = verified.has(id) && node.dependsOn.every(isAccepted);
+    checked.set(id, valid);
+    if (valid) accepted.add(id);
+    return valid;
+  };
+  for (const node of workflow.nodes) isAccepted(node.id);
   const rows: WorkflowNodeReadiness[] = workflow.nodes.map((node) => {
     const missing = node.dependsOn.filter((id) => !accepted.has(id));
     if (node.humanGate || node.stage === "RELEASE") {
