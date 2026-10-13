@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   executeBoundedWorkflowNode,
+  executeEvidenceBoundWorkflowNode,
   verifyWorkflowExecutionGrant,
   workflowExecutionGrantSigningPayload,
   type WorkflowAttemptResult,
@@ -79,6 +80,7 @@ const success = (opts: Partial<WorkflowAttemptResult> = {}): WorkflowAttemptResu
 function harness(config: {
   accepted?: boolean;
   adopted?: boolean;
+  permitted?: boolean;
   runner?: (attempt: number) => Promise<WorkflowAttemptResult>;
   freshness?: () => Promise<void>;
   journalFailure?: boolean;
@@ -99,6 +101,9 @@ function harness(config: {
     publicKeyFor: vi.fn((_project: string, _issuer: string) => publicPem),
     assertAdopted: vi.fn(async () => {
       if (config.adopted === false) throw new Error("Canonical workflow adoption unavailable");
+    }),
+    assertMayExecute: vi.fn(async () => {
+      if (config.permitted === false) throw new Error("Execution issuer has no scoped permission");
     })
   };
   const freshness = { assertCurrent: vi.fn(config.freshness ?? (async () => {})) };
@@ -230,6 +235,36 @@ describe("Phase 5B opt-in bounded execution and recovery", () => {
     expect(runnerDown.execute).toHaveBeenCalledTimes(1);
   });
 
+  it("blocks a trusted signing key without separate issuer-specific execution permission", async () => {
+    const h = harness({ permitted: false });
+    await expect(h.run()).rejects.toThrow("no scoped permission");
+    expect(h.journal.claim).not.toHaveBeenCalled();
+    expect(h.execute).not.toHaveBeenCalled();
+  });
+
+  it("recomputes evidence readiness through the trusted source before any real dispatch", async () => {
+    const h = harness();
+    const result = await executeEvidenceBoundWorkflowNode(grant(), approved, context, {
+      source: { list: async () => [] },
+      trust: store, verifier: evidence,
+      authority: h.authority, journal: h.journal,
+      runner: { execute: h.execute }, freshness: h.freshness,
+      clock: () => fixed
+    });
+    expect(result.status).toBe("submitted-for-verification");
+    expect(h.execute).toHaveBeenCalledTimes(1);
+
+    const blocked = harness();
+    await expect(executeEvidenceBoundWorkflowNode(grant(), approved, context, {
+      source: { list: async () => { throw new Error("receipt backend failed"); } },
+      trust: store, verifier: evidence,
+      authority: blocked.authority, journal: blocked.journal,
+      runner: { execute: blocked.execute }, freshness: blocked.freshness,
+      clock: () => fixed
+    })).rejects.toThrow("receipt backend failed");
+    expect(blocked.execute).not.toHaveBeenCalled();
+  });
+
   it("does not dispatch with an unavailable atomic journal or unknown signing issuer", async () => {
     const h = harness({ accepted: false });
     await expect(h.run()).rejects.toThrow("replay");
@@ -237,7 +272,8 @@ describe("Phase 5B opt-in bounded execution and recovery", () => {
 
     const authority = {
       publicKeyFor: () => null,
-      assertAdopted: async () => {}
+      assertAdopted: async () => {},
+      assertMayExecute: async () => {}
     };
     await expect(verifyWorkflowExecutionGrant(grant(), approved, context, authority, fixed))
       .rejects.toThrow("No pinned issuer");
