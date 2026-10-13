@@ -5,7 +5,7 @@ import {
   PromptWorkflowPreviewService,
   type WorkflowNodePreview
 } from "@blueprint-os/application";
-import type { AuthenticatedActor } from "@blueprint-os/core";
+import type { WebAuthenticatedActor } from "../auth/server-actor";
 
 import governed from "../../../../control/constitution-governed-repositories.json";
 import candidate from "../../../../prompt-workflows/projects/application-management.visa-recovery.v1.json";
@@ -57,7 +57,7 @@ async function verifiedRepoHead(repo: string): Promise<string> {
 }
 
 export async function previewVisaWorkflowRoot(
-  actor: AuthenticatedActor,
+  actor: WebAuthenticatedActor,
   projectId: string
 ): Promise<WorkflowNodePreview> {
   if (projectId !== VISA_WORKFLOW_PROJECT_ID) {
