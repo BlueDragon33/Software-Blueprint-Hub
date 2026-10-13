@@ -96,7 +96,7 @@ export function trustedWorkflowReceiptAdapters(
       }
       if (!configured) return [];
       const location = "prompt-workflows/receipts/" +
-        encodeURIComponent(projectId) + "/" + encodeURIComponent(workflowId) + ".json";
+        projectId + "/" + workflowId + ".json";
       const value = await readGitHubContentsJson(location);
       if (!Array.isArray(value)) throw new Error("Malformed signed receipt array");
       return value;
