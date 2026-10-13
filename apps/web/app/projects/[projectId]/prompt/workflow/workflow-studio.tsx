@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { layoutWorkflowGraph } from "@blueprint-os/application";
+import { layoutWorkflowGraph } from "../../../../../../../packages/application/src/prompt-workflow-graph";
 import type { WorkflowNode } from "@blueprint-os/application";
 
 import styles from "./workflow-studio.module.css";
