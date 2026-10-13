@@ -5,7 +5,8 @@ import {
   CONSTITUTION_POLICY_VERSION,
   PromptWorkflowPreviewService,
   type CentralWorkflowDescription,
-  type WorkflowNodePreview
+  type WorkflowNodePreview,
+  type WorkflowNode
 } from "@blueprint-os/application";
 import type { WebAuthenticatedActor } from "../auth/server-actor";
 
@@ -18,13 +19,7 @@ const workflowRegistry = new CentralPromptWorkflowRegistry(
   CENTRAL_WORKFLOW_MANIFESTS
 );
 
-export interface WorkflowNodeSummary {
-  readonly id: string;
-  readonly stage: string;
-  readonly goal: string;
-  readonly dependencies: readonly string[];
-  readonly humanGate: boolean;
-}
+export type WorkflowNodeSummary = WorkflowNode;
 
 export function registeredWorkflowSummaries(
   projectId: string
@@ -44,11 +39,15 @@ export function registeredWorkflowNodes(
   const workflow = workflowRegistry.workflowForProject(projectId, workflowId);
   if (!workflow) return Object.freeze([]);
   return Object.freeze(workflow.nodes.map((node) => Object.freeze({
-    id: node.id,
-    stage: node.stage,
-    goal: node.goal,
-    dependencies: node.dependsOn,
-    humanGate: node.humanGate
+    ...node,
+    dependsOn: Object.freeze([...node.dependsOn]),
+    inputs: Object.freeze([...node.inputs]),
+    outputs: Object.freeze([...node.outputs]),
+    acceptance: Object.freeze([...node.acceptance]),
+    evidence: Object.freeze([...node.evidence]),
+    allowedActions: Object.freeze([...node.allowedActions]),
+    forbiddenActions: Object.freeze([...node.forbiddenActions]),
+    budget: Object.freeze({ ...node.budget })
   })));
 }
 
