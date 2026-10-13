@@ -2,13 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { layoutWorkflowGraph } from "../../../../../../../packages/application/src/prompt-workflow-graph";
-import type { WorkflowNode } from "@blueprint-os/application";
+import type { WorkflowNode, WorkflowReadinessPlan } from "@blueprint-os/application";
 
 import styles from "./workflow-studio.module.css";
 
 interface WorkflowStudioProps {
   readonly nodes: readonly WorkflowNode[];
   readonly rootNodeIds: readonly string[];
+  readonly readiness?: WorkflowReadinessPlan | null;
+  readonly readinessError?: string;
+  readonly receiptVerificationConfigured?: boolean;
   readonly preview: Readonly<{
     rootNodeId: string;
     content: string;
@@ -20,9 +23,9 @@ interface WorkflowStudioProps {
   readonly previewError: string;
 }
 
-function reviewState(node: WorkflowNode, rootNodeIds: readonly string[]): {
+function reviewState(node: WorkflowNode, rootNodeIds: readonly string[], readiness: WorkflowReadinessPlan | null): {
   readonly label: string;
-  readonly kind: "candidate" | "blocked" | "human";
+  readonly kind: "candidate" | "blocked" | "human" | "verified";
   readonly reason: string;
 } {
   if (node.humanGate || node.stage === "RELEASE") {
@@ -32,7 +35,20 @@ function reviewState(node: WorkflowNode, rootNodeIds: readonly string[]): {
       reason: "Separate human review and authorization are required. No automatic approval exists."
     };
   }
-  if (rootNodeIds.includes(node.id)) {
+  const current = readiness?.nodes.find((item) => item.id === node.id);
+  if (current?.state === "verified") {
+    return {
+      label: "Evidence verified", kind: "verified",
+      reason: current.explanation + " This does not imply canonical Quality Gate PASS."
+    };
+  }
+  if (current?.state === "waiting-evidence") {
+    return {
+      label: "Evidence required", kind: "blocked",
+      reason: current.explanation + " Missing: " + current.missingDependencies.join(", ")
+    };
+  }
+  if (rootNodeIds.includes(node.id) || current?.state === "available") {
     return {
       label: "Preview candidate",
       kind: "candidate",
@@ -55,14 +71,15 @@ function DetailList({ title, values }: { readonly title: string; readonly values
   );
 }
 
-export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError }: WorkflowStudioProps) {
+export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError,
+  readiness = null, readinessError = "", receiptVerificationConfigured = false }: WorkflowStudioProps) {
   const [selectedId, setSelectedId] = useState(nodes[0]?.id ?? "");
   const [showPrompt, setShowPrompt] = useState(false);
   const layout = useMemo(() => layoutWorkflowGraph(nodes), [nodes]);
   const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
   const selected = nodeById.get(selectedId) ?? nodes[0];
   if (!selected) return null;
-  const selectedState = reviewState(selected, rootNodeIds);
+  const selectedState = reviewState(selected, rootNodeIds, readiness);
   const selectedPreview = selected.id === preview?.rootNodeId ? preview : null;
 
   return (
@@ -77,8 +94,22 @@ export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError }: Wo
           <span><i className={styles.dotCandidate} /> Preview candidate</span>
           <span><i className={styles.dotBlocked} /> Waiting for evidence</span>
           <span><i className={styles.dotHuman} /> Human gate</span>
+          <span><i className={styles.dotVerified} /> Signed evidence</span>
         </div>
       </header>
+
+      <p className={styles.reason} role="status">
+        {readinessError
+          ? "Evidence readiness unavailable: " + readinessError
+          : readiness
+            ? "Signed receipts verified: " + readiness.acceptedReceipts +
+              " · rejected/invalid: " + readiness.rejectedReceipts +
+              " · eligible read-only nodes: " + readiness.readyNodeIds.length +
+              (receiptVerificationConfigured
+                ? " · Trust store configured"
+                : " · No trusted signing keys configured")
+            : "No trusted readiness snapshot; no completed node is assumed."}
+      </p>
 
       <div className={styles.scroll} tabIndex={0} role="region"
         aria-label="Workflow diagram, horizontally scroll to explore all nodes">
@@ -100,13 +131,14 @@ export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError }: Wo
           </svg>
           {layout.positions.map((position) => {
             const node = nodeById.get(position.id)!;
-            const state = reviewState(node, rootNodeIds);
+            const state = reviewState(node, rootNodeIds, readiness);
             const isSelected = selected.id === node.id;
             return (
               <button key={node.id} type="button"
                 className={[styles.node, isSelected ? styles.selected : "",
                   state.kind === "human" ? styles.nodeHuman : "",
-                  state.kind === "candidate" ? styles.nodeCandidate : ""].filter(Boolean).join(" ")}
+                  state.kind === "candidate" ? styles.nodeCandidate : "",
+                  state.kind === "verified" ? styles.nodeVerified : ""].filter(Boolean).join(" ")}
                 style={{ left: position.x, top: position.y, width: position.width, height: position.height }}
                 onClick={() => { setSelectedId(node.id); setShowPrompt(false); }}
                 aria-pressed={isSelected}
