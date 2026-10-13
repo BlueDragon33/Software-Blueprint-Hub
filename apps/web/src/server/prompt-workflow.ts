@@ -240,7 +240,7 @@ export async function inspectLatestWorkflowRootChange(
     if (!entry || typeof entry !== "object" ||
         !("filename" in entry) || typeof entry.filename !== "string" ||
         !("status" in entry) || !["modified", "added"].includes(String(entry.status))) continue;
-    const path = entry.filename;
+    const path: string = String(entry.filename);
     const lowered = path.toLowerCase();
     if (!/^[a-zA-Z0-9_./-]{2,240}$/.test(path) ||
         path.split("/").some((segment) => segment === "." || segment === "..") ||
