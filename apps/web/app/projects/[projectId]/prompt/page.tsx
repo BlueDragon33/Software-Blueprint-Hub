@@ -6,6 +6,7 @@ import {
 } from "../_components/project-workspace";
 import { loadProjectWorkspace } from "../../../../src/server/project-workspace";
 import { PromptTools } from "./prompt-tools";
+import { isRegisteredGovernedProject, registeredWorkflowSummaries } from "../../../../src/server/prompt-workflow";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +52,8 @@ export default async function PromptPage({
     )
   ]);
 
+  const workflowSummaries = registeredWorkflowSummaries(workspace.projectId);
+  const governedProject = isRegisteredGovernedProject(workspace.projectId);
   const history = historyPage.items;
   const latest = historyPage.latest;
   const latestIsStale = latest
@@ -85,17 +88,21 @@ export default async function PromptPage({
         </StatusChip>
       </section>
 
-      {workspace.projectId === "project:application-management" ? (
+      {governedProject ? (
         <section className="workspace-section">
           <div className="workspace-section-heading">
             <div>
-              <p className="section-kicker">Central Workflow · Candidate</p>
-              <h3>Visa/KD-MID node pipeline</h3>
-              <p>Seven linked, versioned stages. Start from a verified repository HEAD; later nodes remain blocked without real completion evidence.</p>
+              <p className="section-kicker">Central Workflow Registry</p>
+              <h3>{workflowSummaries.length
+                ? workflowSummaries.length + " registered workflow" + (workflowSummaries.length === 1 ? "" : "s")
+                : "No central workflow assigned"}</h3>
+              <p>{workflowSummaries.length
+                ? workflowSummaries.map((item) => item.area + " (" + item.status + ")").join(" · ")
+                : "This repository is governed by Blueprint OS. No project workflow has been authored or approved yet."}</p>
             </div>
             <Link className="secondary-button registry-action"
               href={"/projects/" + encodeURIComponent(workspace.projectId) + "/prompt/workflow"}>
-              Inspect workflow
+              {workflowSummaries.length ? "Inspect workflow" : "Workflow registry"}
             </Link>
           </div>
         </section>
