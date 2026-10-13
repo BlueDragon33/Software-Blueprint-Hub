@@ -65,6 +65,7 @@
 .dotCandidate { background: #5875c7; }
 .dotBlocked { background: #8290a4; }
 .dotHuman { background: #b47b36; }
+.dotVerified { background: #317d69; }
 
 .scroll {
   max-width: 100%;
@@ -116,6 +117,7 @@
 .node:focus-visible { outline: 3px solid #607aca; outline-offset: 3px; }
 .nodeCandidate { border-left: 4px solid #5f7cc6; }
 .nodeHuman { border-left: 4px solid #c99556; }
+.nodeVerified { border-left: 4px solid #317d69; }
 .selected {
   border-color: #3c5fc6;
   box-shadow: 0 0 0 2px rgba(75, 102, 196, 0.24), 0 0.5rem 1.3rem rgba(49, 67, 108, 0.13);
@@ -144,6 +146,7 @@
 }
 .nodeState[data-kind="candidate"] { color: #415fa4; }
 .nodeState[data-kind="human"] { color: #906126; }
+.nodeState[data-kind="verified"] { color: #286d60; }
 
 .detail {
   display: grid;
@@ -166,6 +169,7 @@
 }
 .detailStatus[data-kind="candidate"] { color: #415fa4; border-color: #b9c8eb; }
 .detailStatus[data-kind="human"] { color: #8b602a; border-color: #e4c7a3; }
+.detailStatus[data-kind="verified"] { color: #286d60; border-color: #9acabb; }
 .reason {
   margin: 0;
   padding: 0.7rem 0.8rem;
