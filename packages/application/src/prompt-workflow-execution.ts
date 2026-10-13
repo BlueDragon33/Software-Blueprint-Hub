@@ -10,7 +10,14 @@ import { createHash, createPublicKey, verify as verifySignature } from "node:cry
 
 import type { NodeSourceContext, WorkflowManifest, WorkflowNode } from "./prompt-workflow-core.mjs";
 import { validateWorkflow } from "./prompt-workflow-core.mjs";
-import { workflowManifestDigest, type WorkflowReadinessPlan } from "./prompt-workflow-orchestration";
+import {
+  buildWorkflowReadiness,
+  workflowManifestDigest,
+  type WorkflowReadinessPlan,
+  type WorkflowReceiptSource,
+  type WorkflowTrustStore,
+  type WorkflowEvidenceVerifier
+} from "./prompt-workflow-orchestration";
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const SHA = /^[a-f0-9]{40}$/;
@@ -57,6 +64,8 @@ export interface WorkflowExecutionGrant extends WorkflowExecutionGrantPayload {
 export interface WorkflowExecutionAuthority {
   /** Pinned public key of a distinct trusted execution authorizer. */
   publicKeyFor(projectId: string, issuerId: string): string | null;
+  /** Authorize this issuer for scoped execution, distinct from owning a signing key. */
+  assertMayExecute(projectId: string, workflowId: string, issuerId: string): Promise<void>;
   /** Check an authenticated workflow adoption decision independent of manifest.status. */
   assertAdopted(projectId: string, workflowId: string, digest: string): Promise<void>;
 }
@@ -263,6 +272,7 @@ export async function verifyWorkflowExecutionGrant(
   // Adoption lives in a separate trusted canonical authority; editing a manifest
   // status to "approved" cannot grant execution.
   await authority.assertAdopted(context.projectId, workflow.workflowId, grant.workflowDigest);
+  await authority.assertMayExecute(context.projectId, workflow.workflowId, grant.issuerId);
   return { grant, node };
 }
 
@@ -392,4 +402,40 @@ export async function executeBoundedWorkflowNode(
     }
   }
   return finish("stopped", "Maximum authorized attempts exhausted; no successful verified outcome");
+}
+
+
+export interface WorkflowExecutionTrustedDependencies {
+  readonly source: WorkflowReceiptSource;
+  readonly trust: WorkflowTrustStore;
+  readonly verifier: WorkflowEvidenceVerifier;
+  readonly authority: WorkflowExecutionAuthority;
+  readonly journal: WorkflowExecutionJournal;
+  readonly runner: WorkflowScopedExecutor;
+  readonly freshness: WorkflowExecutionFreshness;
+  readonly clock?: () => Date;
+}
+
+/**
+ * Safe internal entrypoint: recompute signed evidence-backed dependency
+ * readiness inside the authority boundary, rather than trusting caller-
+ * supplied readyNodeIds/booleans. No route, job or provider is implicitly active.
+ */
+export async function executeEvidenceBoundWorkflowNode(
+  grant: unknown,
+  workflow: WorkflowManifest,
+  context: NodeSourceContext,
+  dependencies: WorkflowExecutionTrustedDependencies
+): Promise<WorkflowExecutionReport> {
+  await dependencies.freshness.assertCurrent(context);
+  const readiness = await buildWorkflowReadiness(
+    workflow, context, dependencies.source,
+    dependencies.trust, dependencies.verifier
+  );
+  return executeBoundedWorkflowNode(
+    grant, workflow, context, readiness,
+    dependencies.authority, dependencies.journal,
+    dependencies.runner, dependencies.freshness,
+    dependencies.clock
+  );
 }
