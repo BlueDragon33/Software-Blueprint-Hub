@@ -6,13 +6,16 @@ import {
   PromptWorkflowPreviewService,
   type CentralWorkflowDescription,
   type WorkflowNodePreview,
-  type WorkflowNode
+  type WorkflowNode,
+  buildWorkflowReadiness,
+  type WorkflowReadinessPlan
 } from "@blueprint-os/application";
 import type { WebAuthenticatedActor } from "../auth/server-actor";
 
 import governed from "../../../../control/constitution-governed-repositories.json";
 import { CENTRAL_WORKFLOW_MANIFESTS } from "./prompt-workflow-manifests.generated";
 import { getBlueprintServerRuntime } from "./runtime";
+import { trustedWorkflowReceiptAdapters } from "./prompt-workflow-receipts";
 
 const workflowRegistry = new CentralPromptWorkflowRegistry(
   governed.repositories,
@@ -115,4 +118,47 @@ export async function previewRegisteredWorkflowRoot(
     CONSTITUTION_POLICY_VERSION
   );
   return service.preview(actor, projectId, workflowId, nodeId);
+}
+
+
+export interface RegisteredWorkflowReadiness {
+  readonly plan: WorkflowReadinessPlan;
+  readonly receiptVerificationConfigured: boolean;
+}
+
+/**
+ * Authenticated project snapshot + verified repository HEAD are resolved first.
+ * The client cannot submit completion receipts, issuer keys or an app SHA.
+ * If keys/receipt source are not configured, the honest result has zero
+ * verified completions; root nodes remain read-only planning candidates.
+ */
+export async function readRegisteredWorkflowReadiness(
+  actor: WebAuthenticatedActor,
+  projectId: string,
+  workflowId: string
+): Promise<RegisteredWorkflowReadiness> {
+  const runtime = getBlueprintServerRuntime();
+  const canonical = await runtime.prompts.generate(actor, projectId);
+  const workflow = workflowRegistry.workflowForProject(projectId, workflowId);
+  if (!workflow || canonical.projectId !== projectId) {
+    throw new Error("Workflow does not belong to the authorized canonical project");
+  }
+  const head = await verifiedRepoHead(workflow.project.repo);
+  const adapters = trustedWorkflowReceiptAdapters(
+    projectId, workflow.project.repo, workflowId, head
+  );
+  const plan = await buildWorkflowReadiness(
+    workflow, {
+      projectId,
+      repository: workflow.project.repo,
+      appHead: head,
+      canonicalDigest: canonical.sourceRevision,
+      policyVersion: CONSTITUTION_POLICY_VERSION
+    },
+    adapters.source, adapters.trust, adapters.verifier
+  );
+  return Object.freeze({
+    plan,
+    receiptVerificationConfigured: adapters.configured
+  });
 }
