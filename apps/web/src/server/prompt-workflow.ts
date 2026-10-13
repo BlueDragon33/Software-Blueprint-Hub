@@ -10,7 +10,8 @@ import {
   buildWorkflowReadiness,
   type WorkflowReadinessPlan
 } from "@blueprint-os/application";
-import type { WebAuthenticatedActor } from "../auth/server-actor";
+import { resolveGitHubPublicationToken, type WebAuthenticatedActor } from "../auth/server-actor";
+import { ScopedGitHubReadExecutor } from "@blueprint-os/runtime";
 
 import governed from "../../../../control/constitution-governed-repositories.json";
 import { CENTRAL_WORKFLOW_MANIFESTS } from "./prompt-workflow-manifests.generated";
@@ -59,7 +60,7 @@ export function registeredWorkflowNodes(
  * governance. The registry chooses the branch; neither client nor workflow
  * manifests can substitute a branch or supply a supposed HEAD.
  */
-async function verifiedRepoHead(repo: string): Promise<string> {
+export async function verifiedRepoHead(repo: string): Promise<string> {
   const registered = workflowRegistry.repositoryByName(repo);
   if (!registered) throw new Error("Repository is not governed by the Hub");
   const [owner, name] = registered.repository.split("/");
@@ -68,11 +69,17 @@ async function verifiedRepoHead(repo: string): Promise<string> {
     encodeURIComponent(owner) + "/" + encodeURIComponent(name) +
     "/branches/" + encodeURIComponent(registered.branch);
 
+  // Use only a trusted server-side scoped read token or the authenticated
+  // caller's GitHub session. The token never leaves api.github.com.
+  const token = await resolveGitHubPublicationToken() ??
+    process.env.WORKFLOW_RECEIPT_GITHUB_READ_TOKEN?.trim() ?? null;
   const response = await fetch(url, {
     cache: "no-store",
+    redirect: "error",
     headers: {
       Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28"
+      "X-GitHub-Api-Version": "2022-11-28",
+      ...(token ? { Authorization: "Bearer " + token } : {})
     },
     signal: AbortSignal.timeout(8000)
   });
@@ -160,5 +167,121 @@ export async function readRegisteredWorkflowReadiness(
   return Object.freeze({
     plan,
     receiptVerificationConfigured: adapters.configured
+  });
+}
+
+
+export interface LatestCommitScopedInspection {
+  readonly mode: "last-commit-read-only";
+  readonly appHead: string;
+  readonly nodeId: string;
+  readonly checkedChangeCount: number;
+  readonly scannedRepositoryRecursively: false;
+  readonly state: "observed" | "no-relevant-changes";
+  readonly observationDigest: string | null;
+  readonly evidenceReferences: readonly string[];
+  readonly explanation: string;
+}
+
+/**
+ * A useful real preview for candidate DISCOVER roots, without waiting for
+ * formally approved execution grants. Only reads the exact latest commit
+ * diff and up to three relevant concrete source files pinned to HEAD.
+ *
+ * This NEVER records an execution attempt, receipt, Quality Gate or approval.
+ * It is not an autonomous workflow run, and commits without relevant paths
+ * truthfully report zero inspected files.
+ */
+export async function inspectLatestWorkflowRootChange(
+  actor: WebAuthenticatedActor,
+  projectId: string,
+  workflowId: string
+): Promise<LatestCommitScopedInspection> {
+  const runtime = getBlueprintServerRuntime();
+  const canonical = await runtime.prompts.generate(actor, projectId);
+  const workflow = workflowRegistry.workflowForProject(projectId, workflowId);
+  const governedProject = workflowRegistry.repositoryForProject(projectId);
+  if (!workflow || !governedProject || canonical.projectId !== projectId ||
+      workflow.project.repo !== governedProject.repository) {
+    throw new Error("Canonical project/repository authorization failed");
+  }
+  const root = workflow.nodes.find((n) =>
+    n.stage === "DISCOVER" && n.dependsOn.length === 0 && !n.humanGate);
+  if (!root) throw new Error("No scoped read-only discovery root available");
+
+  const head = await verifiedRepoHead(governedProject.repository);
+  const [owner, repository] = governedProject.repository.split("/");
+  if (!owner || !repository) throw new Error("Malformed governed repo identity");
+  const token = await resolveGitHubPublicationToken();
+  const readToken = token ?? process.env.WORKFLOW_RECEIPT_GITHUB_READ_TOKEN?.trim() ?? null;
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+  if (readToken) headers.Authorization = "Bearer " + readToken;
+
+  const response = await fetch(
+    "https://api.github.com/repos/" + encodeURIComponent(owner) + "/" +
+    encodeURIComponent(repository) + "/commits/" + head,
+    { cache: "no-store", redirect: "error", headers, signal: AbortSignal.timeout(8000) }
+  );
+  if (!response.ok) throw new Error("Pinned latest commit unavailable (" + response.status + ")");
+  const commit: unknown = await response.json();
+  if (!commit || typeof commit !== "object" || !("sha" in commit) ||
+      commit.sha !== head || !("files" in commit) ||
+      !Array.isArray(commit.files) || commit.files.length > 300) {
+    throw new Error("Incomplete or malformed pinned commit diff");
+  }
+
+  const terms = (workflow.project.area.toLowerCase().match(/[a-z0-9]{4,}/g) ?? [])
+    .filter((word) => !["management", "recovery", "workflow"].includes(word));
+  const candidatePaths: string[] = [];
+  for (const entry of commit.files) {
+    if (!entry || typeof entry !== "object" ||
+        !("filename" in entry) || typeof entry.filename !== "string" ||
+        !("status" in entry) || !["modified", "added"].includes(String(entry.status))) continue;
+    const path: string = String(entry.filename);
+    const lowered = path.toLowerCase();
+    if (!/^[a-zA-Z0-9_./-]{2,240}$/.test(path) ||
+        path.split("/").some((segment) => segment === "." || segment === "..") ||
+        !/\.(?:ts|tsx|js|jsx|json|css|md|mjs|cjs|py|sql)$/i.test(path) ||
+        /(?:^|\/)(?:\.env|secrets?|private|credentials?)(?:\/|\.|$)/i.test(path) ||
+        !terms.some((term) => lowered.includes(term))) continue;
+    candidatePaths.push(path);
+    if (candidatePaths.length === 3) break;
+  }
+
+  if (candidatePaths.length === 0) {
+    return Object.freeze({
+      mode: "last-commit-read-only" as const,
+      appHead: head, nodeId: root.id,
+      checkedChangeCount: commit.files.length,
+      scannedRepositoryRecursively: false as const,
+      state: "no-relevant-changes" as const,
+      observationDigest: null, evidenceReferences: Object.freeze([]),
+      explanation: "No relevant readable source files were changed in this one HEAD commit. This is NOT evidence that the wider repository was inspected."
+    });
+  }
+  const executor = new ScopedGitHubReadExecutor({
+    repository: governedProject.repository,
+    tokenProvider: async () => readToken
+  });
+  const observed = await executor.execute({
+    requestId: "read-only-preview",
+    projectId, repository: governedProject.repository, appHead: head,
+    nodeId: root.id, mode: "inspect-scoped",
+    allowedPaths: Object.freeze(candidatePaths),
+    maxFiles: candidatePaths.length,
+    maxTokenEstimate: 1000, attempt: 1
+  });
+  return Object.freeze({
+    mode: "last-commit-read-only" as const,
+    appHead: head, nodeId: root.id,
+    checkedChangeCount: commit.files.length,
+    scannedRepositoryRecursively: false as const,
+    state: "observed" as const,
+    observationDigest: observed.observationDigest,
+    evidenceReferences: observed.evidenceReferences,
+    explanation: "Pinned commit files read and hashed. Inspection only; no node execution, signed completion receipt or Gate PASS."
   });
 }

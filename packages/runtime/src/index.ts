@@ -18,6 +18,7 @@ import {
 import { GitHubConstitutionPublicationVerifier } from "./constitution-publication";
 import { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
+export { ScopedGitHubReadExecutor } from "./workflow-scoped-github-executor";
 import { AuthorityService } from "@blueprint-os/core";
 import {
   createPrismaClient,
