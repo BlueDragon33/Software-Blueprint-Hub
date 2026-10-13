@@ -85,6 +85,22 @@ export default async function PromptPage({
         </StatusChip>
       </section>
 
+      {workspace.projectId === "project:application-management" ? (
+        <section className="workspace-section">
+          <div className="workspace-section-heading">
+            <div>
+              <p className="section-kicker">Central Workflow · Candidate</p>
+              <h3>Visa/KD-MID node pipeline</h3>
+              <p>Seven linked, versioned stages. Start from a verified repository HEAD; later nodes remain blocked without real completion evidence.</p>
+            </div>
+            <Link className="secondary-button registry-action"
+              href={"/projects/" + encodeURIComponent(workspace.projectId) + "/prompt/workflow"}>
+              Inspect workflow
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
       <section className="prompt-workspace-summary">
         <div className="prompt-workspace-revision">
           <span>Current canonical source revision</span>
