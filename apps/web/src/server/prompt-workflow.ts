@@ -22,18 +22,22 @@ const match = governed.repositories.find((entry) =>
 if (!match || match.branch !== "main") {
   throw new Error("Central workflow registry is inconsistent with governed repository identity");
 }
+const registeredRepository: { readonly repository: string; readonly branch: string } = {
+  repository: match.repository,
+  branch: match.branch
+};
 
 /**
  * Read GitHub as a verified HEAD source. No caller-supplied branch/repository/commit
  * and no cached or guessed SHA. A provider outage blocks the preview.
  */
 async function verifiedRepoHead(repo: string): Promise<string> {
-  if (repo !== match.repository) throw new Error("Unexpected repository for workflow");
+  if (repo !== registeredRepository.repository) throw new Error("Unexpected repository for workflow");
   const [owner, name] = repo.split("/");
   if (!owner || !name) throw new Error("Malformed canonical repository");
   const url = "https://api.github.com/repos/" +
     encodeURIComponent(owner) + "/" + encodeURIComponent(name) +
-    "/branches/" + encodeURIComponent(match.branch);
+    "/branches/" + encodeURIComponent(registeredRepository.branch);
 
   const response = await fetch(url, {
     cache: "no-store",
