@@ -6,6 +6,7 @@ on:
       - "packages/application/src/prompt-workflow-*.mjs"
       - "packages/application/src/prompt-workflow-*.d.mts"
       - "packages/application/src/prompt-workflow-*.ts"
+      - "scripts/generate-prompt-workflow-imports.mjs"
       - "packages/application/src/index.ts"
       - "scripts/prompt-workflow-*.mjs"
       - "tests/application/prompt-workflow-*.test.ts"
