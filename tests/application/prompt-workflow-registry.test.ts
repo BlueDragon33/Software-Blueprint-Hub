@@ -80,7 +80,7 @@ describe("Central Workflow Registry — governed multi-project contract", () => 
   it("returns defensive manifest copies rather than writable source registry references", () => {
     const registry = build();
     const first = registry.workflowForProject("project:application-management", manifest.workflowId)!;
-    first.nodes[0]!.goal = "overwritten by caller";
+    (first as unknown as { nodes: { goal: string }[] }).nodes[0]!.goal = "overwritten by caller";
     const second = registry.workflowForProject("project:application-management", manifest.workflowId)!;
     expect(second.nodes[0]!.goal).not.toBe("overwritten by caller");
     expect(registry.workflowNode("project:application-management", manifest.workflowId, "inventory")?.id).toBe("inventory");
