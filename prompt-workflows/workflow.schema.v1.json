@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/BlueDragon33/Software-Blueprint-Hub/blob/main/prompt-workflows/workflow.schema.v1.json",
+  "title": "Blueprint OS Central Prompt Workflow Manifest v1",
+  "description": "Portable shape contract. The companion JS validator also enforces DAG dependencies, cycles, authority and bounded execution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "workflowId",
+    "workflowVersion",
+    "status",
+    "templateId",
+    "project",
+    "nodes"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "workflowId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,79}$"
+    },
+    "workflowVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "status": {
+      "enum": [
+        "candidate",
+        "approved",
+        "deprecated"
+      ]
+    },
+    "templateId": {
+      "const": "engineering-node@1.0.0"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "repo",
+        "constitutionMinVersion",
+        "area",
+        "architectureDepthTarget"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{1,79}$"
+        },
+        "repo": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "constitutionMinVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "area": {
+          "type": "string",
+          "minLength": 1
+        },
+        "architectureDepthTarget": {
+          "enum": [
+            100,
+            200
+          ]
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 60,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "stage",
+          "role",
+          "goal",
+          "dependsOn",
+          "inputs",
+          "outputs",
+          "acceptance",
+          "evidence",
+          "allowedActions",
+          "forbiddenActions",
+          "budget",
+          "onFailure",
+          "humanGate"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{1,79}$"
+          },
+          "stage": {
+            "enum": [
+              "DISCOVER",
+              "SPECIFY",
+              "DESIGN",
+              "PLAN",
+              "IMPLEMENT",
+              "TEST",
+              "REVIEW",
+              "RELEASE",
+              "LEARN"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "goal": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dependsOn": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "inputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "outputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "acceptance": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "allowedActions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "forbiddenActions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "budget": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxAttempts",
+              "maxFiles",
+              "maxTokenEstimate"
+            ],
+            "properties": {
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "maxFiles": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 30
+              },
+              "maxTokenEstimate": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 30000
+              }
+            }
+          },
+          "onFailure": {
+            "const": "BLOCK"
+          },
+          "humanGate": {
+            "type": "boolean"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "stage": {
+                  "const": "RELEASE"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "humanGate": {
+                  "const": true
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
