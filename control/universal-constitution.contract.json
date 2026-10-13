@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
   "policyId": "blueprint-os:universal-century-grade",
-  "policyVersion": "1.2.0",
+  "policyVersion": "1.3.0",
   "constitutionTemplate": {
     "id": "template:constitution:universal-v1",
-    "version": "1.2.0"
+    "version": "1.3.0"
   },
   "inheritanceRule": "mandatory-all-projects",
   "depthRule": "blueprint-level-scales-depth-never-removes-pillar",
@@ -65,5 +65,339 @@
     "uiOverride": true,
     "aiOverride": true,
     "implicitProductionAuthority": true
+  },
+  "executionRules": [
+    {
+      "id": "R1",
+      "requirementId": "gate:quality:evidence",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R1"
+    },
+    {
+      "id": "R2",
+      "requirementId": "module:architecture:boundaries",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R2"
+    },
+    {
+      "id": "R3",
+      "requirementId": "gate:quality:evidence",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R3"
+    },
+    {
+      "id": "R4",
+      "requirementId": "gate:durability:ageing-regression",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R4"
+    },
+    {
+      "id": "R5",
+      "requirementId": "module:data:source-of-truth",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R5"
+    },
+    {
+      "id": "R6",
+      "requirementId": "gate:ux:commercial-quality",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R6"
+    },
+    {
+      "id": "R7",
+      "requirementId": "module:quality:evidence",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R7"
+    },
+    {
+      "id": "R8",
+      "requirementId": "module:governance:evolution",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R8"
+    },
+    {
+      "id": "R9",
+      "requirementId": "gate:quality:evidence",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R9"
+    },
+    {
+      "id": "R10",
+      "requirementId": "module:quality:evidence",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R10"
+    },
+    {
+      "id": "R11",
+      "requirementId": "module:architecture:boundaries",
+      "enforcement": "immediate-boundaries-migration-gated-functionality",
+      "normativeSection": "10.R11"
+    },
+    {
+      "id": "R12",
+      "requirementId": "module:security:authority",
+      "enforcement": "immediate-boundaries-migration-gated-functionality",
+      "normativeSection": "10.R12"
+    },
+    {
+      "id": "R13",
+      "requirementId": "module:ux:product-elegance",
+      "enforcement": "immediate-boundaries-migration-gated-functionality",
+      "normativeSection": "10.R13"
+    },
+    {
+      "id": "R14",
+      "requirementId": "gate:security:authority",
+      "enforcement": "immediate-boundaries-migration-gated-functionality",
+      "normativeSection": "10.R14"
+    },
+    {
+      "id": "R15",
+      "requirementId": "module:product:purpose",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R15"
+    },
+    {
+      "id": "R16",
+      "requirementId": "module:governance:evolution",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R16"
+    },
+    {
+      "id": "R17",
+      "requirementId": "gate:quality:evidence",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R17"
+    },
+    {
+      "id": "R18",
+      "requirementId": "module:architecture:structural-capacity",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R18"
+    },
+    {
+      "id": "R19",
+      "requirementId": "gate:security:authority",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R19"
+    },
+    {
+      "id": "R20",
+      "requirementId": "module:operations:release",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R20"
+    },
+    {
+      "id": "R21",
+      "requirementId": "module:product:purpose",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R21"
+    },
+    {
+      "id": "R22",
+      "requirementId": "module:governance:evolution",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R22"
+    },
+    {
+      "id": "R23",
+      "requirementId": "module:product:purpose",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R23"
+    },
+    {
+      "id": "R24",
+      "requirementId": "module:governance:architectural-longevity",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R24"
+    },
+    {
+      "id": "R25",
+      "requirementId": "module:architecture:boundaries",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R25"
+    },
+    {
+      "id": "R26",
+      "requirementId": "module:security:fortress-resilience",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R26"
+    },
+    {
+      "id": "R27",
+      "requirementId": "gate:quality:evidence",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R27"
+    },
+    {
+      "id": "R28",
+      "requirementId": "module:product:purpose",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R28"
+    },
+    {
+      "id": "R29",
+      "requirementId": "module:product:purpose",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R29"
+    },
+    {
+      "id": "R30",
+      "requirementId": "module:architecture:structural-capacity",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R30"
+    },
+    {
+      "id": "R31",
+      "requirementId": "module:product:purpose",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R31"
+    },
+    {
+      "id": "R32",
+      "requirementId": "module:architecture:boundaries",
+      "enforcement": "immediate-evidence-obligation",
+      "normativeSection": "10.R32"
+    }
+  ],
+  "academicProfiles": {
+    "status": "constitutional-capacity-reference-not-runtime-proof",
+    "requirementIds": [
+      "module:product:purpose",
+      "module:architecture:structural-capacity",
+      "module:architecture:boundaries"
+    ],
+    "applicability": "governed-academic-satellites",
+    "classificationAxis": "independent-of-B-and-E",
+    "recordOwner": "existing-project-profile-or-academic-review",
+    "capabilityStatuses": [
+      "PLANNED",
+      "IMPLEMENTED",
+      "VERIFIED",
+      "NOT_APPLICABLE",
+      "UNVERIFIED"
+    ],
+    "unsupportedStatus": "UNVERIFIED",
+    "notApplicableRequiresJustification": true,
+    "productionReleaseAuthority": false,
+    "base": "S100",
+    "baseBands": [
+      "S01-10:source-ownership",
+      "S11-20:learner-competencies",
+      "S21-30:curriculum-prerequisites",
+      "S31-40:concepts-and-worked-examples",
+      "S41-50:authentic-practice",
+      "S51-60:assessment-feedback",
+      "S61-70:discipline-specific-artifacts-when-applicable",
+      "S71-80:learning-state-evidence",
+      "S81-90:accessible-ux-performance",
+      "S91-100:security-interoperability-reliability"
+    ],
+    "russian": {
+      "profile": "R200",
+      "inherits": "S100",
+      "extension": "R101-200",
+      "appliesTo": "comprehensive-Russian-language-learning",
+      "completion": "requires-linguistic-evidence-not-artificial-floor-count",
+      "extensionBands": [
+        {
+          "from": 101,
+          "to": 110
+        },
+        {
+          "from": 111,
+          "to": 120
+        },
+        {
+          "from": 121,
+          "to": 130
+        },
+        {
+          "from": 131,
+          "to": 140
+        },
+        {
+          "from": 141,
+          "to": 150
+        },
+        {
+          "from": 151,
+          "to": 160
+        },
+        {
+          "from": 161,
+          "to": 170
+        },
+        {
+          "from": 171,
+          "to": 180
+        },
+        {
+          "from": 181,
+          "to": 190
+        },
+        {
+          "from": 191,
+          "to": 200
+        }
+      ]
+    },
+    "implementationQuota": false,
+    "separateConstitution": false,
+    "professionalReviewRequired": true,
+    "verifiedMaturityFromThisContract": false
+  },
+  "executionProfiles": {
+    "COMPACT": [
+      "B0",
+      "B1",
+      "B2"
+    ],
+    "STRUCTURED": [
+      "B3",
+      "B4",
+      "B5"
+    ],
+    "authority": "canonical-project-profile",
+    "riskRule": "L1-L3-per-operation-never-reduces-common-floor"
+  },
+  "ecosystemReference": {
+    "axis": "orthogonal-to-blueprint-level",
+    "levels": [
+      "E0",
+      "E1",
+      "E2",
+      "E3"
+    ],
+    "classificationAuthority": "reviewed-existing-project-profile-and-canonical-membership",
+    "operationalMaturity": "requires-exact-authenticated-cross-app-evidence",
+    "productionReleaseAuthority": false
+  },
+  "managementMigration": {
+    "requirementIds": [
+      "module:architecture:boundaries",
+      "module:security:authority",
+      "module:ux:product-elegance",
+      "gate:security:authority"
+    ],
+    "immediate": "truthful-capabilities-scoped-ownership-no-implicit-trust",
+    "functionality": "migration-gated-CP-01-through-CP-13-and-project-acceptance",
+    "centralOwner": "Application-Management",
+    "constitutionalOwner": "Software-Blueprint-Hub",
+    "businessDataOwner": "owning-application",
+    "unsupportedStatus": "UNVERIFIED",
+    "productionReleaseAuthority": false
+  },
+  "computedContrast": {
+    "requirementId": "gate:ux:commercial-quality",
+    "standard": "WCAG-2.2-AA",
+    "normalTextRatio": 4.5,
+    "largeTextRatio": 3,
+    "meaningfulNonTextRatio": 3,
+    "largeTextNormalCssPx": 24,
+    "largeTextBoldCssPx": 18.666666666666668,
+    "evidence": "browser-final-computed-composited-colors-desktop-mobile-states-themes",
+    "complexSurfaceWithoutRenderedEvidence": "UNVERIFIED",
+    "disabledException": "applicable-WCAG-exemption-only"
   }
 }
