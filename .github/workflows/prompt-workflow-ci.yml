@@ -1,0 +1,47 @@
+name: Central Prompt Workflow Integration CI
+
+on:
+  pull_request:
+    paths:
+      - "packages/application/src/prompt-workflow-*.mjs"
+      - "packages/application/src/prompt-workflow-*.d.mts"
+      - "packages/application/src/prompt-workflow-*.ts"
+      - "packages/application/src/index.ts"
+      - "scripts/prompt-workflow-*.mjs"
+      - "tests/application/prompt-workflow-*.test.ts"
+      - "tests/prompt-workflows/**"
+      - "apps/web/src/server/prompt-workflow.ts"
+      - "apps/web/app/projects/**/prompt/**"
+      - "prompt-workflows/**"
+      - ".github/workflows/prompt-workflow-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prompt-workflow-integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate workflow manifests
+        run: pnpm check:prompts
+      - name: Workflow graph adversarial tests
+        run: pnpm test:prompts
+      - name: Typecheck application adapter
+        run: pnpm --filter @blueprint-os/application typecheck
+      - name: Typecheck Next.js project workspace
+        run: pnpm --filter @blueprint-os/web typecheck
+      - name: Candidate projection authorization and drift tests
+        run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts
