@@ -128,19 +128,19 @@ export function ProjectWorkspaceFrame({
     <AppShell>
       <main className="project-workspace">
         <div className="project-workspace-breadcrumbs">
-          <Link className="text-link" href="/">Projects</Link>
+          <Link className="text-link" href="/">Màn hình ứng dụng</Link>
           <span aria-hidden="true">/</span>
           <Link className="text-link" href={root}>{profile.name}</Link>
           <span aria-hidden="true">/</span>
           <span>
             {projectWorkspaceViews.find((view) => view.id === active)?.label ??
-              "Workspace"}
+              "Không gian làm việc"}
           </span>
         </div>
 
         <header className="project-workspace-header">
           <div>
-            <p className="eyebrow">Canonical project workspace</p>
+            <p className="eyebrow">KHÔNG GIAN DỰ ÁN CHUẨN</p>
             <h1>{profile.name}</h1>
             <p className="lede">
               {profile.projectType} · {profile.projectId}
@@ -151,7 +151,7 @@ export function ProjectWorkspaceFrame({
               {profile.blueprintLevel}
             </span>
             <Link className="secondary-button registry-action" href="/projects/new">
-              Guided project setup
+              Tạo dự án
             </Link>
           </ActionGroup>
         </header>
@@ -184,11 +184,11 @@ export function ProjectWorkspaceState({ state }: WorkspaceStateProps) {
           <Link className="text-link" href="/">← Projects</Link>
           <EmptyState
             className="registry-state"
-            title="Sign in to open this canonical project."
-            description="Project metadata is protected by Blueprint-owned authority."
+            title="Đăng nhập để mở dự án này."
+            description="Thông tin dự án được bảo vệ theo quyền truy cập của Hub."
             action={
               <a className="primary-button registry-action" href="/api/auth/signin">
-                Sign in
+                Đăng nhập
               </a>
             }
           />
@@ -204,8 +204,8 @@ export function ProjectWorkspaceState({ state }: WorkspaceStateProps) {
           <Link className="text-link" href="/">← Projects</Link>
           <EmptyState
             className="registry-state"
-            title="Project not found."
-            description="No canonical Project Profile exists for this identifier."
+            title="Không tìm thấy dự án."
+            description="Chưa có hồ sơ dự án chuẩn cho mã này. Danh sách repository do Hub quản lý không tự tạo hồ sơ dự án."
           />
         </main>
       </AppShell>
@@ -226,15 +226,15 @@ export function ProjectWorkspaceState({ state }: WorkspaceStateProps) {
             <div>
               <p className="section-kicker">Authority protected</p>
               <h1 id="project-forbidden-title">
-                You do not have access to this project.
+                Bạn không có quyền truy cập dự án này.
               </h1>
               <p>
-                Blueprint OS did not expose project metadata and did not replace
-                the canonical project with preview state.
+                Blueprint OS không hiển thị dữ liệu trái quyền hạn hoặc thay thế
+                dữ liệu chuẩn bằng bản xem trước.
               </p>
             </div>
             <Link className="secondary-button registry-action" href="/">
-              Back to readable projects
+              Về màn hình ứng dụng
             </Link>
           </section>
         </main>
@@ -254,10 +254,10 @@ export function ProjectWorkspaceState({ state }: WorkspaceStateProps) {
           <span className="registry-state-icon" aria-hidden="true">!</span>
           <div>
             <p className="section-kicker">Canonical runtime unavailable</p>
-            <h1 id="project-runtime-title">Project state could not be loaded.</h1>
+            <h1 id="project-runtime-title">Không thể tải dữ liệu dự án.</h1>
             <p>
-              Your identity remains intact. No preview or cached project state
-              was substituted for the failed canonical read.
+              Phiên đăng nhập vẫn còn. Không sử dụng dữ liệu giả hoặc bản lưu tạm
+              để thay thế khi dữ liệu chuẩn không tải được.
             </p>
           </div>
           <RetryCurrentView />
