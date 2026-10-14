@@ -37,7 +37,7 @@ export default async function EcosystemPage({
     <AppShell>
       <EcosystemDirectory apps={presentGovernedApps(governed.repositories)}
         canonicalProjectIds={projects.map((project) => project.projectId)}
-        initialAppId={requestedApp} />
+        {...(requestedApp ? { initialAppId: requestedApp } : {})} />
     </AppShell>
   );
 }
