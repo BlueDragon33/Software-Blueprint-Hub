@@ -31,6 +31,12 @@ on:
       - "packages/ui/src/index.tsx"
       - "tests/application/hub-app-directory.test.ts"
       - "tests/web/hub-launcher.test.tsx"
+      - "apps/web/src/auth/appmanage-sso.ts"
+      - "apps/web/src/auth/server-actor.ts"
+      - "apps/web/app/api/sso/**"
+      - "apps/web/app/settings/**"
+      - "packages/persistence/prisma/migrations/**"
+      - "tests/application/appmanage-sso.test.ts"
       - "apps/web/app/projects/**/prompt/**"
       - "tests/web/workflow-studio.test.tsx"
       - "prompt-workflows/**"
@@ -73,4 +79,4 @@ jobs:
       - name: Visual Workflow Studio semantic SSR tests
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
       - name: Vietnamese launcher, app grouping and no-invented-deployment tests
-        run: pnpm exec vitest run tests/application/hub-app-directory.test.ts
+        run: pnpm exec vitest run tests/application/hub-app-directory.test.ts tests/application/appmanage-sso.test.ts

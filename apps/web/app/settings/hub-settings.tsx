@@ -39,6 +39,27 @@ export function HubSettings() {
         </div>
       </section>
 
+      <section className="hub-settings-panel" aria-labelledby="app-manage-sso">
+        <h2 id="app-manage-sso">{en ? "Application Management single sign-on" : "Đăng nhập một lần từ App-Manage"}</h2>
+        <p>{en
+          ? "Link your existing Hub identity once. Future launches from Application Management can use a short-lived signed session. No owner role is granted automatically."
+          : "Liên kết một lần tài khoản GitHub đã có quyền Hub với tài khoản App-Manage cùng email. Các lần mở sau dùng phiên đăng nhập một lần được xác minh, không tự cấp quyền quản trị."}</p>
+        <div className="hub-settings-choices">
+          <a className="primary-button" href="/api/sso/start?intent=link">
+            {en ? "Link App-Manage account" : "Liên kết App-Manage với Hub"}
+          </a>
+          <a className="secondary-button" href="/api/sso/start">
+            {en ? "Try single sign-on" : "Kiểm tra đăng nhập một lần"}
+          </a>
+        </div>
+        <p>{en
+          ? "This preview feature requires an enabled issuer, database migration, and an existing linked Hub identity. If unavailable, GitHub login remains available."
+          : "Tính năng Preview chỉ hoạt động khi đã bật máy chủ cấp mã, hoàn tất migration và liên kết tài khoản. Nếu chưa sẵn sàng, đăng nhập GitHub vẫn hoạt động."}</p>
+        <form method="POST" action="/api/sso/logout">
+          <button type="submit" className="secondary-button">{en ? "Sign out of Hub SSO" : "Đăng xuất phiên Hub SSO"}</button>
+        </form>
+      </section>
+
       <p className="hub-settings-note">{en
         ? "Saved only in this browser. These options do not grant access, modify project truth or change the Constitution. Some advanced engineering screens still contain English technical terms."
         : "Tùy chọn chỉ lưu trong trình duyệt này, không thay đổi quyền hạn, dữ liệu chuẩn hay Hiến pháp. Một số màn hình kỹ thuật chuyên sâu vẫn có thuật ngữ tiếng Anh."}</p>
