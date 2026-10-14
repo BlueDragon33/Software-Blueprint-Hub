@@ -4,9 +4,9 @@ import {
   HUB_SSO_ORIGIN, readSsoCookie, requireSsoServerConfiguration,
   sealSsoCookie, SESSION_TTL, SSO_FLOW_COOKIE,
   SSO_SESSION_COOKIE, validatedSsoRedemption
-} from "../../../src/auth/appmanage-sso";
-import { resolveWebActor, resolveWebIdentity } from "../../../src/auth/server-actor";
-import { getBlueprintServerRuntime } from "../../../src/server/runtime";
+} from "../../../../src/auth/appmanage-sso";
+import { resolveWebActor, resolveWebIdentity } from "../../../../src/auth/server-actor";
+import { getBlueprintServerRuntime } from "../../../../src/server/runtime";
 
 export const dynamic = "force-dynamic";
 
