@@ -420,3 +420,18 @@ model WorkflowExecutionObservation {
   @@id([requestId, attempt])
   @@index([createdAt])
 }
+
+/** An explicitly linked App-Manage identity may reuse an existing Hub principal.
+ * Never auto-bootstrap System Owner or issue ProjectRoles from external roles.
+ */
+model AppManagementSsoLink {
+  issuer      String   @db.VarChar(120)
+  subject     String   @db.VarChar(320)
+  principalId String   @db.VarChar(160)
+  linkedAt    DateTime @default(now()) @db.Timestamptz(6)
+  revokedAt   DateTime? @db.Timestamptz(6)
+
+  @@id([issuer, subject])
+  @@unique([issuer, principalId])
+  @@index([principalId])
+}
