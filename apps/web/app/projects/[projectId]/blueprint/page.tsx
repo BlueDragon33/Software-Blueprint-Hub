@@ -10,8 +10,28 @@ interface ProjectBlueprintPageProps {
   readonly params: Promise<{ projectId: string }>;
 }
 
+const translatedTokens: Readonly<Record<string, string>> = {
+  architecture: "Kiến trúc",
+  boundaries: "Ranh giới",
+  security: "Bảo mật",
+  access: "Truy cập",
+  governance: "Quản trị",
+  project: "Dự án",
+  workflow: "Quy trình",
+  design: "Thiết kế",
+  test: "Kiểm thử",
+  quality: "Chất lượng",
+  evidence: "Bằng chứng",
+  data: "Dữ liệu",
+  release: "Phát hành",
+  risk: "Rủi ro",
+  documentation: "Tài liệu",
+  operations: "Vận hành"
+};
 function displayId(id: string): string {
-  return id.split(":").slice(1).join(" · ").replaceAll("-", " ");
+  return id.split(":").slice(1).map((part) =>
+    part.replaceAll("-", " ").split(" ").map((word) => translatedTokens[word] ?? word).join(" ")
+  ).join(" · ");
 }
 
 export default async function ProjectBlueprintPage({
@@ -30,29 +50,28 @@ export default async function ProjectBlueprintPage({
     <ProjectWorkspaceFrame profile={profile} active="blueprint">
       <section className="workspace-view-heading">
         <div>
-          <p className="section-kicker">Blueprint</p>
-          <h2>Resolved engineering requirements</h2>
+          <p className="section-kicker">BẢN THIẾT KẾ</p>
+          <h2>Yêu cầu kỹ thuật của dự án</h2>
           <p>
-            Deterministic requirements resolved from the Project Profile,
-            Blueprint Level and exact template versions.
+            Các yêu cầu được xác định từ hồ sơ dự án, cấp Blueprint và phiên bản mẫu cụ thể.
           </p>
         </div>
-        <span className="status-chip status-chip-success">Canonical</span>
+        <span className="status-chip status-chip-success">Dữ liệu chuẩn</span>
       </section>
 
-      <section className="workspace-fact-grid" aria-label="Blueprint facts">
+      <section className="workspace-fact-grid" aria-label="Thông số Blueprint">
         <article className="workspace-fact">
-          <span>Required modules</span>
+          <span>Mô-đun cần có</span>
           <strong>{blueprint.requiredModules.length}</strong>
-          <small>Canonical engineering modules</small>
+          <small>Mô-đun kỹ thuật chuẩn</small>
         </article>
         <article className="workspace-fact">
-          <span>Required gates</span>
+          <span>Cổng kiểm định</span>
           <strong>{blueprint.requiredGates.length}</strong>
-          <small>Evidence-backed acceptance points</small>
+          <small>Điều kiện nghiệm thu cần bằng chứng</small>
         </article>
         <article className="workspace-fact">
-          <span>Profile version</span>
+          <span>Phiên bản hồ sơ</span>
           <strong>{blueprint.profileRecordVersion}</strong>
           <small>Resolver {blueprint.resolverVersion}</small>
         </article>
@@ -61,11 +80,11 @@ export default async function ProjectBlueprintPage({
       <section className="workspace-section">
         <div className="workspace-section-heading">
           <div>
-            <p className="section-kicker">Modules</p>
-            <h3>What must be designed or implemented</h3>
+            <p className="section-kicker">MÔ-ĐUN</p>
+            <h3>Những phần cần thiết kế hoặc triển khai</h3>
           </div>
           <span className="status-chip status-chip-neutral">
-            {blueprint.requiredModules.length} required
+            {blueprint.requiredModules.length} mục bắt buộc
           </span>
         </div>
         <div className="workspace-record-list">
@@ -75,7 +94,7 @@ export default async function ProjectBlueprintPage({
                 <strong>{displayId(id)}</strong>
                 <span>{id}</span>
               </div>
-              <span className="status-chip status-chip-neutral">Required</span>
+              <span className="status-chip status-chip-neutral">Bắt buộc</span>
             </div>
           ))}
         </div>
@@ -84,11 +103,11 @@ export default async function ProjectBlueprintPage({
       <section className="workspace-section">
         <div className="workspace-section-heading">
           <div>
-            <p className="section-kicker">Quality Gates</p>
-            <h3>What must earn evidence before PASS</h3>
+            <p className="section-kicker">CỔNG CHẤT LƯỢNG</p>
+            <h3>Chỉ đánh dấu ĐẠT khi có bằng chứng</h3>
           </div>
           <span className="status-chip status-chip-info">
-            {blueprint.requiredGates.length} gates
+            {blueprint.requiredGates.length} cổng
           </span>
         </div>
         <div className="workspace-record-list">
@@ -98,7 +117,7 @@ export default async function ProjectBlueprintPage({
                 <strong>{displayId(id)}</strong>
                 <span>{id}</span>
               </div>
-              <span className="status-chip status-chip-info">Required gate</span>
+              <span className="status-chip status-chip-info">Cần kiểm định</span>
             </div>
           ))}
         </div>
@@ -107,8 +126,8 @@ export default async function ProjectBlueprintPage({
       <section className="workspace-section">
         <div className="workspace-section-heading">
           <div>
-            <p className="section-kicker">Template provenance</p>
-            <h3>Exact reusable definitions used for this resolution</h3>
+            <p className="section-kicker">NGUỒN MẪU</p>
+            <h3>Phiên bản mẫu chuẩn dùng để xác định yêu cầu</h3>
           </div>
         </div>
         <div className="workspace-record-list">
@@ -116,7 +135,7 @@ export default async function ProjectBlueprintPage({
             <div className="workspace-record-row" key={template.id + template.version}>
               <div>
                 <strong>{template.id}</strong>
-                <span>Template version</span>
+                <span>Phiên bản mẫu</span>
               </div>
               <span className="status-chip status-chip-neutral">
                 {template.version}
@@ -130,8 +149,8 @@ export default async function ProjectBlueprintPage({
         <section className="workspace-section workspace-section-warning">
           <div className="workspace-section-heading">
             <div>
-              <p className="section-kicker">Resolver warnings</p>
-              <h3>Review before implementation</h3>
+              <p className="section-kicker">CẢNH BÁO</p>
+              <h3>Cần kiểm tra trước khi triển khai</h3>
             </div>
           </div>
           <ul className="workspace-plain-list">
@@ -143,8 +162,8 @@ export default async function ProjectBlueprintPage({
       ) : null}
 
       <footer className="workspace-record-footer">
-        <span>Resolution {blueprint.resolutionId}</span>
-        <span>Fingerprint {blueprint.inputFingerprint.slice(0, 18)}…</span>
+        <span>Mã phiên bản tính toán: {blueprint.resolutionId}</span>
+        <span>Mã xác thực dữ liệu: {blueprint.inputFingerprint.slice(0, 18)}…</span>
       </footer>
     </ProjectWorkspaceFrame>
   );
