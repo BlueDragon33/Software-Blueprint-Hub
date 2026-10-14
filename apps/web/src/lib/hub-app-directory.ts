@@ -59,7 +59,7 @@ export function presentGovernedApps(registry: readonly GovernedAppIdentity[]): r
 }
 
 export function appSearchKey(input: string): string {
-  return input.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d")
+  return input.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[Đđ]/g, "d")
     .toLocaleLowerCase("vi").trim();
 }
 
