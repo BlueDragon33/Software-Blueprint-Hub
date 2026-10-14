@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   allowedSsoRequestOrigin, newSsoFlow, requireSsoServerConfiguration,
   sealSsoCookie, SSO_FLOW_COOKIE, FLOW_TTL, ssoRequestUrl
-} from "../../../src/auth/appmanage-sso";
+} from "../../../../src/auth/appmanage-sso";
 
 export const dynamic = "force-dynamic";
 
