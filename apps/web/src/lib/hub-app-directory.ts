@@ -30,7 +30,7 @@ const presentation: Readonly<Record<string, Pick<HubAppPresentation, "group" | "
   "project:growup-mychildren": { group: "education", icon: "🌱", vi: "Phát triển trẻ em", en: "Growing Children", keywords: "con cái học tập trẻ em" },
   "project:ros-1-2": { group: "engineering", icon: "🤖", vi: "Robot ROS", en: "ROS Robotics", keywords: "robot robotics ros" },
   "project:hardware-simulation": { group: "engineering", icon: "🧩", vi: "Mô phỏng phần cứng", en: "Hardware Simulation", keywords: "hardware vi mạch" },
-  "project:mpc-pid-system": { group: "engineering", icon: "🎛️", vi: "Điều khiển MPC/PID", en: "MPC/PID Control", keywords: "điều khiển tự động hóa" },
+  "project:mpc-pid-system": { group: "engineering", icon: "🎛️", vi: "Điều khiển MPC/PID", en: "MPC/PID Control", keywords: "MPC PID điều khiển tự động hóa" },
   "project:cad-cam-3d": { group: "engineering", icon: "🛠️", vi: "Thiết kế CAD/CAM", en: "CAD/CAM 3D", keywords: "thiết kế 3d cad cam" },
   "project:nc03-modem": { group: "engineering", icon: "📡", vi: "Modem NC03", en: "NC03 Modem", keywords: "mạng kết nối modem" },
   "project:boiech-ai": { group: "utilities", icon: "🏊", vi: "Trợ lý bơi ếch AI", en: "BOIECH AI", keywords: "boiech bơi bơi ếch" },
