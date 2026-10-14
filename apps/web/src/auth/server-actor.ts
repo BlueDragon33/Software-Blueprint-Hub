@@ -1,5 +1,6 @@
 import { getToken } from "@auth/core/jwt";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { readSsoCookie, SSO_SESSION_COOKIE, ssoEnabled } from "./appmanage-sso";
 
 import { getBlueprintServerRuntime } from "../server/runtime";
 import { shouldUseSecureAuthCookie } from "./session-cookie-policy";
@@ -78,11 +79,29 @@ export async function resolveWebIdentity(): Promise<WebAuthenticatedIdentity | n
 
 export async function resolveWebActor(): Promise<WebAuthenticatedActor | null> {
   const identity = await resolveWebIdentity();
-  if (!identity) {
-    return null;
+  if (identity) {
+    const runtime = getBlueprintServerRuntime();
+    const principal = await runtime.authority.resolveIdentity(identity);
+    return Object.freeze({ principalId: principal.id });
   }
-
+  // App-Manage SSO uses a separate HttpOnly signed cookie with a short
+  // lifetime. Never map external "owner" labels to authority or bootstrap.
+  if (!ssoEnabled()) return null;
+  const secret = process.env.AUTH_SECRET?.trim();
+  if (!secret) return null;
+  const cookieJar = await cookies();
+  const session = readSsoCookie(cookieJar.get(SSO_SESSION_COOKIE)?.value,
+    secret, "session");
+  if (!session || session.kind !== "session") return null;
   const runtime = getBlueprintServerRuntime();
-  const principal = await runtime.authority.resolveIdentity(identity);
-  return Object.freeze({ principalId: principal.id });
+  const link = await runtime.prisma.appManagementSsoLink.findUnique({
+    where: {
+      issuer_subject: { issuer: "application-management", subject: session.subject }
+    }
+  });
+  if (!link || link.revokedAt || link.principalId !== session.principalId) return null;
+  const principal = await runtime.prisma.principal.findUnique({
+    where: { id: session.principalId }, select: { id: true }
+  });
+  return principal ? Object.freeze({ principalId: principal.id }) : null;
 }
