@@ -51,6 +51,6 @@ describe("Vietnamese App Home semantic render and safety", () => {
     expect(markup).toContain("Tiếng Việt");
     expect(markup).toContain("Mật độ biểu tượng");
     expect(markup).toContain('aria-pressed="true"');
-    expect(markup).toContain("Chỉ lưu");
+    expect(markup).toContain("chỉ lưu");
   });
 });
