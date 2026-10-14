@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SSO_SESSION_COOKIE, SSO_FLOW_COOKIE } from "../../../src/auth/appmanage-sso";
+import { SSO_SESSION_COOKIE, SSO_FLOW_COOKIE } from "../../../../src/auth/appmanage-sso";
 
 export async function POST(request: NextRequest) {
   // Reject cross-site CSRF. An external site cannot clear the managed session.
