@@ -111,6 +111,20 @@ export class CentralPromptWorkflowRegistry {
     return this.projects.has(projectId);
   }
 
+  /**
+   * Read-only descriptions of *authored* workflows across governed projects.
+   * This does not create a ProjectProfile or authorize access. Server callers
+   * MUST enforce independent System Owner authority before returning results.
+   */
+  allWorkflowSummaries(): readonly CentralWorkflowDescription[] {
+    return Object.freeze(
+      [...this.byProject.values()].flat()
+        .sort((a, b) => a.repository.localeCompare(b.repository) ||
+          a.workflowId.localeCompare(b.workflowId))
+    );
+  }
+
+
   workflowsForProject(projectId: string): readonly CentralWorkflowDescription[] {
     if (!this.projects.has(projectId)) return Object.freeze([]);
     return this.byProject.get(projectId) ?? Object.freeze([]);
