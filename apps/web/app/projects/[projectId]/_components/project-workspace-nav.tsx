@@ -28,6 +28,12 @@ const localized: Readonly<Record<string, { vi: string; en: string; descriptionVi
   "releases-lessons": { vi: "Lịch sử & bài học", en: "History & lessons", descriptionVi: "Phát hành & kinh nghiệm", descriptionEn: "Releases and lessons" }
 };
 
+const menuGroups = [
+  { id: "build", vi: "📐 Xây dựng", en: "📐 Build", ids: ["overview", "profile", "blueprint", "roadmap"] },
+  { id: "assurance", vi: "🛡️ Kiểm soát", en: "🛡️ Assurance", ids: ["quality", "evidence-graph", "release-orchestration", "security", "data-lifecycle"] },
+  { id: "knowledge", vi: "🧠 Tri thức & AI", en: "🧠 Knowledge & AI", ids: ["prompt", "decisions", "risks-debt", "releases-lessons"] }
+] as const;
+
 interface ProjectWorkspaceNavProps {
   readonly root: string;
   readonly active: string;
@@ -64,27 +70,41 @@ export function ProjectWorkspaceNav({
   }, [active]);
 
   return (
-    <nav
-      className="project-workspace-nav"
-      aria-label="Project workspace views"
-    >
-      {views.map((view) => {
-        const current = view.id === active;
-
+    <nav className="project-workspace-nav hub-workspace-navigation"
+      aria-label={language === "en" ? "Project workspace views" : "Các mục trong dự án"}>
+      <Link className="hub-home-link" href="/">
+        🏠 {language === "en" ? "App home" : "Màn hình ứng dụng"}
+      </Link>
+      {menuGroups.map((group) => {
+        const links = views.filter((view) => (group.ids as readonly string[]).includes(view.id));
+        if (!links.length) return null;
         return (
-          <Link
-            className={
-              "project-workspace-nav-item" +
-              (current ? " project-workspace-nav-item-active" : "")
-            }
-            href={root + view.suffix}
-            key={view.id}
-            aria-current={current ? "page" : undefined}
-            ref={current ? activeRef : undefined}
-          >
-            <strong>{language === "en" ? (localized[view.id]?.en ?? view.label) : (localized[view.id]?.vi ?? view.label)}</strong>
-            <span>{language === "en" ? (localized[view.id]?.descriptionEn ?? view.description) : (localized[view.id]?.descriptionVi ?? view.description)}</span>
-          </Link>
+          <details key={group.id} className="hub-nav-group"
+            open={(group.ids as readonly string[]).includes(active) ? true : undefined}>
+            <summary>{language === "en" ? group.en : group.vi}</summary>
+            <div className="hub-nav-links">
+              {links.map((view) => {
+                const current = view.id === active;
+                return (
+                  <Link
+                    className={"project-workspace-nav-item" +
+                      (current ? " project-workspace-nav-item-active" : "")}
+                    href={root + view.suffix}
+                    key={view.id}
+                    aria-current={current ? "page" : undefined}
+                    ref={current ? activeRef : undefined}
+                  >
+                    <strong>{language === "en"
+                      ? (localized[view.id]?.en ?? view.label)
+                      : (localized[view.id]?.vi ?? view.label)}</strong>
+                    <span>{language === "en"
+                      ? (localized[view.id]?.descriptionEn ?? view.description)
+                      : (localized[view.id]?.descriptionVi ?? view.description)}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </details>
         );
       })}
     </nav>
