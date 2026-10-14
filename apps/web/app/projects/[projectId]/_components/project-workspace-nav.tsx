@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { useHubPreferences } from "../../../_components/hub-preferences";
 
 export interface ProjectWorkspaceNavItem {
   readonly id: string;
@@ -9,6 +10,23 @@ export interface ProjectWorkspaceNavItem {
   readonly suffix: string;
   readonly description: string;
 }
+
+
+const localized: Readonly<Record<string, { vi: string; en: string; descriptionVi: string; descriptionEn: string }>> = {
+  overview: { vi: "Tổng quan", en: "Overview", descriptionVi: "Trạng thái & việc cần làm", descriptionEn: "Readiness and next action" },
+  profile: { vi: "Hồ sơ dự án", en: "Profile", descriptionVi: "Thông tin chuẩn của dự án", descriptionEn: "Canonical project profile" },
+  blueprint: { vi: "Thiết kế", en: "Blueprint", descriptionVi: "Mô-đun & yêu cầu", descriptionEn: "Modules and requirements" },
+  roadmap: { vi: "Lộ trình", en: "Roadmap", descriptionVi: "Giai đoạn & công việc", descriptionEn: "Work packages and stages" },
+  quality: { vi: "Chất lượng", en: "Quality", descriptionVi: "Kiểm thử & tiêu chí", descriptionEn: "Tests and gates" },
+  "evidence-graph": { vi: "Bằng chứng", en: "Evidence graph", descriptionVi: "Nguồn gốc kết quả", descriptionEn: "Result provenance" },
+  "release-orchestration": { vi: "Phát hành", en: "Release", descriptionVi: "Điều kiện triển khai", descriptionEn: "Release preconditions" },
+  security: { vi: "Bảo mật", en: "Security", descriptionVi: "Quyền & an toàn", descriptionEn: "Access and safety" },
+  "data-lifecycle": { vi: "Dữ liệu", en: "Data lifecycle", descriptionVi: "Lưu trữ & vòng đời", descriptionEn: "Storage and lifecycle" },
+  prompt: { vi: "Quy trình & Prompt", en: "Workflow & Prompt", descriptionVi: "Đồ thị AI & lệnh", descriptionEn: "AI graph and prompts" },
+  decisions: { vi: "Quyết định", en: "Decisions", descriptionVi: "Thiết kế & lựa chọn", descriptionEn: "Architecture decisions" },
+  "risks-debt": { vi: "Rủi ro", en: "Risks", descriptionVi: "Vấn đề & nợ kỹ thuật", descriptionEn: "Issues and technical debt" },
+  "releases-lessons": { vi: "Lịch sử & bài học", en: "History & lessons", descriptionVi: "Phát hành & kinh nghiệm", descriptionEn: "Releases and lessons" }
+};
 
 interface ProjectWorkspaceNavProps {
   readonly root: string;
@@ -22,6 +40,7 @@ export function ProjectWorkspaceNav({
   views
 }: ProjectWorkspaceNavProps) {
   const activeRef = useRef<HTMLAnchorElement | null>(null);
+  const { language } = useHubPreferences();
 
   useEffect(() => {
     const activeElement = activeRef.current;
@@ -63,8 +82,8 @@ export function ProjectWorkspaceNav({
             aria-current={current ? "page" : undefined}
             ref={current ? activeRef : undefined}
           >
-            <strong>{view.label}</strong>
-            <span>{view.description}</span>
+            <strong>{language === "en" ? (localized[view.id]?.en ?? view.label) : (localized[view.id]?.vi ?? view.label)}</strong>
+            <span>{language === "en" ? (localized[view.id]?.descriptionEn ?? view.description) : (localized[view.id]?.descriptionVi ?? view.description)}</span>
           </Link>
         );
       })}
