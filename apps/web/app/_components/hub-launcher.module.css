@@ -1,0 +1,159 @@
+.launcher {
+  --tile-border: #dce3ee;
+  --tile-shadow: 0 10px 26px rgba(31, 53, 96, .055);
+  display: grid;
+  gap: 1.65rem;
+  color: #1d2941;
+}
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.4rem;
+  padding: 1rem 0 .25rem;
+}
+.kicker {
+  display: block;
+  margin-bottom: .65rem;
+  color: #5063af;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .075em;
+}
+.hero h1 {
+  max-width: none;
+  margin: 0 0 .65rem;
+  font-size: clamp(1.9rem, 3.6vw, 3.2rem);
+  letter-spacing: -.047em;
+  line-height: 1.13;
+}
+.hero p { max-width: 54rem; color: #596981; font-size: .98rem; line-height: 1.6; margin: 0; }
+.languages {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  border: 1px solid #d9e1ef;
+  padding: .22rem;
+  border-radius: .85rem;
+  background: #fff;
+}
+.languages button {
+  min-width: 2.8rem;
+  min-height: 2.4rem;
+  border: 0;
+  border-radius: .65rem;
+  color: #56647d;
+  font-weight: 750;
+  background: transparent;
+  cursor: pointer;
+}
+.languages button[aria-pressed="true"] { color: #fff; background: #4057cb; }
+.searchBar {
+  display: flex;
+  gap: .7rem;
+  align-items: center;
+  min-height: 3.65rem;
+  padding: .5rem 1rem;
+  border: 1px solid #cdd8e7;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: var(--tile-shadow);
+}
+.searchBar > span { color: #5164b3; font-size: 1.7rem; line-height: 1; }
+.searchBar input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font-size: 1.02rem;
+  color: #18243e;
+  outline: 0;
+}
+.searchBar input:focus-visible { outline: 0; }
+.searchBar:focus-within { border-color: #6176dc; box-shadow: 0 0 0 3px rgba(70, 99, 210, .12); }
+.searchBar button { border: 0; background: #eef1f9; border-radius: .5rem; font-size: 1.25rem; cursor: pointer; }
+.section { display: grid; gap: 1rem; }
+.sectionHeading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+.sectionHeading h2 { font-size: clamp(1.22rem, 2vw, 1.6rem); margin: 0; letter-spacing: -.02em; }
+.sectionHeading p { font-size: .88rem; color: #65738a; margin: .3rem 0 0; max-width: 65rem; line-height: 1.55; }
+.sectionHeading > span { color: #687793; font-size: .78rem; }
+.toolGrid { display: grid; grid-template-columns: repeat(auto-fill,minmax(9.1rem,1fr)); gap: .78rem; }
+.toolTile, .appTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .32rem;
+  min-width: 0;
+  padding: 1.05rem .55rem .85rem;
+  text-decoration: none;
+  color: #1b2a47;
+  background: #fff;
+  border: 1px solid var(--tile-border);
+  border-radius: 1.15rem;
+  box-shadow: var(--tile-shadow);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+.toolTile:hover, .appTile:hover {
+  transform: translateY(-2px);
+  border-color: #a9b7f7;
+  box-shadow: 0 13px 27px rgba(31, 53, 96, .11);
+}
+.toolTile:focus-visible, .appTile:focus-visible { outline: 3px solid #677bf1; outline-offset: 3px; }
+.toolIcon, .appIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 3.7rem;
+  height: 3.7rem;
+  border-radius: 1.12rem;
+  font-size: 1.9rem;
+  background: linear-gradient(145deg,#e1e8ff,#f0f3ff);
+  box-shadow: inset 0 1px 2px #ffffff99, 0 4px 9px #324aa015;
+}
+.toolIcon[data-module="ecosystem"], .appIcon[data-group="management"] { background: linear-gradient(145deg,#d4e0ff,#a9c5fa); }
+.toolIcon[data-module="workflow"], .appIcon[data-group="engineering"] { background: linear-gradient(145deg,#e1dcff,#c6b6f6); }
+.toolIcon[data-module="constitution"], .appIcon[data-group="education"] { background: linear-gradient(145deg,#d4f3e4,#b1e6d0); }
+.toolIcon[data-module="settings"], .appIcon[data-group="utilities"] { background: linear-gradient(145deg,#ffe5d0,#f4cb9d); }
+.toolTile strong, .appTile strong { font-size: .84rem; line-height: 1.35; overflow-wrap: anywhere; }
+.toolTile small, .appTile small { color: #61718c; font-size: .73rem; line-height: 1.35; }
+.toolTile { min-height: 8.75rem; }
+.appTile { min-height: 8.6rem; }
+.appGrid { display: grid; grid-template-columns: repeat(auto-fill,minmax(9rem,1fr)); gap: .8rem; }
+.group { display: grid; gap: .7rem; }
+.group h3 { margin: .35rem 0 0; font-size: .97rem; letter-spacing: 0; }
+.filters { display: flex; gap: .45rem; overflow-x: auto; padding: .12rem 0 .4rem; scrollbar-width: thin; }
+.filters button {
+  flex: 0 0 auto;
+  min-height: 2.4rem;
+  padding: .4rem .8rem;
+  border: 1px solid #dce3f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #4c5c77;
+  font-weight: 670;
+  cursor: pointer;
+}
+.filters button[aria-pressed="true"] { color: #fff; background: #4056ca; border-color: #4056ca; }
+.allApps { color: #364db3; font-weight: 750; text-decoration: none; white-space: nowrap; }
+.empty { padding: 1rem; border: 1px dashed #b8c5da; border-radius: .85rem; color: #61718c; }
+.footer { font-size: .75rem; line-height: 1.5; color: #6b7990; border-top: 1px solid #dbe2ef; padding-top: .8rem; }
+.launcher[data-density="compact"] .toolIcon, .launcher[data-density="compact"] .appIcon { width: 2.8rem; height: 2.8rem; font-size: 1.45rem; border-radius: .8rem; }
+.launcher[data-density="compact"] .toolTile, .launcher[data-density="compact"] .appTile { min-height: 6.6rem; padding: .65rem .4rem; }
+.launcher[data-density="compact"] .toolGrid, .launcher[data-density="compact"] .appGrid { grid-template-columns: repeat(auto-fill,minmax(7.1rem,1fr)); gap: .5rem; }
+@media (max-width: 700px) {
+  .hero { flex-direction: column; }
+  .languages { align-self: flex-end; }
+  .toolGrid, .appGrid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: .55rem; }
+  .toolTile, .appTile { padding: .65rem .2rem; border-radius: .85rem; }
+  .toolIcon, .appIcon { width: 3.1rem; height: 3.1rem; font-size: 1.55rem; }
+  .toolTile strong, .appTile strong { font-size: .77rem; }
+  .toolTile small, .appTile small { font-size: .68rem; }
+  .sectionHeading { align-items: flex-start; }
+}
+@media (max-width: 390px) {
+  .toolGrid, .appGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toolTile, .appTile { transition: none; }
+}

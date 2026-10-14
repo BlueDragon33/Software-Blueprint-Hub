@@ -5839,3 +5839,59 @@ textarea:focus-visible,
   overflow-wrap: anywhere;
   white-space: normal;
 }
+
+
+/* Vietnamese-first App Home, mobile-like navigation and personal preferences. */
+.registry-shell.hub-home { width: min(100% - 2rem, 87rem); padding-top: clamp(1.5rem, 3vw, 2.6rem); }
+.hub-technical-details {
+  margin-top: 2.5rem;
+  border: 1px solid #dce3ef;
+  border-radius: 1rem;
+  background: #fff;
+  padding: .85rem 1rem;
+}
+.hub-technical-details > summary {
+  cursor: pointer; font-weight: 750; color: #35486a;
+  min-height: 2.1rem; display: list-item; line-height: 2.1rem;
+}
+.hub-technical-details[open] > :not(summary) { margin-top: 1.2rem; }
+.project-workspace-header h1 {
+  font-size: clamp(1.8rem, 3.2vw, 2.75rem);
+  max-width: 30ch;
+  line-height: 1.12;
+  letter-spacing: -.035em;
+}
+.project-workspace-header .lede { font-size: .88rem; line-height: 1.5; }
+.project-workspace-nav.hub-workspace-navigation { padding: .6rem; gap: .45rem; }
+.hub-home-link {
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  min-height: 2.7rem; padding: .55rem .7rem;
+  border-radius: .72rem; color: #3449b7; background: #ecf0ff;
+  font-weight: 750; text-decoration: none;
+}
+.hub-nav-group { border: 1px solid #ebeff6; border-radius: .75rem; background: #fff; min-width: 0; }
+.hub-nav-group > summary {
+  padding: .8rem .6rem; cursor: pointer; list-style-position: inside;
+  font-size: .86rem; font-weight: 750; color: #35466a; line-height: 1.4;
+}
+.hub-nav-group > summary:focus-visible { outline: 3px solid #6b7be2; border-radius: .6rem; }
+.hub-nav-links { display: grid; gap: .2rem; padding: .15rem .3rem .4rem; }
+.hub-workspace-navigation .project-workspace-nav-item { min-height: 3rem; padding: .55rem .65rem; }
+.hub-workspace-navigation .project-workspace-nav-item strong { font-size: .88rem; }
+.hub-workspace-navigation .project-workspace-nav-item span { font-size: .75rem; }
+.hub-settings { width: min(100% - 2rem, 47rem); margin: 0 auto; padding: 2rem 0 4rem; }
+.hub-settings-heading { display: flex; gap: 1rem; align-items: center; margin: 2rem 0; }
+.hub-settings-heading > span { display: grid; place-items: center; width: 4.2rem; height: 4.2rem; font-size: 2.1rem; border-radius: 1.2rem; background: #dde5ff; }
+.hub-settings-heading h1 { max-width: none; font-size: clamp(1.8rem,3vw,2.8rem); margin: .2rem 0; }
+.hub-settings-heading p:last-child { color: #647188; margin: 0; }
+.hub-settings-panel { padding: 1.2rem; margin-bottom: 1rem; border: 1px solid #dbe3f0; border-radius: 1rem; background: #fff; }
+.hub-settings-panel h2 { font-size: 1.25rem; margin: 0 0 .4rem; }
+.hub-settings-panel p { color: #66758a; line-height: 1.5; }
+.hub-settings-choices { display: flex; flex-wrap: wrap; gap: .7rem; }
+.hub-settings-choices button { min-height: 2.8rem; padding: .6rem 1rem; border: 1px solid #ced8e9; border-radius: .8rem; background: #f5f7fb; color: #3d506b; font-weight: 700; cursor: pointer; }
+.hub-settings-choices button[aria-pressed="true"] { background: #4058d1; border-color: #4058d1; color: #fff; }
+.hub-settings-note { font-size: .82rem; color: #66758b; line-height: 1.55; }
+@media(max-width:700px) {
+  .project-workspace-header h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+  .project-workspace-header { gap: .6rem; }
+}

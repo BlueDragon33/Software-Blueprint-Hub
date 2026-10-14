@@ -12,7 +12,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div data-blueprint-shell="v1">
       <a className="bp-skip-link" href="#main-content">
-        Skip to main content
+        Bỏ qua menu, đến nội dung chính
       </a>
       <div id="main-content" tabIndex={-1}>
         {children}
