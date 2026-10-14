@@ -9,6 +9,7 @@ import {
   isRegisteredGovernedProject,
   inspectLatestWorkflowRootChange,
   previewRegisteredWorkflowRoot,
+  readConstitutionalWorkflowCatalog,
   readRegisteredWorkflowReadiness,
   registeredWorkflowNodes,
   registeredWorkflowSummaries
@@ -30,22 +31,34 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
     return <ProjectWorkspaceState state={workspace.state} />;
   }
 
-  const workflows = registeredWorkflowSummaries(workspace.projectId);
+  // The Hub is the canonical authority for the workflow catalog. Governed
+  // repositories do not become canonical ProjectProfiles by registration alone.
+  // Only the System Owner may inspect cross-project authored manifests here.
+  const hubCatalog = workspace.projectId === "project:blueprint-os" &&
+    await workspace.runtime.authority.canExerciseConstitutionalAuthority(workspace.actor);
+  const workflows = hubCatalog
+    ? await readConstitutionalWorkflowCatalog(workspace.actor)
+    : registeredWorkflowSummaries(workspace.projectId);
   const requestedId = Array.isArray(query.workflowId) ? query.workflowId[0] : query.workflowId;
   const selected = requestedId
     ? workflows.find((workflow) => workflow.workflowId === requestedId)
     : workflows[0];
-  const nodes = selected ? registeredWorkflowNodes(workspace.projectId, selected.workflowId) : [];
+  const graphOnly = !!selected && selected.projectId !== workspace.projectId;
+  const nodes = selected ? registeredWorkflowNodes(selected.projectId, selected.workflowId) : [];
   const root = selected?.rootNodeIds[0];
   let preview: Awaited<ReturnType<typeof previewRegisteredWorkflowRoot>> | null = null;
-  let previewError = "";
+  let previewError = graphOnly
+    ? "The target repository is governed but its canonical Project Profile has not been loaded. No executable prompt is generated from registry metadata."
+    : "";
   let readiness: Awaited<ReturnType<typeof readRegisteredWorkflowReadiness>> | null = null;
-  let readinessError = "";
+  let readinessError = graphOnly
+    ? "Central catalog is read-only. Signed readiness requires independent target-project authorization and verified canonical state."
+    : "";
   let inspection: Awaited<ReturnType<typeof inspectLatestWorkflowRootChange>> | null = null;
   let inspectionError = "";
   const wantsInspection = query.inspect === "1";
 
-  if (selected && root) {
+  if (selected && root && !graphOnly) {
     try {
       preview = await previewRegisteredWorkflowRoot(
         workspace.actor, workspace.projectId, selected.workflowId, root
@@ -53,11 +66,11 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
     } catch (error) {
       previewError = error instanceof Error ? error.message : "Trusted canonical source unavailable";
     }
-  } else if (selected) {
+  } else if (selected && !graphOnly) {
     previewError = "This workflow has no previewable root node.";
   }
 
-  if (selected) {
+  if (selected && !graphOnly) {
     try {
       readiness = await readRegisteredWorkflowReadiness(
         workspace.actor, workspace.projectId, selected.workflowId
@@ -67,7 +80,7 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
     }
   }
 
-  if (selected && root && wantsInspection) {
+  if (selected && root && wantsInspection && !graphOnly) {
     try {
       inspection = await inspectLatestWorkflowRootChange(
         workspace.actor, workspace.projectId, selected.workflowId
@@ -86,14 +99,26 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
           <p className="section-kicker">Central Prompt Workflow Registry</p>
           <h2>Visual Workflow Studio</h2>
           <p>
-            Inspect graph dependencies and node contracts without granting workflow execution,
-            canonical Gate PASS, constitutional authority or Production release.
+            {hubCatalog
+              ? "System Owner catalog: inspect authored governed-repository workflows even before a separate canonical project has been provisioned. Manifest registration is not approval or execution."
+              : "Inspect graph dependencies and node contracts without granting workflow execution, canonical Gate PASS or Production release."}
           </p>
           <Link href={"/projects/" + encodeURIComponent(workspace.projectId) + "/prompt"}>
             Back to canonical Prompt Workspace
           </Link>
         </div>
       </section>
+
+      {hubCatalog ? (
+        <section className="workspace-module-state" role="status">
+          <h3>Central workflow catalog · System Owner</h3>
+          <p>
+            {workflows.length} authored workflow(s) registered across governed repositories.
+            This catalog does not claim that every governed repository has a canonical project
+            profile or a reviewed workflow.
+          </p>
+        </section>
+      ) : null}
 
       {workflows.length === 0 ? (
         <section className="workspace-module-state">
@@ -107,7 +132,7 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
         </section>
       ) : (
         <>
-          {workflows.length > 1 ? (
+          {hubCatalog || workflows.length > 1 ? (
             <section className="workspace-section">
               <h3>Workflow selections</h3>
               <nav aria-label="Registered workflow selections">
@@ -115,7 +140,7 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
                   <p key={workflow.workflowId}>
                     <Link href={"?workflowId=" + encodeURIComponent(workflow.workflowId)}
                       aria-current={selected?.workflowId === workflow.workflowId ? "page" : undefined}>
-                      {workflow.area} · {workflow.workflowVersion} · {workflow.status}
+                      {workflow.repository} · {workflow.area} · {workflow.workflowVersion} · {workflow.status}
                     </Link>
                   </p>
                 ))}
@@ -130,12 +155,19 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
                   <p className="section-kicker">Registry entry · {selected.status}</p>
                   <h3>{selected.area}</h3>
                   <p>{selected.repository} · {selected.branch} · {selected.workflowId}@{selected.workflowVersion}</p>
+                  {graphOnly ? (
+                    <p role="status">
+                      Repository-governance entry only: no canonical target Project Profile has been
+                      authorized through this Hub catalog. Dependency graph and contracts are viewable;
+                      prompt generation, evidence completion and execution remain blocked.
+                    </p>
+                  ) : null}
                   <small>
                     {selected.nodeCount} nodes in a versioned DAG. Registration is not a record of approval or execution.
                   </small>
                 </div>
               </div>
-              {root ? (
+              {root && !graphOnly ? (
                 <section className="workspace-section">
                   <div className="workspace-section-heading">
                     <div>
@@ -189,6 +221,7 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
                 key={selected.workflowId}
                 nodes={nodes}
                 rootNodeIds={selected.rootNodeIds}
+                graphOnly={graphOnly}
                 readiness={readiness?.plan ?? null}
                 receiptVerificationConfigured={readiness?.receiptVerificationConfigured ?? false}
                 readinessError={readinessError}

@@ -39,6 +39,22 @@ describe("Central Workflow Registry — governed multi-project contract", () => 
     expect(registry.isGovernedProject("project:unknown")).toBe(false);
   });
 
+  it("lists the actual authored workflows centrally without inventing project profiles or adoption", () => {
+    const registry = build();
+    const catalog = registry.allWorkflowSummaries();
+    expect(catalog).toHaveLength(1);
+    expect(catalog[0]).toMatchObject({
+      projectId: "project:application-management",
+      repository: "BlueDragon33/Application-Management",
+      workflowId: "app-management-visa-form-recovery",
+      status: "candidate",
+      nodeCount: 7
+    });
+    expect(registry.workflowsForProject("project:blueprint-os")).toEqual([]);
+    expect(Object.isFrozen(catalog)).toBe(true);
+    expect(Object.isFrozen(catalog[0])).toBe(true);
+  });
+
   it("preserves canonical non-main branches, with no arbitrary main assumption", () => {
     const registry = build();
     expect(registry.repositoryForProject("project:ros-1-2")?.branch).toBe("ros2");

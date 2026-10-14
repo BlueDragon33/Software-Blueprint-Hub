@@ -25,6 +25,19 @@ const workflowRegistry = new CentralPromptWorkflowRegistry(
 
 export type WorkflowNodeSummary = WorkflowNode;
 
+/**
+ * Hub-wide workflow catalog is reserved for the authenticated System Owner.
+ * Repository governance registration is NOT a canonical Project Profile.
+ * This path displays manifest contracts only; no external-project prompt
+ * projection, execution, or signed completion is permitted.
+ */
+export async function readConstitutionalWorkflowCatalog(
+  actor: WebAuthenticatedActor
+): Promise<readonly CentralWorkflowDescription[]> {
+  await getBlueprintServerRuntime().authority.requireConstitutionalAuthority(actor);
+  return workflowRegistry.allWorkflowSummaries();
+}
+
 export function registeredWorkflowSummaries(
   projectId: string
 ): readonly CentralWorkflowDescription[] {

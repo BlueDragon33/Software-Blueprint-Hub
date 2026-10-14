@@ -34,6 +34,25 @@ describe("Visual Workflow Studio semantic and fail-closed output", () => {
     expect(markup.match(/marker-end=/g)).toHaveLength(6);
   });
 
+  it("renders owner-only catalog as manifest graph, without pretending target canonical profile exists", () => {
+    const markup = renderToStaticMarkup(createElement(WorkflowStudio, {
+      nodes: manifest.nodes,
+      rootNodeIds: ["inventory"],
+      graphOnly: true,
+      preview: null,
+      previewError: "No canonical target Project Profile is authorized",
+      readinessError: "Registry metadata only, no signed readiness"
+    }));
+    expect(markup.match(/aria-pressed="/g)).toHaveLength(7);
+    expect(markup).toContain("Manifest candidate");
+    expect(markup).toContain("Central catalog only");
+    expect(markup).toContain("Registry metadata only");
+    expect(markup).toContain("Human gate");
+    expect(markup).not.toContain("Canonical prompt + node projection");
+    expect(markup).not.toContain("Inspect prompt");
+    expect(markup).not.toContain("Gate PASS recorded");
+  });
+
   it("does not expose a long generated prompt until explicit inspect interaction", () => {
     const marker = "PRIVATE_PREVIEW_CONTENT_SHOULD_NOT_RENDER_BY_DEFAULT";
     const markup = renderToStaticMarkup(createElement(WorkflowStudio, {

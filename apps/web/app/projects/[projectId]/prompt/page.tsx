@@ -6,7 +6,11 @@ import {
 } from "../_components/project-workspace";
 import { loadProjectWorkspace } from "../../../../src/server/project-workspace";
 import { PromptTools } from "./prompt-tools";
-import { isRegisteredGovernedProject, registeredWorkflowSummaries } from "../../../../src/server/prompt-workflow";
+import {
+  isRegisteredGovernedProject,
+  readConstitutionalWorkflowCatalog,
+  registeredWorkflowSummaries
+} from "../../../../src/server/prompt-workflow";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +56,11 @@ export default async function PromptPage({
     )
   ]);
 
-  const workflowSummaries = registeredWorkflowSummaries(workspace.projectId);
+  const hubCatalog = workspace.projectId === "project:blueprint-os" &&
+    await workspace.runtime.authority.canExerciseConstitutionalAuthority(workspace.actor);
+  const workflowSummaries = hubCatalog
+    ? await readConstitutionalWorkflowCatalog(workspace.actor)
+    : registeredWorkflowSummaries(workspace.projectId);
   const governedProject = isRegisteredGovernedProject(workspace.projectId);
   const history = historyPage.items;
   const latest = historyPage.latest;
@@ -93,16 +101,20 @@ export default async function PromptPage({
           <div className="workspace-section-heading">
             <div>
               <p className="section-kicker">Central Workflow Registry</p>
-              <h3>{workflowSummaries.length
-                ? workflowSummaries.length + " registered workflow" + (workflowSummaries.length === 1 ? "" : "s")
-                : "No central workflow assigned"}</h3>
-              <p>{workflowSummaries.length
-                ? workflowSummaries.map((item) => item.area + " (" + item.status + ")").join(" · ")
-                : "This repository is governed by Blueprint OS. No project workflow has been authored or approved yet."}</p>
+              <h3>{hubCatalog
+                ? "System Owner · " + workflowSummaries.length + " authored governed-repository workflow(s)"
+                : workflowSummaries.length
+                  ? workflowSummaries.length + " registered workflow" + (workflowSummaries.length === 1 ? "" : "s")
+                  : "No central workflow assigned"}</h3>
+              <p>{hubCatalog
+                ? "Inspect all authored workflow manifests under constitutional authority. Missing external Project Profiles do not become canonical state."
+                : workflowSummaries.length
+                  ? workflowSummaries.map((item) => item.area + " (" + item.status + ")").join(" · ")
+                  : "This repository is governed by Blueprint OS. No project workflow has been authored or approved yet."}</p>
             </div>
             <Link className="secondary-button registry-action"
               href={"/projects/" + encodeURIComponent(workspace.projectId) + "/prompt/workflow"}>
-              {workflowSummaries.length ? "Inspect workflow" : "Workflow registry"}
+              {hubCatalog ? "Open Central Workflow Studio" : workflowSummaries.length ? "Inspect workflow" : "Workflow registry"}
             </Link>
           </div>
         </section>

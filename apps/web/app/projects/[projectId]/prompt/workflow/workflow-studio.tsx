@@ -9,6 +9,7 @@ import styles from "./workflow-studio.module.css";
 interface WorkflowStudioProps {
   readonly nodes: readonly WorkflowNode[];
   readonly rootNodeIds: readonly string[];
+  readonly graphOnly?: boolean;
   readonly readiness?: WorkflowReadinessPlan | null;
   readonly readinessError?: string;
   readonly receiptVerificationConfigured?: boolean;
@@ -23,7 +24,12 @@ interface WorkflowStudioProps {
   readonly previewError: string;
 }
 
-function reviewState(node: WorkflowNode, rootNodeIds: readonly string[], readiness: WorkflowReadinessPlan | null): {
+function reviewState(
+  node: WorkflowNode,
+  rootNodeIds: readonly string[],
+  readiness: WorkflowReadinessPlan | null,
+  graphOnly: boolean
+): {
   readonly label: string;
   readonly kind: "candidate" | "blocked" | "human" | "verified";
   readonly reason: string;
@@ -50,9 +56,11 @@ function reviewState(node: WorkflowNode, rootNodeIds: readonly string[], readine
   }
   if (rootNodeIds.includes(node.id) || current?.state === "available") {
     return {
-      label: "Preview candidate",
+      label: graphOnly ? "Manifest candidate" : "Preview candidate",
       kind: "candidate",
-      reason: "Read-only prompt preview only. The node has not been executed or accepted."
+      reason: graphOnly
+        ? "Read-only central manifest. The target Project Profile is not authorized in this catalog; no prompt, execution or completion receipt exists."
+        : "Read-only prompt preview only. The node has not been executed or accepted."
     };
   }
   return {
@@ -72,14 +80,15 @@ function DetailList({ title, values }: { readonly title: string; readonly values
 }
 
 export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError,
-  readiness = null, readinessError = "", receiptVerificationConfigured = false }: WorkflowStudioProps) {
+  readiness = null, readinessError = "", receiptVerificationConfigured = false,
+  graphOnly = false }: WorkflowStudioProps) {
   const [selectedId, setSelectedId] = useState(nodes[0]?.id ?? "");
   const [showPrompt, setShowPrompt] = useState(false);
   const layout = useMemo(() => layoutWorkflowGraph(nodes), [nodes]);
   const nodeById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
   const selected = nodeById.get(selectedId) ?? nodes[0];
   if (!selected) return null;
-  const selectedState = reviewState(selected, rootNodeIds, readiness);
+  const selectedState = reviewState(selected, rootNodeIds, readiness, graphOnly);
   const selectedPreview = selected.id === preview?.rootNodeId ? preview : null;
 
   return (
@@ -91,7 +100,7 @@ export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError,
           <p>Choose a node to inspect its contract. Arrows are dependencies, not completed work.</p>
         </div>
         <div className={styles.legend} aria-label="Node state legend">
-          <span><i className={styles.dotCandidate} /> Preview candidate</span>
+          <span><i className={styles.dotCandidate} /> {graphOnly ? "Manifest candidate" : "Preview candidate"}</span>
           <span><i className={styles.dotBlocked} /> Waiting for evidence</span>
           <span><i className={styles.dotHuman} /> Human gate</span>
           <span><i className={styles.dotVerified} /> Signed evidence</span>
@@ -131,7 +140,7 @@ export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError,
           </svg>
           {layout.positions.map((position) => {
             const node = nodeById.get(position.id)!;
-            const state = reviewState(node, rootNodeIds, readiness);
+            const state = reviewState(node, rootNodeIds, readiness, graphOnly);
             const isSelected = selected.id === node.id;
             return (
               <button key={node.id} type="button"
@@ -179,7 +188,7 @@ export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError,
           <span>Limit: {selected.budget.maxAttempts} attempts · {selected.budget.maxFiles} files · approx. {selected.budget.maxTokenEstimate.toLocaleString()} tokens</span>
           <span>On failure: BLOCK</span>
         </div>
-        {rootNodeIds.includes(selected.id) ? (
+        {rootNodeIds.includes(selected.id) && !graphOnly ? (
           <section className={styles.preview}>
             <div className={styles.previewHeader}>
               <div>
@@ -211,7 +220,11 @@ export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError,
           </section>
         ) : null}
       </div>
-      <p className={styles.footer}>All nodes are read-only designs. Workflow adoption, evidence verification, human UX acceptance and Production release remain separate trusted gates.</p>
+      <p className={styles.footer}>
+        {graphOnly
+          ? "Central catalog only: authored graph, not a provisioned canonical project, authorized prompt, execution record or Quality Gate PASS."
+          : "All nodes are read-only designs. Workflow adoption, evidence verification, human UX acceptance and Production release remain separate trusted gates."}
+      </p>
     </section>
   );
 }
