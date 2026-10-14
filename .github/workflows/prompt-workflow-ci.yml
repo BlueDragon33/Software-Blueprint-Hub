@@ -18,6 +18,19 @@ on:
       - "tests/prompt-workflows/**"
       - "apps/web/src/server/prompt-workflow.ts"
       - "apps/web/src/server/prompt-workflow-receipts.ts"
+      - "apps/web/src/lib/hub-app-directory.ts"
+      - "apps/web/app/_components/hub-*.tsx"
+      - "apps/web/app/_components/hub-*.ts"
+      - "apps/web/app/ecosystem/**"
+      - "apps/web/app/settings/**"
+      - "apps/web/app/page.tsx"
+      - "apps/web/app/layout.tsx"
+      - "apps/web/app/globals.css"
+      - "apps/web/app/projects/**/_components/**"
+      - "apps/web/app/projects/**/blueprint/**"
+      - "packages/ui/src/index.tsx"
+      - "tests/application/hub-app-directory.test.ts"
+      - "tests/web/hub-launcher.test.tsx"
       - "apps/web/app/projects/**/prompt/**"
       - "tests/web/workflow-studio.test.tsx"
       - "prompt-workflows/**"
@@ -59,3 +72,5 @@ jobs:
         run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-journal.test.ts tests/application/prompt-workflow-github-executor.test.ts tests/application/prompt-workflow-operational-e2e.test.ts
       - name: Visual Workflow Studio semantic SSR tests
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
+      - name: Vietnamese launcher, app grouping and no-invented-deployment tests
+        run: pnpm exec vitest run tests/application/hub-app-directory.test.ts
