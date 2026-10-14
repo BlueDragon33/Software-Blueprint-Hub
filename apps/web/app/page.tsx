@@ -1,12 +1,15 @@
 import Link from "next/link";
 
-import { ActionGroup, AppShell, EmptyState, StatusChip } from "@blueprint-os/ui";
+import { AppShell } from "@blueprint-os/ui";
 
 import { resolveWebActor } from "../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../src/server/runtime";
 import { loadCompassProjection } from "../src/server/compass-projection";
 import { RetryCurrentView } from "./_components/retry-current-view";
 import { SystemCompass } from "./_components/system-compass";
+import { HubLauncher } from "./_components/hub-launcher";
+import { presentGovernedApps } from "../src/lib/hub-app-directory";
+import governed from "../../../control/constitution-governed-repositories.json";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +20,8 @@ function SignedOutRegistry() {
         <header className="registry-header">
           <div>
             <p className="eyebrow">Blueprint OS</p>
-            <h1>Projects</h1>
-            <p className="lede">
-              Your engineering control center starts with the projects you are
-              actually authorized to read.
-            </p>
+            <h1>Trung tâm ứng dụng</h1>
+            <p className="lede">Đăng nhập để mở các công cụ và dự án theo quyền truy cập của bạn.</p>
           </div>
           <Link className="environment-badge" href="/compass">Phase 9 · Compass</Link>
         </header>
@@ -29,10 +29,9 @@ function SignedOutRegistry() {
         <section className="registry-state" aria-labelledby="sign-in-title">
           <span className="registry-state-icon" aria-hidden="true">◇</span>
           <div>
-            <h2 id="sign-in-title">Sign in to open your project registry.</h2>
+            <h2 id="sign-in-title">Đăng nhập để mở trung tâm ứng dụng.</h2>
             <p>
-              Blueprint OS does not expose canonical project names or metadata
-              before trusted identity is established.
+              Dữ liệu dự án được bảo vệ và chỉ hiển thị sau khi xác thực.
             </p>
           </div>
           <a className="primary-button registry-action" href="/api/auth/signin">
@@ -41,22 +40,22 @@ function SignedOutRegistry() {
         </section>
 
         <section className="registry-secondary">
-          <strong>Need reusable engineering guidance?</strong>
+          <strong>Cần tìm tài liệu dùng chung?</strong>
           <span>
-            The Knowledge Library is read-only reusable knowledge, separate from project truth.
+            Thư viện lưu kiến thức có thể sử dụng lại, độc lập với trạng thái dự án.
           </span>
           <Link className="secondary-button registry-action" href="/knowledge">
-            Open Knowledge Library
+            Mở thư viện
           </Link>
         </section>
 
         <section className="registry-secondary">
-          <strong>Need to explore the workflow first?</strong>
+          <strong>Cần tạo dự án mới?</strong>
           <span>
-            Preview mode remains read-only and cannot create project truth.
+            Có thể khám phá quy trình tạo dự án theo mẫu chuẩn.
           </span>
           <Link className="secondary-button registry-action" href="/projects/new">
-            Open guided preview
+            Mở hướng dẫn tạo dự án
           </Link>
         </section>
       </main>
@@ -73,10 +72,13 @@ export default async function HomePage() {
 
   let items;
   let compass;
+  let canManageEcosystem = false;
   try {
-    [items, compass] = await Promise.all([
-      getBlueprintServerRuntime().registry.list(actor),
-      loadCompassProjection(actor).catch(() => null)
+    const runtime = getBlueprintServerRuntime();
+    [items, compass, canManageEcosystem] = await Promise.all([
+      runtime.registry.list(actor),
+      loadCompassProjection(actor).catch(() => null),
+      runtime.authority.canExerciseConstitutionalAuthority(actor)
     ]);
   } catch {
     return (
@@ -114,105 +116,21 @@ export default async function HomePage() {
 
   return (
     <AppShell>
-      <main className="registry-shell">
-        <header className="registry-header">
-          <div>
-            <p className="eyebrow">Engineering Control Center</p>
-            <h1>Projects</h1>
-            <p className="lede">
-              Open canonical engineering state, or start a new project through
-              the guided Blueprint flow.
-            </p>
-          </div>
-          <ActionGroup className="registry-header-actions">
-            <span className="environment-badge">Canonical</span>
-            <Link className="secondary-button registry-action" href="/compass">
-              System Compass
-            </Link>
-            <Link className="secondary-button registry-action" href="/portfolio">
-              Portfolio
-            </Link>
-            <Link className="secondary-button registry-action" href="/knowledge">
-              Knowledge Library
-            </Link>
-            <Link className="secondary-button registry-action" href="/constitution">
-              Constitution Center
-            </Link>
-            <Link className="primary-button registry-action" href="/projects/new">
-              New project
-            </Link>
-          </ActionGroup>
-        </header>
-
-        {compass ? <SystemCompass compact projection={compass} /> : (
-          <section className="registry-state registry-state-error" role="alert">
-            <div>
-              <h2>System Compass is temporarily unavailable.</h2>
-              <p>Canonical progress could not be read. Retry to load the current state.</p>
-            </div>
-            <RetryCurrentView label="Retry System Compass" />
-          </section>
-        )}
-
-        {items.length === 0 ? (
-          <EmptyState
-            className="registry-state"
-            icon="＋"
-            title="No readable projects yet."
-            description="Create the first canonical project, or ask a project Owner to grant your account a role."
-            action={
-              <Link className="primary-button registry-action" href="/projects/new">
-                Create project
-              </Link>
-            }
-          />
-        ) : (
-          <section aria-labelledby="project-list-title">
-            <div className="registry-section-heading">
-              <div>
-                <p className="section-kicker">Canonical registry</p>
-                <h2 id="project-list-title">
-                  {items.length} {items.length === 1 ? "project" : "projects"}
-                </h2>
-              </div>
-              <StatusChip>Authority filtered</StatusChip>
-            </div>
-
-            <div className="project-grid">
-              {items.map((item) => (
-                <Link
-                  className="project-card"
-                  href={"/projects/" + encodeURIComponent(item.projectId)}
-                  key={item.projectId}
-                >
-                  <div className="project-card-topline">
-                    <span className="project-level">{item.blueprintLevel}</span>
-                    <StatusChip>
-                      {item.access === "SYSTEM_OWNER" ? "System Owner" : item.access}
-                    </StatusChip>
-                  </div>
-                  <div>
-                    <h3>{item.name}</h3>
-                    <p>{item.projectType}</p>
-                  </div>
-                  <dl className="project-meta">
-                    <div>
-                      <dt>Record</dt>
-                      <dd>v{item.recordVersion}</dd>
-                    </div>
-                    <div>
-                      <dt>Updated</dt>
-                      <dd>{new Date(item.updatedAt).toLocaleDateString("en-GB")}</dd>
-                    </div>
-                  </dl>
-                  <span className="project-open">
-                    Open canonical workspace <span aria-hidden="true">→</span>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+      <main className="registry-shell hub-home">
+        <HubLauncher
+          projects={items.map((item) => ({
+            projectId: item.projectId, name: item.name,
+            blueprintLevel: item.blueprintLevel, updatedAt: item.updatedAt
+          }))}
+          governedApps={canManageEcosystem ? presentGovernedApps(governed.repositories) : []}
+          canManageEcosystem={canManageEcosystem}
+        />
+        <details className="hub-technical-details">
+          <summary>🧭 La bàn kỹ thuật & tiến độ theo bằng chứng</summary>
+          {compass
+            ? <SystemCompass compact projection={compass} />
+            : <p>Không thể tải dữ liệu la bàn lúc này. Bạn có thể mở lại trang La bàn từ các biểu tượng phía trên.</p>}
+        </details>
       </main>
     </AppShell>
   );
