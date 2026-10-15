@@ -13,6 +13,14 @@ const coverage = JSON.parse(readFileSync(
   registrationState: string; sourceRevision: string | null; observedAt: string | null;
 }[] };
 
+const privateServices = JSON.parse(readFileSync(
+  new URL("../../control/private-execution-service-onboarding.v1.json", import.meta.url), "utf8"
+)) as { entries: {
+  projectId: string; repository: string; branch: string; blueprintLevel: string;
+  registrationState: string; sourceRevision: string; observedAt: string; visibility: string;
+  liveCrossRepoVerified: boolean;
+}[] };
+
 describe("Vietnamese-first ecosystem launcher", () => {
   const apps = presentGovernedApps(governed.repositories);
   it("indexes exactly the current governed repository truth; no invented app or deployment URL", () => {
@@ -34,6 +42,17 @@ describe("Vietnamese-first ecosystem launcher", () => {
     expect(() => presentTrackedApps(coverage.repositories.map((app) =>
       app.projectId === "project:ecad-design" ? { ...app, sourceRevision: null } : app
     ))).toThrow("observed exact SHA");
+  });
+
+  it("stages all 20 identities: 15 sealed, 2 public pending and 3 private pending, without inventing deployments", () => {
+    const tracked = presentTrackedApps([...coverage.repositories,...privateServices.entries]);
+    expect(tracked).toHaveLength(20);
+    expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(5);
+    expect(tracked.filter((app) => app.visibility === "private")).toHaveLength(3);
+    expect(tracked.filter((app) => app.visibility === "private").every((app) => app.liveCrossRepoVerified === false)).toBe(true);
+    expect(tracked.every((app) => !("productionAuthorized" in app) && !("deploymentUrl" in app))).toBe(true);
+    expect(() => presentTrackedApps([...coverage.repositories,...privateServices.entries,privateServices.entries[0]!])).toThrow("Duplicate");
   });
 
   it("searches Vietnamese accents and plain text reliably", () => {
