@@ -3,10 +3,12 @@ import { pathToFileURL } from "node:url";
 
 const BASELINE = "control/constitution-governed-repositories.json";
 const QUEUE = "control/governance-onboarding-queue.v1.json";
+const LEDGER = "control/governance-registration-ledger.v1.json";
 const POLICY = "control/universal-constitution-version.json";
 const OUTPUT = "control/governance-current-view.v1.json";
 const sha40 = /^[0-9a-f]{40}$/;
 const projectIdPattern = /^project:[a-z0-9-]+$/;
+const migrationIdPattern = /^[a-z0-9][a-z0-9-]{4,100}$/;
 const errorsOf = (error) => error instanceof Error ? error.message : String(error);
 
 function assert(value, message) {
@@ -22,37 +24,58 @@ function checkIdentity(repository, branch, projectId, level) {
 
 function isExactIso(value) {
   const timestamp = Date.parse(value);
-  return !Number.isNaN(timestamp) && new Date(timestamp).toISOString() === value;
+  return typeof value === "string" && !Number.isNaN(timestamp) && new Date(timestamp).toISOString() === value;
+}
+
+function checkQueueEntry(item) {
+  checkIdentity(item.repository, item.branch, item.projectId, item.proposedBlueprintLevel);
+  assert(item.branch === "main", "pending default branch must be main");
+  assert(sha40.test(item.observedMainSha ?? ""), "pending source needs exact observed SHA");
+  assert(item.state === "adopted-pending-canonical-registration", "pending must not claim registration");
+  assert(item.canonicalCompliance === "UNVERIFIED" && item.productionAuthority === false, "pending may not self-certify");
+  assert(
+    typeof item.adoptionPr === "string" &&
+    new RegExp("^https://github\\.com/" + item.repository + "/pull/[0-9]+$").test(item.adoptionPr),
+    "invalid PR reference: " + item.repository
+  );
+  assert(
+    typeof item.adoptionCI === "string" &&
+    new RegExp("^https://github\\.com/" + item.repository + "/actions/runs/[0-9]+$").test(item.adoptionCI),
+    "invalid CI reference: " + item.repository
+  );
 }
 
 /**
  * Read-only operational inventory projection. NEVER writes the sealed baseline,
  * invents an adoption attestation, certifies a Quality Gate or grants Production.
+ * Operational registration is append-only in LEDGER and remains distinct from
+ * the ratified Constitution publication artifact.
  */
-export function buildGovernanceCurrentView(baseline, queue, policy) {
+export function buildGovernanceCurrentView(baseline, queue, ledger, policy) {
   assert(baseline?.schemaVersion === "1.0.0", "baseline version mismatch");
   assert(queue?.schemaVersion === "1.0.0" && queue.kind === "governed-repository-onboarding-queue", "invalid onboarding source");
   assert(queue.scope === "bounded-observation-not-constitutional-authority", "onboarding source cannot grant authority");
+  assert(ledger?.schemaVersion === "1.0.0" && ledger.kind === "governed-repository-registration-ledger", "invalid registration ledger");
+  assert(ledger.authority === "operational-registration-not-constitutional-amendment", "registration ledger claims constitutional authority");
   assert(policy?.policyVersion === "1.3.0", "only the sealed 1.3 policy is supported");
-  assert(baseline.policyId === policy.policyId, "baseline policy mismatch");
+  assert(baseline.policyId === policy.policyId && ledger.policyId === policy.policyId, "baseline/ledger policy mismatch");
+  assert(ledger.policyVersion === policy.policyVersion, "ledger policy version mismatch");
   assert(queue.sealedBaseline?.policyVersion === policy.policyVersion, "queue policy mismatch");
-  assert(queue.sealedBaseline?.registryPath === BASELINE, "unexpected baseline path");
-  assert(Array.isArray(baseline.repositories) && Array.isArray(queue.entries), "missing repository collections");
+  assert(queue.sealedBaseline?.registryPath === BASELINE && ledger.sealedBaseline?.registryPath === BASELINE, "unexpected baseline path");
+  assert(Array.isArray(baseline.repositories) && Array.isArray(queue.entries) && Array.isArray(ledger.migrations), "missing repository collections");
   assert(queue.sealedBaseline.governedCount === baseline.repositories.length, "historical baseline count drift");
+  assert(ledger.sealedBaseline.governedCount === baseline.repositories.length, "ledger attempts to rewrite sealed baseline count");
   assert(isExactIso(queue.recordedAt), "onboarding observedAt must be exact ISO");
 
-  const seenRepos = new Set();
-  const seenProjects = new Set();
-  const reserve = (repo, projectId) => {
-    assert(!seenRepos.has(repo), "duplicate repository: " + repo);
-    assert(!seenProjects.has(projectId), "duplicate project identity: " + projectId);
-    seenRepos.add(repo);
-    seenProjects.add(projectId);
-  };
+  const sealedRepos = new Set();
+  const sealedProjects = new Set();
   const sealed = baseline.repositories.map((item) => {
     checkIdentity(item.repository, item.branch, item.projectId, item.blueprintLevel);
     assert(item.role === "governed" || item.role === "authority-self", "unexpected sealed role");
-    reserve(item.repository, item.projectId);
+    assert(!sealedRepos.has(item.repository), "duplicate sealed repository: " + item.repository);
+    assert(!sealedProjects.has(item.projectId), "duplicate sealed project identity: " + item.projectId);
+    sealedRepos.add(item.repository);
+    sealedProjects.add(item.projectId);
     return {
       repository: item.repository,
       branch: item.branch,
@@ -66,48 +89,100 @@ export function buildGovernanceCurrentView(baseline, queue, policy) {
       productionAuthority: false
     };
   });
-  const pending = queue.entries.map((item) => {
-    checkIdentity(item.repository, item.branch, item.projectId, item.proposedBlueprintLevel);
-    assert(item.branch === "main", "pending default branch must be main");
-    reserve(item.repository, item.projectId);
-    assert(sha40.test(item.observedMainSha ?? ""), "pending source needs exact observed SHA");
-    assert(item.state === "adopted-pending-canonical-registration", "pending must not claim registration");
-    assert(item.canonicalCompliance === "UNVERIFIED" && item.productionAuthority === false, "pending may not self-certify");
-    assert(
-      typeof item.adoptionPr === "string" &&
-      new RegExp("^https://github\\.com/" + item.repository + "/pull/[0-9]+$").test(item.adoptionPr),
-      "invalid PR reference: " + item.repository
-    );
-    assert(
-      typeof item.adoptionCI === "string" &&
-      new RegExp("^https://github\\.com/" + item.repository + "/actions/runs/[0-9]+$").test(item.adoptionCI),
-      "invalid CI reference: " + item.repository
-    );
-    return {
-      repository: item.repository,
-      branch: item.branch,
-      projectId: item.projectId,
-      blueprintLevel: item.proposedBlueprintLevel,
-      registrationState: "pending-onboarding",
-      sourceRevision: item.observedMainSha,
-      observedAt: queue.recordedAt,
-      sourceFreshness: "historical-reference-not-live-head",
-      complianceState: "UNVERIFIED",
-      productionAuthority: false
-    };
-  });
+
+  const queueByRepo = new Map();
+  const queueProjects = new Set();
+  for (const item of queue.entries) {
+    checkQueueEntry(item);
+    assert(!sealedRepos.has(item.repository), "duplicate repository: " + item.repository);
+    assert(!sealedProjects.has(item.projectId), "duplicate project identity: " + item.projectId);
+    assert(!queueByRepo.has(item.repository), "duplicate repository: " + item.repository);
+    assert(!queueProjects.has(item.projectId), "duplicate project identity: " + item.projectId);
+    queueByRepo.set(item.repository, item);
+    queueProjects.add(item.projectId);
+  }
+
+  const admittedByRepo = new Map();
+  const admittedProjects = new Set();
+  let latestRecordedAt = queue.recordedAt;
+  for (const migration of ledger.migrations) {
+    assert(migration && typeof migration === "object" && migrationIdPattern.test(migration.migrationId ?? ""), "invalid registration migration ID");
+    assert(isExactIso(migration.sourceQueueRecordedAt) && migration.sourceQueueRecordedAt === queue.recordedAt, "registration migration queue source mismatch");
+    assert(isExactIso(migration.registeredAt) && Date.parse(migration.registeredAt) >= Date.parse(queue.recordedAt), "invalid registration timestamp");
+    if (Date.parse(migration.registeredAt) > Date.parse(latestRecordedAt)) latestRecordedAt = migration.registeredAt;
+    assert(Array.isArray(migration.entries) && migration.entries.length > 0, "registration migration has no entries");
+    for (const item of migration.entries) {
+      checkIdentity(item.repository, item.branch, item.projectId, item.blueprintLevel);
+      assert(!admittedByRepo.has(item.repository), "repository admitted more than once: " + item.repository);
+      assert(!admittedProjects.has(item.projectId), "project admitted more than once: " + item.projectId);
+      const staged = queueByRepo.get(item.repository);
+      assert(staged, "registration has no staged onboarding source: " + item.repository);
+      assert(item.projectId === staged.projectId && item.branch === staged.branch &&
+        item.blueprintLevel === staged.proposedBlueprintLevel &&
+        item.admittedMainSha === staged.observedMainSha &&
+        item.adoptionPr === staged.adoptionPr, "registration diverges from staged identity/source: " + item.repository);
+      assert(sha40.test(item.admittedMainSha ?? ""), "registration needs exact admitted SHA");
+      assert(
+        typeof item.constitutionCi === "string" &&
+        new RegExp("^https://github\\.com/" + item.repository + "/actions/runs/[0-9]+$").test(item.constitutionCi),
+        "invalid registration CI reference: " + item.repository
+      );
+      assert(item.registrationState === "admitted-registration" &&
+        item.complianceState === "UNVERIFIED" &&
+        item.canonicalProjectProfile === false &&
+        item.productionAuthority === false, "registration may not self-certify authority");
+      admittedByRepo.set(item.repository, { item, registeredAt: migration.registeredAt });
+      admittedProjects.add(item.projectId);
+    }
+  }
+
+  const registered = [];
+  const pending = [];
+  for (const staged of queue.entries) {
+    const admitted = admittedByRepo.get(staged.repository);
+    if (admitted) {
+      const item = admitted.item;
+      registered.push({
+        repository: item.repository,
+        branch: item.branch,
+        projectId: item.projectId,
+        blueprintLevel: item.blueprintLevel,
+        registrationState: "admitted-registration",
+        sourceRevision: item.admittedMainSha,
+        observedAt: admitted.registeredAt,
+        sourceFreshness: "verified-admission-source",
+        complianceState: "UNVERIFIED",
+        productionAuthority: false
+      });
+    } else {
+      pending.push({
+        repository: staged.repository,
+        branch: staged.branch,
+        projectId: staged.projectId,
+        blueprintLevel: staged.proposedBlueprintLevel,
+        registrationState: "pending-onboarding",
+        sourceRevision: staged.observedMainSha,
+        observedAt: queue.recordedAt,
+        sourceFreshness: "historical-reference-not-live-head",
+        complianceState: "UNVERIFIED",
+        productionAuthority: false
+      });
+    }
+  }
+
   return {
     schemaVersion: "1.0.0",
     kind: "governance-current-coverage-view",
     authority: "read-only-operational-observation",
     policyId: baseline.policyId,
     policyVersion: policy.policyVersion,
-    generatedFrom: [BASELINE, QUEUE, POLICY],
-    recordedAt: queue.recordedAt,
+    generatedFrom: [BASELINE, QUEUE, LEDGER, POLICY],
+    recordedAt: latestRecordedAt,
     sealedBaselineCount: sealed.length,
+    admittedRegistrationCount: registered.length,
     pendingOnboardingCount: pending.length,
-    trackedCount: sealed.length + pending.length,
-    repositories: [...sealed, ...pending],
+    trackedCount: sealed.length + registered.length + pending.length,
+    repositories: [...sealed, ...registered, ...pending],
     canonicalProjectMutationAllowed: false,
     automaticQualityGatePassAllowed: false,
     productionReleaseAuthority: false
@@ -118,14 +193,16 @@ function load(path) { return JSON.parse(readFileSync(path, "utf8")); }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    const current = buildGovernanceCurrentView(load(BASELINE), load(QUEUE), load(POLICY));
+    const current = buildGovernanceCurrentView(load(BASELINE), load(QUEUE), load(LEDGER), load(POLICY));
     const text = JSON.stringify(current, null, 2) + "\n";
     if (process.argv.includes("--write")) {
       writeFileSync(OUTPUT, text);
       console.log("[governance-current-view] generated read-only current view");
     } else if (process.argv.includes("--check")) {
       assert(readFileSync(OUTPUT, "utf8") === text, "generated current view is stale; run --write");
-      console.log("[governance-current-view] PASS " + current.sealedBaselineCount + " sealed + " + current.pendingOnboardingCount + " pending; no authority granted");
+      console.log("[governance-current-view] PASS " + current.sealedBaselineCount + " sealed + " +
+        current.admittedRegistrationCount + " admitted + " + current.pendingOnboardingCount +
+        " pending; no constitutional/Production authority granted");
     } else {
       console.log(text.trimEnd());
     }
