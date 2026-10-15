@@ -1,0 +1,239 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "execution-department-ownership",
+  "status": "candidate",
+  "constitution": {
+    "policyId": "blueprint-os:universal-century-grade",
+    "minimumVersion": "1.3.0",
+    "authority": "human-ratified-only"
+  },
+  "sourcesOfTruth": {
+    "governance": "BlueDragon33/Software-Blueprint-Hub",
+    "productCodeAndEvidence": "governed-product-repository-or-trusted-store",
+    "appOperations": "BlueDragon33/Application-Management",
+    "workflowDefinitions": "prompt-workflows/",
+    "canonicalProjectAndQuality": "Blueprint OS canonical database"
+  },
+  "meaning": "Responsibility and ownership registry only: not a runnable workflow DAG, an issuer grant, or a Quality Gate.",
+  "departments": [
+    {
+      "id": "product",
+      "defaultOwner": "product-repository",
+      "stage": "DISCOVER",
+      "accountability": "Product scope and acceptance criteria",
+      "requiredInput": "reproducible user story / observed problem",
+      "verifiableOutput": "versioned acceptance criteria and prioritized work scope",
+      "requiredEvidence": "approved requirement and source trace",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "architecture",
+      "defaultOwner": "hub-policy-and-product-code",
+      "stage": "DESIGN",
+      "accountability": "Architecture, dependency graph and interface boundaries",
+      "requiredInput": "scoped requirements and known constraints",
+      "verifiableOutput": "architecture decision plus bounded change map",
+      "requiredEvidence": "reviewed ADR or contract diff",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "experience",
+      "defaultOwner": "product-repository",
+      "stage": "DESIGN",
+      "accountability": "User journeys, design consistency and accessibility",
+      "requiredInput": "user journey and UX contract",
+      "verifiableOutput": "interaction spec and mobile/keyboard acceptance criteria",
+      "requiredEvidence": "screen recordings or captured UX checks at exact revision",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "implementation",
+      "defaultOwner": "product-repository",
+      "stage": "IMPLEMENT",
+      "accountability": "Scoped frontend, backend and integration changes",
+      "requiredInput": "approved change scope and baseline failure",
+      "verifiableOutput": "reproducible patch and source revision",
+      "requiredEvidence": "source diff plus scoped test logs",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "data",
+      "defaultOwner": "product-repository",
+      "stage": "IMPLEMENT",
+      "accountability": "Data ownership, migrations and recovery",
+      "requiredInput": "schema and data migration requirements",
+      "verifiableOutput": "versioned migration and rollback plan",
+      "requiredEvidence": "isolated migration test and target-environment result",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "security",
+      "defaultOwner": "product-repository",
+      "stage": "REVIEW",
+      "accountability": "Threat model, access controls and secret boundaries",
+      "requiredInput": "proposed source changes and authority model",
+      "verifiableOutput": "security findings with remediation conditions",
+      "requiredEvidence": "authorization negative tests and security review record",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "verification",
+      "defaultOwner": "product-repository",
+      "stage": "TEST",
+      "accountability": "Independent failure reproduction, regression and E2E",
+      "requiredInput": "testable acceptance and candidate artifact",
+      "verifiableOutput": "linked regression results and repeatable test report",
+      "requiredEvidence": "run IDs linked to exact commit and environment",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "professional-review",
+      "defaultOwner": "hub-governance",
+      "stage": "REVIEW",
+      "accountability": "Independent human review and product experience acceptance",
+      "requiredInput": "QA evidence and tested build",
+      "verifiableOutput": "human decisions or blocking findings",
+      "requiredEvidence": "authenticated reviewer record without implicit gate PASS",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "integration",
+      "defaultOwner": "product-repository",
+      "stage": "TEST",
+      "accountability": "Dependency compatibility, PR integration and CI quality",
+      "requiredInput": "candidate PR, contracts and upstream changes",
+      "verifiableOutput": "validated integration candidate",
+      "requiredEvidence": "CI results with exact SHA and reviewed changed files",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "release",
+      "defaultOwner": "product-repository",
+      "stage": "RELEASE",
+      "accountability": "Release artifact integrity, permissions and rollback",
+      "requiredInput": "freeze revision plus required canonical gates",
+      "verifiableOutput": "release proposal and immutable artifact identifiers",
+      "requiredEvidence": "signed hashes, verified gates and explicit external production authority",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "operations",
+      "defaultOwner": "management-control-plane",
+      "stage": "LEARN",
+      "accountability": "App registry, runtime health and incident response",
+      "requiredInput": "deployed app observations and bounded management contract",
+      "verifiableOutput": "incident trace and product-owned remediation request",
+      "requiredEvidence": "verified live read-back without exposing app-private data",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    },
+    {
+      "id": "audit",
+      "defaultOwner": "hub-governance",
+      "stage": "REVIEW",
+      "accountability": "Constitution adoption, budgets and evidence provenance",
+      "requiredInput": "registry, work receipts and cross-project quality states",
+      "verifiableOutput": "compliance findings and prioritized blockers",
+      "requiredEvidence": "independent exact-source attestation or UNVERIFIED state",
+      "authority": {
+        "ratifyConstitution": false,
+        "passQualityGate": false,
+        "authorizeProduction": false
+      }
+    }
+  ],
+  "handoff": {
+    "requires": [
+      "canonical project ID and approved scope",
+      "exact application HEAD and source provenance",
+      "declared dependencies and verifiable output",
+      "evidence reference or explicit BLOCKED",
+      "bounded attempts, changed files, tokens and rollback where applicable"
+    ],
+    "independentVerificationRequired": [
+      "implementation",
+      "data",
+      "security",
+      "release"
+    ],
+    "completionPolicy": "Only trusted canonical gate/evidence service may record PASS; role or prompt output alone is never acceptance.",
+    "failurePolicy": "Return to originating bounded work item; no unrestricted retry without new evidence."
+  },
+  "repositorySeparation": {
+    "default": "Keep governance, role contracts and workflow definitions in Blueprint OS; keep product domain code, tests and artifact evidence in its product repository.",
+    "candidateIndependentService": "execution-worker",
+    "splitIfAnyVerified": [
+      {
+        "id": "independent-lifecycle",
+        "criteria": "Standalone service has distinct deployment/release lifecycle and proven interface contract.",
+        "evidence": "documented service boundary, operational owner, rollback and versioned API"
+      },
+      {
+        "id": "privilege-isolation",
+        "criteria": "Worker needs separate confidential credentials, network/OS privileges or untrusted execution isolation.",
+        "evidence": "threat model and least-privilege trust-boundary review"
+      },
+      {
+        "id": "sustained-load",
+        "criteria": "Measured queue/CPU/memory/load on existing runtime breaches its agreed SLO or causes sustained CI/resource contention.",
+        "evidence": "time-windowed telemetry, budget/SLO and capacity test"
+      }
+    ],
+    "beforeSplit": [
+      "prove one end-to-end scoped execution with independent QA",
+      "define API, signed grants, idempotency, retry budget and evidence ownership",
+      "run contract and failure-mode tests",
+      "prove stable operations and rollback",
+      "separately approve any production deployment"
+    ],
+    "neverMove": [
+      "Universal Constitution authority",
+      "canonical Blueprint/Quality Gate PASS",
+      "human release approval",
+      "private product data into control-plane"
+    ]
+  }
+}
