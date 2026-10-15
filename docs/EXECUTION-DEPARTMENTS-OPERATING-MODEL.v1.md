@@ -39,7 +39,7 @@ Do **not** create or deploy an execution-worker repository until the signed-gran
 
 ## Prioritized rollout
 
-- **P0 — inventory truth:** register new governed foundation repositories and show missing adoption/attestation truthfully. Historical snapshots are not fresh evidence; avoid copying old SHA forward as current. Reconcile after component PR merge.
+- **P0 — inventory truth:** ECAD and CAE adopted Constitution 1.3 through their own PRs and CI; stage both in `control/governance-onboarding-queue.v1.json`. The ratified baseline registry and its sealed snapshots still list 15, not 17. Do not alter these projections without a reviewed migration that preserves the publication seal. The queue is not canonical compliance; its checker rejects false PASS, duplicate membership and fabricated release rights.
 - **P1 — organization and gates:** validate the 12 departments, authority separation, handoff and evidence in both Fast CI and Release Gate; link this catalog to existing Work Packages in a later reviewed change.
 - **P2 — live execution:** implement one narrow signed-grant → scoped runner → independent QA → durable outcome flow. Production remains off until the real target environment and explicit authority are verified.
 - **P3 — conditional repository split:** if P2 exposes an independent lifecycle, privileged sandbox or measured load, promote `execution-worker` from candidate to a dedicated repository through an approved architecture decision. Otherwise keep the worker modular within the existing runtime.
