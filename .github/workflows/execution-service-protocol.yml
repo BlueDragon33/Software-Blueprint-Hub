@@ -1,0 +1,29 @@
+name: Private Execution Boundary Contract
+on:
+  pull_request:
+    paths:
+      - "control/execution-service-protocol.v1.json"
+      - "control/private-execution-service-onboarding.v1.json"
+      - "scripts/check-execution-service-protocol.mjs"
+      - "tests/governance/execution-service-protocol.test.mjs"
+      - ".github/workflows/execution-service-protocol.yml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Verify scoped signed execution boundary
+        run: node scripts/check-execution-service-protocol.mjs
+      - name: Reject unauthorized protocol drift
+        run: node --test tests/governance/execution-service-protocol.test.mjs
