@@ -78,6 +78,9 @@ export function EcosystemDirectory({ apps, canonicalProjectIds, initialAppId }: 
                 : eligible
                 ? en ? "Canonical Project Profile available" : "Đã có hồ sơ dự án chuẩn"
                 : en ? "Sealed baseline repo; no canonical Project Profile" : "Repository thuộc danh sách gốc; chưa có hồ sơ dự án chuẩn"}</p>
+              {selected.visibility === "private" && pending && <p className={styles.note}>{en
+                ? "Private service · own-repository CI passed; cross-repository credential bridge is NOT CONFIGURED. No live Hub verification or Production deployment."
+                : "Dịch vụ riêng tư · CI tại repo đã đạt; kết nối xác thực giữa các repo CHƯA CẤU HÌNH. Hub chưa xác minh trực tiếp hoặc triển khai Production."}</p>}
               <dl>
                 <div><dt>Repository</dt><dd>{selected.repository}</dd></div>
                 <div><dt>Branch</dt><dd>{selected.branch}</dd></div>
