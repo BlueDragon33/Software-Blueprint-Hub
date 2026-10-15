@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "governed-repository-registration-ledger",
+  "authority": "operational-registration-not-constitutional-amendment",
+  "policyId": "blueprint-os:universal-century-grade",
+  "policyVersion": "1.3.0",
+  "sealedBaseline": {
+    "registryPath": "control/constitution-governed-repositories.json",
+    "governedCount": 15
+  },
+  "migrations": [
+    {
+      "migrationId": "registration-2026-10-15-ecad-cae",
+      "sourceQueueRecordedAt": "2026-10-15T02:54:22.797Z",
+      "registeredAt": "2026-10-15T13:53:00.000Z",
+      "entries": [
+        {
+          "repository": "BlueDragon33/ECAD_Design",
+          "branch": "main",
+          "projectId": "project:ecad-design",
+          "blueprintLevel": "B2",
+          "admittedMainSha": "3b47303869742e99924e9d4c82b1a6f45bed076f",
+          "adoptionPr": "https://github.com/BlueDragon33/ECAD_Design/pull/2",
+          "constitutionCi": "https://github.com/BlueDragon33/ECAD_Design/actions/runs/38673391538",
+          "registrationState": "admitted-registration",
+          "complianceState": "UNVERIFIED",
+          "canonicalProjectProfile": false,
+          "productionAuthority": false
+        },
+        {
+          "repository": "BlueDragon33/CAE_Simulation",
+          "branch": "main",
+          "projectId": "project:cae-simulation",
+          "blueprintLevel": "B2",
+          "admittedMainSha": "ac31178bae7a92f89180d875e81d6d35760a8367",
+          "adoptionPr": "https://github.com/BlueDragon33/CAE_Simulation/pull/2",
+          "constitutionCi": "https://github.com/BlueDragon33/CAE_Simulation/actions/runs/38673396187",
+          "registrationState": "admitted-registration",
+          "complianceState": "UNVERIFIED",
+          "canonicalProjectProfile": false,
+          "productionAuthority": false
+        }
+      ]
+    }
+  ],
+  "rules": [
+    "Append-only operational registrations must preserve the ratified sealed baseline byte-for-byte.",
+    "Every admitted registration must originate from the bounded onboarding queue and exact verified main SHA.",
+    "Registration does not imply constitutional compliance, canonical Project Profile, Quality Gate PASS or Production authority."
+  ]
+}
