@@ -93,6 +93,10 @@ jobs:
       - name: Constitution compliance matrix snapshot
         run: node scripts/check-constitution-compliance-snapshot.mjs
 
+      - name: Derive current governed inventory without changing sealed baseline
+        run: |
+          node scripts/derive-governance-current-view.mjs --check
+          node --test tests/governance/current-coverage.test.mjs
       - name: Sealed constitution onboarding queue
         run: |
           node scripts/check-governance-onboarding-queue.mjs
