@@ -22,7 +22,7 @@ export function validateOnboardingQueue(queue, governed, policy) {
     if (!/^project:[a-z0-9-]+$/.test(e.projectId ?? "")) reject("invalid projectId");
     if (!/^B[0-5]$/.test(e.proposedBlueprintLevel ?? "")) reject("invalid proposed blueprint level");
     if (!/^[a-f0-9]{40}$/.test(e.observedMainSha ?? "")) reject("missing exact observed HEAD");
-    if (typeof e.adoptionPr !== "string" || !e.adoptionPr.startsWith("https://github.com/" + e.repository + "/pull/") || !/^\\d+$/.test(e.adoptionPr.split("/").at(-1))) reject("adoption PR URL mismatch for " + e.repository);
+    if (typeof e.adoptionPr !== "string" || !e.adoptionPr.startsWith("https://github.com/" + e.repository + "/pull/") || !/^\d+$/.test(e.adoptionPr.split("/").at(-1))) reject("adoption PR URL mismatch for " + e.repository);
     if (typeof e.adoptionCI !== "string" || !e.adoptionCI.startsWith("https://github.com/" + e.repository + "/actions/runs/")) reject("missing matching CI evidence");
     if (e.state !== "adopted-pending-canonical-registration" || e.canonicalCompliance !== "UNVERIFIED" || e.productionAuthority !== false) reject("cannot claim PASS or production for pending repository");
   }
