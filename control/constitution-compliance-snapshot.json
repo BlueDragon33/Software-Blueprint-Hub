@@ -123,22 +123,6 @@
       "observedAt": "2026-10-07T17:30:00.000Z",
       "discovery": "standard-attestation-not-found",
       "attestation": null
-    },
-    {
-      "repository": "BlueDragon33/ECAD_Design",
-      "branch": "main",
-      "sourceRevision": "d4a268f3704a49b7e9b565bea6697bb067c7dca2",
-      "observedAt": "2026-10-15T02:47:09.977Z",
-      "discovery": "standard-attestation-not-found",
-      "attestation": null
-    },
-    {
-      "repository": "BlueDragon33/CAE_Simulation",
-      "branch": "main",
-      "sourceRevision": "6a84bbf91e8381f9bd639c798f99afa6fe616eba",
-      "observedAt": "2026-10-15T02:47:09.979Z",
-      "discovery": "standard-attestation-not-found",
-      "attestation": null
     }
   ]
 }
