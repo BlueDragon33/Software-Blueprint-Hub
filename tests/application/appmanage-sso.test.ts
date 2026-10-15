@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { matchingExistingHubOwner } from "../../apps/web/src/auth/appmanage-owner-link";
+import { hasExistingGitHubOwnerSession, matchingExistingHubOwner } from "../../apps/web/src/auth/appmanage-owner-link";
+import { readFileSync } from "node:fs";
 import {
   APP_MANAGE_ISSUER, HUB_SSO_CLIENT_ID, HUB_SSO_ORIGIN,
   newSsoFlow, readSsoCookie, sealSsoCookie, ssoPkceChallenge,
@@ -67,6 +68,27 @@ describe("App-Manage to Blueprint one-login SSO client", () => {
     expect(() => validatedSsoRedemption({ ...base, authMethod: "password" }, APP_MANAGE_ISSUER, clock)).toThrow();
     expect(() => validatedSsoRedemption({ ...base, emailVerified: false }, APP_MANAGE_ISSUER, clock)).toThrow();
     expect(() => validatedSsoRedemption({ ...base, appManageRole: "viewer" }, APP_MANAGE_ISSUER, clock)).toThrow();
+  });
+
+  it("uses existing GitHub Owner session despite differing Google email, not any unrelated GitHub account", () => {
+    const owner = { provider: "github", providerSubject: "101001" };
+    expect(hasExistingGitHubOwnerSession({ provider: "github", providerSubject: "101001" }, owner)).toBe(true);
+    expect(hasExistingGitHubOwnerSession({ provider: "github", providerSubject: "different" }, owner)).toBe(false);
+    expect(hasExistingGitHubOwnerSession({ provider: "google", providerSubject: "101001" }, owner)).toBe(false);
+    expect(hasExistingGitHubOwnerSession({ provider: "github", providerSubject: "101001" },
+      { provider: "google", providerSubject: "101001" })).toBe(false);
+    expect(hasExistingGitHubOwnerSession(null, owner)).toBe(false);
+    expect(hasExistingGitHubOwnerSession({ provider: "github", providerSubject: "" }, owner)).toBe(false);
+  });
+
+  it("fallback presents a real GitHub OAuth login rather than mutating constitutional ownership", () => {
+    const callback = readFileSync(new URL("../../apps/web/app/api/sso/callback/route.ts", import.meta.url), "utf8");
+    const mismatch = callback.slice(callback.indexOf("if (!ownerId)"), callback.indexOf("      try {\n        link = await runtime.prisma.appManagementSsoLink.create", callback.indexOf("if (!ownerId)")));
+    expect(mismatch).toContain("hasExistingGitHubOwnerSession");
+    expect(mismatch).toContain("/api/auth/signin?callbackUrl=%2F");
+    expect(mismatch).not.toContain("appManagementSsoLink.create");
+    const page = readFileSync(new URL("../../apps/web/app/sso/error/page.tsx", import.meta.url), "utf8");
+    expect(page).toContain("Mở Blueprint bằng GitHub đã có quyền");
   });
 
   it("auto-links exclusively to a pre-existing Github constitutional owner with matching verified email", () => {

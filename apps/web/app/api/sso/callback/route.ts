@@ -5,7 +5,8 @@ import {
   sealSsoCookie, SESSION_TTL, SSO_FLOW_COOKIE,
   SSO_SESSION_COOKIE, validatedSsoRedemption
 } from "../../../../src/auth/appmanage-sso";
-import { matchingExistingHubOwner } from "../../../../src/auth/appmanage-owner-link";
+import { hasExistingGitHubOwnerSession, matchingExistingHubOwner } from "../../../../src/auth/appmanage-owner-link";
+import { resolveWebIdentity } from "../../../../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../../../../src/server/runtime";
 
 export const dynamic = "force-dynamic";
@@ -63,10 +64,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       // database. Never invent a Hub Principal, bootstrap or project role.
       const bootstrap = await runtime.prisma.systemBootstrap.findUnique({
         where: { id: "system" },
-        include: { owner: { select: { id: true, email: true, provider: true } } }
+        include: { owner: { select: { id: true, email: true, provider: true, providerSubject: true } } }
       });
       const ownerId = matchingExistingHubOwner(identity, bootstrap?.owner ?? null);
-      if (!ownerId) return returnToAccessError(origin, "owner-identity-mismatch");
+      if (!ownerId) {
+        // A Google and GitHub account may legitimately have different emails.
+        // Never auto-bind their privileged identities without separate proof.
+        // However, an existing verified GitHub constitutional-owner session
+        // independently authorizes direct entry, without any SSO link or role grant.
+        const github = await resolveWebIdentity();
+        const owner = bootstrap?.owner;
+        if (hasExistingGitHubOwnerSession(github, owner ?? null)) {
+          const direct = NextResponse.redirect(new URL("/", origin));
+          direct.cookies.delete(SSO_FLOW_COOKIE);
+          direct.headers.set("Cache-Control", "no-store, private");
+          return direct;
+        }
+        // First visit without the GitHub owner session: use the application's
+        // normal OAuth login, then Auth.js returns to the actual Hub home.
+        // Subsequent App-Manager launches reuse the existing GitHub session.
+        const signIn = NextResponse.redirect(
+          new URL("/api/auth/signin?callbackUrl=%2F", origin)
+        );
+        signIn.cookies.delete(SSO_FLOW_COOKIE);
+        signIn.headers.set("Cache-Control", "no-store, private");
+        return signIn;
+      }
       try {
         link = await runtime.prisma.appManagementSsoLink.create({
           data: { issuer: issuerName, subject: identity.subject, principalId: ownerId }
