@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@blueprint-os/ui";
 import coverage from "../../../../control/governance-current-view.v1.json";
+import privateServices from "../../../../control/private-execution-service-onboarding.v1.json";
 import { presentTrackedApps } from "../../src/lib/hub-app-directory";
 import { resolveWebActor } from "../../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../../src/server/runtime";
@@ -35,7 +36,7 @@ export default async function EcosystemPage({
   const requestedApp = Array.isArray(query.app) ? query.app[0] : query.app;
   return (
     <AppShell>
-      <EcosystemDirectory apps={presentTrackedApps(coverage.repositories)}
+      <EcosystemDirectory apps={presentTrackedApps([...coverage.repositories, ...privateServices.entries])}
         canonicalProjectIds={projects.map((project) => project.projectId)}
         {...(requestedApp ? { initialAppId: requestedApp } : {})} />
     </AppShell>
