@@ -36,9 +36,53 @@ jobs:
       - name: Clearly mark unverified runtime boundary
         run: echo "P2 contract preflight only; cross-private execution, canonical adoption, full E2E and Production are NOT VERIFIED."
 
+  postgres-constraints:
+    name: P3 isolated PostgreSQL migration and journal guards
+    needs: contract-preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_qa_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_qa_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_qa_test
+      BLUEPRINT_QA_DB_INTEGRATION: "true"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Apply official migrations and check ledger in disposable DB
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma:generate
+          pnpm exec prisma validate --config prisma7.config.ts
+          pnpm db:migrate:deploy
+          pnpm db:migrate:status
+      - name: Real PostgreSQL immutable journal, roles and independent QA negatives
+        run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts tests/application/prompt-workflow-authority-pg-integration.test.ts
+
   cross-component-isolated:
     name: Private 3-service source + isolated PostgreSQL (CI smoke, NOT release)
-    needs: contract-preflight
+    needs: [contract-preflight, postgres-constraints]
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 18
