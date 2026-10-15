@@ -20,6 +20,7 @@ import { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { ScopedGitHubReadExecutor } from "./workflow-scoped-github-executor";
 export { PinnedInspectionQaVerifier } from "./workflow-observation-qa";
+export { executeAndVerifyScopedInspection } from "./workflow-inspection-pipeline";
 import { AuthorityService } from "@blueprint-os/core";
 import {
   createPrismaClient,
