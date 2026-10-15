@@ -83,7 +83,7 @@ describe("App-Manage to Blueprint one-login SSO client", () => {
 
   it("fallback presents a real GitHub OAuth login rather than mutating constitutional ownership", () => {
     const callback = readFileSync(new URL("../../apps/web/app/api/sso/callback/route.ts", import.meta.url), "utf8");
-    const mismatch = callback.slice(callback.indexOf("if (!ownerId)"), callback.indexOf("if (!ownerId)") + 1450);
+    const mismatch = callback.slice(callback.indexOf("if (!ownerId)"), callback.indexOf("      try {\n        link = await runtime.prisma.appManagementSsoLink.create", callback.indexOf("if (!ownerId)")));
     expect(mismatch).toContain("hasExistingGitHubOwnerSession");
     expect(mismatch).toContain("/api/auth/signin?callbackUrl=%2F");
     expect(mismatch).not.toContain("appManagementSsoLink.create");
