@@ -12,6 +12,7 @@
   ],
   "recordedAt": "2026-10-15T13:53:00.000Z",
   "sealedBaselineCount": 15,
+  "admittedRegistrationCount": 2,
   "pendingOnboardingCount": 0,
   "trackedCount": 17,
   "repositories": [
@@ -222,6 +223,5 @@
   ],
   "canonicalProjectMutationAllowed": false,
   "automaticQualityGatePassAllowed": false,
-  "productionReleaseAuthority": false,
-  "admittedRegistrationCount": 2
+  "productionReleaseAuthority": false
 }
