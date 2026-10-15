@@ -93,7 +93,7 @@ jobs:
       - name: Constitution compliance matrix snapshot
         run: node scripts/check-constitution-compliance-snapshot.mjs
 
-      - name: Source-of-truth contradiction gate
+      - name: Execution departments ownership and split policy\n        run: |\n          node scripts/check-execution-departments.mjs\n          node --test tests/governance/execution-departments.test.mjs\n      - name: Source-of-truth contradiction gate
         run: pnpm check:truth
 
       - name: Source-of-truth detector self-test
