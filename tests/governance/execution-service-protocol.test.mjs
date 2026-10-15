@@ -1,0 +1,15 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {validateExecutionBoundaryProtocol} from "../../scripts/check-execution-service-protocol.mjs";
+const read=x=>JSON.parse(readFileSync(x,"utf8"));
+const p=read("control/execution-service-protocol.v1.json");
+const services=read("control/private-execution-service-onboarding.v1.json");
+const law=read("control/universal-constitution-version.json");
+const check=x=>validateExecutionBoundaryProtocol(x,services,law);
+test("contract maps exactly three separately staged private repos to Hub policy",()=>{assert.deepEqual(check(p),[]);assert.equal(p.services.length,3);assert.equal(p.deployment.productionAuthority,false);});
+test("no source/workflow/canonical digest may be dropped from a signed handoff",()=>{const x=structuredClone(p);x.wire.gatewayDispatchFields=x.wire.gatewayDispatchFields.filter(k=>k!=="canonicalDigest");assert.ok(check(x).some(v=>v.includes("pinned source")));});
+test("cannot grant Production, Quality Gate or claim a live private credential bridge",()=>{const x=structuredClone(p);x.deployment.productionAuthority=true;x.deployment.authenticationState="LIVE";x.durability.qualityGatePassed=true;assert.ok(check(x).length>0);});
+test("service roles cannot be swapped to fake an authority",()=>{const x=structuredClone(p);x.services[0].repository=x.services[1].repository;assert.ok(check(x).some(v=>v.includes("misassigned")));});
+test("no shell-capable or unbounded inspect grant may be introduced",()=>{const x=structuredClone(p);x.wire.allowedModes=["inspect-scoped","edit-scoped"];x.wire.budgets.maxFiles=200;assert.ok(check(x).some(v=>v.includes("unbounded")));});
+test("claimed canonical DB outside Hub is invalid",()=>{const x=structuredClone(p);x.durability.canonicalDatabaseOwner="BlueDragon33/Software-Blueprint-QA-Worker";assert.ok(check(x).some(v=>v.includes("authority escalation")));});
