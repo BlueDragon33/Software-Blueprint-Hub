@@ -50,6 +50,54 @@ function fixture() {
 }
 
 describe("Phase 5C Postgres execution journal", () => {
+  it("keeps Gateway, executor, QA and canonical claims independent for the same request", async () => {
+    const { journal, db } = fixture();
+    expect(await journal.claim(requestId, future)).toBe(true);
+    for (const role of ["gateway", "executor", "independent-qa"] as const) {
+      const service = journal.forService(role);
+      expect(Object.keys(service)).toEqual(["claim"]);
+      expect(await service.claim(requestId, future)).toBe(true);
+      expect(await service.claim(requestId, future)).toBe(false);
+      const restarted = new PostgresWorkflowExecutionJournal(db as unknown as BlueprintPrismaClient);
+      expect(await restarted.forService(role).claim(requestId, future)).toBe(false);
+    }
+    expect(await journal.claim(requestId, future)).toBe(false);
+    await journal.append(requestId, record);
+    expect((await journal.read(requestId)).attempts).toEqual([record]);
+  });
+
+  it("allows only one concurrent service claimant and does not consume another request", async () => {
+    const { journal } = fixture();
+    const service = journal.forService("executor");
+    const results = await Promise.all(Array.from({ length: 8 }, () => service.claim(requestId, future)));
+    expect(results.filter(Boolean)).toHaveLength(1);
+    expect(await service.claim("sha256:" + "e".repeat(64), future)).toBe(true);
+    expect((await journal.read(requestId)).claimed).toBe(false);
+  });
+
+  it("rejects an unknown host service role before any database write", () => {
+    const { journal, db } = fixture();
+    expect(() => journal.forService("canonical" as never)).toThrow("Invalid execution service role");
+    expect(db.workflowExecutionClaim.create).not.toHaveBeenCalled();
+  });
+
+  it("validates the original request and expiry before storing its namespaced claim", async () => {
+    const { journal, db } = fixture();
+    const service = journal.forService("gateway");
+    await expect(service.claim("invalid", future)).rejects.toThrow("Invalid");
+    await expect(service.claim(requestId, "2000-01-01T00:00:00Z")).rejects.toThrow("Expired");
+    expect(db.workflowExecutionClaim.create).not.toHaveBeenCalled();
+  });
+
+  it("propagates service storage failure without an in-memory fallback or automatic retry", async () => {
+    const { journal, db } = fixture();
+    const service = journal.forService("independent-qa");
+    db.workflowExecutionClaim.create.mockRejectedValueOnce(new Error("Database unavailable"));
+    await expect(service.claim(requestId, future)).rejects.toThrow("Database unavailable");
+    expect(db.workflowExecutionClaim.create).toHaveBeenCalledTimes(1);
+    expect(await service.claim(requestId, future)).toBe(true);
+  });
+
   it("atomically claims once and never recycles the nonce, even after restart", async () => {
     const { journal, db } = fixture();
     expect(await journal.claim(requestId, future)).toBe(true);
