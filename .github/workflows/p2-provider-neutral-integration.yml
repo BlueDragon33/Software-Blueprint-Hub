@@ -29,6 +29,7 @@ jobs:
       - name: Validate no-provider-required protocol and runner syntax
         run: |
           node --check scripts/ci-p2-cross-service-smoke.mjs
+          node --test tests/governance/p2-provider-neutral-ci.test.mjs
           node scripts/check-execution-service-protocol.mjs
           node scripts/check-private-execution-services.mjs
           node --test tests/governance/execution-service-protocol.test.mjs tests/governance/private-execution-services.test.mjs
@@ -47,16 +48,16 @@ jobs:
         env:
           POSTGRES_USER: blueprint
           POSTGRES_PASSWORD: blueprint
-          POSTGRES_DB: blueprint_p2_disposable
+          POSTGRES_DB: blueprint_qa_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U blueprint -d blueprint_p2_disposable"
+          --health-cmd "pg_isready -U blueprint -d blueprint_qa_test"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
     env:
-      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_p2_disposable
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_qa_test
       BLUEPRINT_QA_DB_INTEGRATION: "true"
       GATEWAY_SHA: 77ba939787e6a8aa26edcf25e6ba1b6ba57e0a94
       WORKER_SHA: 6de12d9efb36052fd039e869797540d0f182bd66
