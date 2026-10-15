@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { matchingExistingHubOwner } from "../../apps/web/src/auth/appmanage-owner-link";
 import {
   APP_MANAGE_ISSUER, HUB_SSO_CLIENT_ID, HUB_SSO_ORIGIN,
   newSsoFlow, readSsoCookie, sealSsoCookie, ssoPkceChallenge,
@@ -49,13 +50,36 @@ describe("App-Manage to Blueprint one-login SSO client", () => {
 
   it("refuses forged, stale and wrong audience issuer payloads", () => {
     const payload = { issuer: APP_MANAGE_ISSUER, audience: HUB_SSO_CLIENT_ID,
-      subject: "owner@example.com", email: "owner@example.com", expiresAt: clock + 60 };
+      subject: "owner@example.com", email: "owner@example.com", expiresAt: clock + 60,
+      authMethod: "google", emailVerified: true, appManageRole: "owner" };
     expect(validatedSsoRedemption(payload, APP_MANAGE_ISSUER, clock)).toEqual({
-      subject: "owner@example.com", email: "owner@example.com"
+      subject: "owner@example.com", email: "owner@example.com", appManageRole: "owner"
     });
     expect(() => validatedSsoRedemption({ ...payload, audience: "other" }, APP_MANAGE_ISSUER, clock)).toThrow();
     expect(() => validatedSsoRedemption({ ...payload, issuer: "https://evil.example" }, APP_MANAGE_ISSUER, clock)).toThrow();
     expect(() => validatedSsoRedemption({ ...payload, expiresAt: clock - 1 }, APP_MANAGE_ISSUER, clock)).toThrow();
     expect(() => validatedSsoRedemption({ ...payload, subject: "other@example.com" }, APP_MANAGE_ISSUER, clock)).toThrow();
   });
+  it("does not accept password-authenticated, unverified email or non-owner handoff", () => {
+    const base = { issuer: APP_MANAGE_ISSUER, audience: HUB_SSO_CLIENT_ID,
+      subject: "owner@example.com", email: "owner@example.com", expiresAt: clock + 60,
+      authMethod: "google", emailVerified: true, appManageRole: "owner" };
+    expect(() => validatedSsoRedemption({ ...base, authMethod: "password" }, APP_MANAGE_ISSUER, clock)).toThrow();
+    expect(() => validatedSsoRedemption({ ...base, emailVerified: false }, APP_MANAGE_ISSUER, clock)).toThrow();
+    expect(() => validatedSsoRedemption({ ...base, appManageRole: "viewer" }, APP_MANAGE_ISSUER, clock)).toThrow();
+  });
+
+  it("auto-links exclusively to a pre-existing Github constitutional owner with matching verified email", () => {
+    const id = { subject: "owner@example.com", email: "owner@example.com",
+      appManageRole: "owner" as const };
+    const owner = { id: "principal:existing-unique-id", email: "Owner@Example.com", provider: "github" };
+    expect(matchingExistingHubOwner(id, owner)).toBe(owner.id);
+    expect(matchingExistingHubOwner(id, null)).toBeNull();
+    expect(matchingExistingHubOwner(id, { ...owner, email: "someone-else@example.com" })).toBeNull();
+    expect(matchingExistingHubOwner(id, { ...owner, email: null })).toBeNull();
+    expect(matchingExistingHubOwner(id, { ...owner, provider: "application-management" })).toBeNull();
+    expect(matchingExistingHubOwner({ ...id, subject: "another@example.com" }, owner)).toBeNull();
+    expect(matchingExistingHubOwner({ ...id, appManageRole: "viewer" as never }, owner)).toBeNull();
+  });
+
 });
