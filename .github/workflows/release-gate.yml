@@ -97,6 +97,8 @@ jobs:
         run: |
           node scripts/derive-governance-current-view.mjs --check
           node --test tests/governance/current-coverage.test.mjs
+      - name: Test scoped live GitHub verification fail-closed
+        run: node --test tests/governance/onboarding-live.test.mjs
       - name: Sealed constitution onboarding queue
         run: |
           node scripts/check-governance-onboarding-queue.mjs
