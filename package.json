@@ -19,7 +19,7 @@
     "prisma:generate": "prisma generate --config prisma7.config.ts",
     "db:migrate:deploy": "prisma migrate deploy --config prisma7.config.ts",
     "db:migrate:status": "prisma migrate status --config prisma7.config.ts",
-    "ci": "pnpm contracts:check && pnpm schema:compat && pnpm check:departments && pnpm test:departments && pnpm check:prompts && pnpm test:prompts && pnpm check:truth && pnpm test:truth && pnpm prisma:generate && pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm test && pnpm build",
+    "ci": "pnpm contracts:check && pnpm schema:compat && pnpm check:onboarding && pnpm test:onboarding && pnpm check:departments && pnpm test:departments && pnpm check:prompts && pnpm test:prompts && pnpm check:truth && pnpm test:truth && pnpm prisma:generate && pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm test && pnpm build",
     "test:e2e": "playwright test",
     "check:truth": "node scripts/check-source-of-truth.mjs",
     "test:truth": "node --test tests/source-truth/source-truth-detector.test.mjs",
@@ -29,7 +29,9 @@
     "test:prompts": "node --test tests/prompt-workflows/workflow.test.mjs",
     "generate:prompts": "node scripts/generate-prompt-workflow-imports.mjs",
     "check:departments": "node scripts/check-execution-departments.mjs",
-    "test:departments": "node --test tests/governance/execution-departments.test.mjs"
+    "test:departments": "node --test tests/governance/execution-departments.test.mjs",
+    "check:onboarding": "node scripts/check-governance-onboarding-queue.mjs",
+    "test:onboarding": "node --test tests/governance/onboarding-queue.test.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
