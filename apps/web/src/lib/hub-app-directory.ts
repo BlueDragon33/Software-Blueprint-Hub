@@ -69,7 +69,7 @@ export function presentGovernedApps(registry: readonly GovernedAppIdentity[]): r
  * The current view never provides release URLs, Quality Gate PASS, or app permissions.
  */
 export interface HubTrackedAppPresentation extends HubAppPresentation {
-  readonly registrationState: "sealed-baseline" | "pending-onboarding";
+  readonly registrationState: "sealed-baseline" | "admitted-registration" | "pending-onboarding";
   readonly sourceRevision: string | null;
   readonly observedAt: string | null;
   readonly visibility?: string;
@@ -91,13 +91,13 @@ export function presentTrackedApps(registry: readonly (GovernedAppIdentity & {
     }
     projects.add(entry.projectId);
     repositories.add(entry.repository);
-    if (entry.registrationState !== "sealed-baseline" && entry.registrationState !== "pending-onboarding") {
+    if (!["sealed-baseline", "admitted-registration", "pending-onboarding"].includes(entry.registrationState)) {
       throw new Error("Unknown governance registration state");
     }
     const profile = presentation[entry.projectId];
     if (!profile) throw new Error("Unknown tracked app has no curated presentation");
-    if (entry.registrationState === "pending-onboarding" && !/^[a-f0-9]{40}$/.test(entry.sourceRevision ?? "")) {
-      throw new Error("Pending app requires observed exact SHA");
+    if (entry.registrationState !== "sealed-baseline" && !/^[a-f0-9]{40}$/.test(entry.sourceRevision ?? "")) {
+      throw new Error("Tracked non-baseline app requires observed exact SHA");
     }
     return Object.freeze({
       ...entry, ...profile, registrationState: entry.registrationState,
