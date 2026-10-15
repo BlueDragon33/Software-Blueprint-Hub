@@ -1,0 +1,43 @@
+name: Pinned GitHub Inspection Smoke
+
+on:
+  pull_request:
+    paths:
+      - "packages/runtime/src/workflow-scoped-github-executor.ts"
+      - "packages/runtime/src/workflow-observation-qa.ts"
+      - "packages/runtime/src/workflow-inspection-pipeline.ts"
+      - "tests/application/prompt-workflow-live-inspection.test.ts"
+      - ".github/workflows/pinned-inspection-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  read-only-smoke:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Checkout exact proposed commit
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify real pinned bytes and independent read-back
+        env:
+          BLUEPRINT_LIVE_PINNED_SMOKE: "true"
+          BLUEPRINT_LIVE_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm exec vitest run tests/application/prompt-workflow-live-inspection.test.ts
