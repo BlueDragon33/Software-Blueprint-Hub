@@ -86,6 +86,20 @@ describe("real PostgreSQL immutable QA verification integrity", () => {
     }, 30_000
   );
 
+  live("cannot recycle a claim that has no observation yet", async () => {
+    const { prisma } = await seededJournal();
+    const requestId = "sha256:" + randomBytes(32).toString("hex");
+    try {
+      const journal = new PostgresWorkflowExecutionJournal(prisma);
+      expect(await journal.claim(requestId, new Date(Date.now() + 60_000).toISOString())).toBe(true);
+      await expect(prisma.workflowExecutionClaim.delete({ where: { requestId } }))
+        .rejects.toThrow("Execution journal is append-only");
+      expect(await journal.claim(requestId, new Date(Date.now() + 60_000).toISOString())).toBe(false);
+    } finally {
+      await prisma.$disconnect();
+    }
+  }, 30_000);
+
   live("rolls back a new attempt and retains replay protection after reconnect", async () => {
     const { prisma, url, requestId, evidence } = await seededJournal();
     try {

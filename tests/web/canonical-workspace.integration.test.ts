@@ -5,7 +5,7 @@ import {
   generateCanonicalPrompt,
   type CanonicalWorkspaceIds
 } from "../../apps/web/src/workspace/canonical";
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 const databaseUrl = process.env.DATABASE_URL;
 const describePostgres = databaseUrl ? describe : describe.skip;
@@ -19,7 +19,11 @@ const ids: CanonicalWorkspaceIds = {
 const now = "2026-09-25T19:40:00+07:00";
 
 describePostgres("FND-009 canonical App Shell journey", () => {
-  const runtime = createBlueprintServerRuntime(databaseUrl!);
+  let runtime: ReturnType<typeof createBlueprintServerRuntime>;
+
+  beforeAll(() => {
+    runtime = createBlueprintServerRuntime(databaseUrl!);
+  });
 
   beforeEach(async () => {
     await runtime.prisma.gateEvidence.deleteMany({ where: { gate: { projectId: ids.projectId } } });
