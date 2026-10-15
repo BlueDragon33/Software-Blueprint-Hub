@@ -32,6 +32,8 @@ const presentation: Readonly<Record<string, Pick<HubAppPresentation, "group" | "
   "project:hardware-simulation": { group: "engineering", icon: "🧩", vi: "Mô phỏng phần cứng", en: "Hardware Simulation", keywords: "hardware vi mạch" },
   "project:mpc-pid-system": { group: "engineering", icon: "🎛️", vi: "Điều khiển MPC/PID", en: "MPC/PID Control", keywords: "MPC PID điều khiển tự động hóa" },
   "project:cad-cam-3d": { group: "engineering", icon: "🛠️", vi: "Thiết kế CAD/CAM", en: "CAD/CAM 3D", keywords: "thiết kế 3d cad cam" },
+  "project:ecad-design": { group: "engineering", icon: "🧲", vi: "Thiết kế ECAD", en: "ECAD Design", keywords: "điện tử mạch PCB schematic ECAD" },
+  "project:cae-simulation": { group: "engineering", icon: "🌐", vi: "Mô phỏng CAE", en: "CAE Simulation", keywords: "mô phỏng kết cấu solver FEA CAE" },
   "project:nc03-modem": { group: "engineering", icon: "📡", vi: "Modem NC03", en: "NC03 Modem", keywords: "mạng kết nối modem" },
   "project:boiech-ai": { group: "utilities", icon: "🏊", vi: "Trợ lý bơi ếch AI", en: "BOIECH AI", keywords: "boiech bơi bơi ếch" },
   "project:health-care": { group: "utilities", icon: "🩺", vi: "Chăm sóc sức khỏe", en: "Health Care", keywords: "health y tế" },
@@ -55,6 +57,45 @@ export function presentGovernedApps(registry: readonly GovernedAppIdentity[]): r
     const profile = presentation[entry.projectId];
     if (!profile) throw new Error("Unknown governed app has no curated presentation");
     return Object.freeze({ ...entry, ...profile });
+  }));
+}
+
+
+/**
+ * A tracked operational app is NOT necessarily a constitutionally registered app.
+ * The current view never provides release URLs, Quality Gate PASS, or app permissions.
+ */
+export interface HubTrackedAppPresentation extends HubAppPresentation {
+  readonly registrationState: "sealed-baseline" | "pending-onboarding";
+  readonly sourceRevision: string | null;
+  readonly observedAt: string | null;
+}
+
+export function presentTrackedApps(registry: readonly (GovernedAppIdentity & {
+  readonly registrationState: string;
+  readonly sourceRevision: string | null;
+  readonly observedAt: string | null;
+})[]): readonly HubTrackedAppPresentation[] {
+  const projects = new Set<string>();
+  const repositories = new Set<string>();
+  return Object.freeze(registry.map((entry): HubTrackedAppPresentation => {
+    if (projects.has(entry.projectId) || repositories.has(entry.repository)) {
+      throw new Error("Duplicate tracked app identity");
+    }
+    projects.add(entry.projectId);
+    repositories.add(entry.repository);
+    if (entry.registrationState !== "sealed-baseline" && entry.registrationState !== "pending-onboarding") {
+      throw new Error("Unknown governance registration state");
+    }
+    const profile = presentation[entry.projectId];
+    if (!profile) throw new Error("Unknown tracked app has no curated presentation");
+    if (entry.registrationState === "pending-onboarding" && !/^[a-f0-9]{40}$/.test(entry.sourceRevision ?? "")) {
+      throw new Error("Pending app requires observed exact SHA");
+    }
+    return Object.freeze({
+      ...entry, ...profile, registrationState: entry.registrationState,
+      sourceRevision: entry.sourceRevision, observedAt: entry.observedAt
+    });
   }));
 }
 
