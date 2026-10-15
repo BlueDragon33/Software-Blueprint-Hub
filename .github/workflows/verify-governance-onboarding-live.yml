@@ -1,0 +1,37 @@
+name: Verify Governance Onboarding Live
+
+on:
+  pull_request:
+    paths:
+      - "control/governance-onboarding-queue.v1.json"
+      - "control/governance-current-view.v1.json"
+      - "scripts/verify-governance-onboarding-live.mjs"
+      - "scripts/derive-governance-current-view.mjs"
+      - "tests/governance/onboarding-live.test.mjs"
+      - ".github/workflows/verify-governance-onboarding-live.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  live-onboarding:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact proposed source
+        uses: actions/checkout@v5
+      - name: Set up Node 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Validate derived current inventory
+        run: node scripts/derive-governance-current-view.mjs --check
+      - name: Test fail-closed GitHub inspection
+        run: node --test tests/governance/onboarding-live.test.mjs
+      - name: Verify both repositories against actual GitHub main and same-SHA CI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/verify-governance-onboarding-live.mjs
