@@ -5,8 +5,10 @@ import {
   sealSsoCookie, SESSION_TTL, SSO_FLOW_COOKIE,
   SSO_SESSION_COOKIE, validatedSsoRedemption
 } from "../../../../src/auth/appmanage-sso";
-import { hasExistingGitHubOwnerSession, matchingExistingHubOwner } from "../../../../src/auth/appmanage-owner-link";
-import { resolveWebIdentity } from "../../../../src/auth/server-actor";
+import { matchingExistingHubOwner } from "../../../../src/auth/appmanage-owner-link";
+import {
+  sealOwnerPair, PAIR_TTL_SECONDS, SSO_PAIR_COOKIE
+} from "../../../../src/auth/appmanage-owner-pair";
 import { getBlueprintServerRuntime } from "../../../../src/server/runtime";
 
 export const dynamic = "force-dynamic";
@@ -68,27 +70,26 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       });
       const ownerId = matchingExistingHubOwner(identity, bootstrap?.owner ?? null);
       if (!ownerId) {
-        // A Google and GitHub account may legitimately have different emails.
-        // Never auto-bind their privileged identities without separate proof.
-        // However, an existing verified GitHub constitutional-owner session
-        // independently authorizes direct entry, without any SSO link or role grant.
-        const github = await resolveWebIdentity();
-        const owner = bootstrap?.owner;
-        if (hasExistingGitHubOwnerSession(github, owner ?? null)) {
-          const direct = NextResponse.redirect(new URL("/", origin));
-          direct.cookies.delete(SSO_FLOW_COOKIE);
-          direct.headers.set("Cache-Control", "no-store, private");
-          return direct;
-        }
-        // First visit without the GitHub owner session: use the application's
-        // normal OAuth login, then Auth.js returns to the actual Hub home.
-        // Subsequent App-Manager launches reuse the existing GitHub session.
-        const signIn = NextResponse.redirect(
-          new URL("/api/auth/signin?callbackUrl=%2F", origin)
-        );
-        signIn.cookies.delete(SSO_FLOW_COOKIE);
-        signIn.headers.set("Cache-Control", "no-store, private");
-        return signIn;
+        // Different emails do not prove the accounts are unrelated.
+        // The App-Manage owner identity has been verified by the PKCE
+        // backchannel; now require independent GitHub constitutional-owner
+        // OAuth proof before a single durable link is created.
+        if (!bootstrap?.owner) return returnToAccessError(origin, "missing-principal");
+        const pending = {
+          kind: "pending-owner-pair" as const,
+          appManageSubject: identity.subject,
+          expiresAt: Math.floor(Date.now() / 1000) + PAIR_TTL_SECONDS
+        };
+        const response = NextResponse.redirect(new URL("/api/sso/finish", origin));
+        response.cookies.set(SSO_PAIR_COOKIE,
+          sealOwnerPair(pending, process.env.AUTH_SECRET!), {
+            secure: true, httpOnly: true, sameSite: "lax",
+            path: "/", maxAge: PAIR_TTL_SECONDS
+          });
+        response.cookies.delete(SSO_FLOW_COOKIE);
+        response.headers.set("Cache-Control", "private, no-store");
+        response.headers.set("Referrer-Policy", "no-referrer");
+        return response;
       }
       try {
         link = await runtime.prisma.appManagementSsoLink.create({
