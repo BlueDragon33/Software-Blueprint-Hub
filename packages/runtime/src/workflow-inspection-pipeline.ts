@@ -43,9 +43,8 @@ export interface WorkflowInspectionOutcome {
 }
 
 function requestIdFor(grant: WorkflowExecutionGrant): string {
-  const { signature: _signature, ...signedPayload } = grant;
   return "sha256:" + createHash("sha256")
-    .update(workflowExecutionGrantSigningPayload(signedPayload))
+    .update(workflowExecutionGrantSigningPayload(grant))
     .digest("hex");
 }
 
