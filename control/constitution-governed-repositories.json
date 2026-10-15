@@ -106,6 +106,20 @@
       "projectId": "project:pc-manager-desktop",
       "blueprintLevel": "B4",
       "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/ECAD_Design",
+      "branch": "main",
+      "projectId": "project:ecad-design",
+      "blueprintLevel": "B2",
+      "role": "governed"
+    },
+    {
+      "repository": "BlueDragon33/CAE_Simulation",
+      "branch": "main",
+      "projectId": "project:cae-simulation",
+      "blueprintLevel": "B2",
+      "role": "governed"
     }
   ]
 }
