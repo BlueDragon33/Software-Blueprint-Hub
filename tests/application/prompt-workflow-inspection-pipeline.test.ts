@@ -65,6 +65,9 @@ function setup(config: {
   readonly noClaim?: boolean;
   readonly qaForgetsSource?: boolean;
   readonly failSourceBeforeAction?: boolean;
+  readonly qaStorageFails?: boolean;
+  readonly qaReadbackMissing?: boolean;
+  readonly qaReadbackCorrupt?: boolean;
 } = {}) {
   const journalRows = new Map<string, WorkflowAttemptRecord[]>();
   const claims = new Set<string>();
@@ -119,13 +122,25 @@ function setup(config: {
         : checked;
     }
   };
+  const proofRows = new Map<string, unknown>();
+  const qaJournal = {
+    appendVerified: vi.fn(async (proof: {requestId: string; attempt: number}) => {
+      if (config.qaStorageFails) throw new Error("QA database unavailable");
+      proofRows.set(proof.requestId + ":" + proof.attempt, structuredClone(proof));
+    }),
+    readVerified: vi.fn(async (id: string, attempt: number) => {
+      if (config.qaReadbackMissing) return null;
+      const proof = proofRows.get(id + ":" + attempt);
+      return config.qaReadbackCorrupt ? {...proof as object, verifiedFiles:29} : proof;
+    })
+  };
   const deps = {
     source: {list:async () => []},
     trust: {publicKeyFor:()=>null},
     verifier: {verify:async()=>false},
-    authority, journal, runner, freshness, qa, clock:()=>now
+    authority, journal, runner, freshness, qa, qaJournal, clock:()=>now
   };
-  return {execute:(g:unknown=signedGrant(),w=workflow)=>executeAndVerifyScopedInspection(g,w,context,deps),journal,sourceHttp,qaHttp,freshness};
+  return {execute:(g:unknown=signedGrant(),w=workflow)=>executeAndVerifyScopedInspection(g,w,context,deps),journal,qaJournal,sourceHttp,qaHttp,freshness};
 }
 
 describe("signed workflow inspection → durable journal → independent QA", () => {
@@ -140,6 +155,8 @@ describe("signed workflow inspection → durable journal → independent QA", ()
     expect(result.qualityGatePassed).toBe(false);
     expect(result.productionAuthorized).toBe(false);
     expect(h.journal.read).toHaveBeenCalledOnce();
+    expect(h.qaJournal.appendVerified).toHaveBeenCalledOnce();
+    expect(h.qaJournal.readVerified).toHaveBeenCalledOnce();
     expect(h.sourceHttp).toHaveBeenCalledOnce();
     expect(h.qaHttp).toHaveBeenCalledOnce();
     await expect(h.execute()).rejects.toThrow(/replay/i);
@@ -159,6 +176,16 @@ describe("signed workflow inspection → durable journal → independent QA", ()
     const altered=setup({corruptJournal:true});
     await expect(altered.execute()).rejects.toThrow(/Durable execution journal/);
     expect(altered.qaHttp).not.toHaveBeenCalled();
+  });
+
+  it("does not accept QA observations when the immutable QA store is unavailable", async () => {
+    const h=setup({qaStorageFails:true});
+    await expect(h.execute()).rejects.toThrow(/QA database unavailable/);
+    expect(h.qaJournal.readVerified).not.toHaveBeenCalled();
+  });
+  it("rejects missing or contradictory durable QA read-back", async () => {
+    await expect(setup({qaReadbackMissing:true}).execute()).rejects.toThrow(/Durable QA verification read-back/);
+    await expect(setup({qaReadbackCorrupt:true}).execute()).rejects.toThrow(/Durable QA verification read-back/);
   });
 
   it("fails closed when independent GitHub QA is unavailable", async () => {

@@ -11,6 +11,7 @@ import {
   type WorkflowScopedAction
 } from "@blueprint-os/application";
 import type { PinnedInspectionQaReport } from "./workflow-observation-qa";
+import { INDEPENDENT_INSPECTION_VERIFIER_ID, type DurableInspectionQaRecord } from "./workflow-inspection-qa-journal";
 
 type Manifest = Parameters<typeof executeEvidenceBoundWorkflowNode>[1];
 type SourceContext = Parameters<typeof executeEvidenceBoundWorkflowNode>[2];
@@ -30,6 +31,11 @@ export interface WorkflowInspectionDependencies extends Omit<WorkflowExecutionTr
   /** Persisted claim and attempt read-back, never a copy of the runner response. */
   readonly journal: WorkflowExecutionTrustedDependencies["journal"] & WorkflowInspectionJournalReadback;
   readonly qa: WorkflowInspectionQa;
+  /** Independent QA records MUST persist in a separate append-only table. */
+  readonly qaJournal: {
+    appendVerified(record: DurableInspectionQaRecord): Promise<void>;
+    readVerified(requestId: string, attempt: number): Promise<DurableInspectionQaRecord | null>;
+  };
 }
 
 export interface WorkflowInspectionOutcome {
@@ -129,6 +135,21 @@ export async function executeAndVerifyScopedInspection(
       qa.completionReceiptIssued !== false || qa.qualityGatePassed !== false ||
       qa.productionAuthorized !== false) {
     throw new Error("Independent QA response is not bound to the persisted observation");
+  }
+  const proof: DurableInspectionQaRecord = Object.freeze({
+    requestId: expected,
+    attempt: success.attempt,
+    observationDigest: qa.observationDigest,
+    sourceRevision: context.appHead,
+    verifiedFiles: qa.verifiedFiles,
+    verifierId: INDEPENDENT_INSPECTION_VERIFIER_ID
+  });
+  // A successful runtime QA computation is not durable until persisted AND
+  // independently read back. Storage failures must never be swallowed.
+  await deps.qaJournal.appendVerified(proof);
+  const storedProof = await deps.qaJournal.readVerified(expected, success.attempt);
+  if (!storedProof || !isDeepStrictEqual(storedProof, proof)) {
+    throw new Error("Durable QA verification read-back does not match independently observed bytes");
   }
   return Object.freeze({
     status: "independently-verified" as const,
