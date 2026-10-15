@@ -7,11 +7,12 @@
   "generatedFrom": [
     "control/constitution-governed-repositories.json",
     "control/governance-onboarding-queue.v1.json",
+    "control/governance-registration-ledger.v1.json",
     "control/universal-constitution-version.json"
   ],
-  "recordedAt": "2026-10-15T02:54:22.797Z",
+  "recordedAt": "2026-10-15T13:53:00.000Z",
   "sealedBaselineCount": 15,
-  "pendingOnboardingCount": 2,
+  "pendingOnboardingCount": 0,
   "trackedCount": 17,
   "repositories": [
     {
@@ -199,10 +200,10 @@
       "branch": "main",
       "projectId": "project:ecad-design",
       "blueprintLevel": "B2",
-      "registrationState": "pending-onboarding",
+      "registrationState": "admitted-registration",
       "sourceRevision": "3b47303869742e99924e9d4c82b1a6f45bed076f",
-      "observedAt": "2026-10-15T02:54:22.797Z",
-      "sourceFreshness": "historical-reference-not-live-head",
+      "observedAt": "2026-10-15T13:53:00.000Z",
+      "sourceFreshness": "verified-admission-source",
       "complianceState": "UNVERIFIED",
       "productionAuthority": false
     },
@@ -211,15 +212,16 @@
       "branch": "main",
       "projectId": "project:cae-simulation",
       "blueprintLevel": "B2",
-      "registrationState": "pending-onboarding",
+      "registrationState": "admitted-registration",
       "sourceRevision": "ac31178bae7a92f89180d875e81d6d35760a8367",
-      "observedAt": "2026-10-15T02:54:22.797Z",
-      "sourceFreshness": "historical-reference-not-live-head",
+      "observedAt": "2026-10-15T13:53:00.000Z",
+      "sourceFreshness": "verified-admission-source",
       "complianceState": "UNVERIFIED",
       "productionAuthority": false
     }
   ],
   "canonicalProjectMutationAllowed": false,
   "automaticQualityGatePassAllowed": false,
-  "productionReleaseAuthority": false
+  "productionReleaseAuthority": false,
+  "admittedRegistrationCount": 2
 }
