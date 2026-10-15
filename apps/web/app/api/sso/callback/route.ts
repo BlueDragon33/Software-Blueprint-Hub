@@ -5,7 +5,7 @@ import {
   sealSsoCookie, SESSION_TTL, SSO_FLOW_COOKIE,
   SSO_SESSION_COOKIE, validatedSsoRedemption
 } from "../../../../src/auth/appmanage-sso";
-import { matchingExistingHubOwner } from "../../../../src/auth/appmanage-owner-link";
+import { hasExistingGitHubOwnerSession, matchingExistingHubOwner } from "../../../../src/auth/appmanage-owner-link";
 import { resolveWebIdentity } from "../../../../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../../../../src/server/runtime";
 
@@ -74,9 +74,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         // independently authorizes direct entry, without any SSO link or role grant.
         const github = await resolveWebIdentity();
         const owner = bootstrap?.owner;
-        if (github?.provider === "github" && !!github.providerSubject &&
-            owner?.provider === "github" &&
-            github.providerSubject === owner.providerSubject) {
+        if (hasExistingGitHubOwnerSession(github, owner ?? null)) {
           const direct = NextResponse.redirect(new URL("/", origin));
           direct.cookies.delete(SSO_FLOW_COOKIE);
           direct.headers.set("Cache-Control", "no-store, private");
