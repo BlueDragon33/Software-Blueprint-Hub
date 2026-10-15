@@ -23,6 +23,9 @@ export interface HubAppPresentation extends GovernedAppIdentity {
 const presentation: Readonly<Record<string, Pick<HubAppPresentation, "group" | "icon" | "vi" | "en" | "keywords">>> = {
   "project:blueprint-os": { group: "management", icon: "🧭", vi: "Trung tâm Blueprint", en: "Blueprint OS Hub", keywords: "hiến pháp hub quản trị" },
   "project:application-management": { group: "management", icon: "🗂️", vi: "Quản lý ứng dụng", en: "Application Management", keywords: "app hồ sơ visa vận hành" },
+  "project:software-blueprint-execution-gateway": { group: "management", icon: "🛡️", vi: "Cổng thực thi", en: "Execution Gateway", keywords: "gateway quyền chữ ký thực thi" },
+  "project:software-blueprint-execution-worker": { group: "management", icon: "⚙️", vi: "Bộ máy thực thi", en: "Execution Worker", keywords: "worker nhiệm vụ sửa lỗi CI" },
+  "project:software-blueprint-qa-worker": { group: "management", icon: "🔍", vi: "Bộ máy kiểm định", en: "QA Worker", keywords: "qa kiểm thử bằng chứng độc lập" },
   "project:pc-manager-desktop": { group: "management", icon: "🖥️", vi: "Quản lý máy tính", en: "PC Manager", keywords: "desktop pc windows dọn dẹp" },
   "project:bauman-master-ai-system": { group: "education", icon: "🎓", vi: "Học tập Bauman", en: "Bauman Learning", keywords: "master tiếng nga kỹ thuật học" },
   "project:math-bauman": { group: "education", icon: "📐", vi: "Toán Bauman", en: "Bauman Mathematics", keywords: "toán math" },
@@ -69,12 +72,16 @@ export interface HubTrackedAppPresentation extends HubAppPresentation {
   readonly registrationState: "sealed-baseline" | "pending-onboarding";
   readonly sourceRevision: string | null;
   readonly observedAt: string | null;
+  readonly visibility?: "private";
+  readonly liveCrossRepoVerified?: boolean;
 }
 
 export function presentTrackedApps(registry: readonly (GovernedAppIdentity & {
   readonly registrationState: string;
   readonly sourceRevision: string | null;
   readonly observedAt: string | null;
+  readonly visibility?: "private";
+  readonly liveCrossRepoVerified?: boolean;
 })[]): readonly HubTrackedAppPresentation[] {
   const projects = new Set<string>();
   const repositories = new Set<string>();
