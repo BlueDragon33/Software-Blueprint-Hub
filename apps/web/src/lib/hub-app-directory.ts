@@ -72,7 +72,7 @@ export interface HubTrackedAppPresentation extends HubAppPresentation {
   readonly registrationState: "sealed-baseline" | "pending-onboarding";
   readonly sourceRevision: string | null;
   readonly observedAt: string | null;
-  readonly visibility?: "private";
+  readonly visibility?: string;
   readonly liveCrossRepoVerified?: boolean;
 }
 
@@ -80,7 +80,7 @@ export function presentTrackedApps(registry: readonly (GovernedAppIdentity & {
   readonly registrationState: string;
   readonly sourceRevision: string | null;
   readonly observedAt: string | null;
-  readonly visibility?: "private";
+  readonly visibility?: string;
   readonly liveCrossRepoVerified?: boolean;
 })[]): readonly HubTrackedAppPresentation[] {
   const projects = new Set<string>();
