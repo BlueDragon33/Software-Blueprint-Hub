@@ -34,7 +34,7 @@ function harness(content: unknown = {
   type: "file", path: filePath, size: body.length,
   encoding: "base64", content: body.toString("base64")
 }, status = 200) {
-  const http = vi.fn(async () => new Response(JSON.stringify(content), {status}));
+  const http = vi.fn(async (_request: RequestInfo | URL) => new Response(JSON.stringify(content), {status}));
   return { http, checker: new PinnedInspectionQaVerifier({http: http as unknown as typeof fetch}) };
 }
 
