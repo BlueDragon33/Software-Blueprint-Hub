@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { hasExistingGitHubOwnerSession, matchingExistingHubOwner } from "../../apps/web/src/auth/appmanage-owner-link";
 import { readFileSync } from "node:fs";
+import { isVerifiedGitHubOwner, readOwnerPair, sealOwnerPair, PAIR_TTL_SECONDS } from "../../apps/web/src/auth/appmanage-owner-pair";
 import {
   APP_MANAGE_ISSUER, HUB_SSO_CLIENT_ID, HUB_SSO_ORIGIN,
   newSsoFlow, readSsoCookie, sealSsoCookie, ssoPkceChallenge,
@@ -81,14 +82,52 @@ describe("App-Manage to Blueprint one-login SSO client", () => {
     expect(hasExistingGitHubOwnerSession({ provider: "github", providerSubject: "" }, owner)).toBe(false);
   });
 
-  it("fallback presents a real GitHub OAuth login rather than mutating constitutional ownership", () => {
+  it("starts signed two-provider proof on email mismatch, without making an unverified link", () => {
     const callback = readFileSync(new URL("../../apps/web/app/api/sso/callback/route.ts", import.meta.url), "utf8");
-    const mismatch = callback.slice(callback.indexOf("if (!ownerId)"), callback.indexOf("      try {\n        link = await runtime.prisma.appManagementSsoLink.create", callback.indexOf("if (!ownerId)")));
-    expect(mismatch).toContain("hasExistingGitHubOwnerSession");
-    expect(mismatch).toContain("/api/auth/signin?callbackUrl=%2F");
+    const mismatch = callback.slice(callback.indexOf("if (!ownerId)"),
+      callback.indexOf("      try {\n        link = await runtime.prisma.appManagementSsoLink.create", callback.indexOf("if (!ownerId)")));
+    expect(mismatch).toContain("SSO_PAIR_COOKIE");
+    expect(mismatch).toContain("sealOwnerPair");
+    expect(mismatch).toContain("/api/sso/finish");
     expect(mismatch).not.toContain("appManagementSsoLink.create");
-    const page = readFileSync(new URL("../../apps/web/app/sso/error/page.tsx", import.meta.url), "utf8");
-    expect(page).toContain("Mở Blueprint bằng GitHub đã có quyền");
+  });
+
+  it("refuses tampered, expired or malformed pending Google-owner proof", () => {
+    const pending = {
+      kind: "pending-owner-pair" as const,
+      appManageSubject: "owner.google@example.com",
+      expiresAt: clock + PAIR_TTL_SECONDS
+    };
+    const cookie = sealOwnerPair(pending, secret);
+    expect(readOwnerPair(cookie, secret, clock + 1)).toEqual(pending);
+    expect(readOwnerPair(cookie, secret, clock + PAIR_TTL_SECONDS)).toBeNull();
+    expect(readOwnerPair(cookie + "x", secret, clock + 1)).toBeNull();
+    expect(readOwnerPair(cookie, "b".repeat(48), clock + 1)).toBeNull();
+    expect(readOwnerPair(sealOwnerPair({ ...pending, appManageSubject: "INVALID" }, secret),
+      secret, clock + 1)).toBeNull();
+    expect(readOwnerPair(undefined, secret, clock + 1)).toBeNull();
+  });
+
+  it("requires independent exact GitHub OAuth account belonging to constitutional owner", () => {
+    const principal = { provider: "github", providerSubject: "github-owner-123" };
+    expect(isVerifiedGitHubOwner({ provider: "github", providerSubject: "github-owner-123" }, principal)).toBe(true);
+    expect(isVerifiedGitHubOwner(null, principal)).toBe(false);
+    expect(isVerifiedGitHubOwner({ provider: "github", providerSubject: "attacker" }, principal)).toBe(false);
+    expect(isVerifiedGitHubOwner({ provider: "google", providerSubject: "github-owner-123" }, principal)).toBe(false);
+    expect(isVerifiedGitHubOwner({ provider: "github", providerSubject: "github-owner-123" },
+      { provider: "google", providerSubject: "github-owner-123" })).toBe(false);
+  });
+
+  it("durable pairing is only completed after both separately established proofs", () => {
+    const finish = readFileSync(new URL("../../apps/web/app/api/sso/finish/route.ts", import.meta.url), "utf8");
+    expect(finish).toContain("readOwnerPair");
+    expect(finish).toContain("resolveWebIdentity()");
+    expect(finish).toContain("isVerifiedGitHubOwner");
+    expect(finish).toContain("appManagementSsoLink.create");
+    expect(finish).toContain("link-conflict");
+    expect(finish).toContain("SSO_PAIR_COOKIE");
+    expect(finish).toContain("SSO_SESSION_COOKIE");
+    expect(finish).toContain("callbackUrl=%2Fapi%2Fsso%2Ffinish");
   });
 
   it("auto-links exclusively to a pre-existing Github constitutional owner with matching verified email", () => {
