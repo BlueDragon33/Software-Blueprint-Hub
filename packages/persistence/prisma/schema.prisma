@@ -22,6 +22,8 @@ model Project {
   releases              ReleaseRecord[]
   lessons               LessonLearned[]
   promptSnapshots        PromptProjectionSnapshot[]
+  workflowExecutionAdoptions WorkflowExecutionAdoptionDecision[]
+  workflowExecutionIssuers   WorkflowExecutionIssuerDecision[]
 }
 
 model ProjectProfile {
@@ -217,6 +219,8 @@ model Principal {
   constitutionEvidence ConstitutionEvidence[] @relation("ConstitutionEvidenceActor")
   constitutionRatificationDecisions ConstitutionRatificationDecision[] @relation("ConstitutionRatificationReviewer")
   constitutionPublications ConstitutionPublication[] @relation("ConstitutionPublicationPublisher")
+  workflowExecutionAdoptions WorkflowExecutionAdoptionDecision[] @relation("WorkflowExecutionAdoptionDecider")
+  workflowExecutionIssuers WorkflowExecutionIssuerDecision[] @relation("WorkflowExecutionIssuerDecider")
 
   @@unique([provider, providerSubject])
 }
@@ -392,6 +396,49 @@ model ConstitutionPublication {
   @@index([authoritySetDigest])
 }
 
+
+
+
+/// Append-only authenticated decision that an exact workflow digest is adopted
+/// for bounded execution. This is not constitutional ratification or release.
+model WorkflowExecutionAdoptionDecision {
+  id                         String   @id @db.VarChar(160)
+  projectId                  String   @db.VarChar(160)
+  workflowId                 String   @db.VarChar(80)
+  workflowDigest             String   @db.VarChar(80)
+  policyVersion              String   @db.VarChar(32)
+  decision                   String   @db.VarChar(16)
+  decidedByPrincipalId       String   @db.VarChar(160)
+  decidedAt                  DateTime @default(now()) @db.Timestamptz(6)
+  productionReleaseAuthority Boolean  @default(false)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  decider Principal @relation("WorkflowExecutionAdoptionDecider", fields: [decidedByPrincipalId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, workflowId, workflowDigest, decidedAt])
+  @@index([decidedByPrincipalId, decidedAt])
+}
+
+/// Append-only public-key authorization for a bounded workflow issuer.
+/// Private signing material is never stored in Blueprint OS.
+model WorkflowExecutionIssuerDecision {
+  id                         String   @id @db.VarChar(160)
+  projectId                  String   @db.VarChar(160)
+  workflowId                 String   @db.VarChar(80)
+  issuerId                   String   @db.VarChar(80)
+  publicKeyPem               String   @db.Text
+  policyVersion              String   @db.VarChar(32)
+  decision                   String   @db.VarChar(16)
+  decidedByPrincipalId       String   @db.VarChar(160)
+  decidedAt                  DateTime @default(now()) @db.Timestamptz(6)
+  productionReleaseAuthority Boolean  @default(false)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  decider Principal @relation("WorkflowExecutionIssuerDecider", fields: [decidedByPrincipalId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, workflowId, issuerId, decidedAt])
+  @@index([decidedByPrincipalId, decidedAt])
+}
 
 /// Durable, one-time execution claim. It never expires for nonce replay
 /// purposes: expiresAt controls the grant lifetime, not safe key reuse.

@@ -6,8 +6,11 @@ on:
       - "packages/persistence/prisma/schema.prisma"
       - "packages/persistence/prisma/migrations/**"
       - "packages/runtime/src/workflow-inspection-qa-journal.ts"
+      - "packages/runtime/src/workflow-execution-authority.ts"
+      - "packages/persistence/src/workflow-execution-authority-repository.ts"
       - "packages/runtime/src/workflow-inspection-pipeline.ts"
       - "tests/application/prompt-workflow-qa-pg-integration.test.ts"
+      - "tests/application/prompt-workflow-authority-pg-integration.test.ts"
       - ".github/workflows/workflow-qa-postgres.yml"
   workflow_dispatch:
 
@@ -57,5 +60,5 @@ jobs:
         run: pnpm db:migrate:deploy
       - name: Verify migration state
         run: pnpm db:migrate:status
-      - name: Test immutable QA record against actual PostgreSQL constraints
-        run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts
+      - name: Test immutable QA and execution authority against actual PostgreSQL constraints
+        run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts tests/application/prompt-workflow-authority-pg-integration.test.ts

@@ -8,3 +8,4 @@ export * from "./prompt-history-repository";
 export * from "./professional-review-repository";
 
 export * from "./constitution-authority-repository";
+export * from "./workflow-execution-authority-repository";

@@ -30,10 +30,11 @@ describe("Vietnamese-first ecosystem launcher", () => {
     expect(apps.every((item) => groupOrder.includes(item.group) && !!item.icon && !!item.vi)).toBe(true);
     expect(apps.some((item) => "url" in item || "deployed" in item)).toBe(false);
   });
-  it("shows 15 sealed and 2 explicitly pending repositories without inventing rights", () => {
+  it("shows 15 sealed and 2 admitted repositories without inventing rights", () => {
     const tracked = presentTrackedApps(coverage.repositories);
     expect(tracked).toHaveLength(17);
-    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(2);
+    expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(0);
     expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
     expect(tracked.some((app) => app.projectId === "project:ecad-design")).toBe(true);
     expect(tracked.some((app) => app.projectId === "project:cae-simulation")).toBe(true);
@@ -44,11 +45,12 @@ describe("Vietnamese-first ecosystem launcher", () => {
     ))).toThrow("observed exact SHA");
   });
 
-  it("stages all 20 identities: 15 sealed, 2 public pending and 3 private pending, without inventing deployments", () => {
+  it("stages all 20 identities: 15 sealed, 2 admitted and 3 private pending, without inventing deployments", () => {
     const tracked = presentTrackedApps([...coverage.repositories,...privateServices.entries]);
     expect(tracked).toHaveLength(20);
     expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
-    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(5);
+    expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(3);
     expect(tracked.filter((app) => app.visibility === "private")).toHaveLength(3);
     expect(tracked.filter((app) => app.visibility === "private").every((app) => app.liveCrossRepoVerified === false)).toBe(true);
     expect(tracked.every((app) => !("productionAuthorized" in app) && !("deploymentUrl" in app))).toBe(true);

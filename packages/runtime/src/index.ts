@@ -17,6 +17,7 @@ import {
 } from "@blueprint-os/application";
 import { GitHubConstitutionPublicationVerifier } from "./constitution-publication";
 import { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
+export { PostgresWorkflowExecutionAuthority } from "./workflow-execution-authority";
 export { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { ScopedGitHubReadExecutor } from "./workflow-scoped-github-executor";
 export { PinnedInspectionQaVerifier } from "./workflow-observation-qa";
@@ -33,6 +34,7 @@ import {
   PostgresPromptProjectionHistoryRepository,
   PostgresReleaseRepository,
   PostgresWorkQualityRepository,
+  PostgresWorkflowExecutionAuthorityRepository,
   type BlueprintPrismaClient
 } from "@blueprint-os/persistence";
 
@@ -51,6 +53,8 @@ export interface BlueprintServerRuntime {
   readonly professionalReview: HumanProfessionalReviewApplicationService;
   /** Dormant until a separately authorized executor is integrated. */
   readonly workflowExecutionJournal: PostgresWorkflowExecutionJournal;
+  /** Canonical append-only adoption and issuer decisions; no private keys. */
+  readonly workflowExecutionAuthority: PostgresWorkflowExecutionAuthorityRepository;
 }
 
 export function createBlueprintServerRuntime(
@@ -128,6 +132,7 @@ export function createBlueprintServerRuntime(
     authority
   );
   const workflowExecutionJournal = new PostgresWorkflowExecutionJournal(prisma);
+  const workflowExecutionAuthority = new PostgresWorkflowExecutionAuthorityRepository(prisma);
 
   return Object.freeze({
     prisma,
@@ -142,7 +147,8 @@ export function createBlueprintServerRuntime(
     workQuality,
     prompts,
     professionalReview,
-    workflowExecutionJournal
+    workflowExecutionJournal,
+    workflowExecutionAuthority
   });
 }
 
