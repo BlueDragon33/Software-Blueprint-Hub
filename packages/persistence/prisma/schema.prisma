@@ -416,9 +416,26 @@ model WorkflowExecutionObservation {
   tokensUsed        Int
   createdAt         DateTime @default(now()) @db.Timestamptz(6)
   claim             WorkflowExecutionClaim @relation(fields: [requestId], references: [requestId], onDelete: Restrict)
+  qaVerification    WorkflowExecutionQaVerification?
 
   @@id([requestId, attempt])
   @@index([createdAt])
+}
+
+/// Immutable proof that an independently fetched source snapshot matches one
+/// durably recorded inspection attempt. No completion/quality/release authority.
+model WorkflowExecutionQaVerification {
+  requestId          String   @db.VarChar(80)
+  attempt            Int
+  observationDigest  String   @db.VarChar(80)
+  sourceRevision     String   @db.VarChar(40)
+  verifierId         String   @db.VarChar(80)
+  verifiedFiles      Int
+  verifiedAt         DateTime @default(now()) @db.Timestamptz(6)
+  observation        WorkflowExecutionObservation @relation(fields: [requestId, attempt], references: [requestId, attempt], onDelete: Restrict)
+
+  @@id([requestId, attempt])
+  @@index([verifiedAt])
 }
 
 /** An explicitly linked App-Manage identity may reuse an existing Hub principal.
