@@ -1,0 +1,136 @@
+name: P2 Provider-Neutral Scoped Integration (No Vercel)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/p2-provider-neutral-integration.yml"
+      - "scripts/ci-p2-cross-service-smoke.mjs"
+      - "control/execution-service-protocol.v1.json"
+      - "control/private-execution-service-onboarding.v1.json"
+      - "docs/ADR-VERCEL-FREE-EXECUTION-VALIDATION.proposed.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-preflight:
+    name: P2 protocol and CI harness preflight (NOT E2E)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Validate no-provider-required protocol and runner syntax
+        run: |
+          node --check scripts/ci-p2-cross-service-smoke.mjs
+          node scripts/check-execution-service-protocol.mjs
+          node scripts/check-private-execution-services.mjs
+          node --test tests/governance/execution-service-protocol.test.mjs tests/governance/private-execution-services.test.mjs
+      - name: Clearly mark unverified runtime boundary
+        run: echo "P2 contract preflight only; cross-private execution, canonical adoption, full E2E and Production are NOT VERIFIED."
+
+  cross-component-isolated:
+    name: Private 3-service source + isolated PostgreSQL (CI smoke, NOT release)
+    needs: contract-preflight
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_p2_disposable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_p2_disposable"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_p2_disposable
+      BLUEPRINT_QA_DB_INTEGRATION: "true"
+      GATEWAY_SHA: 77ba939787e6a8aa26edcf25e6ba1b6ba57e0a94
+      WORKER_SHA: 6de12d9efb36052fd039e869797540d0f182bd66
+      QA_SHA: 13208f42838685eaa76ce6cef9754ad622779cc3
+    steps:
+      - name: Fail closed without explicitly provisioned cross-private GitHub credentials
+        env:
+          CROSS_REPO_READ_TOKEN: ${{ secrets.BLUEPRINT_CROSS_REPO_READ_TOKEN }}
+        run: |
+          if [ -z "$CROSS_REPO_READ_TOKEN" ]; then
+            echo "::error::BLOCKED: BLUEPRINT_CROSS_REPO_READ_TOKEN must be a scoped read-only credential for all three private service repositories."
+            exit 1
+          fi
+          echo "Cross-private credential supplied; checkout and tests will verify its actual permissions."
+      - name: Checkout exact Hub source (never persist GITHUB_TOKEN)
+        uses: actions/checkout@v5
+        with:
+          path: hub
+          persist-credentials: false
+      - name: Checkout independently pinned private Gateway
+        uses: actions/checkout@v5
+        with:
+          repository: BlueDragon33/Software-Blueprint-Execution-Gateway
+          ref: 77ba939787e6a8aa26edcf25e6ba1b6ba57e0a94
+          token: ${{ secrets.BLUEPRINT_CROSS_REPO_READ_TOKEN }}
+          path: gateway
+          persist-credentials: false
+      - name: Checkout independently pinned private Worker
+        uses: actions/checkout@v5
+        with:
+          repository: BlueDragon33/Software-Blueprint-Execution-Worker
+          ref: 6de12d9efb36052fd039e869797540d0f182bd66
+          token: ${{ secrets.BLUEPRINT_CROSS_REPO_READ_TOKEN }}
+          path: worker
+          persist-credentials: false
+      - name: Checkout independently pinned private QA Worker
+        uses: actions/checkout@v5
+        with:
+          repository: BlueDragon33/Software-Blueprint-QA-Worker
+          ref: 13208f42838685eaa76ce6cef9754ad622779cc3
+          token: ${{ secrets.BLUEPRINT_CROSS_REPO_READ_TOKEN }}
+          path: qa
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Run all three independent repositories' existing scoped suites
+        run: |
+          (cd gateway && npm run ci)
+          (cd worker && npm run ci)
+          (cd qa && npm run ci)
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - name: Install exact Hub dependencies and migrate disposable PostgreSQL
+        working-directory: hub
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma:generate
+          pnpm exec prisma validate --config prisma7.config.ts
+          pnpm db:migrate:deploy
+          pnpm db:migrate:status
+      - name: Verify immutable canonical attempt and QA constraints with real PostgreSQL
+        working-directory: hub
+        run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts tests/application/prompt-workflow-authority-pg-integration.test.ts
+      - name: Signed Gateway -> Worker -> independently re-fetching QA (isolated CI fixture only)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node hub/scripts/ci-p2-cross-service-smoke.mjs
+      - name: Archive clearly scoped SHA-bound CI evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2-component-smoke-not-authenticated-e2e-${{ github.sha }}
+          path: ${{ runner.temp }}/p2-provider-neutral-contract-evidence.json
+          if-no-files-found: error
+          retention-days: 7
