@@ -5,6 +5,7 @@ on:
     paths:
       - "control/governance-onboarding-queue.v1.json"
       - "control/governance-current-view.v1.json"
+      - "control/governance-registration-ledger.v1.json"
       - "scripts/verify-governance-onboarding-live.mjs"
       - "scripts/derive-governance-current-view.mjs"
       - "tests/governance/onboarding-live.test.mjs"
