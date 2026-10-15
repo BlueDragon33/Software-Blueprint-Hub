@@ -19,7 +19,7 @@
     "prisma:generate": "prisma generate --config prisma7.config.ts",
     "db:migrate:deploy": "prisma migrate deploy --config prisma7.config.ts",
     "db:migrate:status": "prisma migrate status --config prisma7.config.ts",
-    "ci": "pnpm contracts:check && pnpm schema:compat && pnpm check:coverage && pnpm test:coverage && pnpm test:governance-live && pnpm check:private-services && pnpm test:private-services && pnpm check:onboarding && pnpm test:onboarding && pnpm check:departments && pnpm test:departments && pnpm check:prompts && pnpm test:prompts && pnpm check:truth && pnpm test:truth && pnpm prisma:generate && pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm test && pnpm build",
+    "ci": "pnpm contracts:check && pnpm schema:compat && pnpm check:coverage && pnpm test:coverage && pnpm test:governance-live && pnpm check:private-services && pnpm test:private-services && pnpm check:onboarding && pnpm test:onboarding && pnpm check:execution-protocol && pnpm test:execution-protocol && pnpm check:departments && pnpm test:departments && pnpm check:prompts && pnpm test:prompts && pnpm check:truth && pnpm test:truth && pnpm prisma:generate && pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm test && pnpm build",
     "test:e2e": "playwright test",
     "check:truth": "node scripts/check-source-of-truth.mjs",
     "test:truth": "node --test tests/source-truth/source-truth-detector.test.mjs",
@@ -36,7 +36,9 @@
     "test:coverage": "node --test tests/governance/current-coverage.test.mjs",
     "test:governance-live": "node --test tests/governance/onboarding-live.test.mjs",
     "check:private-services": "node scripts/check-private-execution-services.mjs",
-    "test:private-services": "node --test tests/governance/private-execution-services.test.mjs"
+    "test:private-services": "node --test tests/governance/private-execution-services.test.mjs",
+    "check:execution-protocol": "node scripts/check-execution-service-protocol.mjs",
+    "test:execution-protocol": "node --test tests/governance/execution-service-protocol.test.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
