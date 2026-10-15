@@ -21,3 +21,13 @@ export function matchingExistingHubOwner(
   if (identity.subject !== identity.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
   return owner.id;
 }
+
+/** Reuse an independently established GitHub session, not a Google role. */
+export function hasExistingGitHubOwnerSession(
+  session: { readonly provider: string; readonly providerSubject: string } | null,
+  owner: { readonly provider: string; readonly providerSubject: string } | null
+): boolean {
+  return !!session && !!owner && session.provider === "github" &&
+    owner.provider === "github" && !!session.providerSubject &&
+    session.providerSubject === owner.providerSubject;
+}
