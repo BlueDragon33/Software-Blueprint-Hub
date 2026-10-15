@@ -27,7 +27,7 @@ test("derived inventory contains 15 sealed, 2 admitted, 0 pending and zero autom
 
 test("rejects duplicate staging repository or project identity", () => {
   const q = clone(pending);
-  q.entries[1].repository = q.entries[0].repository;
+  q.entries[1] = clone(q.entries[0]);
   assert.throws(() => build(baseline,q), /duplicate repository/);
   const q2 = clone(pending);
   q2.entries[0].projectId = baseline.repositories[0].projectId;
