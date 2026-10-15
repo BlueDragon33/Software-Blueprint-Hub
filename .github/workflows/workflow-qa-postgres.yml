@@ -1,0 +1,61 @@
+name: Immutable QA PostgreSQL Integration
+
+on:
+  pull_request:
+    paths:
+      - "packages/persistence/prisma/schema.prisma"
+      - "packages/persistence/prisma/migrations/**"
+      - "packages/runtime/src/workflow-inspection-qa-journal.ts"
+      - "packages/runtime/src/workflow-inspection-pipeline.ts"
+      - "tests/application/prompt-workflow-qa-pg-integration.test.ts"
+      - ".github/workflows/workflow-qa-postgres.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa-postgres:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_qa_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_qa_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_qa_test
+      BLUEPRINT_QA_DB_INTEGRATION: "true"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install pinned dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma Client
+        run: pnpm prisma:generate
+      - name: Validate Prisma schema
+        run: pnpm exec prisma validate --config prisma7.config.ts
+      - name: Apply migrations to isolated throwaway PostgreSQL
+        run: pnpm db:migrate:deploy
+      - name: Verify migration state
+        run: pnpm db:migrate:status
+      - name: Test immutable QA record against actual PostgreSQL constraints
+        run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts
