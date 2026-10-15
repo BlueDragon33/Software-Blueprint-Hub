@@ -40,8 +40,8 @@ export function EcosystemDirectory({ apps, canonicalProjectIds, initialAppId }: 
         <Link className={styles.back} href="/">{en ? "← Home screen" : "← Màn hình chính"}</Link>
       </header>
       <p className={styles.note}>{en
-        ? "17 tracked repositories: 15 sealed registrations and 2 pending onboarding. Governance compliance remains unverified by this directory."
-        : "Đang theo dõi 17 repository: 15 thuộc danh sách gốc, 2 chờ đăng ký chính thức. Danh mục không chứng nhận đã tuân thủ Hiến pháp."}</p>
+        ? `${apps.length} tracked repositories: ${apps.filter((app) => app.registrationState === "sealed-baseline").length} in the sealed baseline and ${apps.filter((app) => app.registrationState === "pending-onboarding").length} pending. This directory does not certify constitutional compliance.`
+        : `Đang theo dõi ${apps.length} repository: ${apps.filter((app) => app.registrationState === "sealed-baseline").length} trong danh sách gốc, ${apps.filter((app) => app.registrationState === "pending-onboarding").length} chờ đăng ký. Danh mục không chứng nhận đã tuân thủ Hiến pháp.`}</p>
       <div className={styles.find}>
         <label htmlFor="ecosystem-search">{en ? "Find app" : "Tìm ứng dụng"}</label>
         <input id="ecosystem-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)}
