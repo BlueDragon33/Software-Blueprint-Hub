@@ -68,12 +68,18 @@ export function presentGovernedApps(registry: readonly GovernedAppIdentity[]): r
  * A tracked operational app is NOT necessarily a constitutionally registered app.
  * The current view never provides release URLs, Quality Gate PASS, or app permissions.
  */
+export type GovernanceRegistrationState = "sealed-baseline" | "admitted-registration" | "pending-onboarding";
+
 export interface HubTrackedAppPresentation extends HubAppPresentation {
-  readonly registrationState: "sealed-baseline" | "admitted-registration" | "pending-onboarding";
+  readonly registrationState: GovernanceRegistrationState;
   readonly sourceRevision: string | null;
   readonly observedAt: string | null;
   readonly visibility?: string;
   readonly liveCrossRepoVerified?: boolean;
+}
+
+function isGovernanceRegistrationState(value: string): value is GovernanceRegistrationState {
+  return value === "sealed-baseline" || value === "admitted-registration" || value === "pending-onboarding";
 }
 
 export function presentTrackedApps(registry: readonly (GovernedAppIdentity & {
@@ -91,7 +97,7 @@ export function presentTrackedApps(registry: readonly (GovernedAppIdentity & {
     }
     projects.add(entry.projectId);
     repositories.add(entry.repository);
-    if (!["sealed-baseline", "admitted-registration", "pending-onboarding"].includes(entry.registrationState)) {
+    if (!isGovernanceRegistrationState(entry.registrationState)) {
       throw new Error("Unknown governance registration state");
     }
     const profile = presentation[entry.projectId];
