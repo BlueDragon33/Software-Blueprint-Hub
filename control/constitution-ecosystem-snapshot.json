@@ -393,18 +393,6 @@
         "evidenceAuthority": "canonical-quality-gates",
         "productionAuthority": "separate-explicit-release-gate"
       }
-    },
-    {
-      "repository": "BlueDragon33/ECAD_Design",
-      "branch": "main",
-      "sourceRevision": "d4a268f3704a49b7e9b565bea6697bb067c7dca2",
-      "manifest": null
-    },
-    {
-      "repository": "BlueDragon33/CAE_Simulation",
-      "branch": "main",
-      "sourceRevision": "6a84bbf91e8381f9bd639c798f99afa6fe616eba",
-      "manifest": null
     }
   ]
 }
