@@ -93,6 +93,10 @@ jobs:
       - name: Constitution compliance matrix snapshot
         run: node scripts/check-constitution-compliance-snapshot.mjs
 
+      - name: Sealed constitution onboarding queue
+        run: |
+          node scripts/check-governance-onboarding-queue.mjs
+          node --test tests/governance/onboarding-queue.test.mjs
       - name: Execution departments ownership and split policy
         run: |
           node scripts/check-execution-departments.mjs
