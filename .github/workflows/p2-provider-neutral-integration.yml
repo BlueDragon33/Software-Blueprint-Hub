@@ -25,6 +25,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          package-manager-cache: false
       - name: Validate no-provider-required protocol and runner syntax
         run: |
           node --check scripts/ci-p2-cross-service-smoke.mjs
@@ -102,6 +103,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          package-manager-cache: false
       - name: Run all three independent repositories' existing scoped suites
         run: |
           (cd gateway && npm run ci)
