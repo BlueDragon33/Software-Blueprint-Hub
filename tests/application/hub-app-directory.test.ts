@@ -1,10 +1,17 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { appSearchKey, groupOrder, matchesApp, presentGovernedApps } from "../../apps/web/src/lib/hub-app-directory";
+import { appSearchKey, groupOrder, matchesApp, presentGovernedApps, presentTrackedApps } from "../../apps/web/src/lib/hub-app-directory";
 
 const governed = JSON.parse(readFileSync(
   new URL("../../control/constitution-governed-repositories.json", import.meta.url), "utf8"
 )) as { repositories: { projectId: string; repository: string; branch: string; blueprintLevel: string }[] };
+
+const coverage = JSON.parse(readFileSync(
+  new URL("../../control/governance-current-view.v1.json", import.meta.url), "utf8"
+)) as { repositories: {
+  projectId: string; repository: string; branch: string; blueprintLevel: string;
+  registrationState: string; sourceRevision: string | null; observedAt: string | null;
+}[] };
 
 describe("Vietnamese-first ecosystem launcher", () => {
   const apps = presentGovernedApps(governed.repositories);
@@ -15,6 +22,20 @@ describe("Vietnamese-first ecosystem launcher", () => {
     expect(apps.every((item) => groupOrder.includes(item.group) && !!item.icon && !!item.vi)).toBe(true);
     expect(apps.some((item) => "url" in item || "deployed" in item)).toBe(false);
   });
+  it("shows 15 sealed and 2 explicitly pending repositories without inventing rights", () => {
+    const tracked = presentTrackedApps(coverage.repositories);
+    expect(tracked).toHaveLength(17);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(2);
+    expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
+    expect(tracked.some((app) => app.projectId === "project:ecad-design")).toBe(true);
+    expect(tracked.some((app) => app.projectId === "project:cae-simulation")).toBe(true);
+    expect(tracked.every((app) => !("url" in app) && !("deployed" in app))).toBe(true);
+    expect(() => presentTrackedApps([...coverage.repositories, coverage.repositories[0]!])).toThrow("Duplicate");
+    expect(() => presentTrackedApps(coverage.repositories.map((app) =>
+      app.projectId === "project:ecad-design" ? { ...app, sourceRevision: null } : app
+    ))).toThrow("observed exact SHA");
+  });
+
   it("searches Vietnamese accents and plain text reliably", () => {
     expect(appSearchKey("Điều khiển Ếch")).toBe("dieu khien ech");
     expect(apps.filter((app) => matchesApp(app, "boi ech"))[0]?.projectId).toBe("project:boiech-ai");
