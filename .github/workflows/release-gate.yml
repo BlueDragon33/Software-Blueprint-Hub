@@ -103,6 +103,10 @@ jobs:
         run: |
           node scripts/check-governance-onboarding-queue.mjs
           node --test tests/governance/onboarding-queue.test.mjs
+      - name: Staged private execution services without implicit authority
+        run: |
+          node scripts/check-private-execution-services.mjs
+          node --test tests/governance/private-execution-services.test.mjs
       - name: Execution departments ownership and split policy
         run: |
           node scripts/check-execution-departments.mjs
