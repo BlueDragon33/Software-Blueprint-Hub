@@ -33,7 +33,8 @@ describe("Vietnamese-first ecosystem launcher", () => {
   it("shows 15 sealed and 2 admitted repositories without inventing rights", () => {
     const tracked = presentTrackedApps(coverage.repositories);
     expect(tracked).toHaveLength(17);
-    expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);\n    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(0);
+    expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(0);
     expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
     expect(tracked.some((app) => app.projectId === "project:ecad-design")).toBe(true);
     expect(tracked.some((app) => app.projectId === "project:cae-simulation")).toBe(true);
@@ -48,7 +49,8 @@ describe("Vietnamese-first ecosystem launcher", () => {
     const tracked = presentTrackedApps([...coverage.repositories,...privateServices.entries]);
     expect(tracked).toHaveLength(20);
     expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
-    expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);\n    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(3);
+    expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(3);
     expect(tracked.filter((app) => app.visibility === "private")).toHaveLength(3);
     expect(tracked.filter((app) => app.visibility === "private").every((app) => app.liveCrossRepoVerified === false)).toBe(true);
     expect(tracked.every((app) => !("productionAuthorized" in app) && !("deploymentUrl" in app))).toBe(true);
