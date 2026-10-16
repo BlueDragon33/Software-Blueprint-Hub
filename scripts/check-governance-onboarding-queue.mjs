@@ -21,6 +21,7 @@ export function validateOnboardingQueue(queue, governed, policy) {
     seen.add(e.repository);
     if (accepted.has(e.repository)) reject("pending repository already present in constitutional baseline: " + e.repository);
     if (e.branch !== "main") reject("unknown pending default branch for " + e.repository);
+    if (e.visibility !== undefined && e.visibility !== "private") reject("unsupported repository visibility metadata");
     if (e.observedAt !== undefined && (!isExactIso(e.observedAt) || Date.parse(e.observedAt) < Date.parse(queue.recordedAt))) reject("invalid or backdated observedAt for " + e.repository);
     if (!/^project:[a-z0-9-]+$/.test(e.projectId ?? "")) reject("invalid projectId");
     if (!/^B[0-5]$/.test(e.proposedBlueprintLevel ?? "")) reject("invalid proposed blueprint level");
