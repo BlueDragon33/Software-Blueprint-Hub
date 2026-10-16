@@ -27,9 +27,13 @@ function isExactIso(value) {
   return typeof value === "string" && !Number.isNaN(timestamp) && new Date(timestamp).toISOString() === value;
 }
 
-function checkQueueEntry(item) {
+function checkQueueEntry(item, historicRecordedAt) {
   checkIdentity(item.repository, item.branch, item.projectId, item.proposedBlueprintLevel);
   assert(item.branch === "main", "pending default branch must be main");
+  if(item.observedAt !== undefined) {
+    assert(isExactIso(item.observedAt), "pending entry observedAt must be exact ISO");
+    assert(Date.parse(item.observedAt) >= Date.parse(historicRecordedAt), "pending entry observedAt predates historical queue");
+  }
   assert(sha40.test(item.observedMainSha ?? ""), "pending source needs exact observed SHA");
   assert(item.state === "adopted-pending-canonical-registration", "pending must not claim registration");
   assert(item.canonicalCompliance === "UNVERIFIED" && item.productionAuthority === false, "pending may not self-certify");
@@ -93,12 +97,13 @@ export function buildGovernanceCurrentView(baseline, queue, ledger, policy) {
   const queueByRepo = new Map();
   const queueProjects = new Set();
   for (const item of queue.entries) {
-    checkQueueEntry(item);
+    checkQueueEntry(item, queue.recordedAt);
     assert(!sealedRepos.has(item.repository), "duplicate repository: " + item.repository);
     assert(!sealedProjects.has(item.projectId), "duplicate project identity: " + item.projectId);
     assert(!queueByRepo.has(item.repository), "duplicate repository: " + item.repository);
     assert(!queueProjects.has(item.projectId), "duplicate project identity: " + item.projectId);
     queueByRepo.set(item.repository, item);
+    if (item.observedAt && Date.parse(item.observedAt) > Date.parse(latestRecordedAt)) latestRecordedAt = item.observedAt;
     queueProjects.add(item.projectId);
   }
 
@@ -107,7 +112,7 @@ export function buildGovernanceCurrentView(baseline, queue, ledger, policy) {
   let latestRecordedAt = queue.recordedAt;
   for (const migration of ledger.migrations) {
     assert(migration && typeof migration === "object" && migrationIdPattern.test(migration.migrationId ?? ""), "invalid registration migration ID");
-    assert(isExactIso(migration.sourceQueueRecordedAt) && migration.sourceQueueRecordedAt === queue.recordedAt, "registration migration queue source mismatch");
+    assert(isExactIso(migration.sourceQueueRecordedAt), "registration migration queue source timestamp invalid");
     assert(isExactIso(migration.registeredAt) && Date.parse(migration.registeredAt) >= Date.parse(queue.recordedAt), "invalid registration timestamp");
     if (Date.parse(migration.registeredAt) > Date.parse(latestRecordedAt)) latestRecordedAt = migration.registeredAt;
     assert(Array.isArray(migration.entries) && migration.entries.length > 0, "registration migration has no entries");
@@ -117,6 +122,7 @@ export function buildGovernanceCurrentView(baseline, queue, ledger, policy) {
       assert(!admittedProjects.has(item.projectId), "project admitted more than once: " + item.projectId);
       const staged = queueByRepo.get(item.repository);
       assert(staged, "registration has no staged onboarding source: " + item.repository);
+      assert(migration.sourceQueueRecordedAt === (staged.observedAt ?? queue.recordedAt), "registration migration queue source mismatch");
       assert(item.projectId === staged.projectId && item.branch === staged.branch &&
         item.blueprintLevel === staged.proposedBlueprintLevel &&
         item.admittedMainSha === staged.observedMainSha &&
@@ -162,7 +168,7 @@ export function buildGovernanceCurrentView(baseline, queue, ledger, policy) {
         blueprintLevel: staged.proposedBlueprintLevel,
         registrationState: "pending-onboarding",
         sourceRevision: staged.observedMainSha,
-        observedAt: queue.recordedAt,
+        observedAt: staged.observedAt ?? queue.recordedAt,
         sourceFreshness: "historical-reference-not-live-head",
         complianceState: "UNVERIFIED",
         productionAuthority: false
