@@ -30,6 +30,7 @@ function isExactIso(value) {
 function checkQueueEntry(item, historicRecordedAt) {
   checkIdentity(item.repository, item.branch, item.projectId, item.proposedBlueprintLevel);
   assert(item.branch === "main", "pending default branch must be main");
+  assert(item.visibility === undefined || item.visibility === "private", "invalid privacy boundary metadata");
   if(item.observedAt !== undefined) {
     assert(isExactIso(item.observedAt), "pending entry observedAt must be exact ISO");
     assert(Date.parse(item.observedAt) >= Date.parse(historicRecordedAt), "pending entry observedAt predates historical queue");
