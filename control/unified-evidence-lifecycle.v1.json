@@ -208,5 +208,92 @@
     "noRealTesterSessionClaimFromFilledBugReport": true,
     "unverifiedOrUnreachableAuthority": "UNVERIFIED",
     "thisCandidateDoesNotInstallRuntimeVerifier": true
+  },
+  "nextActionUX": {
+    "schemaVersion": "1.0.0",
+    "kind": "universal-next-action-suggestion",
+    "status": "candidate-not-active",
+    "scope": {
+      "projectCoverage": "all-existing-active-and-future-governed-projects-on-adoption",
+      "channels": [
+        "ChatGPT-conversation",
+        "governed-client-with-adapter"
+      ],
+      "mustNotClaimAutomaticDeploymentToExistingApps": true,
+      "reuseExistingWorkflowRegistry": true,
+      "newDatabase": false,
+      "oneCentralContract": true
+    },
+    "trigger": "At end of a meaningful response if exactly one grounded next action would help",
+    "surfaces": {
+      "chat": "one or two compact real user-clickable issueNewTurn actions with scoped prompts",
+      "nativeApp": "optional project-owned UI using shared versioned semantics; real implementation and QA required",
+      "noAction": "omit when goal complete, no clear action, identity ambiguous or action unavailable"
+    },
+    "actionKinds": [
+      {
+        "kind": "continue",
+        "labelVi": "Tiếp tục công việc",
+        "requires": [
+          "exact-work-item",
+          "verified-context"
+        ],
+        "intent": "RESUME_VERIFIED_WORK",
+        "mayClaimSuccess": false
+      },
+      {
+        "kind": "status",
+        "labelVi": "Kiểm tra tiến độ",
+        "requires": [
+          "exact-work-item"
+        ],
+        "intent": "REPORT_CHECKPOINT",
+        "readOnly": true
+      },
+      {
+        "kind": "fix",
+        "labelVi": "Sửa lỗi",
+        "requires": [
+          "exact-work-item",
+          "observed-defect"
+        ],
+        "intent": "DIAGNOSE_BOUNDED_DEFECT",
+        "mayClaimSuccess": false
+      },
+      {
+        "kind": "review",
+        "labelVi": "Chuẩn bị review",
+        "requires": [
+          "exact-work-item"
+        ],
+        "intent": "PREPARE_REVIEW",
+        "mustNotSelfApprove": true
+      }
+    ],
+    "recommendationRules": {
+      "maximumButtons": 2,
+      "maximumPrimary": 1,
+      "alwaysTargetExactProjectAndWorkItem": true,
+      "skipInertControls": true,
+      "omitForNonActionableReplies": true,
+      "avoidPromptDuplication": true,
+      "preferSinglePrimaryWhenObvious": true,
+      "noInferredApproval": true,
+      "noDirectIrreversibleAction": true,
+      "protectedTasksRequireNewGateVerification": true,
+      "oneClickSubmitsRequestNotCompletesTask": true,
+      "noBackgroundExecutionPromise": true,
+      "hideWhenStatusDoneOrBlockedWithoutSafeAction": true,
+      "chatButtonsArePresentationNotRepositoryFeature": true
+    },
+    "adoption": {
+      "governanceOwnedBy": "BlueDragon33/Software-Blueprint-Hub",
+      "appOwnedImplementation": "product-repository",
+      "appManagementRole": "operational-routing-only",
+      "constitutionalRatificationRequiredForNormativeEnforcement": true,
+      "notAutoInstalledOnChatGPT": true,
+      "canonicalGateUnchanged": true,
+      "productionAuthorized": false
+    }
   }
 }
