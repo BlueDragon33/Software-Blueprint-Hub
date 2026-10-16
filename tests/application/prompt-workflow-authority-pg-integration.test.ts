@@ -11,6 +11,9 @@ import { workflowManifestDigest } from "../../packages/application/src/prompt-wo
 import { PostgresWorkflowExecutionAuthority } from "../../packages/runtime/src/workflow-execution-authority";
 import { PostgresWorkflowExecutionJournal } from "../../packages/runtime/src/workflow-execution-journal";
 import { PostgresWorkflowInspectionQaJournal } from "../../packages/runtime/src/workflow-inspection-qa-journal";
+import { WorkQualityApplicationService } from "../../packages/application/src/work-quality-service";
+import { PostgresWorkQualityRepository, type BlueprintPrismaClient } from "../../packages/persistence/src";
+import { admitIssue115Candidate } from "../../packages/runtime/src/issue-115-intake";
 import { executeAndVerifyScopedInspection } from "../../packages/runtime/src/workflow-inspection-pipeline";
 import { ScopedGitHubReadExecutor } from "../../packages/runtime/src/workflow-scoped-github-executor";
 import { PinnedInspectionQaVerifier } from "../../packages/runtime/src/workflow-observation-qa";
@@ -231,6 +234,58 @@ suite("P1 workflow execution authority PostgreSQL integrity", () => {
       .rejects.toThrow(/revoked/);
     console.info("[P2 CI DATA-PATH ONLY] durable QA proof recorded and read back; NO CANONICAL E2E PASS");
   }, 90_000);
+
+  it("atomically rolls back an interrupted four-gate intake, then persists and idempotently re-reads blocked records", async () => {
+    // Disposable isolated CI PostgreSQL only. Owner here is bootstrapped as
+    // a TEST identity; no canonical Product Authority or release approval.
+    const project = "project:blueprint-os";
+    await prisma.project.create({data:{id:project}});
+    let failThirdGate = true;
+    let createdGates = 0;
+    const realService = new WorkQualityApplicationService(
+      new PostgresWorkQualityRepository(prisma), authority
+    );
+    const boundary = {
+      requireMutate: (actor: {principalId:string} | null, id: string) =>
+        authority.require(actor,id,"PROJECT_MUTATE"),
+      profileVersion: async (_actor: {principalId:string}, id:string) =>
+        id === project ? 1 : null, // CI fixture, not a production profile
+      atomic: <T>(fn:(service: WorkQualityApplicationService)=>Promise<T>) =>
+        prisma.$transaction(async tx => {
+          const service = new WorkQualityApplicationService(
+            new PostgresWorkQualityRepository(tx as unknown as BlueprintPrismaClient),authority);
+          const guarded = {
+            listWorkPackages: service.listWorkPackages.bind(service),
+            listQualityGates: service.listQualityGates.bind(service),
+            createWorkPackage: service.createWorkPackage.bind(service),
+            createQualityGate: async (...args: Parameters<typeof service.createQualityGate>) => {
+              createdGates++;
+              if(failThirdGate && createdGates===3)throw new Error("CI injected mid-transaction failure");
+              return service.createQualityGate(...args);
+            }
+          };
+          return fn(guarded);
+        }),
+      readback: realService
+    };
+    const ownerActor={principalId:ownerId};
+    await expect(admitIssue115Candidate(boundary,ownerActor,project,1))
+      .rejects.toThrow(/CI injected/);
+    expect(await prisma.workPackage.count({where:{projectId:project}})).toBe(0);
+    expect(await prisma.qualityGate.count({where:{projectId:project}})).toBe(0);
+    failThirdGate=false;
+    const result=await admitIssue115Candidate(boundary,ownerActor,project,1);
+    expect(result).toMatchObject({state:"created",executionAuthorized:false,allNotReady:true});
+    expect(await prisma.workPackage.count({where:{projectId:project}})).toBe(1);
+    expect(await prisma.qualityGate.count({where:{projectId:project}})).toBe(4);
+    const replay=await admitIssue115Candidate(boundary,ownerActor,project,1);
+    expect(replay.state).toBe("already-present");
+    expect(await prisma.workPackage.count({where:{projectId:project}})).toBe(1);
+    expect(await prisma.qualityGate.count({where:{projectId:project}})).toBe(4);
+    const record=await prisma.workPackage.findFirstOrThrow({where:{projectId:project}});
+    expect(record.recordVersion).toBe(1);
+    expect(record.status).toBe("blocked");
+  }, 40_000);
 
   it("database rejects update, delete and truncate of authority history", async () => {
     const workflowId = "p1-immutable";
