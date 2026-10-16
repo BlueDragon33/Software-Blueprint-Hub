@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "unified-evidence-lifecycle",
+  "status": "candidate-not-operational",
+  "owner": "BlueDragon33/Software-Blueprint-Hub",
+  "dependsOnConstitution": {
+    "policyId": "blueprint-os:universal-century-grade",
+    "version": "1.3.0",
+    "activeLawUnchanged": true
+  },
+  "canonicalReferences": {
+    "departments": "control/execution-department-ownership.v1.json",
+    "mockupContract": "control/ui-mockup-roundtrip.contract.v1.json",
+    "mockupAliases": "control/ui-mockup-command-aliases.v1.json",
+    "mockupRegistry": "control/ui-mockup-registry.v1.json",
+    "mockupWorkflow": "prompt-workflows/templates/ui-mockup-roundtrip.v1.json",
+    "recoveryContract": "control/execution-continuity-r33.contract.v1.json",
+    "recoveryAliases": "control/execution-continuity-r33-aliases.v1.json"
+  },
+  "scope": {
+    "appsOwn": [
+      "product-source",
+      "real-screenshots",
+      "mockup-image-and-spec",
+      "tester-bug-issues",
+      "test-evidence"
+    ],
+    "hubOwns": [
+      "universal-policy-candidates",
+      "shared-role-contracts",
+      "workflow-definition",
+      "read-only-evidence-evaluation"
+    ],
+    "appManagementOwns": [
+      "app-registry",
+      "scoped-runtime-and-device-management"
+    ],
+    "newCentralDatabase": false
+  },
+  "workflow": [
+    {
+      "id": "scope",
+      "role": "product",
+      "dependsOn": [],
+      "requires": [
+        "appId",
+        "sourceSha",
+        "targetSurfaceOrWorkItem",
+        "userGoal"
+      ],
+      "delivers": "SOURCE_BOUND"
+    },
+    {
+      "id": "design",
+      "role": "architecture",
+      "dependsOn": [
+        "scope"
+      ],
+      "requires": [
+        "real-design-contract"
+      ],
+      "delivers": "DESIGN_REVIEWABLE"
+    },
+    {
+      "id": "mockup",
+      "role": "experience",
+      "dependsOn": [
+        "design"
+      ],
+      "applicability": "user-facing-only",
+      "requires": [
+        "image-and-spec-with-digests",
+        "verified-component-map"
+      ],
+      "delivers": "VISUAL_REVIEWABLE"
+    },
+    {
+      "id": "implement",
+      "role": "implementation",
+      "dependsOn": [
+        "design"
+      ],
+      "requires": [
+        "actual-source-diff",
+        "exact-build-or-commit"
+      ],
+      "delivers": "RUNNABLE_CANDIDATE"
+    },
+    {
+      "id": "verify",
+      "role": "verification",
+      "dependsOn": [
+        "implement"
+      ],
+      "requires": [
+        "observed-real-functional-test",
+        "critical-regressions"
+      ],
+      "delivers": "SLICE_VERIFIABLE"
+    },
+    {
+      "id": "tester",
+      "role": "verification",
+      "dependsOn": [
+        "verify"
+      ],
+      "applicability": "release-candidate-only",
+      "requires": [
+        "real-user-persona-scenario",
+        "reproducible-defect-spec-or-observed-success",
+        "measured-effectiveness-where-applicable"
+      ],
+      "delivers": "TESTER_EVIDENCE_READY"
+    },
+    {
+      "id": "review",
+      "role": "professional-review",
+      "dependsOn": [
+        "verify"
+      ],
+      "requires": [
+        "stage-proportional-evidence",
+        "separate-reviewer-or-authority-for-protected-gate"
+      ],
+      "delivers": "REVIEW_DECISION_CANDIDATE"
+    },
+    {
+      "id": "release",
+      "role": "release",
+      "dependsOn": [
+        "review",
+        "tester"
+      ],
+      "applicability": "production-release-only",
+      "requires": [
+        "independent-acceptance",
+        "trusted-gate-receipts",
+        "separate-production-authority"
+      ],
+      "delivers": "RELEASE_PROPOSAL_ONLY"
+    },
+    {
+      "id": "observe",
+      "role": "operations",
+      "dependsOn": [
+        "release"
+      ],
+      "applicability": "deployed-only",
+      "requires": [
+        "observed-deployment",
+        "user-journey-and-health-trace"
+      ],
+      "delivers": "OBSERVATION_EVIDENCE"
+    }
+  ],
+  "recovery": {
+    "intent": "RESUME_VERIFIED_WORK",
+    "scope": "every-stage",
+    "requires": [
+      "verified-checkpoint",
+      "current-source-HEAD",
+      "side-effect-readback-before-retry"
+    ],
+    "noBackgroundWork": true,
+    "noBlindReplay": true,
+    "doesNotAutoGrantGate": true
+  },
+  "evidenceStates": [
+    "NOT_REVIEWABLE",
+    "REVIEWABLE",
+    "UNVERIFIED",
+    "BLOCKED",
+    "PASS_WITH_SCOPE"
+  ],
+  "guardrails": {
+    "screenImageNeverProvesFunction": true,
+    "nonUIVisualNotApplicable": true,
+    "codeReviewBeforeCompleteProduct": true,
+    "applicationTesterRequiresRealRunnableBuild": true,
+    "mockupApprovalNotReleaseApproval": true,
+    "reviewerIndependenceRequiredForProtectedGates": true,
+    "aiCannotSelfRatify": true,
+    "ciCannotClaimWholeProductPass": true,
+    "duplicateApprovalDatabasesForbidden": true
+  },
+  "implementationBoundary": {
+    "candidateReadOnlyOrchestration": true,
+    "doesNotTriggerGenerationOrWrite": true,
+    "noRuntimeDeployment": true,
+    "noAutomaticReviewSignoff": true,
+    "noReleaseAuthority": true
+  },
+  "consolidatesPRs": [
+    134,
+    136,
+    140
+  ]
+}
