@@ -1,0 +1,34 @@
+name: R33 Verified Continuity Candidate
+
+on:
+  pull_request:
+    paths:
+      - "docs/R33-CONNECTION-INTERRUPTION-RECOVERY.proposed.md"
+      - "control/execution-continuity-r33.contract.v1.json"
+      - "control/execution-continuity-r33-aliases.v1.json"
+      - "scripts/check-execution-continuity-r33.mjs"
+      - "tests/governance/execution-continuity-r33.test.mjs"
+      - ".github/workflows/r33-continuity-candidate-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Validate candidate R33 without writing to GitHub
+        run: node scripts/check-execution-continuity-r33.mjs
+      - name: Adversarial recovery and replay regression
+        run: node --test tests/governance/execution-continuity-r33.test.mjs
+      - name: Confirm proposal is not authority
+        run: echo "R33 candidate only — no constitutional ratification, persistent checkpoint write, hidden background work, Production or Quality Gate PASS."
