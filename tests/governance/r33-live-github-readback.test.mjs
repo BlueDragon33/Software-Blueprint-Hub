@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {Buffer} from "node:buffer";
 import {createHash} from "node:crypto";
-import {readRemotePrSnapshot} from "../../scripts/verify-r33-live-github-readback.mjs";
+import {readRemotePrSnapshot,assessGitHubReviewRecords} from "../../scripts/verify-r33-live-github-readback.mjs";
 const head="a".repeat(40),repo="BlueDragon33/Software-Blueprint-Hub",filePath="docs/R33-CONNECTION-INTERRUPTION-RECOVERY.proposed.md";
 const body=Buffer.from("# R33 candidate reference document\n");
 const gitBlob=createHash("sha1").update(Buffer.from("blob "+body.byteLength+"\0")).update(body).digest("hex");
@@ -10,7 +10,8 @@ const config={repository:repo,number:136,expectedHead:head,requiredPath:filePath
 function transport(overrides={}){
  let calls=[];
  const objects={
-  "/pulls/136":{state:"open",merged:false,head:{sha:head,ref:"governance/r33-interruption-recovery-candidate",repo:{full_name:repo}},base:{sha:"b".repeat(40),repo:{full_name:repo}}},
+  "/pulls/136":{state:"open",merged:false,user:{login:"author"},head:{sha:head,ref:"governance/r33-interruption-recovery-candidate",repo:{full_name:repo}},base:{sha:"b".repeat(40),repo:{full_name:repo}}},
+  "/pulls/136/reviews?per_page=100":[],
   "/branches/governance%2Fr33-interruption-recovery-candidate":{commit:{sha:head}},
   ["/commits/"+head]:{sha:head},
   ["/contents/"+filePath+"?ref="+head]:{type:"file",path:filePath,sha:gitBlob,encoding:"base64",
@@ -35,6 +36,8 @@ test("real-transport adapter schema validates exact PR, branch, commit and file 
  assert.equal(result.checkpointPersisted,false);
  assert.equal(result.productionAuthorized,false);
  assert.equal(result.taskCompletion,"UNVERIFIED");
+ assert.equal(result.reviewEvidence.status,"REVIEW_PENDING");
+ assert.equal(result.reviewEvidence.independentReviewObserved,false);
  assert.equal(t.calls.filter(x=>x.path==="/pulls/136").length,2);
  assert(t.calls.every(x=>x.auth==="Bearer ephemeral-test-fixture"));
 });
@@ -85,4 +88,23 @@ test("PR state, target base and repository identity are checked a second time af
   await assert.rejects(readRemotePrSnapshot(config,raced),/R33_READBACK_BLOCKED.*moved during snapshot/);
   assert.equal(count,2);
  }
+});
+
+test("real GitHub review evidence must be a distinct non-author reviewer at the exact SHA",()=>{
+ const pull={user:{login:"author"}};
+ const row=(login,state,commit_id=head,author_association="COLLABORATOR",submitted_at="2026-10-16T12:00:00Z")=>({
+   user:{login},state,commit_id,author_association,submitted_at
+ });
+ assert.equal(assessGitHubReviewRecords(pull,[],head).status,"REVIEW_PENDING");
+ assert.equal(assessGitHubReviewRecords(pull,[row("author","APPROVED")],head).status,"REVIEW_PENDING");
+ assert.equal(assessGitHubReviewRecords(pull,[row("other","APPROVED","f".repeat(40))],head).status,"STALE_REVIEW");
+ assert.equal(assessGitHubReviewRecords(pull,[row("other","APPROVED",head,"NONE")],head).status,"REVIEW_PENDING");
+ const approved=assessGitHubReviewRecords(pull,[row("other","APPROVED")],head);
+ assert.equal(approved.status,"GITHUB_REVIEW_AT_HEAD_OBSERVED");
+ assert.equal(approved.independentReviewObserved,true);
+ assert.equal(approved.qualityGatePassed,false);
+ assert.equal(approved.constitutionalRatification,false);
+ assert.equal(assessGitHubReviewRecords(pull,[row("other","CHANGES_REQUESTED")],head).status,"CHANGES_REQUESTED");
+ assert.equal(assessGitHubReviewRecords(pull,[row("other","APPROVED"),row("other","DISMISSED",head,"COLLABORATOR","2026-10-16T13:00:00Z")],head).status,"REVIEW_PENDING");
+ assert.equal(assessGitHubReviewRecords(pull,Array(100).fill(row("other","APPROVED")),head).status,"REVIEW_EVIDENCE_INCOMPLETE");
 });
