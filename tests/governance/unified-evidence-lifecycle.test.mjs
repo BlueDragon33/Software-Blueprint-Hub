@@ -124,28 +124,34 @@ test("all prior, active, and future governed projects use one candidate next-act
 test("one-click resume is only a scoped new user request, never a claimed task success or privileged action",()=>{
  for(const repository of ["BlueDragon33/Software-Blueprint-Hub","BlueDragon33/Bauman-master-ai-system","BlueDragon33/NewFutureApp"]){
   const buttons=suggestNextProjectActions({repository,workItemRef:"PR #141",workStatus:"VERIFIED_PENDING"});
-  assert.equal(buttons.length,2);
-  assert.equal(buttons[0].kind,"continue");
+  assert.equal(buttons.length,3);
+  assert.equal(buttons[0].kind,"end-to-end");
+  assert.equal(buttons[1].kind,"continue");
   assert.equal(buttons[0].hostAction,"issueNewTurn");
   assert.match(buttons[0].query,new RegExp(repository.replace("/","\\/")));
-  assert.match(buttons[0].query,/Kiểm tra HEAD/);
+  assert.match(buttons[0].query,/checkpoint, HEAD/);
+  assert.match(buttons[0].query,/Không cần hỏi lại/);
+  assert.match(buttons[0].query,/không hứa chạy nền/);
   assert.equal(buttons[0].completesTask,false);
   assert.equal(buttons[0].authorityGranted,false);
-  assert.equal(buttons[1].readOnly,true);
+  assert.equal(buttons[2].readOnly,true);
  }
 });
 
 test("a review-only project offers preparation but never impersonates a reviewer",()=>{
  const a=suggestNextProjectActions({repository:"BlueDragon33/Software-Blueprint-Hub",workItemRef:"PR #141",workStatus:"REVIEW_PENDING"});
- assert.equal(a[0].kind,"review");
- assert.match(a[0].query,/Không tự phê chuẩn/);
- assert.equal(a[1].kind,"status");
+ assert.equal(a[0].kind,"end-to-end");
+ assert.equal(a[1].kind,"review");
+ assert.match(a[0].query,/Không tự review, phê chuẩn Hiến pháp/);
+ assert.equal(a[2].kind,"status");
 });
 test("observed defects receive a bounded fix request and read-only checkpoint follow-up",()=>{
  const a=suggestNextProjectActions({repository:"BlueDragon33/pc-manager-desktop",workItemRef:"Issue #41",workStatus:"ACTIVE",observedDefect:true});
- assert.equal(a[0].kind,"fix");
- assert.match(a[0].query,/kiểm thử hồi quy/);
- assert.equal(a[1].readOnly,true);
+ assert.equal(a[0].kind,"end-to-end");
+ assert.equal(a[1].kind,"fix");
+ assert.match(a[0].query,/tự sửa lỗi theo vòng R7 hữu hạn/);
+ assert.match(a[1].query,/kiểm thử hồi quy/);
+ assert.equal(a[2].readOnly,true);
 });
 test("unknown project, ambiguous work item, completed work or hard blocker never get inert or unsafe controls",()=>{
  const input={repository:"BlueDragon33/Software-Blueprint-Hub",workItemRef:"PR #141",workStatus:"DONE"};
@@ -165,4 +171,36 @@ test("universal button contract cannot pretend deployment or production grant",(
  assert.match(validate({c:forged}).join(","),/universal next-action controls/);
  const tooMany=structuredClone(c);tooMany.nextActionUX.recommendationRules.maximumButtons=7;
  assert.match(validate({c:tooMany}).join(","),/universal next-action controls/);
+});
+
+test("end-to-end intent stays inside authorized interactive execution; no human bypass",()=>{
+ const cmd=c.nextActionUX.actionKinds.find(x=>x.kind==="end-to-end");
+ assert.equal(cmd.intent,"EXECUTE_AUTHORIZED_END_TO_END");
+ assert.equal(cmd.mode,"interactive-until-real-intervention-boundary");
+ assert.equal(cmd.doesNotAuthorizeNewActions,true);
+ assert.equal(cmd.never.includes("background-execution-promise"),true);
+ for(const reason of ["protected-human-approval","independent-reviewer-unavailable",
+   "unknown-mutation-outcome","attempt-budget-exhausted","tool-or-session-unavailable"])
+   assert(cmd.stopReasons.includes(reason));
+ assert.equal(c.nextActionUX.recommendationRules.endToEndSessionBound,true);
+ assert.equal(c.nextActionUX.recommendationRules.endToEndNeverOverridesReviewOrRelease,true);
+ assert.equal(c.nextActionUX.recommendationRules.maximumButtons,3);
+ assert.equal(c.nextActionUX.recommendationRules.maximumPrimary,1);
+});
+test("end-to-end action appears only for actionable work and never grants Production or background operation",()=>{
+ const core={repository:"BlueDragon33/Software-Blueprint-Hub",workItemRef:"PR #141"};
+ const active=suggestNextProjectActions({...core,workStatus:"ACTIVE"});
+ assert.equal(active[0].label,"Triển khai từ đầu đến cuối");
+ assert.equal(active[0].hostAction,"issueNewTurn");
+ assert.equal(active[0].completesTask,false);
+ assert.equal(active[0].authorityGranted,false);
+ assert.match(active[0].query,/Chỉ dừng khi/);
+ assert.match(active[0].query,/không hứa chạy nền/);
+ assert.match(active[0].query,/Không tự review, phê chuẩn Hiến pháp/);
+ for(const status of ["DONE","AMBIGUOUS","BLOCKED_NO_SAFE_ACTION","UNVERIFIED","REVIEW_BLOCKED"]){
+   assert(!suggestNextProjectActions({...core,workStatus:status}).some(x=>x.kind==="end-to-end"));
+ }
+ const tampered=structuredClone(c);
+ tampered.nextActionUX.recommendationRules.endToEndSessionBound=false;
+ assert.match(validate({c:tampered}).join(","),/universal next-action controls/);
 });
