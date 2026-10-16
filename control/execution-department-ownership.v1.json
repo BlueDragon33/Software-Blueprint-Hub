@@ -235,5 +235,202 @@
       "human release approval",
       "private product data into control-plane"
     ]
+  },
+  "evidenceTieredReview": {
+    "status": "candidate-not-operational",
+    "intent": "review-the-proven-artifact-at-its-current-maturity-not-an-imagined-finished-app",
+    "prevents": [
+      "premature-product-pass",
+      "self-certification",
+      "missing-evidence-guessed-pass",
+      "screen-mockup-as-working-app",
+      "CI-green-as-user-acceptance"
+    ],
+    "tiers": [
+      {
+        "id": "design-contract",
+        "applicability": "requirements-or-architecture-exists",
+        "owner": "architecture",
+        "support": [
+          "product",
+          "security"
+        ],
+        "requiredEvidence": [
+          "exact-source-revision",
+          "reviewable-route-action-data-contract-or-design-spec",
+          "explicit-risk-scope"
+        ],
+        "allowedClaim": "DESIGN_REVIEWED",
+        "forbiddenClaim": [
+          "REAL_UX_VERIFIED",
+          "PRODUCT_ACCEPTED"
+        ],
+        "onMissing": "NOT_REVIEWABLE"
+      },
+      {
+        "id": "visual-asset",
+        "applicability": "an-actual-screenshot-or-mockup-exists-for-user-facing-changes",
+        "owner": "experience",
+        "support": [
+          "professional-review"
+        ],
+        "requiredEvidence": [
+          "image-or-real-screenshot-reference-with-content-digest",
+          "relevant-viewport-ui-state",
+          "mapping-to-existing-product-surface",
+          "declared-mockup-versus-rendered-app"
+        ],
+        "allowedClaim": "VISUAL_REVIEWED",
+        "forbiddenClaim": [
+          "INTERACTION_VERIFIED",
+          "PRODUCT_ACCEPTED"
+        ],
+        "onMissing": "NOT_REVIEWABLE"
+      },
+      {
+        "id": "runnable-slice",
+        "applicability": "scoped-feature-is-implemented-and-executable",
+        "owner": "verification",
+        "support": [
+          "security",
+          "integration",
+          "experience"
+        ],
+        "requiredEvidence": [
+          "exact-build-or-commit-SHA",
+          "real-test-environment-and-actor",
+          "observed-interaction-or-API-trace",
+          "expected-versus-actual",
+          "directly-affected-regression-results"
+        ],
+        "allowedClaim": "FUNCTIONAL_SLICE_VERIFIED",
+        "forbiddenClaim": [
+          "WHOLE_PRODUCT_ACCEPTED",
+          "PRODUCTION_AUTHORIZED"
+        ],
+        "onMissing": "NOT_REVIEWABLE"
+      },
+      {
+        "id": "release-candidate",
+        "applicability": "declared-critical-user-journeys-are-executable-in-release-candidate",
+        "owner": "verification",
+        "support": [
+          "experience",
+          "professional-review",
+          "release"
+        ],
+        "requiredEvidence": [
+          "release-candidate-exact-revision",
+          "realistic-scenario-coverage",
+          "application-tester-session-with-structured-issue-specs",
+          "effectiveness-and-usability-findings",
+          "all-release-blocking-defects-resolved-or-explicitly-blocked"
+        ],
+        "allowedClaim": "PRODUCT_TEST_EVIDENCE_READY",
+        "forbiddenClaim": [
+          "AUTOMATIC_HUMAN_ACCEPTANCE",
+          "AUTOMATIC_PRODUCTION_AUTHORIZATION"
+        ],
+        "onMissing": "BLOCK_RELEASE"
+      },
+      {
+        "id": "operational-observation",
+        "applicability": "actually-deployed-and-authorized-release-exists",
+        "owner": "operations",
+        "support": [
+          "verification",
+          "audit"
+        ],
+        "requiredEvidence": [
+          "deployed-revision-and-environment",
+          "actual-health-and-user-journey-observation",
+          "incident-and-feedback-triage",
+          "rollback-or-remediation-status"
+        ],
+        "allowedClaim": "POST_RELEASE_OBSERVED",
+        "forbiddenClaim": [
+          "PERMANENTLY_BUG_FREE",
+          "AUTOMATIC_CONSTITUTION_RATIFICATION"
+        ],
+        "onMissing": "UNVERIFIED"
+      }
+    ],
+    "reviewIndependence": {
+      "mustUseDistinctEvidenceProducerOrAuthorityForProtectedGates": true,
+      "aiSelfReviewIsNotHumanApproval": true,
+      "scopeIsRoleAndEvidenceSeparationNot12DuplicatedApps": true,
+      "previewOrMockupNeverProvesRunnableFunction": true,
+      "nonUserFacingWorkMaySkipVisualTierWithRecordedNotApplicable": true,
+      "unknownOrMissingProofNeverPass": true
+    }
+  },
+  "applicationTester": {
+    "id": "application-tester",
+    "classification": "role-inside-existing-12-not-13th-department",
+    "lifecycle": "release-candidate-and-authorized-post-release",
+    "owner": "verification",
+    "collaborators": [
+      "experience",
+      "professional-review",
+      "operations",
+      "product"
+    ],
+    "focus": [
+      "use-the-real-application-with-representative-personas-and-scenarios",
+      "discover-reproducible-errors",
+      "measure-effectiveness-steps-and-completion-time-when-observable",
+      "report-accessibility-and-friction",
+      "record-outcomes-at-exact-build"
+    ],
+    "issueContract": {
+      "requiredFields": [
+        "scenarioId",
+        "applicationId",
+        "buildSha",
+        "environment",
+        "actorRole",
+        "preconditions",
+        "reproductionSteps",
+        "expectedResult",
+        "actualResult",
+        "severity",
+        "evidenceRef",
+        "status"
+      ],
+      "optionalFields": [
+        "viewport",
+        "screenshotOrRecordingRef",
+        "consoleOrNetworkTraceRef",
+        "observedDurationMs",
+        "stepCount",
+        "completionRateMethod",
+        "workaround",
+        "fixVerificationSha"
+      ],
+      "statusValues": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "UNVERIFIED",
+        "NOT_APPLICABLE"
+      ],
+      "severityValues": [
+        "blocker",
+        "critical",
+        "major",
+        "minor",
+        "observation"
+      ],
+      "privacy": "sanitize-or-redact-real-user-data-and-credentials"
+    },
+    "acceptance": {
+      "testerCannotSelfPassConstitutionOrProduction": true,
+      "noFakeScreenshotsOrResult": true,
+      "issuesOwnedByProductRepo": true,
+      "defectFixRequiresRepeatTestAtNewExactSha": true,
+      "performanceRequiresReproducibleMethod": true,
+      "userAcceptanceRemainsDistinctFromAutomatedTest": true
+    },
+    "executionPolicy": "Use existing verification/experience/operations roles and app-owned issue/tracker. No new universal dashboard or status database."
   }
 }
