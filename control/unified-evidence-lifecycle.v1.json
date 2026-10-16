@@ -168,7 +168,9 @@
   },
   "evidenceStates": [
     "NOT_REVIEWABLE",
-    "REVIEWABLE",
+    "EVIDENCE_FORMAT_READY",
+    "NOT_APPLICABLE_PENDING_REVIEW",
+    "TESTER_SPEC_FORMAT_READY",
     "UNVERIFIED",
     "BLOCKED",
     "PASS_WITH_SCOPE"
@@ -195,5 +197,16 @@
     134,
     136,
     140
-  ]
+  ],
+  "evidenceTrustBoundary": {
+    "submittedStructureIsNotAuthentication": true,
+    "callerClaimedVerifiedByTrustedAdapterIsNotSufficient": true,
+    "externalProviderReadbackRequiredForVerifiedEvidence": true,
+    "sourceShaAndDigestMustBeCrossCheckedAtTrustedSource": true,
+    "independentReviewerMustBeAuthenticatedAndDistinctForProtectedGates": true,
+    "neverInferProductPassFromScreenshotOrCI": true,
+    "noRealTesterSessionClaimFromFilledBugReport": true,
+    "unverifiedOrUnreachableAuthority": "UNVERIFIED",
+    "thisCandidateDoesNotInstallRuntimeVerifier": true
+  }
 }
