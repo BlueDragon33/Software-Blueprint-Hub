@@ -19,9 +19,9 @@ function model(status="draft") {
  image:{path:"artifacts/ui-mockups/app-overview/v1.png",sha256:digest,mediaType:"image/png"},
  spec:{path:"artifacts/ui-mockups/app-overview/v1.spec.json",sha256:digestSpec,mediaType:"application/json"},
  status,presentationScope:{allowedChanges:["layout"],forbiddenChanges:["new-routes"],
- allowedSourcePaths:["src/pages/app-overview.tsx"]},mappings:[],createdAt:"2026-10-16T00:00:00.000Z",
+ allowedSourcePaths:["src/pages/app-overview.tsx"]},mappings:[{componentId:"app-grid",kind:"visual-only",anchor:null,actionId:null,dataBinding:null,stateBinding:null}],createdAt:"2026-10-16T00:00:00.000Z",
  designApproval:status==="approved"?{approvedByPrincipal:"verified-owner-principal",approvedAt:"2026-10-16T00:02:00.000Z",
- imageSha256:digest,specSha256:digestSpec}:null};
+ imageSha256:digest,specSha256:digestSpec,approvalEvidenceRef:"canonical:approval/mockup-v1"}:null};
 }
 test("candidate files validate without pretending that they are active law or approved designs",()=>{
  assert.deepEqual(validateRoundTripContract(contract,aliases,workflow,registry),[]);
