@@ -18,12 +18,23 @@ Owner directive: **every app develops/runs offline/local-first, except Bơi Ếc
 
 **Important:** pre-existing Constitution compliance failure in NC03, Math, GrowUP, MPC, PriceReport, RU_LIFE and CAD is due to `policyVersion=1.2.0` in each repository's adoption manifest while central active policy is `1.3.0`. Those workflow containment merges were **not** a declaration that this governance issue passed, was waived, or that the app is production-ready. Queue governance adoption audits; do not alter the ratified source or fake compliance.
 
+
+## Direct adoption inventory readback — 2026-10-16
+
+Scoped independent GitHub readback of 12 current project adoption manifests (not inferred from historical notes):
+
+- **Still on Constitution 1.2.0, requiring project-specific evidence-backed 1.3 adoption:** `NC03_Modem` (B4), `Math_Bauman` (B2), `GrowUP_MyChildren` (B5), `MPC_PID_System` (B3), `PriceReport_Tunggiabao` (B3), `RU_LIFE` (B3), `CAD_CAM_3D` (B4), `ROS-1-2` (B3), `Hardware_Simulation` (B2). **Nine apps**, not presumed compliant, not granted waivers.
+- **Manifest declares 1.3.0 (structure only, not Product PASS):** `ECAD_Design` (B2), `CAE_Simulation` (B2), `Blueprint-Russian-Expert-Engine` (B4).
+- `Health_Care` was checked separately at merged main `316f1739ba16b947315dcdb24dffcfd51bd057aa` and now has a 1.3.0 manifest with source/crypto CI evidence; offline encrypted record persistence and human acceptance remain unverified.
+
+Do not mass-replace version numbers. Each affected application requires scoped, actually tested dependency/feature gates appropriate to its Blueprint Level. Offline publish containment is independent from Constitution adoption and full disconnected runtime acceptance.
+
 ## Publication containment closed, offline runtime acceptance remains open
 
-- **Application-Management**: Rechecked `main` on 2026-10-16 (observed SHA `126013134f13db5a51035162e789534fe9c15137`): Live no longer uses `push: main`; Live, Preview, Production and managed-runtime bootstrap are all explicitly `if: false` and automatic issue-comment production triggers are absent. **Publication hold: VERIFIED IN SOURCE.** The `npm run local:system`, `npm run local:doctor` and `npm run local:offline-smoke` scripts exist; the smoke script launches actual local sibling-app services, but `.github/workflows/local-offline-smoke-ci.yml` currently only prints a notice. **Disconnected-mode operational acceptance: NOT YET VERIFIED.**
-- **Health_Care**: [PR #70](https://github.com/BlueDragon33/Health_Care/pull/70) merged at `345c958d530af47345be39e40a2f50b2df012b08`. Removed Live `push: main` and disabled all Health Preview/Live/Production deploy jobs with fail-closed job conditions. Dedicated Health Offline Deployment Boundary **PASS**; Health Fast CI **PASS**. Constitution Compliance **FAIL** on pre-existing `policyVersion=1.2.0` vs active `1.3.0`; no waiver claimed. **Publication hold: VERIFIED IN SOURCE; disconnected-mode sensitive-data runtime acceptance: NOT YET VERIFIED.**
-
-Neither blocker may be marked resolved merely by central policy publication.
+- **Application-Management**: [PR #359](https://github.com/BlueDragon33/Application-Management/pull/359) source-only MERGED at `126013134f13db5a51035162e789534fe9c15137`; Live, Preview, Production and managed-runtime bootstrap remain dormant with no push/comment auto-publish. [PR #361](https://github.com/BlueDragon33/Application-Management/pull/361) source-only MERGED at `93906a7fff0f3925139ab63dc01312e8d18caf17`. Its **real Docker `--network none` local cold-start** CI was SUCCESS at candidate exact HEAD `326bf82782e535116a7ea954374e89f08db2db87`, alongside Constitution and Development Fast CI. **Local HOME smoke: PASS with isolated network; full seven-app orchestration, real authentication, persistence/restore and Windows workstation acceptance: UNVERIFIED.** No claim that the user's machine has pulled or installed the app.
+- **Health_Care**: [PR #70](https://github.com/BlueDragon33/Health_Care/pull/70) source-only MERGED at `345c958d530af47345be39e40a2f50b2df012b08`; public Live, Preview and Production workflow jobs held fail-closed. [PR #71](https://github.com/BlueDragon33/Health_Care/pull/71) source-only MERGED at `316f1739ba16b947315dcdb24dffcfd51bd057aa`, verified `main` now uses active Constitution `1.3.0` and preserves B5, seven inherited pillars, local sensitive data boundary, migration blockers and separate Production authority. **Exact-head CI 4/4 PASS** at `6c30cd18918ba163aa1ab553339ac6d88eb6d667`, including actual Docker `--network none` cold-start and health contract route. **Disconnected cold-start: scoped PASS; browser UX, encrypted record save/restart, Vault export/restore, independent clinical/privacy review, and final Product PASS: UNVERIFIED.** Earlier duplicate PR #69 was closed UNMERGED, superseded by #70 + #71.
+  
+These are evidence-bound **source/pipeline and partial disconnected-startup results**, not completion of the offline application acceptance checklist. Existing public URLs are not automatically removed; no Production authority has been granted.
 
 ## No auto-publication workflow found in observed Actions listings
 
