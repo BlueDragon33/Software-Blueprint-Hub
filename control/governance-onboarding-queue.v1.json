@@ -44,7 +44,8 @@
       "adoptionCI": "https://github.com/BlueDragon33/Blueprint-Russian-Expert-Engine/actions/runs/38825895037",
       "state": "adopted-pending-canonical-registration",
       "canonicalCompliance": "UNVERIFIED",
-      "productionAuthority": false
+      "productionAuthority": false,
+      "visibility": "private"
     }
   ],
   "promotionRule": "Central registration and live snapshots require reviewed migration preserving the ratified 1.3 publication seal; queue membership grants no canonical Project Profile, Quality Gate or Production authority."
