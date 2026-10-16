@@ -70,3 +70,14 @@ test("private reader is constrained to the single authorized repository",async()
   q.entries[0].visibility="public";
   await assert.rejects(verifyRuePrivateOnboarding(q,contract,mock()),/exact private repository/);
 });
+
+test("manual Preview workflow disables setup-node auto pnpm cache before token issuance",()=>{
+  const workflow=readFileSync(".github/workflows/verify-rue-private-onboarding-preview.yml","utf8");
+  assert.match(workflow,/on:\s*\n\s*workflow_dispatch:/);
+  assert.match(workflow,/uses: actions\/setup-node@v5\s*\n\s*with:\s*\n\s*node-version: '24'\s*\n\s*package-manager-cache: false/);
+  assert.match(workflow,/github.ref == 'refs\/heads\/main'/);
+  assert.match(workflow,/repositories: Blueprint-Russian-Expert-Engine/);
+  assert.match(workflow,/permission-contents: read/);
+  assert.match(workflow,/permission-actions: read/);
+  assert.doesNotMatch(workflow,/pnpm install|pnpm exec|pnpm\/action-setup/);
+});
