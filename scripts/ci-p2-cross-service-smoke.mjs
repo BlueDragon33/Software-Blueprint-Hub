@@ -15,9 +15,10 @@ const shaPattern = /^[a-f0-9]{40}$/;
 const root = process.env.GITHUB_WORKSPACE;
 const hubHead = process.env.GITHUB_SHA;
 const refName = process.env.GITHUB_REF_NAME;
-const token = process.env.GITHUB_TOKEN;
-if (!root || !shaPattern.test(hubHead || "") || !refName || !token) {
-  blocked("missing CI checkout, exact hub SHA/ref or read-only GitHub token");
+const executionToken = process.env.BLUEPRINT_EXECUTION_READ_TOKEN;
+const qaToken = process.env.BLUEPRINT_QA_READ_TOKEN;
+if (!root || !shaPattern.test(hubHead || "") || !refName || !executionToken || !qaToken || executionToken === qaToken) {
+  blocked("missing CI checkout, exact hub SHA/ref or distinct read-only App credentials");
 }
 const pins = {
   gateway: process.env.GATEWAY_SHA,
@@ -50,22 +51,23 @@ function normalize(v) {
   );
   return v;
 }
-const gitApi = async (path) => {
+const gitApi = async (path, token) => {
   const response = await fetch("https://api.github.com" + path, {
+    redirect:"error", cache:"no-store", signal:AbortSignal.timeout(8000),
     headers: {Authorization:"Bearer " + token, Accept:"application/vnd.github+json",
       "X-GitHub-Api-Version":"2022-11-28", "User-Agent":"blueprint-p2-scoped-ci"}
   });
   if (!response.ok) blocked("GitHub read-only transport failed: HTTP " + response.status);
   return response.json();
 };
-const currentRef = async () => {
+const currentRef = async (token = executionToken) => {
   // Never accept a stale HEAD: the bound reference must still point to this SHA.
-  const actual = await gitApi("/repos/" + target + "/commits/" + encodeURIComponent(refName));
+  const actual = await gitApi("/repos/" + target + "/commits/" + encodeURIComponent(refName), token);
   if (actual.sha !== hubHead) blocked("source branch advanced after CI checkout");
 };
-const readPinned = async (repo, sha, path) => {
+const readPinned = async (repo, sha, path, token) => {
   if (repo !== target || sha !== hubHead || path !== "package.json") blocked("source outside CI allowlist");
-  const data = await gitApi("/repos/" + target + "/contents/package.json?ref=" + sha);
+  const data = await gitApi("/repos/" + target + "/contents/package.json?ref=" + sha, token);
   if (data.type !== "file" || data.path !== path || data.encoding !== "base64") blocked("not pinned file");
   return {type:data.type,path:data.path,encoding:data.encoding,size:data.size,content:data.content};
 };
@@ -87,7 +89,7 @@ const gatewayTrust = {
   issuerPublicKey:async()=>pem(issuer.publicKey),
   // Synthetic test-only decisions are intentionally NOT canonical identity/adoption.
   assertAdopted:async()=>{}, assertFreshCanonical:async()=>{}, assertPermission:async()=>{},
-  assertFreshSource:currentRef,
+  assertFreshSource:()=>currentRef(executionToken),
   claimDurably:async id=>{if(gatewayClaims.has(id))return false;gatewayClaims.add(id);return true;},
   signDispatch:async data=>sign(null,Buffer.from(data),gateway.privateKey).toString("base64")
 };
@@ -95,9 +97,9 @@ const dispatch = await authorizeInspectionGrant(grant,gatewayTrust,now);
 assert.equal(dispatch.workflowDigest,payload.workflowDigest);
 const workerTrust = {
   gatewayPublicKey:async()=>pem(gateway.publicKey),
-  assertFreshSource:currentRef,
+  assertFreshSource:()=>currentRef(executionToken),
   claimDispatchDurably:async id=>{if(workerClaims.has(id))return false;workerClaims.add(id);return true;},
-  readPinnedFile:readPinned,
+  readPinnedFile:(repo, sha, path)=>readPinned(repo, sha, path, executionToken),
   appendObservation:async(id,v)=>{if(attempts.has(id))blocked("duplicate attempt"); attempts.set(id,v);},
   readObservation:async(id)=>attempts.get(id)??null
 };
@@ -106,8 +108,8 @@ assert.equal(observation.outcome,"succeeded");
 const qaTrust = {
   gatewayPublicKey:async()=>pem(gateway.publicKey),
   readCanonicalObservation:async(id)=>attempts.get(id)??null,
-  assertFreshSource:currentRef,
-  readPinnedFileIndependent:readPinned, // Re-fetches from network, not worker-provided bytes.
+  assertFreshSource:()=>currentRef(qaToken),
+  readPinnedFileIndependent:(repo, sha, path)=>readPinned(repo, sha, path, qaToken),
   persistQaResult:async proof=>{if(qaProofs.has(proof.requestId))blocked("duplicate QA proof");qaProofs.set(proof.requestId,proof);},
   readQaResult:async id=>qaProofs.get(id)??null
 };
@@ -126,6 +128,7 @@ const summary = {
   canonicalAuthorization:"CI_FIXTURE_ONLY_NOT_VERIFIED",
   durableHubJournal:"NOT_TESTED_BY_THIS_SCRIPT",
   authenticatedCrossPrivateRuntime:"NOT_VERIFIED",
+  sourceReadCredentials:"separate-selected-repository-app-tokens",
   productionAuthority:false,qualityGatePassed:false,completionReceiptIssued:false,
   hubHead,serviceHeads:pins,source:target+"@"+hubHead+"#package.json",
   requestId:dispatch.requestId,observationDigest:observation.observationDigest,

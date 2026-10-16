@@ -5,6 +5,7 @@ on:
     paths:
       - "packages/persistence/prisma/schema.prisma"
       - "packages/persistence/prisma/migrations/**"
+      - "packages/runtime/src/workflow-execution-journal.ts"
       - "packages/runtime/src/workflow-inspection-qa-journal.ts"
       - "packages/runtime/src/workflow-execution-authority.ts"
       - "packages/persistence/src/workflow-execution-authority-repository.ts"

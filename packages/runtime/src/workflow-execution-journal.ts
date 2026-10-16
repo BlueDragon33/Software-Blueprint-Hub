@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type {
   WorkflowAttemptRecord,
   WorkflowExecutionJournal
@@ -9,6 +10,7 @@ const DIGEST = /^sha256:[0-9a-f]{64}$/;
 const ALLOWED_OUTCOMES = new Set(["succeeded", "failed", "invalid-result", "runner-error"]);
 const EVIDENCE_REF = /^(?:github:|artifact:|canonical:)[a-zA-Z0-9/:._#@-]{4,300}$/;
 const FILE_PATH = /^[a-zA-Z0-9_./-]{2,240}$/;
+const SERVICE_ROLES = new Set(["gateway", "executor", "independent-qa"]);
 
 function uniqueConflict(error: unknown): boolean {
   return error !== null && typeof error === "object" &&
@@ -55,6 +57,26 @@ function assertObservation(value: WorkflowAttemptRecord): void {
  */
 export class PostgresWorkflowExecutionJournal implements WorkflowExecutionJournal {
   constructor(private readonly prisma: BlueprintPrismaClient) {}
+
+  /**
+   * The trusted host chooses the role, after grant/authority validation. Only
+   * claim capability is exposed; signed request IDs and canonical audit keys
+   * remain unchanged. All roles reuse the durable, append-only claim store.
+   */
+  forService(
+    service: "gateway" | "executor" | "independent-qa"
+  ): Pick<WorkflowExecutionJournal, "claim"> {
+    if (!SERVICE_ROLES.has(service)) throw new TypeError("Invalid execution service role");
+    return Object.freeze({
+      claim: async (requestId: string, expiresAt: string): Promise<boolean> => {
+        assertRequestId(requestId);
+        const key = "sha256:" + createHash("sha256")
+          .update("blueprint-os:workflow-service-claim:v1\0")
+          .update(service).update("\0").update(requestId).digest("hex");
+        return this.claim(key, expiresAt);
+      }
+    });
+  }
 
   async claim(requestId: string, expiresAt: string): Promise<boolean> {
     assertRequestId(requestId);

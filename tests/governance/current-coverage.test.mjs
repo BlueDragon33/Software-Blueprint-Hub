@@ -11,12 +11,12 @@ const policy = read("control/universal-constitution-version.json");
 const clone = value => structuredClone(value);
 const build = (b=baseline,q=pending,l=ledger,p=policy) => buildGovernanceCurrentView(b,q,l,p);
 
-test("derived inventory contains 15 sealed, 2 admitted, 0 pending and zero automatic privileges", () => {
+test("derived inventory contains 15 sealed, 2 admitted, 1 pending and zero automatic privileges", () => {
   const view = build();
   assert.equal(view.sealedBaselineCount, 15);
   assert.equal(view.admittedRegistrationCount, 2);
-  assert.equal(view.pendingOnboardingCount, 0);
-  assert.equal(view.trackedCount, 17);
+  assert.equal(view.pendingOnboardingCount, 1);
+  assert.equal(view.trackedCount, 18);
   assert.equal(view.repositories.filter(e => e.registrationState === "admitted-registration").length, 2);
   assert.equal(view.repositories.every(e => e.complianceState === "UNVERIFIED" && e.productionAuthority === false), true);
   assert.equal(view.repositories.filter(e => e.registrationState === "admitted-registration").every(e => e.sourceFreshness === "verified-admission-source"), true);
@@ -111,4 +111,40 @@ test("rejects forged policy, timestamp and branch identity", () => {
   assert.throws(() => build(baseline,q), /exact ISO/);
   const q2 = clone(pending); q2.entries[0].branch = "unknown";
   assert.throws(() => build(baseline,q2), /unexpected branch/);
+});
+
+test("new pending RUE remains not registered and cannot claim release", () => {
+  const view = build();
+  const rue = view.repositories.find(e => e.repository === "BlueDragon33/Blueprint-Russian-Expert-Engine");
+  assert.ok(rue);
+  assert.equal(rue.registrationState, "pending-onboarding");
+  assert.equal(rue.sourceRevision, "60c544eeafff06e145a3363fef8071f29e51cc86");
+  assert.equal(rue.observedAt, "2026-10-16T05:37:39.804Z");
+  assert.equal(rue.complianceState, "UNVERIFIED");
+  assert.equal(rue.productionAuthority, false);
+  assert.equal(view.recordedAt, rue.observedAt);
+});
+test("RUE observedAt must be an exact later historical record and registration must bind to per-entry timestamp", () => {
+  const q = clone(pending);
+  q.entries[2].observedAt = "2026-10-15T00:00:00.000Z";
+  assert.throws(() => build(baseline,q), /predates historical queue/);
+  const q2 = clone(pending);
+  q2.entries[2].observedAt = "not-an-iso-date";
+  assert.throws(() => build(baseline,q2), /exact ISO/);
+  const ledgerWrong = clone(ledger);
+  ledgerWrong.migrations.push({
+    migrationId: "registration-rue-invalid-date",
+    sourceQueueRecordedAt: pending.recordedAt,
+    registeredAt: "2026-10-16T06:00:00.000Z",
+    entries: [{
+      repository: pending.entries[2].repository,
+      branch:"main", projectId:pending.entries[2].projectId,blueprintLevel:"B4",
+      admittedMainSha:pending.entries[2].observedMainSha,
+      adoptionPr:pending.entries[2].adoptionPr,
+      constitutionCi:pending.entries[2].adoptionCI,
+      registrationState:"admitted-registration",
+      complianceState:"UNVERIFIED",canonicalProjectProfile:false,productionAuthority:false
+    }]
+  });
+  assert.throws(() => build(baseline,pending,ledgerWrong), /registration migration queue source mismatch/);
 });

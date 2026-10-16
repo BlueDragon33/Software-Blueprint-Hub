@@ -54,6 +54,40 @@ describe("real PostgreSQL immutable QA verification integrity", () => {
     ["QA removal", 'DELETE FROM "WorkflowExecutionQaVerification" WHERE "requestId" = $1']
   ] as const;
 
+  live("persists separate service replay namespaces and retains them after reconnect", async () => {
+    const { prisma, url, requestId, evidence } = await seededJournal();
+    const roles = ["gateway", "executor", "independent-qa"] as const;
+    try {
+      const journal = new PostgresWorkflowExecutionJournal(prisma);
+      for (const role of roles) {
+        expect(await journal.forService(role).claim(requestId, new Date(Date.now() + 60_000).toISOString()))
+          .toBe(true);
+      }
+      const executor = journal.forService("executor");
+      const otherRequest = "sha256:" + randomBytes(32).toString("hex");
+      const concurrent = await Promise.all(Array.from({ length: 8 }, () =>
+        executor.claim(otherRequest, new Date(Date.now() + 60_000).toISOString())));
+      expect(concurrent.filter(Boolean)).toHaveLength(1);
+      expect((await journal.read(otherRequest)).claimed).toBe(false);
+      expect((await journal.read(requestId)).attempts).toHaveLength(1);
+      expect(await new PostgresWorkflowInspectionQaJournal(prisma).readVerified(requestId, 1)).toEqual(evidence);
+    } finally {
+      await prisma.$disconnect();
+    }
+    const reconnected = createPrismaClient(url);
+    try {
+      const journal = new PostgresWorkflowExecutionJournal(reconnected);
+      for (const role of roles) {
+        expect(await journal.forService(role).claim(requestId, new Date(Date.now() + 60_000).toISOString()))
+          .toBe(false);
+      }
+      expect(await journal.claim(requestId, new Date(Date.now() + 60_000).toISOString())).toBe(false);
+      expect(await new PostgresWorkflowInspectionQaJournal(reconnected).readVerified(requestId, 1)).toEqual(evidence);
+    } finally {
+      await reconnected.$disconnect();
+    }
+  }, 30_000);
+
   live.each(mutations)("blocks %s without changing persisted evidence", async (_name, query) => {
     const { prisma, requestId, claim, observation, evidence } = await seededJournal();
     try {

@@ -41,9 +41,14 @@ function provider(overrides = {}) {
 
 test("live inspection verifies SHA-pinned adoption and CI, but never quality gate or Production", async () => {
   const out = await inspectPendingOnboarding(queue, contract, provider());
-  assert.equal(out.length, 2);
-  assert.ok(out.every(x => x.adoptionState === "verified-at-exact-head" &&
-    x.complianceState === "UNVERIFIED" && x.qualityGatePassAllowed === false && x.productionReleaseAuthority === false));
+  assert.equal(out.length, 3);
+  assert.equal(out.filter(x=>x.adoptionState==="verified-at-exact-head").length,2);
+  const rue=out.find(x=>x.repository==="BlueDragon33/Blueprint-Russian-Expert-Engine");
+  assert.ok(rue);
+  assert.equal(rue.adoptionState,"PRIVATE_ACCESS_REQUIRED");
+  assert.equal(rue.exactHead,null);
+  assert.equal(rue.verifiedCiRunId,null);
+  assert.ok(out.every(x => x.complianceState === "UNVERIFIED" && x.qualityGatePassAllowed === false && x.productionReleaseAuthority === false));
 });
 test("stale observed HEAD blocks onboarding", async () => {
   await assert.rejects(inspectPendingOnboarding(queue, contract, provider({sha:"f".repeat(40)})), /queued HEAD is stale/);
@@ -65,4 +70,17 @@ test("unexpected default branch and untrusted queue block onboarding", async () 
 test("unavailable or incomplete GitHub response fails closed", async () => {
   await assert.rejects(inspectPendingOnboarding(queue, contract, async () => { throw new Error("GitHub 403"); }), /GitHub 403/);
   await assert.rejects(inspectPendingOnboarding(queue, contract, async () => ({})), /repo identity/);
+});
+
+test("private RUE never gets false verified status from public CI even when provider claims access", async () => {
+  const requested=[];
+  const source=provider();
+  const out=await inspectPendingOnboarding(queue,contract,async path=>{requested.push(path);return source(path);});
+  assert.equal(requested.some(path=>path.includes("Blueprint-Russian-Expert-Engine")),false,"private bytes must not be fetched with public token");
+  const rue=out.find(x=>x.repository==="BlueDragon33/Blueprint-Russian-Expert-Engine");
+  assert.equal(rue.adoptionState,"PRIVATE_ACCESS_REQUIRED");
+  assert.equal(rue.qualityGatePassAllowed,false);
+  const forged=structuredClone(queue);
+  forged.entries.at(-1).productionAuthority=true;
+  await assert.rejects(inspectPendingOnboarding(forged,contract,provider()),/private pending item cannot claim/);
 });

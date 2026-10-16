@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/p2-provider-neutral-integration.yml"
       - "scripts/ci-p2-cross-service-smoke.mjs"
+      - "tests/governance/p2-provider-neutral-ci.test.mjs"
       - "control/execution-service-protocol.v1.json"
       - "control/private-execution-service-onboarding.v1.json"
       - "docs/ADR-VERCEL-FREE-EXECUTION-VALIDATION.proposed.md"
@@ -12,6 +13,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: blueprint-p2-provider-neutral-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   contract-preflight:
@@ -83,7 +88,8 @@ jobs:
   cross-component-isolated:
     name: Private 3-service source + isolated PostgreSQL (CI smoke, NOT release)
     needs: [contract-preflight, postgres-constraints]
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.repository == 'BlueDragon33/Software-Blueprint-Hub'
+    environment: Preview
     runs-on: ubuntu-24.04
     timeout-minutes: 18
     services:
@@ -107,58 +113,21 @@ jobs:
       WORKER_SHA: 6de12d9efb36052fd039e869797540d0f182bd66
       QA_SHA: 13208f42838685eaa76ce6cef9754ad622779cc3
     steps:
-      - name: Fail closed without explicitly provisioned cross-private GitHub credentials
-        env:
-          CROSS_REPO_READ_TOKEN: ${{ secrets.BLUEPRINT_CROSS_REPO_READ_TOKEN }}
-        run: |
-          if [ -z "$CROSS_REPO_READ_TOKEN" ]; then
-            echo "::error::BLOCKED: BLUEPRINT_CROSS_REPO_READ_TOKEN must be a scoped read-only credential for all three private service repositories."
-            exit 1
-          fi
-          echo "Cross-private credential supplied; checkout and tests will verify its actual permissions."
       - name: Checkout exact Hub source (never persist GITHUB_TOKEN)
         uses: actions/checkout@v5
         with:
           path: hub
           persist-credentials: false
-      - name: Checkout independently pinned private Gateway
-        uses: actions/checkout@v5
-        with:
-          repository: BlueDragon33/Software-Blueprint-Execution-Gateway
-          ref: 77ba939787e6a8aa26edcf25e6ba1b6ba57e0a94
-          token: ${{ secrets.BLUEPRINT_CROSS_REPO_READ_TOKEN }}
-          path: gateway
-          persist-credentials: false
-      - name: Checkout independently pinned private Worker
-        uses: actions/checkout@v5
-        with:
-          repository: BlueDragon33/Software-Blueprint-Execution-Worker
-          ref: 6de12d9efb36052fd039e869797540d0f182bd66
-          token: ${{ secrets.BLUEPRINT_CROSS_REPO_READ_TOKEN }}
-          path: worker
-          persist-credentials: false
-      - name: Checkout independently pinned private QA Worker
-        uses: actions/checkout@v5
-        with:
-          repository: BlueDragon33/Software-Blueprint-QA-Worker
-          ref: 13208f42838685eaa76ce6cef9754ad622779cc3
-          token: ${{ secrets.BLUEPRINT_CROSS_REPO_READ_TOKEN }}
-          path: qa
-          persist-credentials: false
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          package-manager-cache: false
-      - name: Run all three independent repositories' existing scoped suites
-        run: |
-          (cd gateway && npm run ci)
-          (cd worker && npm run ci)
-          (cd qa && npm run ci)
       - uses: pnpm/action-setup@v6
         with:
           version: 12.4.0
           run_install: false
-      - name: Install exact Hub dependencies and migrate disposable PostgreSQL
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: hub/pnpm-lock.yaml
+      - name: Install exact Hub dependencies and migrate disposable PostgreSQL before issuing tokens
         working-directory: hub
         run: |
           pnpm install --frozen-lockfile
@@ -166,12 +135,80 @@ jobs:
           pnpm exec prisma validate --config prisma7.config.ts
           pnpm db:migrate:deploy
           pnpm db:migrate:status
+      - name: Issue selected-repository execution read token
+        id: execution-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        with:
+          app-id: ${{ vars.BLUEPRINT_GITHUB_APP_ID }}
+          private-key: ${{ secrets.BLUEPRINT_GITHUB_APP_PRIVATE_KEY }}
+          owner: BlueDragon33
+          repositories: |
+            Software-Blueprint-Hub
+            Software-Blueprint-Execution-Gateway
+            Software-Blueprint-Execution-Worker
+            Software-Blueprint-QA-Worker
+          permission-contents: read
+      - name: Issue separate selected-repository QA read token
+        id: qa-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        with:
+          app-id: ${{ vars.BLUEPRINT_GITHUB_APP_ID }}
+          private-key: ${{ secrets.BLUEPRINT_GITHUB_APP_PRIVATE_KEY }}
+          owner: BlueDragon33
+          repositories: |
+            Software-Blueprint-Hub
+            Software-Blueprint-Execution-Gateway
+            Software-Blueprint-Execution-Worker
+            Software-Blueprint-QA-Worker
+          permission-contents: read
+      - name: Check installation binding without exporting credentials
+        env:
+          EXPECTED_INSTALLATION: ${{ vars.BLUEPRINT_GITHUB_INSTALLATION_ID }}
+          EXECUTION_INSTALLATION: ${{ steps.execution-token.outputs.installation-id }}
+          QA_INSTALLATION: ${{ steps.qa-token.outputs.installation-id }}
+        run: |
+          node --input-type=module <<'JS'
+          const { EXPECTED_INSTALLATION: expected, EXECUTION_INSTALLATION: execution, QA_INSTALLATION: qa } = process.env;
+          if (!/^\d+$/.test(expected ?? '') || expected !== execution || expected !== qa) {
+            throw new Error('Unexpected GitHub App installation');
+          }
+          JS
+      - name: Checkout independently pinned private Gateway
+        uses: actions/checkout@v5
+        with:
+          repository: BlueDragon33/Software-Blueprint-Execution-Gateway
+          ref: 77ba939787e6a8aa26edcf25e6ba1b6ba57e0a94
+          token: ${{ steps.execution-token.outputs.token }}
+          path: gateway
+          persist-credentials: false
+      - name: Checkout independently pinned private Worker
+        uses: actions/checkout@v5
+        with:
+          repository: BlueDragon33/Software-Blueprint-Execution-Worker
+          ref: 6de12d9efb36052fd039e869797540d0f182bd66
+          token: ${{ steps.execution-token.outputs.token }}
+          path: worker
+          persist-credentials: false
+      - name: Checkout independently pinned private QA Worker
+        uses: actions/checkout@v5
+        with:
+          repository: BlueDragon33/Software-Blueprint-QA-Worker
+          ref: 13208f42838685eaa76ce6cef9754ad622779cc3
+          token: ${{ steps.execution-token.outputs.token }}
+          path: qa
+          persist-credentials: false
+      - name: Run all three independent repositories' existing scoped suites
+        run: |
+          (cd gateway && npm run ci)
+          (cd worker && npm run ci)
+          (cd qa && npm run ci)
       - name: Verify immutable canonical attempt and QA constraints with real PostgreSQL
         working-directory: hub
         run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts tests/application/prompt-workflow-authority-pg-integration.test.ts
       - name: Signed Gateway -> Worker -> independently re-fetching QA (isolated CI fixture only)
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          BLUEPRINT_EXECUTION_READ_TOKEN: ${{ steps.execution-token.outputs.token }}
+          BLUEPRINT_QA_READ_TOKEN: ${{ steps.qa-token.outputs.token }}
         run: node hub/scripts/ci-p2-cross-service-smoke.mjs
       - name: Archive clearly scoped SHA-bound CI evidence
         if: success()

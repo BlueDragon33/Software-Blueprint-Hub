@@ -9,6 +9,9 @@ on:
       - "scripts/verify-governance-onboarding-live.mjs"
       - "scripts/derive-governance-current-view.mjs"
       - "tests/governance/onboarding-live.test.mjs"
+      - "scripts/verify-rue-private-onboarding.mjs"
+      - "tests/governance/rue-private-onboarding.test.mjs"
+      - ".github/workflows/verify-rue-private-onboarding-preview.yml"
       - ".github/workflows/verify-governance-onboarding-live.yml"
   workflow_dispatch:
 
@@ -32,7 +35,9 @@ jobs:
         run: node scripts/derive-governance-current-view.mjs --check
       - name: Test fail-closed GitHub inspection
         run: node --test tests/governance/onboarding-live.test.mjs
-      - name: Verify both repositories against actual GitHub main and same-SHA CI
+      - name: Run scoped Private RUE fail-closed regression tests without network
+        run: node --test tests/governance/rue-private-onboarding.test.mjs
+      - name: Verify public entries live and hold Private RUE pending authorization
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/verify-governance-onboarding-live.mjs
