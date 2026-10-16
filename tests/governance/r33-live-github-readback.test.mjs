@@ -1,17 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {Buffer} from "node:buffer";
+import {createHash} from "node:crypto";
 import {readRemotePrSnapshot} from "../../scripts/verify-r33-live-github-readback.mjs";
 const head="a".repeat(40),repo="BlueDragon33/Software-Blueprint-Hub",filePath="docs/R33-CONNECTION-INTERRUPTION-RECOVERY.proposed.md";
 const body=Buffer.from("# R33 candidate reference document\n");
+const gitBlob=createHash("sha1").update(Buffer.from("blob "+body.byteLength+"\0")).update(body).digest("hex");
 const config={repository:repo,number:136,expectedHead:head,requiredPath:filePath,token:"ephemeral-test-fixture"};
 function transport(overrides={}){
  let calls=[];
  const objects={
   "/pulls/136":{state:"open",merged:false,head:{sha:head,ref:"governance/r33-interruption-recovery-candidate",repo:{full_name:repo}},base:{sha:"b".repeat(40),repo:{full_name:repo}}},
   "/branches/governance%2Fr33-interruption-recovery-candidate":{commit:{sha:head}},
-  "/commits/"+head:{sha:head},
-  ["/contents/"+filePath+"?ref="+head]:{type:"file",path:filePath,sha:"c".repeat(40),encoding:"base64",
+  ["/commits/"+head]:{sha:head},
+  ["/contents/"+filePath+"?ref="+head]:{type:"file",path:filePath,sha:gitBlob,encoding:"base64",
    size:body.byteLength,content:body.toString("base64")}
  };
  const fetchMock=async(uri,options)=>{
@@ -41,7 +43,7 @@ test("stale PR, missing branch, wrong branch HEAD, bad file bytes and missing co
   {"/pulls/136":{state:"closed",head:{sha:head,repo:{full_name:repo}}}},
   {"/branches/governance%2Fr33-interruption-recovery-candidate":{commit:{sha:"f".repeat(40)}}},
   {["/commits/"+head]:null},
-  {["/contents/"+filePath+"?ref="+head]:{path:filePath,type:"file",size:3,encoding:"base64",content:body.toString("base64"),sha:"c".repeat(40)}},
+  {["/contents/"+filePath+"?ref="+head]:{path:filePath,type:"file",size:3,encoding:"base64",content:body.toString("base64"),sha:gitBlob}},
   {["/contents/"+filePath+"?ref="+head]:null}
  ]){
   await assert.rejects(readRemotePrSnapshot(config,transport(override).fetchMock),/R33_READBACK_BLOCKED/);
