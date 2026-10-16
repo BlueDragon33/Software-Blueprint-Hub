@@ -49,8 +49,10 @@ export async function readRemotePrSnapshot(config,transport=fetch){
  const check=digest(bytes);
  // Prevent race between file read and mutable PR state.
  const after=await request("/pulls/"+number);
- if(after?.head?.sha!==expectedHead||after?.state!=="open")
-   FAIL("PR head/state moved during snapshot");
+ if(after?.head?.sha!==expectedHead||after?.state!=="open"||after?.merged===true||
+   after?.base?.sha!==pull.base.sha||after?.head?.ref!==pull.head.ref||
+   after?.head?.repo?.full_name!==repository||after?.base?.repo?.full_name!==repository)
+   FAIL("PR head/base/state moved during snapshot");
  return Object.freeze({
   kind:"R33_PROVIDER_NEUTRAL_GITHUB_SOURCE_READBACK",status:"SOURCE_REVISION_READBACK_VERIFIED",
   repository,prNumber:number,prUrl:"https://github.com/"+repository+"/pull/"+number,
