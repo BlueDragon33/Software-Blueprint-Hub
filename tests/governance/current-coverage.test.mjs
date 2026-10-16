@@ -132,20 +132,7 @@ test("RUE observedAt must be an exact later historical record and registration m
   q2.entries[2].observedAt = "not-an-iso-date";
   assert.throws(() => build(baseline,q2), /exact ISO/);
   const ledgerWrong = clone(ledger);
-  ledgerWrong.migrations.push({
-    migrationId: "registration-rue-invalid-date",
-    sourceQueueRecordedAt: pending.recordedAt,
-    registeredAt: "2026-10-16T06:00:00.000Z",
-    entries: [{
-      repository: pending.entries[2].repository,
-      branch:"main", projectId:pending.entries[2].projectId,blueprintLevel:"B4",
-      admittedMainSha:pending.entries[2].observedMainSha,
-      adoptionPr:pending.entries[2].adoptionPr,
-      constitutionCi:pending.entries[2].adoptionCI,
-      registrationState:"admitted-registration",
-      complianceState:"UNVERIFIED",canonicalProjectProfile:false,productionAuthority:false
-    }]
-  });
+  ledgerWrong.migrations.at(-1).sourceQueueRecordedAt = pending.recordedAt;
   assert.throws(() => build(baseline,pending,ledgerWrong), /registration migration queue source mismatch/);
 });
 
