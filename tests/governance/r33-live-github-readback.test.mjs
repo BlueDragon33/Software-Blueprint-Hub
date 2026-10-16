@@ -61,3 +61,28 @@ test("unsafe refs, absent permissions, nonnumeric PR and fork divergence never s
    base:{sha:"b".repeat(40),repo:{full_name:repo}}}});
  await assert.rejects(readRemotePrSnapshot(config,wrong.fetchMock),/R33_READBACK_BLOCKED/);
 });
+
+test("PR state, target base and repository identity are checked a second time after file read",async()=>{
+ for(const mutation of [
+  p=>({...p,base:{...p.base,sha:"d".repeat(40)}}),
+  p=>({...p,head:{...p.head,sha:"e".repeat(40)}}),
+  p=>({...p,head:{...p.head,repo:{full_name:"other/repo"}}}),
+  p=>({...p,merged:true})
+ ]){
+  const mock=transport(),fetch0=mock.fetchMock;
+  let count=0;
+  const raced=async(url,opts)=>{
+   if(url.endsWith("/pulls/136")){
+    count++;
+    if(count===2){
+     const result=await fetch0(url,opts);
+     const first=await result.json();
+     return{ok:true,status:200,json:async()=>mutation(first)};
+    }
+   }
+   return fetch0(url,opts);
+  };
+  await assert.rejects(readRemotePrSnapshot(config,raced),/R33_READBACK_BLOCKED.*moved during snapshot/);
+  assert.equal(count,2);
+ }
+});
