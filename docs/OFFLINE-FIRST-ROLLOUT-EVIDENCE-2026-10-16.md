@@ -18,10 +18,10 @@ Owner directive: **every app develops/runs offline/local-first, except Bơi Ếc
 
 **Important:** pre-existing Constitution compliance failure in NC03, Math, GrowUP, MPC, PriceReport, RU_LIFE and CAD is due to `policyVersion=1.2.0` in each repository's adoption manifest while central active policy is `1.3.0`. Those workflow containment merges were **not** a declaration that this governance issue passed, was waived, or that the app is production-ready. Queue governance adoption audits; do not alter the ratified source or fake compliance.
 
-## Unresolved publication exposure / owner-visible blockers
+## Publication containment closed, offline runtime acceptance remains open
 
-- **Application-Management**: `.github/workflows/live-development-deploy.yml` still uses `push: main` and has Production environment dependencies; `bootstrap-managed-client-production.yml` and `deploy-application-management-production.yml` permit issue-comment initiated work. No verified change applied. **Needs a separate fail-closed workflow hold and actual local-stack tests.** Existing `npm run local:system`, `npm run local:doctor`, `npm run local:offline-smoke` commands exist but `.github/workflows/local-offline-smoke-ci.yml` only prints a notice; it does not prove offline behavior.
-- **Health_Care**: `.github/workflows/live-development-deploy.yml` still uses `push: main`; no verified modification applied. Needs fail-closed live-deploy containment and a privacy-safe local runtime/storage plan before claiming offline usability.
+- **Application-Management**: Rechecked `main` on 2026-10-16 (observed SHA `126013134f13db5a51035162e789534fe9c15137`): Live no longer uses `push: main`; Live, Preview, Production and managed-runtime bootstrap are all explicitly `if: false` and automatic issue-comment production triggers are absent. **Publication hold: VERIFIED IN SOURCE.** The `npm run local:system`, `npm run local:doctor` and `npm run local:offline-smoke` scripts exist; the smoke script launches actual local sibling-app services, but `.github/workflows/local-offline-smoke-ci.yml` currently only prints a notice. **Disconnected-mode operational acceptance: NOT YET VERIFIED.**
+- **Health_Care**: [PR #70](https://github.com/BlueDragon33/Health_Care/pull/70) merged at `345c958d530af47345be39e40a2f50b2df012b08`. Removed Live `push: main` and disabled all Health Preview/Live/Production deploy jobs with fail-closed job conditions. Dedicated Health Offline Deployment Boundary **PASS**; Health Fast CI **PASS**. Constitution Compliance **FAIL** on pre-existing `policyVersion=1.2.0` vs active `1.3.0`; no waiver claimed. **Publication hold: VERIFIED IN SOURCE; disconnected-mode sensitive-data runtime acceptance: NOT YET VERIFIED.**
 
 Neither blocker may be marked resolved merely by central policy publication.
 
@@ -50,4 +50,4 @@ A lack of auto-publication in the inspected workflow directory **does not prove 
 - Independent repeatable browser/desktop QA with evidence bound to exact SHA.
 - Existing public deployments may still be online; do not silently delete them or confuse release containment with takedown.
 
-Overall status: **PUBLICATION_CONTAINMENT_PARTIAL; OFFLINE_RUNTIME_AT_SCALE_UNVERIFIED; PRODUCTION_RELEASE_UNAUTHORIZED.**
+Overall status: **OBSERVED_GITHUB_PUBLICATION_WORKFLOWS_CONTAINED_FOR_TRACKED_NON_EXEMPT_APPS; OFFLINE_RUNTIME_AT_SCALE_UNVERIFIED; PRODUCTION_RELEASE_UNAUTHORIZED.** This does not prove there are no other external deployment mechanisms.
