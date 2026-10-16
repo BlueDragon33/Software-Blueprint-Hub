@@ -30,6 +30,7 @@ const presentation: Readonly<Record<string, Pick<HubAppPresentation, "group" | "
   "project:bauman-master-ai-system": { group: "education", icon: "🎓", vi: "Học tập Bauman", en: "Bauman Learning", keywords: "master tiếng nga kỹ thuật học" },
   "project:math-bauman": { group: "education", icon: "📐", vi: "Toán Bauman", en: "Bauman Mathematics", keywords: "toán math" },
   "project:ru-life": { group: "education", icon: "🇷🇺", vi: "Hòa nhập Nga", en: "Life in Russia", keywords: "nga russian cuộc sống" },
+  "project:blueprint-russian-expert-engine": { group: "education", icon: "🎙️", vi: "Chuyên gia tiếng Nga", en: "Russian Expert Engine", keywords: "nga russian ngữ âm chuyên gia phát âm audio QA" },
   "project:growup-mychildren": { group: "education", icon: "🌱", vi: "Phát triển trẻ em", en: "Growing Children", keywords: "con cái học tập trẻ em" },
   "project:ros-1-2": { group: "engineering", icon: "🤖", vi: "Robot ROS", en: "ROS Robotics", keywords: "robot robotics ros" },
   "project:hardware-simulation": { group: "engineering", icon: "🧩", vi: "Mô phỏng phần cứng", en: "Hardware Simulation", keywords: "hardware vi mạch" },
