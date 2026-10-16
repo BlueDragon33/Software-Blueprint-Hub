@@ -158,7 +158,8 @@ test("unknown project, ambiguous work item, completed work or hard blocker never
  assert.equal(suggestNextProjectActions(input).length,0);
  assert.equal(suggestNextProjectActions({...input,workStatus:"BLOCKED_NO_SAFE_ACTION"}).length,0);
  assert.equal(suggestNextProjectActions({...input,workStatus:"AMBIGUOUS"}).length,0);
- assert.equal(suggestNextProjectActions({...input,workStatus:"UNVERIFIED"}).length,1);
+ assert.equal(suggestNextProjectActions({...input,workStatus:"UNVERIFIED"}).length,2);
+ assert.equal(suggestNextProjectActions({...input,workStatus:"UNVERIFIED"})[0].kind,"prepare");
  assert.equal(suggestNextProjectActions({...input,workStatus:"REVIEW_BLOCKED"})[0].kind,"status");
  assert.equal(suggestNextProjectActions({...input,workStatus:"ACTIVE",workItemRef:""}).length,0);
  assert.equal(suggestNextProjectActions({...input,workStatus:"ACTIVE",repository:"Attacker/repo;rm -rf"}).length,0);
