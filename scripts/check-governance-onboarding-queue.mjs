@@ -10,6 +10,8 @@ export function validateOnboardingQueue(queue, governed, policy) {
   if (queue.sealedBaseline?.policyVersion !== policy?.policyVersion) reject("queue policy must agree with active Constitution");
   if (!Array.isArray(governed?.repositories) || !Array.isArray(queue.entries)) return [...errors, "invalid repository arrays"];
   if (queue.sealedBaseline?.governedCount !== governed.repositories.length) reject("sealed baseline count drift");
+  const isExactIso = value => typeof value === "string" && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString() === value;
+  if (!isExactIso(queue.recordedAt)) reject("recordedAt required");
   const accepted = new Set(governed.repositories.map(e => e.repository));
   const seen = new Set();
   for (const e of queue.entries) {
@@ -19,6 +21,8 @@ export function validateOnboardingQueue(queue, governed, policy) {
     seen.add(e.repository);
     if (accepted.has(e.repository)) reject("pending repository already present in constitutional baseline: " + e.repository);
     if (e.branch !== "main") reject("unknown pending default branch for " + e.repository);
+    if (e.visibility !== undefined && e.visibility !== "private") reject("unsupported repository visibility metadata");
+    if (e.observedAt !== undefined && (!isExactIso(e.observedAt) || Date.parse(e.observedAt) < Date.parse(queue.recordedAt))) reject("invalid or backdated observedAt for " + e.repository);
     if (!/^project:[a-z0-9-]+$/.test(e.projectId ?? "")) reject("invalid projectId");
     if (!/^B[0-5]$/.test(e.proposedBlueprintLevel ?? "")) reject("invalid proposed blueprint level");
     if (!/^[a-f0-9]{40}$/.test(e.observedMainSha ?? "")) reject("missing exact observed HEAD");
@@ -28,7 +32,6 @@ export function validateOnboardingQueue(queue, governed, policy) {
   }
   if (queue.entries.length === 0) reject("onboarding queue must not be empty while active");
   if (typeof queue.promotionRule !== "string" || !queue.promotionRule.includes("reviewed migration")) reject("sealed snapshot migration gate missing");
-  if (Number.isNaN(Date.parse(queue.recordedAt ?? ""))) reject("recordedAt required");
   return errors;
 }
 
@@ -41,7 +44,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     if (errors.length) {
       for (const error of errors) console.error("[governance-onboarding] " + error);
       process.exitCode = 1;
-    } else console.log("[governance-onboarding] PASS: 2 adopted foundations staged outside sealed constitutional registry");
+    } else console.log(`[governance-onboarding] PASS: ${queue.entries.length} recorded entries outside sealed constitutional registry`);
   } catch (error) {
     console.error("[governance-onboarding] failed: " + error.message);
     process.exitCode = 1;

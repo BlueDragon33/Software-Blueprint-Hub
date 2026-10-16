@@ -10,11 +10,11 @@
     "control/governance-registration-ledger.v1.json",
     "control/universal-constitution-version.json"
   ],
-  "recordedAt": "2026-10-15T13:53:00.000Z",
+  "recordedAt": "2026-10-16T05:37:39.804Z",
   "sealedBaselineCount": 15,
   "admittedRegistrationCount": 2,
-  "pendingOnboardingCount": 0,
-  "trackedCount": 17,
+  "pendingOnboardingCount": 1,
+  "trackedCount": 18,
   "repositories": [
     {
       "repository": "BlueDragon33/Software-Blueprint-Hub",
@@ -217,6 +217,18 @@
       "sourceRevision": "ac31178bae7a92f89180d875e81d6d35760a8367",
       "observedAt": "2026-10-15T13:53:00.000Z",
       "sourceFreshness": "verified-admission-source",
+      "complianceState": "UNVERIFIED",
+      "productionAuthority": false
+    },
+    {
+      "repository": "BlueDragon33/Blueprint-Russian-Expert-Engine",
+      "branch": "main",
+      "projectId": "project:blueprint-russian-expert-engine",
+      "blueprintLevel": "B4",
+      "registrationState": "pending-onboarding",
+      "sourceRevision": "60c544eeafff06e145a3363fef8071f29e51cc86",
+      "observedAt": "2026-10-16T05:37:39.804Z",
+      "sourceFreshness": "historical-reference-not-live-head",
       "complianceState": "UNVERIFIED",
       "productionAuthority": false
     }
