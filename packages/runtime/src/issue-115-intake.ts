@@ -162,7 +162,11 @@ export async function admitIssue115Candidate(
   // The post-commit readback uses the canonical runtime service, not the
   // in-memory request, and refuses a missing or contradictory transaction.
   const after = await snapshot(boundary.readback, actor);
-  if (inspectRecords(after.works, after.gates, expected) !== "complete") {
+  try {
+    if (inspectRecords(after.works, after.gates, expected) !== "complete") {
+      throw new Error("incomplete committed records");
+    }
+  } catch {
     throw new Error("Issue 115 committed canonical readback is missing or contradictory");
   }
   return result;
