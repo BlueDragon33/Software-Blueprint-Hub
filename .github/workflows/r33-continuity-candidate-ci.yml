@@ -8,11 +8,14 @@ on:
       - "control/execution-continuity-r33-aliases.v1.json"
       - "scripts/check-execution-continuity-r33.mjs"
       - "tests/governance/execution-continuity-r33.test.mjs"
+      - "scripts/verify-r33-live-github-readback.mjs"
+      - "tests/governance/r33-live-github-readback.test.mjs"
       - ".github/workflows/r33-continuity-candidate-ci.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   candidate-contract:
@@ -29,6 +32,35 @@ jobs:
       - name: Validate candidate R33 without writing to GitHub
         run: node scripts/check-execution-continuity-r33.mjs
       - name: Adversarial recovery and replay regression
-        run: node --test tests/governance/execution-continuity-r33.test.mjs
+        run: |
+          node --test tests/governance/execution-continuity-r33.test.mjs
+          node --test tests/governance/r33-live-github-readback.test.mjs
+          node --check scripts/verify-r33-live-github-readback.mjs
       - name: Confirm proposal is not authority
         run: echo "R33 candidate only — no constitutional ratification, persistent checkpoint write, hidden background work, Production or Quality Gate PASS."
+
+  exact-remote-readback:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    needs: candidate-contract
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Verify actual PR and immutable source bytes via GitHub API
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/verify-r33-live-github-readback.mjs
+      - name: Preserve non-authoritative remote readback evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: r33-source-readback-not-task-completion-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/r33-source-readback-evidence.json
+          retention-days: 7
+          if-no-files-found: error
