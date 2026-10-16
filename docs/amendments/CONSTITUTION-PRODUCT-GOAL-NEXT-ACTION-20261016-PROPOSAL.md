@@ -191,3 +191,41 @@ sealed registrations, merge PRs or publish products on this basis.
 Authenticated human Constitutional Authority must decide if/how to publish
 this as a successor; Project Authority and Production Authority are distinct.
 See `docs/CONSTITUTION-AUTHORITY-PROTOCOL.v1.md`.
+
+
+## Read-only P3/P4 evidence checkpoint — 2026-10-16 (not a registry)
+
+This sampling **does not mutate** `control/constitution-governed-repositories.json`
+(sealed baseline) or `control/governance-registration-ledger.v1.json`
+(append-only admission history). The canonical baseline at Hub main
+`cd01fb3c2178393628ce968af209db082227d2c4` lists **15 repositories**.
+The registration ledger admits **2 more** (ECAD_Design, CAE_Simulation) with
+`complianceState: UNVERIFIED` and `canonicalProjectProfile: false`.
+Enrollment is not adoption or product acceptance.
+
+| Provenance | Application | Revision/observed evidence | Product-goal continuation |
+| --- | --- | --- | --- |
+| Outside baseline and ledger, candidate | `BlueDragon33/Bauman-Russian-iOS` | main `80c17043c472ff9fca0db8ed0fc329863be6b47e`; complete recursive tree = README.md only | **BLOCKED product**: no native Xcode project, SwiftUI app, WidgetKit extension, signed device/Lock Screen evidence or dynamic-catalog enrollment. Must not call installed, offline verified, RU03 accepted or managed. |
+| Baseline governed | `BlueDragon33/Application-Management` | Draft PR #360 head `cc42893a4dbd99e5ff7f4e24398af345cc3da55b`: Constitution, fast, regression, isolated local smoke and full checks success; preview browser skipped | **PARTIAL verification only**: no actual Windows cold-start cross-app iOS launch or authenticated enrollment. Offline-first publication hold remains. |
+| Baseline governed | `BlueDragon33/pc-manager-desktop` | main `37035ef6d3e90ed5fc06d03b618921dbae1f8404`; Rust, Windows native build, offline protocol, frontend, constitution checks success | **PARTIAL verification only**: real end-user device UX / signed installer release not inferred from CI. Distinct app with non-iOS workflow. |
+| Baseline governed | `BlueDragon33/Bauman-master-ai-system` | main `70df417bacb615602f76b40fea1073ad221059a6`; browser and Russian UI checks success | **PARTIAL verification only**: web learning journey is not an iOS native offline/widget acceptance or qualified RU03 review. |
+
+**P4 staged NOT_ASSESSED remainder:** BOIECH_AI, RU_LIFE, Health_Care,
+NC03_Modem, ROS-1-2, Math_Bauman, GrowUP_MyChildren,
+Hardware_Simulation, MPC_PID_System, CAD_CAM_3D,
+PriceReport_Tunggiabao, ECAD_Design, CAE_Simulation. Their presence in a
+manifest/ledger is no basis for VERIFIED or PASS. Hub is the authority owner
+of this PR, not a separate application-acceptance PASS.
+
+**Actual iPhone slice acceptance dependency:** create and build a genuine
+offline WidgetKit executable from approved (separately RU03-reviewed) Russian
+content, install and exercise it on a supported device, measure data readback,
+then validate a truthful Application-Management discovery/launch contract under
+its existing catalog authority. A source-only check cannot replace iOS device
+evidence. Do not grant iOS enrollment authority through Hub candidate tests.
+
+**Scope note:** Work handoff as text is testable via this PR; native Xcode,
+actual iPhone provisioning and signed enrollment are *capability/evidence
+boundaries*, not reasons to mark a candidate selector or the Constitution as
+ratified. The current primary product-advancing next action for iOS is a minimal
+offline native WidgetKit executable, not another unchanged PR review poll.
