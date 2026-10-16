@@ -24,7 +24,17 @@ export async function githubJson(path, fetchImpl = fetch) {
  * Active GitHub inspection: exact branch HEAD, manifest fetched at SHA, and
  * completed successful compliance CI for that SAME SHA. No mutating actions.
  */
-export async function inspectPendingOnboarding(queue, contract, getJson = githubJson) {
+export async function inspectPendingOnboarding(queue, contract, getJson = githubJson, options = {}) {
+  // An explicit private-read scope is only usable with a separately scoped API provider.
+  // Runtime's default public workflow never supplies it; GitHub still authenticates every read.
+  const scopedPrivateRead = options?.scopedPrivateRead ?? null;
+  requireEvidence(scopedPrivateRead === null ||
+    scopedPrivateRead === "BlueDragon33/Blueprint-Russian-Expert-Engine", "unsupported private read scope");
+  if (scopedPrivateRead !== null) {
+    requireEvidence(queue?.entries?.length === 1 &&
+      queue.entries[0].repository === scopedPrivateRead &&
+      queue.entries[0].visibility === "private", "private verification requires a single private RUE entry");
+  }
   requireEvidence(queue?.scope === "bounded-observation-not-constitutional-authority", "untrusted queue");
   requireEvidence(queue.sealedBaseline?.policyVersion === contract?.policyVersion, "policy mismatch");
   requireEvidence(Array.isArray(queue.entries) && queue.entries.length > 0, "no pending entries");
@@ -38,7 +48,7 @@ export async function inspectPendingOnboarding(queue, contract, getJson = github
     // The public Hub's GITHUB_TOKEN cannot inspect private repositories.
     // Keep such entries explicitly PENDING and provide no fake live verification.
     // Trusted scoped cross-repo evidence is a separate authorization gate.
-    if (entry.visibility === "private") {
+    if (entry.visibility === "private" && scopedPrivateRead !== entry.repository) {
       requireEvidence(entry.canonicalCompliance === "UNVERIFIED" && entry.productionAuthority === false,
         "private pending item cannot claim compliance or release");
       results.push({
@@ -82,12 +92,14 @@ export async function inspectPendingOnboarding(queue, contract, getJson = github
       "mandatory pillar or authority violation: " + entry.repository);
     const runList = await getJson(root + "/actions/runs?branch=main&per_page=30");
     requireEvidence(Array.isArray(runList.workflow_runs), "CI run source unavailable for " + entry.repository);
+    const expectedWorkflow = scopedPrivateRead === entry.repository ?
+      ".github/workflows/contract-checks.yml" : ".github/workflows/constitution.yml";
     const run = runList.workflow_runs.find(row =>
-      row.head_sha === branch.commit.sha && row.path === ".github/workflows/constitution.yml" &&
+      row.head_sha === branch.commit.sha && row.path === expectedWorkflow &&
       row.event === "push" && row.status === "completed" && row.conclusion === "success" &&
       Number.isSafeInteger(row.id) && row.id > 0
     );
-    requireEvidence(run, "no successful same-SHA Constitution CI: " + entry.repository);
+    requireEvidence(run, "no successful same-SHA pinned workflow CI: " + entry.repository);
     results.push({
       repository: entry.repository,
       projectId: entry.projectId,
@@ -96,6 +108,7 @@ export async function inspectPendingOnboarding(queue, contract, getJson = github
       constitutionVersion: contract.policyVersion,
       verifiedCiRunId: String(run.id),
       adoptionState: "verified-at-exact-head",
+      evidenceScope: "READ_ONLY_SOURCE_AND_CI_NOT_COMPLIANCE_CERTIFICATION",
       complianceState: "UNVERIFIED",
       qualityGatePassAllowed: false,
       productionReleaseAuthority: false

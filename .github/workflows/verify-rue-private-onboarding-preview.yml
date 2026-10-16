@@ -1,0 +1,57 @@
+name: Verify Private RUE Onboarding Preview
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rue-private-onboarding-preview
+  cancel-in-progress: false
+jobs:
+  verify-private-rue:
+    if: github.ref == 'refs/heads/main' && github.repository == 'BlueDragon33/Software-Blueprint-Hub'
+    environment: Preview
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Checkout exact Blueprint OS revision
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Obtain short-lived RUE-only GitHub App read token
+        id: rue-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+        with:
+          app-id: ${{ vars.BLUEPRINT_GITHUB_APP_ID }}
+          private-key: ${{ secrets.BLUEPRINT_GITHUB_APP_PRIVATE_KEY }}
+          owner: BlueDragon33
+          repositories: Blueprint-Russian-Expert-Engine
+          permission-contents: read
+          permission-actions: read
+      - name: Verify authorized installation identity
+        env:
+          EXPECTED_INSTALLATION: ${{ vars.BLUEPRINT_GITHUB_INSTALLATION_ID }}
+          ACTUAL_INSTALLATION: ${{ steps.rue-token.outputs.installation-id }}
+        run: |
+          node --input-type=module <<'JS'
+          const { EXPECTED_INSTALLATION: expected, ACTUAL_INSTALLATION: actual } = process.env;
+          if (!/^\d+$/.test(expected ?? '') || expected !== actual) {
+            throw new Error('Unexpected GitHub App installation');
+          }
+          JS
+      - name: Inspect private RUE main and same-SHA CI without downloading media
+        env:
+          BLUEPRINT_RUE_PRIVATE_CHECK: 'true'
+          GITHUB_TOKEN: ${{ steps.rue-token.outputs.token }}
+        run: node scripts/verify-rue-private-onboarding.mjs
+      - name: Describe verification scope
+        if: success()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+          SOURCE VERIFIED ONLY: private RUE repository, exact observed main SHA, Constitution adoption manifest, same-SHA contract-checks workflow.
+          NOT VERIFIED: canonical project profile, independent human RU03 text/audio review, Quality Gate PASS, Production release or model training.
+          No private contents or credentials were exported to artifacts.
+          SUMMARY
