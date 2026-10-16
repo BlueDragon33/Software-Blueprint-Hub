@@ -94,6 +94,7 @@ export function buildGovernanceCurrentView(baseline, queue, ledger, policy) {
     };
   });
 
+  let latestRecordedAt = queue.recordedAt;
   const queueByRepo = new Map();
   const queueProjects = new Set();
   for (const item of queue.entries) {
@@ -109,7 +110,6 @@ export function buildGovernanceCurrentView(baseline, queue, ledger, policy) {
 
   const admittedByRepo = new Map();
   const admittedProjects = new Set();
-  let latestRecordedAt = queue.recordedAt;
   for (const migration of ledger.migrations) {
     assert(migration && typeof migration === "object" && migrationIdPattern.test(migration.migrationId ?? ""), "invalid registration migration ID");
     assert(isExactIso(migration.sourceQueueRecordedAt), "registration migration queue source timestamp invalid");
