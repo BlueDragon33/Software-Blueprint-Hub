@@ -43,8 +43,9 @@ export async function readRemotePrSnapshot(config,transport=fetch){
    file.encoding!=="base64"||typeof file.content!=="string"||
    file.size>1000000)FAIL("required content missing or unsupported");
  const bytes=Buffer.from(file.content.replace(/\s+/g,""),"base64");
- if(bytes.byteLength!==file.size||!file.sha||!/^[-a-f0-9]{40}$/.test(file.sha))
-   FAIL("file content length or blob hash mismatch");
+ const gitBlob=createHash("sha1").update(Buffer.from("blob "+bytes.byteLength+"\0")).update(bytes).digest("hex");
+ if(bytes.byteLength!==file.size||file.sha!==gitBlob)
+   FAIL("file content length or Git blob SHA mismatch");
  const check=digest(bytes);
  // Prevent race between file read and mutable PR state.
  const after=await request("/pulls/"+number);
