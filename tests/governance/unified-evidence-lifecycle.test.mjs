@@ -147,7 +147,7 @@ test("a review-only project offers preparation but never impersonates a reviewer
 });
 test("observed defects receive a bounded fix request and read-only checkpoint follow-up",()=>{
  const a=suggestNextProjectActions({repository:"BlueDragon33/pc-manager-desktop",workItemRef:"Issue #41",workStatus:"ACTIVE",observedDefect:true});
- assert.equal(a[0].kind,"end-to-end");
+ assert.equal(a[0].kind,"prepare");
  assert.equal(a[1].kind,"fix");
  assert.match(a[0].query,/sửa thiếu sót có giới hạn/);
  assert.match(a[1].query,/kiểm thử hồi quy/);
