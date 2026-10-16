@@ -70,33 +70,57 @@ const kinds={
  "release-candidate":["release-build","tester-session","defect-report"],
  "operational-observation":["deployment","health-trace"]
 };
-export function evaluateReviewEvidence(tier,sourceSha,items,{nonUI=false}={}){
- if(!Object.hasOwn(kinds,tier)||!sha.test(sourceSha??""))return safe({status:"BLOCKED",reason:"INVALID_SCOPE_OR_REVISION",qualityGatePassed:false});
- if(tier==="visual-asset"&&nonUI)return safe({status:"NOT_APPLICABLE",reason:"DOCUMENTED_NON_UI_WORK",qualityGatePassed:false});
- if(!Array.isArray(items))return safe({status:"NOT_REVIEWABLE",missing:kinds[tier],qualityGatePassed:false});
- // A static image is visual evidence only, never proof of executable behavior.
- const matches=items.filter(x=>record(x)&&nonempty(x.ref)&&x.sourceSha===sourceSha&&
-   x.verifiedByTrustedAdapter===true&&
-   (x.kind!=="image-digest"||/^sha256:[a-f0-9]{64}$/.test(x.contentDigest??"")));
- const missing=kinds[tier].filter(k=>!matches.some(x=>x.kind===k));
+/** Structural evidence intake only: a boolean or digest *submitted by the caller*
+ * never constitutes authenticated evidence. Host must perform independent readback
+ * from a trusted provider before any REVIEW PASS can be recorded.
+ */
+export function evaluateReviewEvidence(tier,sourceSha,items,{nonUIScope=null}={}){
+ if(!Object.hasOwn(kinds,tier)||!sha.test(sourceSha??""))
+  return safe({status:"BLOCKED",reason:"INVALID_SCOPE_OR_REVISION",qualityGatePassed:false});
+ if(tier==="visual-asset"&&nonUIScope!==null){
+  if(!record(nonUIScope)||nonUIScope.sourceSha!==sourceSha||
+     !nonempty(nonUIScope.scopeId)||!nonempty(nonUIScope.ownerEvidenceRef))
+   return safe({status:"BLOCKED",reason:"NON_UI_EXCEPTION_UNGROUNDED",qualityGatePassed:false});
+  return safe({status:"NOT_APPLICABLE_PENDING_REVIEW",reason:"NON_UI_SCOPE_CLAIM_REQUIRES_VERIFICATION",
+    qualityGatePassed:false,independentlyVerified:false});
+ }
+ if(!Array.isArray(items))
+  return safe({status:"NOT_REVIEWABLE",missing:kinds[tier],qualityGatePassed:false});
+ const candidates=items.filter(x=>record(x)&&nonempty(x.ref)&&x.sourceSha===sourceSha&&
+    // Legacy "verifiedByTrustedAdapter" can be *asserted* by untrusted data.
+    // Its value may not upgrade candidate evidence into a trusted gate.
+    (x.kind!=="image-digest"||/^sha256:[a-f0-9]{64}$/.test(x.contentDigest??"")));
+ const missing=kinds[tier].filter(k=>!candidates.some(x=>x.kind===k));
  if(missing.length)return safe({status:"NOT_REVIEWABLE",missing,qualityGatePassed:false});
- return safe({status:"REVIEWABLE",tier,sourceSha,scope:"evidence-presence-only",qualityGatePassed:false,
-   humanReviewPassed:false,releaseAuthorized:false});
+ return safe({status:"EVIDENCE_FORMAT_READY",tier,sourceSha,
+    scope:"untrusted-structure-only",independentlyVerified:false,
+    trustedReadbackRequired:true,qualityGatePassed:false,humanReviewPassed:false,
+    productAccepted:false,releaseAuthorized:false});
 }
 
+/** A tester's reported session is an input to review, not proof that a real
+ * user operated a real build. No self-reported fields can authenticate a session.
+ */
 export function evaluateTesterCase(testCase,model){
  const fields=model?.applicationTester?.issueContract?.requiredFields??[];
- if(!record(testCase))return safe({status:"BLOCKED",reason:"NO_REAL_TEST_SESSION"});
- const missing=fields.filter(k=>!nonempty(testCase[k])&&!Array.isArray(testCase[k]));
+ if(!record(testCase)||!Array.isArray(fields)||fields.length<10)
+  return safe({status:"BLOCKED",reason:"NO_VALID_TESTER_CONTRACT_OR_SESSION"});
+ const missing=fields.filter(k=>{
+  const value=testCase[k];
+  return Array.isArray(value)?value.length===0||!value.every(nonempty):!nonempty(value);
+ });
  if(missing.length)return safe({status:"BLOCKED",reason:"MISSING_TESTER_SPEC",missing});
- if(!sha.test(testCase.buildSha??""))return safe({status:"BLOCKED",reason:"INVALID_BUILD_SHA"});
+ if(!sha.test(testCase.buildSha??""))
+  return safe({status:"BLOCKED",reason:"INVALID_BUILD_SHA"});
  if(!Array.isArray(testCase.reproductionSteps)||testCase.reproductionSteps.length===0||
-   !testCase.reproductionSteps.every(nonempty))return safe({status:"BLOCKED",reason:"INVALID_REPRO_STEPS"});
+    !testCase.reproductionSteps.every(nonempty))
+  return safe({status:"BLOCKED",reason:"INVALID_REPRO_STEPS"});
  if(!model.applicationTester.issueContract.statusValues.includes(testCase.status)||
-   !model.applicationTester.issueContract.severityValues.includes(testCase.severity))
+    !model.applicationTester.issueContract.severityValues.includes(testCase.severity))
    return safe({status:"BLOCKED",reason:"INVALID_VERDICT_OR_SEVERITY"});
- return safe({status:"REVIEWABLE_TESTER_REPORT",sourceSha:testCase.buildSha,qualityGatePassed:false,
-   releaseAuthorized:false,humanReviewPassed:false});
+ return safe({status:"TESTER_SPEC_FORMAT_READY",sourceSha:testCase.buildSha,
+   realSessionObserved:false,independentlyVerified:false,sourceReadbackRequired:true,
+   qualityGatePassed:false,releaseAuthorized:false,humanReviewPassed:false});
 }
 
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
