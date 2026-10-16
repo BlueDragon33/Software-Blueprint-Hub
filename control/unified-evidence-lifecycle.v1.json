@@ -116,13 +116,14 @@
       "id": "review",
       "role": "professional-review",
       "dependsOn": [
-        "verify"
+        "design"
       ],
       "requires": [
-        "stage-proportional-evidence",
+        "evidence-matching-requested-tier",
         "separate-reviewer-or-authority-for-protected-gate"
       ],
-      "delivers": "REVIEW_DECISION_CANDIDATE"
+      "delivers": "REVIEW_DECISION_CANDIDATE",
+      "applicability": "any-reviewed-maturity-stage"
     },
     {
       "id": "release",
