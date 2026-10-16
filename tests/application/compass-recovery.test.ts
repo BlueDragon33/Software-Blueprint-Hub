@@ -27,6 +27,30 @@ const bundle: QualityGateEvidenceBundle = {
 };
 
 describe("canonical Compass recovery", () => {
+  it("shows canonical constitutional blockers before human approval exists", () => {
+    for (const decision of [null, { ...review, decision: "reject" as const, humanSignoff: false, p9020TransitionAllowed: false }]) {
+      const projection = getBlueprintCompassProjection(decision, {
+        revision, gateBundles: [],
+        constitutionAudit: { ...constitutionAudit, state: "non-compliant" }
+      });
+      expect(projection.dependencyBlockers).toContain("universal-constitution-non-compliant");
+      expect(projection.dependencyBlockers).toContain("p9-019-human-signoff-required");
+      expect(projection.activeWork.id).toBe("P9-019");
+      expect(projection.truthNote).toContain("canonical");
+      expect(projection.releaseAuthority).toBe("not-authorized");
+    }
+  });
+
+  it("does not mark P9-019 complete from a stale canonical approval", () => {
+    const projection = getBlueprintCompassProjection({ ...review, candidateReviewedRevision: "d".repeat(40) }, {
+      revision, gateBundles: [bundle], constitutionAudit
+    });
+    expect(projection.activeWork.id).toBe("P9-019");
+    expect(projection.workSequence.find(item => item.id === "P9-019")?.status).toBe("active");
+    expect(projection.dependencyBlockers).toContain("p9-019-human-signoff-required");
+    expect(projection.evidence.some(item => item.label === "P9-019 Human Professional Review")).toBe(false);
+  });
+
   it("shows P9-020 complete only from the current revision's linked receipt", () => {
     const projection = getBlueprintCompassProjection(review, { revision, gateBundles: [bundle], constitutionAudit });
     expect(projection.activeWork).toMatchObject({ id: "P9-020", status: "complete" });

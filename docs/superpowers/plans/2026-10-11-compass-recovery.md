@@ -31,3 +31,17 @@ Ruling: Continue inline as explicitly authorized by the user; no plan approval p
 - [ ] Review, supplemental full CI and merge the follow-up; inspect final main/Preview.
 
 Database investigation: production has no migration ledger. Read-only comparison matched 178 columns and all 97 index/constraint definitions; Prisma migration status on a separate expiring branch is blocked by execution-environment DNS. No ledger or business-data writes were performed.
+
+## Authenticated Preview follow-up
+
+PR #100 merged as `2952ba75567162b496dc3d007ff260c9b55db6b8`. Main push38125574004 and manual Release Gate38125629118 passed with268 unit/integration tests and63 E2E, no skipped mandatory steps. Manual artifact11696812384 digest `sha256:6f4802c63f934fb3e13bfe06f44a2a258cc00b6f2ead516f7601d7d425d520df`.
+
+The existing OAuth-configured `phase9/p9020-compass-acceptance` branch was fast-forwarded to that exact tested main revision, without changing secrets, callback or Production. Initial deployment failed before build (`git_info_fail`); one redeploy through the existing connection succeeded as Preview `dpl_aHQQHPxtkuFH99singFPdvhMKTGE`. Readiness confirms OAuth/database/schema present; existing authenticated System Owner session reads the canonical registry and current review candidate. This verifies session reuse, not a new OAuth handshake. Production remains `6c86b0596462bf3fbd2594e9788d42c9ebb5e557`.
+
+Real Preview acceptance exposed two blockers: missing canonical `gate:operations:dependency-sovereignty` and missing approval for the refreshed candidate. Compass incorrectly displayed only the latter because its pre-approval branch returned the checked-in baseline before evaluating constitutional prerequisites.
+
+- [x] Reproduce missing constitutional blocker and stale approval advancing P9-019 with two failing tests.
+- [x] Evaluate canonical preflight before the approval branch; preserve public baseline and all authority boundaries.25 scoped tests, lint, typecheck, truth and boundaries pass.
+- [ ] Full CI, independent review, merge and verify both blockers on the configured Preview.
+- [ ] Collect valid dependency-sovereignty evidence through the governed Quality workflow; do not manufacture PASS or reuse old receipt.
+- [ ] Human review and exact-revision P9-020 acceptance remain separate; no agent review approval or Production release.

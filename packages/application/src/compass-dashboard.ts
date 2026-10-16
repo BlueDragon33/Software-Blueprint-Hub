@@ -262,13 +262,34 @@ export function getBlueprintCompassProjection(
     readonly constitutionAudit: ConstitutionalComplianceAudit | null;
   }
 ): BlueprintCompassProjection {
+  // Evaluate canonical prerequisites even before a human decision exists.
+  // Public baseline callers intentionally have no live audit.
+  const preflight = acceptance ? buildCompassAcceptancePreflight({
+    reviewDecision,
+    constitutionAudit: acceptance.constitutionAudit
+  }) : null;
   const approved =
     reviewDecision?.decision === "approve" &&
     reviewDecision.humanSignoff === true &&
     reviewDecision.p9020TransitionAllowed === true &&
-    reviewDecision.productionReleaseAuthority === false;
+    reviewDecision.productionReleaseAuthority === false &&
+    !preflight?.blockers.includes("p9-019-human-signoff-required");
 
   if (!approved) {
+    if (preflight) {
+      return Object.freeze({
+        ...pendingProjection,
+        dependencyBlockers: Object.freeze([
+          ...new Set([...preflight.blockers, ...(reviewDecision?.blockers ?? [])])
+        ]),
+        nextActions: Object.freeze([
+          "Resolve the displayed constitutional and professional review blockers before running P9-020.",
+          "Record an explicit human review decision against the exact current candidate; stale approval does not complete P9-019.",
+          "Any new Production release requires separate exact-revision authority."
+        ]),
+        truthNote: "Current review and constitutional prerequisites are read from canonical state. P9-019 remains active; neither old evidence nor this projection grants acceptance or Production authority."
+      });
+    }
     if (!reviewDecision) {
       return pendingProjection;
     }
@@ -311,11 +332,6 @@ export function getBlueprintCompassProjection(
     ? compassAcceptanceReceipt({ revision: acceptance.revision, gateBundles: acceptance.gateBundles })
     : null;
   // A receipt cannot bypass the current review or constitutional prerequisites.
-  // Legacy baseline callers have no live audit; canonical readers always supply it.
-  const preflight = acceptance ? buildCompassAcceptancePreflight({
-      reviewDecision,
-      constitutionAudit: acceptance?.constitutionAudit ?? null
-    }) : null;
   const accepted = receipt?.accepted === true && preflight?.state === "ready-for-final-evidence";
   const locked = preflight?.state === "locked";
   const p9020 = freezeWorkItem({
