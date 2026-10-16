@@ -52,9 +52,10 @@ describe("Vietnamese-first ecosystem launcher", () => {
     expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
     expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);
     expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(4);
-    expect(tracked.filter((app) => app.visibility === "private")).toHaveLength(4);
+    expect(tracked.filter((app) => app.visibility === "private")).toHaveLength(3); // only the 3 private execution services declare visibility in this operational projection
     expect(tracked.filter((app) => app.visibility === "private" && app.projectId !== "project:blueprint-russian-expert-engine").every((app) => app.liveCrossRepoVerified === false)).toBe(true);
     expect(tracked.find((app) => app.projectId === "project:blueprint-russian-expert-engine")?.liveCrossRepoVerified).toBeUndefined();
+    expect(tracked.find((app) => app.projectId === "project:blueprint-russian-expert-engine")?.visibility).toBeUndefined();
     expect(tracked.every((app) => !("productionAuthorized" in app) && !("deploymentUrl" in app))).toBe(true);
     expect(() => presentTrackedApps([...coverage.repositories,...privateServices.entries,privateServices.entries[0]!])).toThrow("Duplicate");
   });
