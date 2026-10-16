@@ -182,7 +182,9 @@ export function suggestNextProjectActions(input){
    "chưa được hệ thống tin cậy xác minh. Chỉ báo can thiệp thật sự bắt buộc; không tự phê duyệt, merge hoặc deploy.");
   const report=make("status","Kiểm tra tiến độ",
    "Báo checkpoint — "+target+". Chỉ đọc trạng thái GitHub và bằng chứng thực tế. Không thay đổi dữ liệu hoặc chạy lại CI.");
- if(input?.workStatus==="UNVERIFIED"||input?.workStatus==="REVIEW_BLOCKED")
+ if(input?.workStatus==="UNVERIFIED")
+   return Object.freeze([prepare,report]);
+ if(input?.workStatus==="REVIEW_BLOCKED")
    return Object.freeze([report]);
  if(input?.observedDefect===true&&input?.workStatus==="ACTIVE"){
   return Object.freeze([prepare,
