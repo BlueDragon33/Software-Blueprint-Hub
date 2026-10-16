@@ -1,19 +1,34 @@
 # Shared Development / Release Policy
 
-## Default now: Development Live Mode
+## Default now: Offline-First Development — owner directive 2026-10-16
 
-This repository is in the shared BlueDragon33 Development Live Mode.
+**Operational policy (not a new ratification of Universal Constitution 1.3.0).**
+The canonical machine-readable policy is `control/development-runtime-policy.v1.json`.
+The operational rule covers ALL registered and future applications, **except `BlueDragon33/BOIECH_AI` (Bơi Ếch)**, whose existing online handling is left unchanged.
 
-- `main` is the live development source when a live host is configured.
-- Use the dedicated lightweight **Live Development Deploy** path; do not require Preview promotion.
-- Access defaults to **standalone/local-first**.
-- Application Management is optional coordination/launch/sync infrastructure, not a mandatory gate for opening the app.
-- Device approval, remote-admin authorization and central control are optional during active development.
-- The app must remain usable as a local web-app whenever its own runtime supports local execution.
-- Internet should mainly be needed for publishing, optional access-right lookup, synchronization and remote features.
-- Missing central-management connectivity must not prevent the core app from opening in standalone development mode.
-- Heavy CI, browser suites, integration gates and protected Production promotion remain manual during active development.
-- Never treat a skipped optional sync/management bridge as a failed local app.
+- **The installed application must launch and perform its core functions without internet**, using local files, localhost services and local persistence appropriate to its architecture. An online-hosted website is not an offline app.
+- `main` is a source-code branch, **not an instruction to publish**. Git pushes, successful CI, PR merges and release candidates must never automatically deploy a website, Worker, Pages site, backend or publicly reachable service.
+- During this phase no online Preview, live development, Cloudflare, Vercel, GitHub Pages or Production **publication** occurs for non-exempt apps. Preserve remote release workflows in a manually gated dormant state for potential future activation, without deleting release capabilities.
+- Downloading dependencies, obtaining source code or running remote CI may use internet at build time. **Offline-runtime tests must disconnect the app from internet after installing it**; distinguish build-time downloads from app runtime network dependencies.
+- Core app navigation, learning or work data, drafts, input and saved progress must remain usable locally and survive restart. Local backups and recovery are required where relevant. Online AI services, speech backends, central authentication, cloud databases, updates and sync are optional adapters: label them honestly when unavailable and do not invent mock success.
+- Application Management may list, organize and launch **local entry points** (localhost, loopback, desktop protocol, local package path) if the underlying platform permits. It must not force an online URL, remote approval, cloud DB or sync merely to open an offline application.
+- App-specific offline packaging/readiness MUST be verified by actual runnable smoke tests. Until verified: `OFFLINE_READINESS=UNVERIFIED`, not PASS. No claim that all apps have become offline merely because this policy is published.
+- Offline does not mean removing internal local security; preserve authorization for sensitive data and actions.
+- **Bơi Ếch exception:** leave `BOIECH_AI` deployment mode untouched, not an implied permission to publish other apps.
+- Existing deployed public URLs are not deleted or revoked by a GitHub workflow change. Decommissioning them is a distinct reviewed action, not implicit in this instruction.
+
+### Non-exempt deployment release boundary
+
+To resume online deployment in the future, the owner must explicitly request it **for a named application and environment**. The project must first prove offline correctness and then meet applicable security, data migration, quality, release and production gates. Mere workflow_dispatch, a green test or an environment secret is not publication approval.
+Existing deployment workflows must be explicitly opted in at **both dispatch input and job gate** when technically possible, or remain disabled pending a reviewed reactivation PR. No background autopublish on push / CI completion.
+
+### Offline acceptance checklist
+
+1. Build/install a runnable local package or documented localhost stack (no external public host).
+2. Turn off internet (or block external HTTP/DNS) and verify essential routes, forms, learning/simulation flows and assets.
+3. Save and reload local data; validate migration, backup, restore and storage errors.
+4. Verify offline status is truthful, no infinite network retry/spinner, no silent fallback to online.
+5. Collect exact revision and test evidence for each repository; preserve `UNVERIFIED` for incomplete items.
 
 ## Application Management access switch
 
@@ -50,6 +65,6 @@ At release time:
 6. Deploy using the protected Release/Production workflow.
 7. Run post-deploy smoke/read-back checks.
 8. Record the release revision/version.
-9. Return to Development Live Mode unless instructed otherwise.
+9. Return to Offline-First Development Mode unless the owner explicitly authorizes otherwise.
 
 The Release workflow must remain available even while Development Live Mode is the default.
