@@ -91,7 +91,7 @@ export function validateRoundTripContract(contract, aliases, template, registry)
   if (item.status==="approved") {
    const k=[item.appId,item.surfaceId,item.route,item.uiState].join("|");
    if(approved.has(k))bad("ambiguous approved mockup");approved.add(k);
-   if (!item.designApproval?.approvedByPrincipal||item.designApproval.imageSha256!==item.image.sha256||
+   if (!item.designApproval?.approvedByPrincipal||!/^canonical:[a-zA-Z0-9/:._#@-]{8,300}$/.test(item.designApproval?.approvalEvidenceRef??"")||item.designApproval.imageSha256!==item.image.sha256||
        item.designApproval.specSha256!==item.spec.sha256)bad("forged or mismatched approval");
   }
  }
@@ -123,7 +123,8 @@ export function resolveRoundTripIntent(utterance,context,registry,aliases,{verif
  if(!DIGEST.test(model.image?.sha256??"")||!DIGEST.test(model.spec?.sha256??"")||
      model.designApproval?.imageSha256!==model.image.sha256||
      model.designApproval?.specSha256!==model.spec.sha256||
-     !model.designApproval?.approvedByPrincipal)return denied("INVALID_APPROVAL_PROVENANCE");
+     !model.designApproval?.approvedByPrincipal||
+     !/^canonical:[a-zA-Z0-9/:._#@-]{8,300}$/.test(model.designApproval?.approvalEvidenceRef??""))return denied("INVALID_APPROVAL_PROVENANCE");
  if(model.sourceSha!==context.appHead)return denied("STALE_SOURCE_REQUIRES_REVIEW");
  if(!verifiedApproval||!scopedEditor)return denied("UNVERIFIED_APPROVAL_OR_EDITOR");
  return Object.freeze({status:"READY_FOR_SCOPED_IMPLEMENTATION",intent:command.intent,
