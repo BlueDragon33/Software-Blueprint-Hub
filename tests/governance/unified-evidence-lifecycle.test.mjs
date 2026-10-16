@@ -103,3 +103,12 @@ test("review and tester structures with attacker-supplied verified=true remain U
  const omitted=evaluateTesterCase({status:"PASS",buildSha:sha},d);
  assert.equal(omitted.status,"BLOCKED");
 });
+
+test("unified constitution gate rejects forged trusted status and missing provider readback requirement",()=>{
+ const cloned=structuredClone(c);
+ cloned.evidenceTrustBoundary.callerClaimedVerifiedByTrustedAdapterIsNotSufficient=false;
+ assert.match(validate({c:cloned}).join(","),/review evidence trust boundary/);
+ const cloned2=structuredClone(c);
+ cloned2.evidenceTrustBoundary.externalProviderReadbackRequiredForVerifiedEvidence=false;
+ assert.match(validate({c:cloned2}).join(","),/review evidence trust boundary/);
+});
