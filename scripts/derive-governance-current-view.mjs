@@ -134,6 +134,10 @@ export function buildGovernanceCurrentView(baseline, queue, ledger, policy) {
         new RegExp("^https://github\\.com/" + item.repository + "/actions/runs/[0-9]+$").test(item.constitutionCi),
         "invalid registration CI reference: " + item.repository
       );
+      if (item.repository === "BlueDragon33/Blueprint-Russian-Expert-Engine") {
+        assert(item.privateSourceVerification === "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/38909157185",
+          "RUE private source proof must match independently verified exact run");
+      }
       assert(item.registrationState === "admitted-registration" &&
         item.complianceState === "UNVERIFIED" &&
         item.canonicalProjectProfile === false &&
