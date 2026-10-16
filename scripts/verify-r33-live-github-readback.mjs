@@ -12,6 +12,39 @@ const SAFE_PATH=/^[a-zA-Z0-9._/-]{2,180}$/;
 const FAIL=(reason)=>{throw new Error("R33_READBACK_BLOCKED: "+reason);};
 const digest=x=>"sha256:"+createHash("sha256").update(x).digest("hex");
 
+/** GitHub REST observations are independent of the agent's self-reported status.
+ * Reviewer identity and revision are checked, but no code review here is a
+ * constitutional ratification, Product PASS or Production release approval.
+ */
+export function assessGitHubReviewRecords(pull,reviews,expectedHead){
+ if(!Array.isArray(reviews)||reviews.length>=100)
+  return Object.freeze({status:"REVIEW_EVIDENCE_INCOMPLETE",independentReviewObserved:false});
+ const author=pull?.user?.login?.toLowerCase();
+ if(!author||!SHA.test(expectedHead??""))
+  return Object.freeze({status:"REVIEW_IDENTITY_UNVERIFIED",independentReviewObserved:false});
+ const trustedRoles=new Set(["OWNER","MEMBER","COLLABORATOR"]);
+ const latest=new Map();
+ for(const row of reviews){
+  const login=row?.user?.login?.toLowerCase();
+  if(!login||login===author||!row.submitted_at||!trustedRoles.has(row.author_association))continue;
+  if(!["APPROVED","CHANGES_REQUESTED","COMMENTED","DISMISSED"].includes(row.state))continue;
+  const prior=latest.get(login);
+  if(!prior||Date.parse(prior.submitted_at)<=Date.parse(row.submitted_at))
+   latest.set(login,row);
+ }
+ const state=[...latest.values()];
+ if(state.some(x=>x.state==="CHANGES_REQUESTED"))
+  return Object.freeze({status:"CHANGES_REQUESTED",independentReviewObserved:true,
+   approvalForCurrentHead:false});
+ const exact=state.filter(x=>x.state==="APPROVED"&&x.commit_id===expectedHead);
+ if(exact.length>0)
+  return Object.freeze({status:"GITHUB_REVIEW_AT_HEAD_OBSERVED",independentReviewObserved:true,
+   approvalForCurrentHead:true, constitutionalRatification:false, qualityGatePassed:false});
+ return Object.freeze({status:state.some(x=>x.state==="APPROVED")?"STALE_REVIEW":"REVIEW_PENDING",
+  independentReviewObserved:state.length>0,approvalForCurrentHead:false,
+  constitutionalRatification:false,qualityGatePassed:false});
+}
+
 export async function readRemotePrSnapshot(config,transport=fetch){
  const {repository,number,expectedHead,requiredPath,token}=config??{};
  if(!REPO.test(repository??"")||!Number.isInteger(number)||number<1||
@@ -48,6 +81,7 @@ export async function readRemotePrSnapshot(config,transport=fetch){
    FAIL("file content length or Git blob SHA mismatch");
  const check=digest(bytes);
  // Prevent race between file read and mutable PR state.
+ const reviews=await request("/pulls/"+number+"/reviews?per_page=100");
  const after=await request("/pulls/"+number);
  if(after?.head?.sha!==expectedHead||after?.state!=="open"||after?.merged===true||
    after?.base?.sha!==pull.base.sha||after?.head?.ref!==pull.head.ref||
@@ -59,6 +93,7 @@ export async function readRemotePrSnapshot(config,transport=fetch){
   exactHead:expectedHead,baseHead:pull.base.sha,branch:pull.head.ref,
   requiredPath,fileSha256:check,gitBlobSha:file.sha,
   sourceVerified:true,checkpointPersisted:false,taskCompletion:"UNVERIFIED",
+  reviewEvidence:assessGitHubReviewRecords(pull,reviews,expectedHead),
   authenticatedHumanReview:"NOT_VERIFIED",qualityGatePassed:false,
   productionAuthorized:false
  });
@@ -79,7 +114,7 @@ async function cli(){
  writeFileSync(file,JSON.stringify(result,null,2)+"\n",{mode:0o600});
  console.log(JSON.stringify({status:result.status,repository:result.repository,exactHead:result.exactHead,
   requiredPath:result.requiredPath,artifactSha256:digest(readFileSync(file)),
-  taskCompletion:result.taskCompletion}));
+  taskCompletion:result.taskCompletion,githubReviewState:result.reviewEvidence.status}));
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  cli().catch(e=>{console.error(e.message);process.exitCode=1;});
