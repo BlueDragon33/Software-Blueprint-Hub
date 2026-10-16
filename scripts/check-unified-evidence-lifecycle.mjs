@@ -42,7 +42,12 @@ export function validateUnifiedLifecycle(c,d,m,ma,mr,mw,r,ra){
    actions?.scope?.projectCoverage!=="all-existing-active-and-future-governed-projects-on-adoption"||
    actions?.scope?.mustNotClaimAutomaticDeploymentToExistingApps!==true||
    actions?.scope?.newDatabase!==false||actions?.scope?.oneCentralContract!==true||
-   actions?.recommendationRules?.maximumButtons!==2||actions?.recommendationRules?.maximumPrimary!==1||
+   actions?.recommendationRules?.maximumButtons!==3||actions?.recommendationRules?.maximumPrimary!==1||
+   !["preferEndToEndPrimaryForMultiStepEligibleWork","endToEndContinuesWithoutUnnecessaryConfirmation",
+     "endToEndRequiresExistingAuthorityAndLiveReadback","endToEndStopsOnlyAtRealCapabilityOrAuthorityGate",
+     "endToEndRespectsFiniteR7RepairBudget","endToEndSessionBound",
+     "endToEndNeverOverridesReviewOrRelease","endToEndAlwaysPersistsTrustedCheckpointIfAuthorized"].every(
+      k=>actions?.recommendationRules?.[k]===true)||
    actions?.recommendationRules?.oneClickSubmitsRequestNotCompletesTask!==true||
    actions?.recommendationRules?.chatButtonsArePresentationNotRepositoryFeature!==true||
    actions?.recommendationRules?.noInferredApproval!==true||
@@ -51,8 +56,13 @@ export function validateUnifiedLifecycle(c,d,m,ma,mr,mw,r,ra){
    actions?.adoption?.productionAuthorized!==false||
    actions?.adoption?.notAutoInstalledOnChatGPT!==true||
    actions?.adoption?.constitutionalRatificationRequiredForNormativeEnforcement!==true||
-   new Set((actions?.actionKinds??[]).map(x=>x.kind)).size!==4||
-   !["continue","status","fix","review"].every(id=>actions?.actionKinds?.some(x=>x.kind===id)))
+   new Set((actions?.actionKinds??[]).map(x=>x.kind)).size!==5||
+   !["end-to-end","continue","status","fix","review"].every(id=>actions?.actionKinds?.some(x=>x.kind===id))||
+   actions?.actionKinds?.find(x=>x.kind==="end-to-end")?.intent!=="EXECUTE_AUTHORIZED_END_TO_END"||
+   actions?.actionKinds?.find(x=>x.kind==="end-to-end")?.doesNotAuthorizeNewActions!==true||
+   !["protected-human-approval","independent-reviewer-unavailable","unknown-mutation-outcome",
+     "tool-or-session-unavailable","attempt-budget-exhausted"].every(x=>actions?.actionKinds?.find(
+      k=>k.kind==="end-to-end")?.stopReasons?.includes(x)))
    e.push("unsafe or duplicate universal next-action controls");
   if(c?.scope?.newCentralDatabase!==false||c?.guardrails?.duplicateApprovalDatabasesForbidden!==true||
    c?.implementationBoundary?.candidateReadOnlyOrchestration!==true||
@@ -109,24 +119,32 @@ export function suggestNextProjectActions(input){
   return Object.freeze({kind,label,query,hostAction:"issueNewTurn",
    readOnly:kind==="status",completesTask:false,authorityGranted:false});
  };
- const report=make("status","Kiểm tra tiến độ",
+ const endToEnd=make("end-to-end","Triển khai từ đầu đến cuối",
+   "Triển khai từ đầu đến cuối cho "+target+
+   ". Trong phiên làm việc được cấp quyền: đọc checkpoint, HEAD và bằng chứng thật, xác định mọi bước còn lại, "+
+   "thực hiện liên tục các bước kỹ thuật đủ quyền, tự sửa lỗi theo vòng R7 hữu hạn và kiểm thử lại, "+
+   "lưu checkpoint có xác minh. Không cần hỏi lại khi không có cổng bắt buộc. "+
+   "Chỉ dừng khi có can thiệp con người thật sự cần thiết, quyền/tool không đủ, kết quả thao tác chưa xác minh "+
+   "hoặc vượt giới hạn sửa lỗi. Không tự review, phê chuẩn Hiến pháp, merge trái chính sách hay deploy Production; "+
+   "không hứa chạy nền sau khi phiên kết thúc.");
+  const report=make("status","Kiểm tra tiến độ",
    "Báo checkpoint — "+target+". Chỉ đọc trạng thái GitHub và bằng chứng thực tế. Không thay đổi dữ liệu hoặc chạy lại CI.");
  if(input?.workStatus==="UNVERIFIED"||input?.workStatus==="REVIEW_BLOCKED")
    return Object.freeze([report]);
  if(input?.observedDefect===true&&input?.workStatus==="ACTIVE"){
-  return Object.freeze([
+  return Object.freeze([endToEnd,
    make("fix","Sửa lỗi","Điều tra và sửa lỗi thực tế trong "+target+
      ". Đối chiếu HEAD, logs, phạm vi quyền và kiểm thử hồi quy; không tự merge hoặc phê duyệt."),
    report]);
  }
  if(input?.workStatus==="REVIEW_PENDING"){
-  return Object.freeze([
+  return Object.freeze([endToEnd,
    make("review","Chuẩn bị review","Kiểm tra bằng chứng và chuẩn bị review độc lập cho "+target+
      ". Không tự phê chuẩn, không tự merge, không vượt Quality Gates."),
    report]);
  }
  if(input?.workStatus==="ACTIVE"||input?.workStatus==="VERIFIED_PENDING"){
-  return Object.freeze([
+  return Object.freeze([endToEnd,
    make("continue","Tiếp tục công việc","Tiếp tục từ checkpoint "+target+
     ". Kiểm tra HEAD và trạng thái thật trước khi làm; chỉ thực hiện bước có đủ thẩm quyền."),
    report]);
