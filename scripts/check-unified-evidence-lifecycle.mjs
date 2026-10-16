@@ -115,7 +115,7 @@ export function suggestNextProjectActions(input){
    return Object.freeze([]);
  const target=repoName+" — "+ref;
  const make=(kind,label,query)=>{
-  if(query.length>530)throw Error("unsafe action query length");
+  if(query.length>1000)throw Error("unsafe action query length");
   return Object.freeze({kind,label,query,hostAction:"issueNewTurn",
    readOnly:kind==="status",completesTask:false,authorityGranted:false});
  };
