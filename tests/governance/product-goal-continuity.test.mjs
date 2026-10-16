@@ -111,7 +111,7 @@ test("no completed product claim from source code or closed work alone",()=>{
 });
 test("bounded secondary actions do not claim one-click executor exists",()=>{
   const x=checkpoint();
-  x.workItems=[task("a"),task("b"),task("c"),task("d")];
+  x.workItems=[task("job-a"),task("job-b"),task("job-c"),task("job-d")];
   const r=selectGoalAnchoredNextAction(x);
   assert.equal(r.secondary.length,2);
   assert.equal(r.executed,false);
