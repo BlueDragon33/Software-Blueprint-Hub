@@ -1,0 +1,85 @@
+name: Private Execution App Bridge Preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: blueprint-private-app-bridge-preview
+  cancel-in-progress: false
+
+jobs:
+  private-app-bridge:
+    if: github.ref == 'refs/heads/main' && github.repository == 'BlueDragon33/Software-Blueprint-Hub'
+    environment: Preview
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install pinned dependencies before issuing scoped tokens
+        run: pnpm install --frozen-lockfile
+      - name: Issue read-only execution token for four selected repositories
+        id: execution-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        with:
+          app-id: ${{ vars.BLUEPRINT_GITHUB_APP_ID }}
+          private-key: ${{ secrets.BLUEPRINT_GITHUB_APP_PRIVATE_KEY }}
+          owner: BlueDragon33
+          repositories: |
+            Software-Blueprint-Hub
+            Software-Blueprint-Execution-Gateway
+            Software-Blueprint-Execution-Worker
+            Software-Blueprint-QA-Worker
+          permission-contents: read
+      - name: Issue independent read-only QA token for the same repositories
+        id: qa-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        with:
+          app-id: ${{ vars.BLUEPRINT_GITHUB_APP_ID }}
+          private-key: ${{ secrets.BLUEPRINT_GITHUB_APP_PRIVATE_KEY }}
+          owner: BlueDragon33
+          repositories: |
+            Software-Blueprint-Hub
+            Software-Blueprint-Execution-Gateway
+            Software-Blueprint-Execution-Worker
+            Software-Blueprint-QA-Worker
+          permission-contents: read
+      - name: Confirm expected App installation without exposing credentials
+        env:
+          EXPECTED_INSTALLATION: ${{ vars.BLUEPRINT_GITHUB_INSTALLATION_ID }}
+          EXECUTION_INSTALLATION: ${{ steps.execution-token.outputs.installation-id }}
+          QA_INSTALLATION: ${{ steps.qa-token.outputs.installation-id }}
+        run: |
+          node --input-type=module <<'JS'
+          const { EXPECTED_INSTALLATION: expected, EXECUTION_INSTALLATION: execution, QA_INSTALLATION: qa } = process.env;
+          if (!/^\d+$/.test(expected ?? '') || expected !== execution || expected !== qa) {
+            throw new Error('Unexpected GitHub App installation');
+          }
+          JS
+      - name: Prove real private reads, independent QA, HEAD binding and revocation
+        env:
+          BLUEPRINT_LIVE_PRIVATE_BRIDGE: "true"
+          BLUEPRINT_LIVE_HUB_SHA: ${{ github.sha }}
+          BLUEPRINT_EXECUTION_READ_TOKEN: ${{ steps.execution-token.outputs.token }}
+          BLUEPRINT_QA_READ_TOKEN: ${{ steps.qa-token.outputs.token }}
+        run: pnpm exec vitest run tests/application/prompt-workflow-live-private-bridge.test.ts
+      - name: Record the actual scope of this verification
+        if: success()
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+          VERIFIED: scoped GitHub App credentials; independent exact-SHA source reads in Hub and three private service repositories; HEAD checks; invalid credential denial; execution-token revocation with QA token remaining valid.
+
+          UNVERIFIED: signed Hub→Gateway→Worker dispatch, trusted execution issuer custody, durable PostgreSQL evidence for this run, complete P4 acceptance and deployed Preview services. This workflow does not issue a canonical Quality Gate, completion receipt or Production authorization.
+          SUMMARY
