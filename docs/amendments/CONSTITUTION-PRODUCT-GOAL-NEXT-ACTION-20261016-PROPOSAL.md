@@ -24,7 +24,32 @@ projects suffer the same regression. The proposed universal method must be
 evaluated on multiple distinct projects, including existing apps, not presumed
 to have propagated from a Hub document.
 
-## Proposed law strengthening (subject to human ratification)
+## Authority fit: constitutional overlap versus genuinely new obligations
+
+The published Constitution 1.3.0 ALREADY covers the product execution
+contract and the continuity mechanism. The G1–G8 labels below are **analysis
+anchors only, not eight new laws**. No normative amendment is in effect.
+
+| Candidate area | Existing governing law | Disposition |
+| --- | --- | --- |
+| G1/G2 goal outcome, pinned checkpoints | R15, R17, R20, R23 | Implement in existing canonical Profile/Work Package projections. No new law. |
+| G3 one primary action | R16, R17 | Existing requirement. Potential *new* UX refinement only: explicit host-action truthfulness and at most two contextual alternatives. |
+| G4 bounded autonomy and authority | R7, R17, R19, R22 | Existing law. No new law. |
+| G5 suppress unchanged status polling | R7, R16, R17 | Potential *new* precise operational rule: same check + same source/evidence revision cannot outrank independent product work. |
+| G6 universal request intake | R15, R21, R24, R26 | Operational scope delta in the existing Hub; no second policy database. |
+| G7 truthful offline catalog | R11, R14, R20, R26 | Already required; integration and device evidence still missing. |
+| G8 distinct authorities and repos | R11, R14, R26, R27 | Already required. No new law. |
+| Work two-option handoff | R19, R22 | Potential *new* situational UX detail, not a mandate to open Work or new execution authority. |
+
+**Amendment scope for Constitutional Authority consideration:** Only the
+incremental UI disclosure contract (truthful actionable vs advisory Next Action;
+two options when a validated capability gap has a genuinely safe Chat alternative)
+and explicit stale-status suppression are potential normative additions.
+They may instead be published as subordinate operational UX rules if authority
+finds current R16/R19/R22 sufficiently covers them. No successor Constitution
+version, ratification or adoption is asserted.
+
+## Existing-law implementation candidates G1–G8 (NOT new law)
 
 **G1 — immutable enough product-outcome anchor.** Each active project has one
 explicitly authorized user-visible outcome, an acceptance journey, measurable
@@ -86,8 +111,13 @@ publication, GitHub merges or production release.
   proposal contract, with `realUiIntegrated:false`, 
   `allAppPropagationVerified:false`, `productionAuthority:false`.
 - `scripts/product-goal-continuity.mjs` — deterministic **advisory** selector for
-  a trusted exact-goal snapshot; refuses stale/mismatched snapshots, duplicate
-  actions, unsupported completion evidence and cyclic dependencies.
+  exact-goal/HEAD/work/evidence snapshot consistency; refuses mismatched source
+  revisions, undelegated owners, duplicate actions, unsupported completion
+  evidence and cyclic dependencies; suppresses unchanged review-status loops.
+  Includes a bounded, text-only Work handoff with two contextual options when
+  a concrete tool gap AND an independent safe Chat action are identified.
+  **A caller-supplied snapshot marker is never authentication.** An authenticated
+  server adapter must authorize canonical reads before exposing the projection.
 - `tests/governance/product-goal-continuity.test.mjs` — negative regression
   cases for repeated status checks, source staleness, authority crossing,
   competing work and impossible PASS.
@@ -96,9 +126,17 @@ publication, GitHub merges or production release.
   adoption, propagation, product UX or universal Constitutional compliance.
 
 **Not implemented in this candidate:** live authenticated adapter from
-canonical Project Profile, real Next.js UI/buttons, new signed execution grants,
-external scheduled automation, cross-repo app migrations or any Production
-release. No app is enrolled or marked compliant by this proposal.
+canonical Project Profile/Work Packages, real Next.js UI/buttons, Work-mode
+switching, new signed execution grants, external scheduled automation,
+cross-repo app migrations, native iOS WidgetKit code or any Production release.
+No app is enrolled or marked compliant by this proposal.
+
+**Trust invariant:** If a UI receives a pure JS projection directly from
+untrusted client-supplied JSON, it MUST NOT imply server authorization,
+canonical freshness, enabled buttons or project completion. Snapshot field
+agreement is a consistency test, not a signed receipt. The real integration
+must call existing `loadProjectWorkspace`/runtime Profile and Work Quality
+read APIs with an authenticated actor and show unavailable/forbidden states.
 
 ## Impact review checklist (NOT YET SIGNED OFF)
 
@@ -126,8 +164,10 @@ release. No app is enrolled or marked compliant by this proposal.
 
 ## Migration and evidence plan (after separate review)
 
-1. Authorized owner confirms the accepted product goal/UX journey and target
-   artifact for representative Bauman-Russian-iOS, plus a non-iOS project.
+1. Reuse the **existing** accepted canonical product goal and Work Packages
+   for Bauman-Russian-iOS plus a distinct governed app. If an accepted
+   canonical record is absent, classify it MISSING/UNVERIFIED rather than
+   treating this proposal or chat narrative as authoritative.
 2. Derive actions from existing approved Project Profile / Work Packages, not
    arbitrary UI form strings. Add exact source binding and user authorization.
 3. Implement one real central project workspace Next-Action UI and end-to-end
