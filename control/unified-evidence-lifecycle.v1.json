@@ -226,11 +226,52 @@
     },
     "trigger": "At end of a meaningful response if exactly one grounded next action would help",
     "surfaces": {
-      "chat": "one or two compact real user-clickable issueNewTurn actions with scoped prompts",
+      "chat": "Up to three compact user-clickable issueNewTurn controls when valuable. End-to-end is one request for bounded interactive execution, not autonomous background service.",
       "nativeApp": "optional project-owned UI using shared versioned semantics; real implementation and QA required",
       "noAction": "omit when goal complete, no clear action, identity ambiguous or action unavailable"
     },
     "actionKinds": [
+      {
+        "kind": "end-to-end",
+        "labelVi": "Triển khai từ đầu đến cuối",
+        "intent": "EXECUTE_AUTHORIZED_END_TO_END",
+        "requires": [
+          "exact-work-item",
+          "known-acceptance-criteria",
+          "actual-live-HEAD",
+          "valid-existing-authorization"
+        ],
+        "stages": [
+          "reconcile",
+          "identify-smallest-needed-work",
+          "implement",
+          "test",
+          "fix-boundedly",
+          "verify",
+          "checkpoint",
+          "next-eligible-stage"
+        ],
+        "mode": "interactive-until-real-intervention-boundary",
+        "stopReasons": [
+          "protected-human-approval",
+          "independent-reviewer-unavailable",
+          "missing-authorized-identity-or-resource",
+          "unknown-mutation-outcome",
+          "repeat-failure-without-new-evidence",
+          "attempt-budget-exhausted",
+          "tool-or-session-unavailable",
+          "truly-ambiguous-user-intent"
+        ],
+        "never": [
+          "background-execution-promise",
+          "bypass-protection",
+          "invent-test-evidence",
+          "auto-approve-constitution",
+          "auto-deploy-production-without-current-grant"
+        ],
+        "mayClaimSuccess": false,
+        "doesNotAuthorizeNewActions": true
+      },
       {
         "kind": "continue",
         "labelVi": "Tiếp tục công việc",
@@ -271,7 +312,7 @@
       }
     ],
     "recommendationRules": {
-      "maximumButtons": 2,
+      "maximumButtons": 3,
       "maximumPrimary": 1,
       "alwaysTargetExactProjectAndWorkItem": true,
       "skipInertControls": true,
@@ -284,7 +325,15 @@
       "oneClickSubmitsRequestNotCompletesTask": true,
       "noBackgroundExecutionPromise": true,
       "hideWhenStatusDoneOrBlockedWithoutSafeAction": true,
-      "chatButtonsArePresentationNotRepositoryFeature": true
+      "chatButtonsArePresentationNotRepositoryFeature": true,
+      "preferEndToEndPrimaryForMultiStepEligibleWork": true,
+      "endToEndContinuesWithoutUnnecessaryConfirmation": true,
+      "endToEndRequiresExistingAuthorityAndLiveReadback": true,
+      "endToEndStopsOnlyAtRealCapabilityOrAuthorityGate": true,
+      "endToEndRespectsFiniteR7RepairBudget": true,
+      "endToEndSessionBound": true,
+      "endToEndNeverOverridesReviewOrRelease": true,
+      "endToEndAlwaysPersistsTrustedCheckpointIfAuthorized": true
     },
     "adoption": {
       "governanceOwnedBy": "BlueDragon33/Software-Blueprint-Hub",
