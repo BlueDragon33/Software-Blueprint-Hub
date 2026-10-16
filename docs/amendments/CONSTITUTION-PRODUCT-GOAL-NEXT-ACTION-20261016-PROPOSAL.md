@@ -229,3 +229,5 @@ actual iPhone provisioning and signed enrollment are *capability/evidence
 boundaries*, not reasons to mark a candidate selector or the Constitution as
 ratified. The current primary product-advancing next action for iOS is a minimal
 offline native WidgetKit executable, not another unchanged PR review poll.
+
+**Post-checkpoint product work (separate Draft PR):** [Bauman-Russian-iOS #2](https://github.com/BlueDragon33/Bauman-Russian-iOS/pull/2), initial head `72385f2a024224d0d889dc555128993940d64e25`, introduces a SwiftUI app, offline WidgetKit extension, shared App Group storage, an unsigned macOS build check and a metadata-only App-manager contract. The main branch remains README-only. This is **CODE CANDIDATE**, not a successful Xcode build, physical iPhone acceptance, RU03 approval or enrolled catalog entry.
