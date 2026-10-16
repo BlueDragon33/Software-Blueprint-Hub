@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "ecosystem-development-runtime-policy",
+  "policySource": "owner-direction-2026-10-16",
+  "universalConstitutionVersion": "1.3.0",
+  "scope": "all-current-and-future-governed-applications",
+  "defaultMode": "offline-local-only",
+  "defaultRemotePublication": "disabled",
+  "exceptionRepositories": [
+    "BlueDragon33/BOIECH_AI"
+  ],
+  "exceptionMeaning": "preserve existing online-operating policy; do not automatically deploy or modify the BOIECH_AI repository under this migration",
+  "localRuntime": {
+    "networkRequiredForCore": false,
+    "localhostAllowed": true,
+    "localDataPersistenceRequired": true,
+    "cloudSyncOptional": true,
+    "remoteControlOptional": true,
+    "appManagementMandatory": false
+  },
+  "release": {
+    "autoDeployOnPush": false,
+    "autoDeployOnCIComplete": false,
+    "onlineWorkflowMustRequireExplicitFutureOwnerOptIn": true,
+    "onlinePublicationUnauthorizedByThisPolicy": true,
+    "preserveFutureManualReleaseWorkflows": true
+  },
+  "evidence": {
+    "offlineUsable": "UNVERIFIED_UNTIL_APP_SPECIFIC_TEST",
+    "legacyLiveDeployments": "NOT_REVOKED",
+    "localInstallArtifact": "PROJECT_SPECIFIC"
+  },
+  "inventoryPolicy": "control/constitution-governed-repositories.json + admitted registrations and onboarding queue; do not alter sealed constitutional register",
+  "notes": "GitHub CI/git synchronization may use Internet for development; installed application core must not. Existing live URLs require separate takedown authorization."
+}
