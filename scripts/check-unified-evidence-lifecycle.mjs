@@ -27,6 +27,16 @@ export function validateUnifiedLifecycle(c,d,m,ma,mr,mw,r,ra){
  for(const [k,v] of Object.entries(references))if(c?.canonicalReferences?.[k]!==v)e.push("canonical reference mismatch: "+k);
  e.push(...validateDepartmentOwnership(d),...validateRoundTripContract(m,ma,mw,mr),...validateR33Proposal(r,ra));
  if(d.departments?.length!==12||d.applicationTester?.owner!=="verification")e.push("application tester must remain inside 12-department verification");
+ const trustedFlags=["submittedStructureIsNotAuthentication","callerClaimedVerifiedByTrustedAdapterIsNotSufficient",
+   "externalProviderReadbackRequiredForVerifiedEvidence","sourceShaAndDigestMustBeCrossCheckedAtTrustedSource",
+   "independentReviewerMustBeAuthenticatedAndDistinctForProtectedGates",
+   "neverInferProductPassFromScreenshotOrCI","noRealTesterSessionClaimFromFilledBugReport",
+   "thisCandidateDoesNotInstallRuntimeVerifier"];
+ if(!trustedFlags.every(k=>c?.evidenceTrustBoundary?.[k]===true)||
+    c?.evidenceTrustBoundary?.unverifiedOrUnreachableAuthority!=="UNVERIFIED"||
+    !c?.evidenceStates?.includes("EVIDENCE_FORMAT_READY")||
+    !c?.evidenceStates?.includes("TESTER_SPEC_FORMAT_READY"))
+    e.push("forged or missing review evidence trust boundary");
  if(c?.scope?.newCentralDatabase!==false||c?.guardrails?.duplicateApprovalDatabasesForbidden!==true||
    c?.implementationBoundary?.candidateReadOnlyOrchestration!==true||
    c?.implementationBoundary?.doesNotTriggerGenerationOrWrite!==true||
