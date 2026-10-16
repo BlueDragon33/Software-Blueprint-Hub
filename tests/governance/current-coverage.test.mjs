@@ -113,7 +113,7 @@ test("rejects forged policy, timestamp and branch identity", () => {
   assert.throws(() => build(baseline,q2), /unexpected branch/);
 });
 
-test("new pending RUE remains not registered and cannot claim release", () => {
+test("RUE operational registration remains non-canonical and cannot claim release", () => {
   const view = build();
   const rue = view.repositories.find(e => e.repository === "BlueDragon33/Blueprint-Russian-Expert-Engine");
   assert.ok(rue);
