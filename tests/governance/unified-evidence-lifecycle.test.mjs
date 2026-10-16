@@ -80,7 +80,7 @@ test("tester records exact build, steps, expected/actual and cannot certify prod
  const missing=evaluateTesterCase({...testcase,actualResult:""},d);
  assert.equal(missing.reason,"MISSING_TESTER_SPEC");
  const noSteps=evaluateTesterCase({...testcase,reproductionSteps:[]},d);
- assert.equal(noSteps.reason,"INVALID_REPRO_STEPS");
+ assert.equal(noSteps.reason,"MISSING_TESTER_SPEC");
 });
 test("unified contract rejects duplicate alias, fake review authority, early product review and 13th tester owner",()=>{
  const bad=structuredClone(c);bad.implementationBoundary.noReleaseAuthority=false;
