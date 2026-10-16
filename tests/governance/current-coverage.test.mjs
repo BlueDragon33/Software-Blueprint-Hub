@@ -11,13 +11,13 @@ const policy = read("control/universal-constitution-version.json");
 const clone = value => structuredClone(value);
 const build = (b=baseline,q=pending,l=ledger,p=policy) => buildGovernanceCurrentView(b,q,l,p);
 
-test("derived inventory contains 15 sealed, 2 admitted, 1 pending and zero automatic privileges", () => {
+test("derived inventory contains 15 sealed, 3 admitted, 0 pending and zero automatic privileges", () => {
   const view = build();
   assert.equal(view.sealedBaselineCount, 15);
-  assert.equal(view.admittedRegistrationCount, 2);
-  assert.equal(view.pendingOnboardingCount, 1);
+  assert.equal(view.admittedRegistrationCount, 3);
+  assert.equal(view.pendingOnboardingCount, 0);
   assert.equal(view.trackedCount, 18);
-  assert.equal(view.repositories.filter(e => e.registrationState === "admitted-registration").length, 2);
+  assert.equal(view.repositories.filter(e => e.registrationState === "admitted-registration").length, 3);
   assert.equal(view.repositories.every(e => e.complianceState === "UNVERIFIED" && e.productionAuthority === false), true);
   assert.equal(view.repositories.filter(e => e.registrationState === "admitted-registration").every(e => e.sourceFreshness === "verified-admission-source"), true);
   assert.equal(view.canonicalProjectMutationAllowed, false);
@@ -117,9 +117,9 @@ test("new pending RUE remains not registered and cannot claim release", () => {
   const view = build();
   const rue = view.repositories.find(e => e.repository === "BlueDragon33/Blueprint-Russian-Expert-Engine");
   assert.ok(rue);
-  assert.equal(rue.registrationState, "pending-onboarding");
+  assert.equal(rue.registrationState, "admitted-registration");
   assert.equal(rue.sourceRevision, "60c544eeafff06e145a3363fef8071f29e51cc86");
-  assert.equal(rue.observedAt, "2026-10-16T05:37:39.804Z");
+  assert.equal(rue.observedAt, "2026-10-16T17:22:05.528Z");
   assert.equal(rue.complianceState, "UNVERIFIED");
   assert.equal(rue.productionAuthority, false);
   assert.equal(view.recordedAt, rue.observedAt);
@@ -147,4 +147,20 @@ test("RUE observedAt must be an exact later historical record and registration m
     }]
   });
   assert.throws(() => build(baseline,pending,ledgerWrong), /registration migration queue source mismatch/);
+});
+
+test("RUE admission requires private source proof at historical SHA and remains non-canonical", () => {
+  const migration=ledger.migrations.find(m=>m.migrationId==="registration-2026-10-17-russian-expert");
+  assert.ok(migration);
+  assert.equal(migration.sourceQueueRecordedAt,pending.entries[2].observedAt);
+  assert.equal(migration.entries.length,1);
+  const item=migration.entries[0];
+  assert.equal(item.admittedMainSha,pending.entries[2].observedMainSha);
+  assert.equal(item.privateSourceVerification,"https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/38909157185");
+  assert.equal(item.complianceState,"UNVERIFIED");
+  assert.equal(item.canonicalProjectProfile,false);
+  assert.equal(item.productionAuthority,false);
+  const forged=clone(ledger);
+  forged.migrations.at(-1).entries[0].privateSourceVerification="https://malicious.invalid/proof";
+  assert.throws(()=>build(baseline,pending,forged),/private source proof/);
 });
