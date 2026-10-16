@@ -224,13 +224,34 @@
       "newDatabase": false,
       "oneCentralContract": true
     },
-    "trigger": "At end of a meaningful response if exactly one grounded next action would help",
+    "trigger": "Offer preparation first where authentic preflight gate is absent; only present end-to-end after host-verifiable prerequisites for that exact scope/revision.",
     "surfaces": {
-      "chat": "Up to three compact user-clickable issueNewTurn controls when valuable. End-to-end is one request for bounded interactive execution, not autonomous background service.",
+      "chat": "Prioritize one-click prerequisite preparation when an end-to-end ready gate has not been independently verified; the end-to-end button is allowed only after the trusted host verifies its preflight for the exact work slice. The button does not run in background.",
       "nativeApp": "optional project-owned UI using shared versioned semantics; real implementation and QA required",
       "noAction": "omit when goal complete, no clear action, identity ambiguous or action unavailable"
     },
     "actionKinds": [
+      {
+        "kind": "prepare",
+        "labelVi": "Chuẩn bị đủ điều kiện",
+        "intent": "PREPARE_END_TO_END_PREREQUISITES",
+        "requires": [
+          "exact-work-item",
+          "readable-current-state"
+        ],
+        "stages": [
+          "read-live-HEAD-and-policy",
+          "reconcile-objective-and-acceptance",
+          "verify-authorization-and-dependencies",
+          "prepare-tools-test-and-rollback",
+          "fix-eligible-gaps",
+          "independently-readback",
+          "checkpoint-with-evidence"
+        ],
+        "mayClaimSuccess": false,
+        "doesNotGrantEndToEndGate": true,
+        "doesNotRunProductionActions": true
+      },
       {
         "kind": "end-to-end",
         "labelVi": "Triển khai từ đầu đến cuối",
@@ -333,7 +354,12 @@
       "endToEndRespectsFiniteR7RepairBudget": true,
       "endToEndSessionBound": true,
       "endToEndNeverOverridesReviewOrRelease": true,
-      "endToEndAlwaysPersistsTrustedCheckpointIfAuthorized": true
+      "endToEndAlwaysPersistsTrustedCheckpointIfAuthorized": true,
+      "preflightBeforeEndToEndMandatory": true,
+      "noEndToEndButtonFromCallerFlags": true,
+      "prepareAllResolvablePrerequisitesFirst": true,
+      "distinguishStartFromReleaseGates": true,
+      "hostVerifiedGateRequiredToOfferEndToEnd": true
     },
     "adoption": {
       "governanceOwnedBy": "BlueDragon33/Software-Blueprint-Hub",
@@ -343,6 +369,105 @@
       "notAutoInstalledOnChatGPT": true,
       "canonicalGateUnchanged": true,
       "productionAuthorized": false
+    },
+    "prerequisiteGate": {
+      "version": "1.0.0",
+      "status": "candidate-not-runtime-enabled",
+      "appliesTo": "all-existing-active-and-future-governed-projects-after-adoption",
+      "gateOrder": [
+        "PREPARE_REQUIREMENTS",
+        "VERIFY_PREREQUISITES",
+        "EXECUTE_ELIGIBLE_STAGES",
+        "STAGE_SPECIFIC_QUALITY_GATES",
+        "COMPLETE_WITH_EVIDENCE"
+      ],
+      "startNecessary": [
+        {
+          "id": "canonical-target",
+          "requires": "canonical project ID, repository, work item, exact branch and live HEAD"
+        },
+        {
+          "id": "approved-objective",
+          "requires": "user objective, scope, expected deliverable and explicit out-of-scope boundaries"
+        },
+        {
+          "id": "acceptance-contract",
+          "requires": "reproducible acceptance criteria per actual work slice and measurable stop predicate"
+        },
+        {
+          "id": "authority-context",
+          "requires": "authenticated currently authorized access for each intended ordinary action; privileged scope separately gated"
+        },
+        {
+          "id": "dependency-map",
+          "requires": "dependency and order map; blockers recorded and safe independent tasks distinguished"
+        },
+        {
+          "id": "execution-capability",
+          "requires": "available scoped tools/environment and bounded time/attempt/file/token budget"
+        },
+        {
+          "id": "risk-verification",
+          "requires": "risk classification, focused test plan, directly affected regressions and evidence owner"
+        },
+        {
+          "id": "recovery-and-state",
+          "requires": "R33 verified checkpoint/current HEAD, no unknown in-flight mutation, version-safe rollback for risky writes"
+        }
+      ],
+      "startSufficient": "Every applicable startNecessary condition has been independently verified from canonical sources for the selected work slice, no unresolved hard blocker or unknown side-effect outcome; this is sufficient ONLY to START bounded authorized implementation, never for downstream QA/merge/release.",
+      "preparationPolicy": {
+        "finishAllOrdinaryPreparatoryWorkWithoutAsking": true,
+        "iterateWithinFiniteR7Budget": true,
+        "readbackAfterWrites": true,
+        "continueSafeIndependentPreparationsWhenProtectedGateBlocks": true,
+        "prohibitSpeculativePrerequisitePass": true,
+        "unresolvedPrerequisitesYieldBlockedOrUnverified": true,
+        "unknownSourceCannotBecomePassedFromCallerFlag": true,
+        "recordOneNextActionAndEvidence": true
+      },
+      "stageGates": [
+        {
+          "stage": "implementation",
+          "requires": "exact patch SHA and applicable focused tests; preserved existing critical journeys"
+        },
+        {
+          "stage": "independent-review",
+          "requires": "authenticated distinct reviewer and source-matched findings where review is mandated"
+        },
+        {
+          "stage": "merge",
+          "requires": "current branch/base comparison, branch policy, mandatory CI, applicable reviews, valid merge authority"
+        },
+        {
+          "stage": "release",
+          "requires": "release candidate, risk-appropriate actual tester/UX evidence, trusted gates, signed/provenanced artifacts, separate current Production authority and rollback"
+        },
+        {
+          "stage": "observation",
+          "requires": "authorized deployment exists, health and incident observation tied to deployed revision"
+        }
+      ],
+      "independence": "Do not demand later-stage evidence before its stage exists; do not infer approval from a claim, screenshot, test PASS or project membership.",
+      "statuses": [
+        "NEEDS_PREPARATION",
+        "PREPARATION_FORMAT_READY_UNVERIFIED",
+        "WAITING_ON_AUTHORITY",
+        "BLOCKED",
+        "READY_FROM_TRUSTED_HOST_ONLY"
+      ],
+      "readOnlyCandidateNeverEmitsTrustedPass": true,
+      "realHostMustVerifyCanonicalEvidenceForReady": true,
+      "buttonsBeforeTrustedPass": [
+        "prepare",
+        "status"
+      ],
+      "buttonsAfterTrustedPass": [
+        "end-to-end",
+        "continue",
+        "status"
+      ],
+      "doNotInferNativeDeployment": true
     }
   }
 }
