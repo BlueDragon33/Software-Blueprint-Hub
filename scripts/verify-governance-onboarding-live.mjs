@@ -35,6 +35,27 @@ export async function inspectPendingOnboarding(queue, contract, getJson = github
     requireEvidence(/^BlueDragon33\/[a-zA-Z0-9_.-]+$/.test(entry.repository ?? ""), "invalid repository");
     requireEvidence(entry.branch === "main", "only the scoped main branch is allowed");
     requireEvidence(sha.test(entry.observedMainSha ?? ""), "invalid queued HEAD");
+    // The public Hub's GITHUB_TOKEN cannot inspect private repositories.
+    // Keep such entries explicitly PENDING and provide no fake live verification.
+    // Trusted scoped cross-repo evidence is a separate authorization gate.
+    if (entry.visibility === "private") {
+      requireEvidence(entry.canonicalCompliance === "UNVERIFIED" && entry.productionAuthority === false,
+        "private pending item cannot claim compliance or release");
+      results.push({
+        repository: entry.repository,
+        projectId: entry.projectId,
+        branch: entry.branch,
+        exactHead: null,
+        queuedHead: entry.observedMainSha,
+        constitutionVersion: contract.policyVersion,
+        verifiedCiRunId: null,
+        adoptionState: "PRIVATE_ACCESS_REQUIRED",
+        complianceState: "UNVERIFIED",
+        qualityGatePassAllowed: false,
+        productionReleaseAuthority: false
+      });
+      continue;
+    }
     const root = "/repos/" + entry.repository;
     const repository = await getJson(root);
     requireEvidence(repository.full_name === entry.repository && repository.default_branch === entry.branch, "repo identity/default branch mismatch: " + entry.repository);
