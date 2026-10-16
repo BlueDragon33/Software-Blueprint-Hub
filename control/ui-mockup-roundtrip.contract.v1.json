@@ -31,7 +31,9 @@
       "presentationScope",
       "mappings",
       "createdAt",
-      "designApproval"
+      "designApproval",
+      "policyVersion",
+      "viewport"
     ],
     "properties": {
       "schemaVersion": {
@@ -83,10 +85,35 @@
         }
       },
       "image": {
-        "$ref": "#/$defs/digestedArtifact"
+        "allOf": [
+          {
+            "$ref": "#/$defs/digestedArtifact"
+          },
+          {
+            "properties": {
+              "mediaType": {
+                "enum": [
+                  "image/png",
+                  "image/webp"
+                ]
+              }
+            }
+          }
+        ]
       },
       "spec": {
-        "$ref": "#/$defs/digestedArtifact"
+        "allOf": [
+          {
+            "$ref": "#/$defs/digestedArtifact"
+          },
+          {
+            "properties": {
+              "mediaType": {
+                "const": "application/json"
+              }
+            }
+          }
+        ]
       },
       "status": {
         "enum": [
