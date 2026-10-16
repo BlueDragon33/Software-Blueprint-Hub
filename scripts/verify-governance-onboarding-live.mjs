@@ -45,6 +45,10 @@ export async function inspectPendingOnboarding(queue, contract, getJson = github
     requireEvidence(/^BlueDragon33\/[a-zA-Z0-9_.-]+$/.test(entry.repository ?? ""), "invalid repository");
     requireEvidence(entry.branch === "main", "only the scoped main branch is allowed");
     requireEvidence(sha.test(entry.observedMainSha ?? ""), "invalid queued HEAD");
+    if (entry.visibility === "private") {
+      requireEvidence(entry.canonicalCompliance === "UNVERIFIED" && entry.productionAuthority === false,
+        "private pending item cannot claim compliance or release");
+    }
     // The public Hub's GITHUB_TOKEN cannot inspect private repositories.
     // Keep such entries explicitly PENDING and provide no fake live verification.
     // Trusted scoped cross-repo evidence is a separate authorization gate.
