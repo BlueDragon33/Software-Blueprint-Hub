@@ -29,3 +29,17 @@ test("rejects missing exact observed source revision", () => {
   const q = structuredClone(queue); q.entries[0].observedMainSha = "main";
   assert.ok(check(q).some(s => s.includes("missing exact observed HEAD")));
 });
+
+test("new RUE observation is later than historic sealed queue source", () => {
+  const entry = queue.entries.find(e => e.repository === "BlueDragon33/Blueprint-Russian-Expert-Engine");
+  assert.ok(entry);
+  assert.equal(entry.canonicalCompliance, "UNVERIFIED");
+  assert.equal(entry.productionAuthority, false);
+  const q = structuredClone(queue);
+  q.entries.at(-1).observedAt="2026-10-14T00:00:00.000Z";
+  assert.ok(check(q).some(s=>s.includes("backdated observedAt")));
+  q.entries.at(-1).observedAt="2026-10-16";
+  assert.ok(check(q).some(s=>s.includes("invalid or backdated observedAt")));
+  q.entries.at(-1).observedAt=entry.observedAt;
+  assert.deepEqual(check(q),[]);
+});
