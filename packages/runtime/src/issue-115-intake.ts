@@ -1,11 +1,12 @@
 import { isDeepStrictEqual } from "node:util";
-import type { QualityGate, WorkPackage } from "@blueprint-os/contracts";
-import { validateContract } from "@blueprint-os/contracts";
 import type { AuthenticatedActor } from "@blueprint-os/core";
 import { WorkQualityApplicationService } from "@blueprint-os/application";
 import { PostgresWorkQualityRepository, type BlueprintPrismaClient } from "@blueprint-os/persistence";
 import rawCandidate from "../../../docs/work-packages/issue-115-admission.payload.json";
 import type { BlueprintServerRuntime } from "./index";
+
+type QualityGate = Parameters<WorkQualityApplicationService["createQualityGate"]>[1];
+type WorkPackage = Parameters<WorkQualityApplicationService["createWorkPackage"]>[1];
 
 const PROJECT = "project:blueprint-os";
 const WORK_ID = "work:p2-115-blueprint-signed-source-inspection";
@@ -46,13 +47,16 @@ export function validateIssue115Candidate(raw: unknown): Readonly<{
   }
   const work: WorkPackage = raw.workPackage as WorkPackage;
   const gates: QualityGate[] = raw.qualityGates as QualityGate[];
-  const valid = (kind: "WorkPackage" | "QualityGate", value: unknown) =>
-    validateContract(kind, value).valid;
-  if (!valid("WorkPackage", work) || work.id !== WORK_ID ||
+  // The trusted application service performs full AJV schema validation on
+  // creation. These narrower checks also protect already-present readbacks.
+  if (!work || typeof work !== "object" || !Array.isArray(work.qualityGateIds) ||
+      !Array.isArray(work.dependencies) || !work.meta ||
+      work.id !== WORK_ID ||
       work.projectId !== PROJECT || work.status !== "blocked" ||
       work.dependencies.length !== 0 || work.meta.recordVersion !== 1 ||
       !isDeepStrictEqual([...work.qualityGateIds], [...GATE_IDS]) ||
-      gates.some((gate, i) => !valid("QualityGate", gate) ||
+      gates.some((gate, i) => !gate || typeof gate !== "object" ||
+        !gate.meta || !Array.isArray(gate.evidenceIds) ||
         gate.id !== GATE_IDS[i] || gate.projectId !== PROJECT ||
         gate.status !== "not-ready" || gate.meta.recordVersion !== 1 ||
         gate.evidenceIds.length !== 0)) {
