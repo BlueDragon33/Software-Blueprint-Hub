@@ -18,6 +18,17 @@ Owner directive: **every app develops/runs offline/local-first, except Bơi Ếc
 
 **Important:** pre-existing Constitution compliance failure in NC03, Math, GrowUP, MPC, PriceReport, RU_LIFE and CAD is due to `policyVersion=1.2.0` in each repository's adoption manifest while central active policy is `1.3.0`. Those workflow containment merges were **not** a declaration that this governance issue passed, was waived, or that the app is production-ready. Queue governance adoption audits; do not alter the ratified source or fake compliance.
 
+
+## Direct adoption inventory readback — 2026-10-16
+
+Scoped independent GitHub readback of 12 current project adoption manifests (not inferred from historical notes):
+
+- **Still on Constitution 1.2.0, requiring project-specific evidence-backed 1.3 adoption:** `NC03_Modem` (B4), `Math_Bauman` (B2), `GrowUP_MyChildren` (B5), `MPC_PID_System` (B3), `PriceReport_Tunggiabao` (B3), `RU_LIFE` (B3), `CAD_CAM_3D` (B4), `ROS-1-2` (B3), `Hardware_Simulation` (B2). **Nine apps**, not presumed compliant, not granted waivers.
+- **Manifest declares 1.3.0 (structure only, not Product PASS):** `ECAD_Design` (B2), `CAE_Simulation` (B2), `Blueprint-Russian-Expert-Engine` (B4).
+- `Health_Care` was checked separately at merged main `316f1739ba16b947315dcdb24dffcfd51bd057aa` and now has a 1.3.0 manifest with source/crypto CI evidence; offline encrypted record persistence and human acceptance remain unverified.
+
+Do not mass-replace version numbers. Each affected application requires scoped, actually tested dependency/feature gates appropriate to its Blueprint Level. Offline publish containment is independent from Constitution adoption and full disconnected runtime acceptance.
+
 ## Publication containment closed, offline runtime acceptance remains open
 
 - **Application-Management**: [PR #359](https://github.com/BlueDragon33/Application-Management/pull/359) source-only MERGED at `126013134f13db5a51035162e789534fe9c15137`; Live, Preview, Production and managed-runtime bootstrap remain dormant with no push/comment auto-publish. [PR #361](https://github.com/BlueDragon33/Application-Management/pull/361) source-only MERGED at `93906a7fff0f3925139ab63dc01312e8d18caf17`. Its **real Docker `--network none` local cold-start** CI was SUCCESS at candidate exact HEAD `326bf82782e535116a7ea954374e89f08db2db87`, alongside Constitution and Development Fast CI. **Local HOME smoke: PASS with isolated network; full seven-app orchestration, real authentication, persistence/restore and Windows workstation acceptance: UNVERIFIED.** No claim that the user's machine has pulled or installed the app.
