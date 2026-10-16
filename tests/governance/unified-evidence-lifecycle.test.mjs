@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {validateUnifiedLifecycle,evaluateReviewEvidence,evaluateTesterCase,suggestNextProjectActions} from "../../scripts/check-unified-evidence-lifecycle.mjs";
+import {validateUnifiedLifecycle,evaluateReviewEvidence,evaluateTesterCase,suggestNextProjectActions,planEndToEndPrerequisites} from "../../scripts/check-unified-evidence-lifecycle.mjs";
 const read=p=>JSON.parse(readFileSync(new URL(p,import.meta.url),"utf8"));
 const c=read("../../control/unified-evidence-lifecycle.v1.json"),
 d=read("../../control/execution-department-ownership.v1.json"),
@@ -125,13 +125,13 @@ test("one-click resume is only a scoped new user request, never a claimed task s
  for(const repository of ["BlueDragon33/Software-Blueprint-Hub","BlueDragon33/Bauman-master-ai-system","BlueDragon33/NewFutureApp"]){
   const buttons=suggestNextProjectActions({repository,workItemRef:"PR #141",workStatus:"VERIFIED_PENDING"});
   assert.equal(buttons.length,3);
-  assert.equal(buttons[0].kind,"end-to-end");
+  assert.equal(buttons[0].kind,"prepare");
   assert.equal(buttons[1].kind,"continue");
   assert.equal(buttons[0].hostAction,"issueNewTurn");
   assert.match(buttons[0].query,new RegExp(repository.replace("/","\\/")));
-  assert.match(buttons[0].query,/checkpoint, HEAD/);
-  assert.match(buttons[0].query,/Không cần hỏi lại/);
-  assert.match(buttons[0].query,/không hứa chạy nền/);
+  assert.match(buttons[0].query,/HEAD, mục tiêu/);
+  assert.match(buttons[0].query,/Tự thực hiện mọi bước chuẩn bị/);
+  assert.match(buttons[0].query,/KHÔNG bắt đầu chế độ triển khai/);
   assert.equal(buttons[0].completesTask,false);
   assert.equal(buttons[0].authorityGranted,false);
   assert.equal(buttons[2].readOnly,true);
@@ -140,16 +140,16 @@ test("one-click resume is only a scoped new user request, never a claimed task s
 
 test("a review-only project offers preparation but never impersonates a reviewer",()=>{
  const a=suggestNextProjectActions({repository:"BlueDragon33/Software-Blueprint-Hub",workItemRef:"PR #141",workStatus:"REVIEW_PENDING"});
- assert.equal(a[0].kind,"end-to-end");
+ assert.equal(a[0].kind,"prepare");
  assert.equal(a[1].kind,"review");
- assert.match(a[0].query,/Không tự review, phê chuẩn Hiến pháp/);
+ assert.match(a[0].query,/không tự phê duyệt/);
  assert.equal(a[2].kind,"status");
 });
 test("observed defects receive a bounded fix request and read-only checkpoint follow-up",()=>{
  const a=suggestNextProjectActions({repository:"BlueDragon33/pc-manager-desktop",workItemRef:"Issue #41",workStatus:"ACTIVE",observedDefect:true});
  assert.equal(a[0].kind,"end-to-end");
  assert.equal(a[1].kind,"fix");
- assert.match(a[0].query,/tự sửa lỗi theo vòng R7 hữu hạn/);
+ assert.match(a[0].query,/sửa thiếu sót có giới hạn/);
  assert.match(a[1].query,/kiểm thử hồi quy/);
  assert.equal(a[2].readOnly,true);
 });
@@ -190,17 +190,80 @@ test("end-to-end intent stays inside authorized interactive execution; no human 
 test("end-to-end action appears only for actionable work and never grants Production or background operation",()=>{
  const core={repository:"BlueDragon33/Software-Blueprint-Hub",workItemRef:"PR #141"};
  const active=suggestNextProjectActions({...core,workStatus:"ACTIVE"});
- assert.equal(active[0].label,"Triển khai từ đầu đến cuối");
+ assert.equal(active[0].label,"Chuẩn bị đủ điều kiện");
  assert.equal(active[0].hostAction,"issueNewTurn");
  assert.equal(active[0].completesTask,false);
  assert.equal(active[0].authorityGranted,false);
- assert.match(active[0].query,/Chỉ dừng khi/);
- assert.match(active[0].query,/không hứa chạy nền/);
- assert.match(active[0].query,/Không tự review, phê chuẩn Hiến pháp/);
+ assert.match(active[0].query,/Chỉ báo can thiệp/);
+ assert.match(active[0].query,/chưa được hệ thống tin cậy xác minh/);
+ assert.match(active[0].query,/không tự phê duyệt/);
  for(const status of ["DONE","AMBIGUOUS","BLOCKED_NO_SAFE_ACTION","UNVERIFIED","REVIEW_BLOCKED"]){
    assert(!suggestNextProjectActions({...core,workStatus:status}).some(x=>x.kind==="end-to-end"));
  }
  const tampered=structuredClone(c);
  tampered.nextActionUX.recommendationRules.endToEndSessionBound=false;
  assert.match(validate({c:tampered}).join(","),/universal next-action controls/);
+});
+
+test("start prerequisites explicitly separate necessary/sufficient start from later release gates",()=>{
+ const gate=c.nextActionUX.prerequisiteGate;
+ assert.equal(gate.startNecessary.length,8);
+ assert.deepEqual(gate.startNecessary.map(x=>x.id),[
+   "canonical-target","approved-objective","acceptance-contract","authority-context",
+   "dependency-map","execution-capability","risk-verification","recovery-and-state"
+ ]);
+ assert.equal(gate.stageGates.length,5);
+ assert.match(gate.startSufficient,/ONLY to START/);
+ assert.equal(gate.realHostMustVerifyCanonicalEvidenceForReady,true);
+ assert.equal(gate.readOnlyCandidateNeverEmitsTrustedPass,true);
+ assert.equal(c.nextActionUX.recommendationRules.preflightBeforeEndToEndMandatory,true);
+ assert.deepEqual(validate(),[]);
+});
+test("a universal no-evidence preflight identifies every missing condition and never grants execution",()=>{
+ const r=planEndToEndPrerequisites({
+   repository:"BlueDragon33/Software-Blueprint-Hub",workItemRef:"PR #141",sourceSha:sha
+ },c);
+ assert.equal(r.status,"NEEDS_PREPARATION");
+ assert.equal(r.missing.length,8);
+ assert.equal(r.nextRequirement,"canonical-target");
+ assert.equal(r.mayExecute,false);
+});
+test("even 8 forged evidence receipts are only format-ready; a caller cannot forge readiness",()=>{
+ const evidence=c.nextActionUX.prerequisiteGate.startNecessary.map(x=>({
+   requirementId:x.id,sourceSha:sha,evidenceRef:"self-reported:untrusted/"+x.id,
+   verified:true,approvedBy:"user",qualityGatePassed:true
+ }));
+ const candidate={
+  repository:"BlueDragon33/Software-Blueprint-Hub",workItemRef:"PR #141",sourceSha:sha,evidence
+ };
+ const r=planEndToEndPrerequisites(candidate,c);
+ assert.equal(r.status,"PREPARATION_FORMAT_READY_UNVERIFIED");
+ assert.equal(r.hostReadbackRequired,true);
+ assert.equal(r.independentlyVerified,false);
+ assert.equal(r.mayExecute,false);
+ assert.equal(r.qualityGatePassed,false);
+ const wrong=structuredClone(candidate);wrong.evidence[0].sourceSha="f".repeat(40);
+ const failed=planEndToEndPrerequisites(wrong,c);
+ assert.deepEqual(failed.missing,["canonical-target"]);
+ assert.equal(planEndToEndPrerequisites({...candidate,unknownMutationOutcome:true},c).status,"WAITING_ON_AUTHORITY");
+ assert.equal(planEndToEndPrerequisites({...candidate,protectedApprovalPending:true},c).status,"WAITING_ON_AUTHORITY");
+});
+test("the next-action button first prepares prerequisites; no unverified end-to-end enabled on any project",()=>{
+ for(const repository of [
+  "BlueDragon33/Software-Blueprint-Hub",
+  "BlueDragon33/Bauman-master-ai-system",
+  "BlueDragon33/NewFutureProject"
+ ]){
+  for(const workStatus of ["ACTIVE","VERIFIED_PENDING","REVIEW_PENDING"]){
+   const actions=suggestNextProjectActions({repository,workItemRef:"PR #141",workStatus,
+    preflightGatePassed:true,verifiedByTrustedAdapter:true});
+   assert.equal(actions[0].kind,"prepare");
+   assert.equal(actions[0].hostAction,"issueNewTurn");
+   assert.equal(actions[0].authorityGranted,false);
+   assert(!actions.some(x=>x.kind==="end-to-end"));
+   assert.match(actions[0].query,/điều kiện cần và đủ/);
+  }
+ }
+ const bad=structuredClone(c);bad.nextActionUX.prerequisiteGate.readOnlyCandidateNeverEmitsTrustedPass=false;
+ assert.match(validate({c:bad}).join(","),/prerequisites missing or unsafe/);
 });
