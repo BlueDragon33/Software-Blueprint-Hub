@@ -38,6 +38,25 @@ export function validateUnifiedLifecycle(c,d,m,ma,mr,mw,r,ra){
     !c?.evidenceStates?.includes("TESTER_SPEC_FORMAT_READY"))
     e.push("forged or missing review evidence trust boundary");
  const actions=c?.nextActionUX;
+ const prerequisites=actions?.prerequisiteGate;
+ const requiredPrep=["canonical-target","approved-objective","acceptance-contract",
+  "authority-context","dependency-map","execution-capability","risk-verification","recovery-and-state"];
+ const requiredStages=["implementation","independent-review","merge","release","observation"];
+ if(prerequisites?.status!=="candidate-not-runtime-enabled"||
+    prerequisites?.appliesTo!=="all-existing-active-and-future-governed-projects-after-adoption"||
+    prerequisites?.startNecessary?.length!==8||
+    requiredPrep.some((id,i)=>prerequisites.startNecessary[i]?.id!==id)||
+    prerequisites?.stageGates?.length!==5||
+    requiredStages.some((id,i)=>prerequisites.stageGates[i]?.stage!==id)||
+    prerequisites?.readOnlyCandidateNeverEmitsTrustedPass!==true||
+    prerequisites?.realHostMustVerifyCanonicalEvidenceForReady!==true||
+    prerequisites?.preparationPolicy?.finishAllOrdinaryPreparatoryWorkWithoutAsking!==true||
+    prerequisites?.preparationPolicy?.unknownSourceCannotBecomePassedFromCallerFlag!==true||
+    prerequisites?.preparationPolicy?.prohibitSpeculativePrerequisitePass!==true||
+    prerequisites?.doNotInferNativeDeployment!==true||
+    !prerequisites?.startSufficient?.includes("ONLY to START")||
+    !["prepare","status"].every(id=>prerequisites?.buttonsBeforeTrustedPass?.includes(id)))
+    e.push("end-to-end necessary and sufficient prerequisites missing or unsafe");
  if(actions?.kind!=="universal-next-action-suggestion"||actions?.status!=="candidate-not-active"||
    actions?.scope?.projectCoverage!=="all-existing-active-and-future-governed-projects-on-adoption"||
    actions?.scope?.mustNotClaimAutomaticDeploymentToExistingApps!==true||
@@ -56,8 +75,13 @@ export function validateUnifiedLifecycle(c,d,m,ma,mr,mw,r,ra){
    actions?.adoption?.productionAuthorized!==false||
    actions?.adoption?.notAutoInstalledOnChatGPT!==true||
    actions?.adoption?.constitutionalRatificationRequiredForNormativeEnforcement!==true||
-   new Set((actions?.actionKinds??[]).map(x=>x.kind)).size!==5||
-   !["end-to-end","continue","status","fix","review"].every(id=>actions?.actionKinds?.some(x=>x.kind===id))||
+   new Set((actions?.actionKinds??[]).map(x=>x.kind)).size!==6||
+   !["prepare","end-to-end","continue","status","fix","review"].every(id=>actions?.actionKinds?.some(x=>x.kind===id))||
+   actions?.actionKinds?.find(x=>x.kind==="prepare")?.intent!=="PREPARE_END_TO_END_PREREQUISITES"||
+   actions?.actionKinds?.find(x=>x.kind==="prepare")?.doesNotGrantEndToEndGate!==true||
+   !["preflightBeforeEndToEndMandatory","noEndToEndButtonFromCallerFlags",
+      "prepareAllResolvablePrerequisitesFirst","distinguishStartFromReleaseGates",
+      "hostVerifiedGateRequiredToOfferEndToEnd"].every(k=>actions?.recommendationRules?.[k]===true)||
    actions?.actionKinds?.find(x=>x.kind==="end-to-end")?.intent!=="EXECUTE_AUTHORIZED_END_TO_END"||
    actions?.actionKinds?.find(x=>x.kind==="end-to-end")?.doesNotAuthorizeNewActions!==true||
    !["protected-human-approval","independent-reviewer-unavailable","unknown-mutation-outcome",
@@ -105,6 +129,37 @@ export function validateUnifiedLifecycle(c,d,m,ma,mr,mw,r,ra){
  * buttons are installed in native apps. Caller renders these as user-triggered
  * issueNewTurn controls, not as implicit API mutations or permission grants.
  */
+/**
+ * Candidate preflight is deliberately incapable of verifying external facts.
+ * It may identify missing requirements or well-formed untrusted evidence;
+ * only a real authenticated host adapter can produce an execution gate.
+ */
+export function planEndToEndPrerequisites(input,contract){
+ const required=contract?.nextActionUX?.prerequisiteGate?.startNecessary;
+ const ids=["canonical-target","approved-objective","acceptance-contract","authority-context",
+   "dependency-map","execution-capability","risk-verification","recovery-and-state"];
+ if(!Array.isArray(required)||required.length!==ids.length||
+   ids.some((id,i)=>required[i]?.id!==id))
+   return safe({status:"BLOCKED",reason:"UNKNOWN_PREFLIGHT_CONTRACT",mayExecute:false,qualityGatePassed:false});
+ if(!record(input)||!sha.test(input.sourceSha??"")||!nonempty(input.workItemRef)||
+   !/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(input.repository??""))
+   return safe({status:"BLOCKED",reason:"INVALID_SOURCE_SCOPE",mayExecute:false,qualityGatePassed:false});
+ if(input.protectedApprovalPending===true||input.unknownMutationOutcome===true)
+   return safe({status:"WAITING_ON_AUTHORITY",reason:input.unknownMutationOutcome===true?
+    "UNKNOWN_MUTATION_OUTCOME":"PROTECTED_GATE_PENDING",
+    mayExecute:false,qualityGatePassed:false});
+ const entries=Array.isArray(input.evidence)?input.evidence:[];
+ const acknowledged=ids.filter(id=>entries.some(x=>record(x)&&x.requirementId===id&&
+   x.sourceSha===input.sourceSha&&nonempty(x.evidenceRef)));
+ const missing=ids.filter(id=>!acknowledged.includes(id));
+ if(missing.length)
+  return safe({status:"NEEDS_PREPARATION",missing,
+   nextRequirement:missing[0],mayExecute:false,qualityGatePassed:false,independentlyVerified:false});
+ return safe({status:"PREPARATION_FORMAT_READY_UNVERIFIED",
+   independentlyVerified:false,hostReadbackRequired:true,
+   mayExecute:false,qualityGatePassed:false,productionAuthorized:false});
+}
+
 export function suggestNextProjectActions(input){
  const repoName=input?.repository;
  const ref=input?.workItemRef;
@@ -119,32 +174,30 @@ export function suggestNextProjectActions(input){
   return Object.freeze({kind,label,query,hostAction:"issueNewTurn",
    readOnly:kind==="status",completesTask:false,authorityGranted:false});
  };
- const endToEnd=make("end-to-end","Triển khai từ đầu đến cuối",
-   "Triển khai từ đầu đến cuối cho "+target+
-   ". Trong phiên làm việc được cấp quyền: đọc checkpoint, HEAD và bằng chứng thật, xác định mọi bước còn lại, "+
-   "thực hiện liên tục các bước kỹ thuật đủ quyền, tự sửa lỗi theo vòng R7 hữu hạn và kiểm thử lại, "+
-   "lưu checkpoint có xác minh. Không cần hỏi lại khi không có cổng bắt buộc. "+
-   "Chỉ dừng khi có can thiệp con người thật sự cần thiết, quyền/tool không đủ, kết quả thao tác chưa xác minh "+
-   "hoặc vượt giới hạn sửa lỗi. Không tự review, phê chuẩn Hiến pháp, merge trái chính sách hay deploy Production; "+
-   "không hứa chạy nền sau khi phiên kết thúc.");
+ const prepare=make("prepare","Chuẩn bị đủ điều kiện",
+   "Chuẩn bị điều kiện cần và đủ để bắt đầu triển khai toàn trình cho "+target+
+   ". Trước tiên kiểm tra nguồn chính thức, HEAD, mục tiêu, tiêu chí nghiệm thu, quyền, phụ thuộc, nguồn lực, "+
+   "kế hoạch test, rủi ro và R33. Tự thực hiện mọi bước chuẩn bị kỹ thuật đủ quyền, sửa thiếu sót có giới hạn, "+
+   "đọc lại bằng chứng thực và lưu checkpoint. KHÔNG bắt đầu chế độ triển khai từ đầu đến cuối khi cổng tiền kiểm "+
+   "chưa được hệ thống tin cậy xác minh. Chỉ báo can thiệp thật sự bắt buộc; không tự phê duyệt, merge hoặc deploy.");
   const report=make("status","Kiểm tra tiến độ",
    "Báo checkpoint — "+target+". Chỉ đọc trạng thái GitHub và bằng chứng thực tế. Không thay đổi dữ liệu hoặc chạy lại CI.");
  if(input?.workStatus==="UNVERIFIED"||input?.workStatus==="REVIEW_BLOCKED")
    return Object.freeze([report]);
  if(input?.observedDefect===true&&input?.workStatus==="ACTIVE"){
-  return Object.freeze([endToEnd,
+  return Object.freeze([prepare,
    make("fix","Sửa lỗi","Điều tra và sửa lỗi thực tế trong "+target+
      ". Đối chiếu HEAD, logs, phạm vi quyền và kiểm thử hồi quy; không tự merge hoặc phê duyệt."),
    report]);
  }
  if(input?.workStatus==="REVIEW_PENDING"){
-  return Object.freeze([endToEnd,
+  return Object.freeze([prepare,
    make("review","Chuẩn bị review","Kiểm tra bằng chứng và chuẩn bị review độc lập cho "+target+
      ". Không tự phê chuẩn, không tự merge, không vượt Quality Gates."),
    report]);
  }
  if(input?.workStatus==="ACTIVE"||input?.workStatus==="VERIFIED_PENDING"){
-  return Object.freeze([endToEnd,
+  return Object.freeze([prepare,
    make("continue","Tiếp tục công việc","Tiếp tục từ checkpoint "+target+
     ". Kiểm tra HEAD và trạng thái thật trước khi làm; chỉ thực hiện bước có đủ thẩm quyền."),
    report]);
