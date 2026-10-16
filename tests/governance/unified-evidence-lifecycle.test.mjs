@@ -26,7 +26,8 @@ test("central candidate reuse has 12 (not 13) departments, no duplicate registry
 });
 test("design review can occur before an app is runnable, with actual design contract",()=>{
  const ret=evaluateReviewEvidence("design-contract",sha,[evidence("source-contract")]);
- assert.equal(ret.status,"REVIEWABLE");
+ assert.equal(ret.status,"EVIDENCE_FORMAT_READY");
+ assert.equal(ret.independentlyVerified,false);
  assert.equal(ret.qualityGatePassed,false);
  assert.equal(ret.humanReviewPassed,false);
  assert.equal(evaluateReviewEvidence("design-contract",sha,[]).status,"NOT_REVIEWABLE");
@@ -35,26 +36,32 @@ test("design review can occur before an app is runnable, with actual design cont
 test("UI mockup/screenshot is enough for visual review but never function approval",()=>{
  const image=evidence("image-digest",{contentDigest:"sha256:"+"b".repeat(64)});
  const map=evidence("component-map");
- assert.equal(evaluateReviewEvidence("visual-asset",sha,[image,map]).status,"REVIEWABLE");
+ assert.equal(evaluateReviewEvidence("visual-asset",sha,[image,map]).status,"EVIDENCE_FORMAT_READY");
  assert.equal(evaluateReviewEvidence("runnable-slice",sha,[image,map]).status,"NOT_REVIEWABLE");
  assert.deepEqual(evaluateReviewEvidence("visual-asset",sha,[map]).missing,["image-digest"]);
  assert.deepEqual(evaluateReviewEvidence("visual-asset",sha,[evidence("image-digest"),map]).missing,["image-digest"]);
- assert.equal(evaluateReviewEvidence("visual-asset",sha,[],{nonUI:true}).status,"NOT_APPLICABLE");
+ assert.equal(evaluateReviewEvidence("visual-asset",sha,[],{nonUIScope:{scopeId:"api:no-screens",sourceSha:sha,ownerEvidenceRef:"github:work/123"}}).status,"NOT_APPLICABLE_PENDING_REVIEW");
+ assert.equal(evaluateReviewEvidence("visual-asset",sha,[],{nonUIScope:{scopeId:"api:no-screens",sourceSha:sha,ownerEvidenceRef:""}}).status,"BLOCKED");
 });
 test("running functional slice needs measured execution and direct regression proof",()=>{
  assert.equal(evaluateReviewEvidence("runnable-slice",sha,[evidence("running-trace")]).status,"NOT_REVIEWABLE");
  const x=evaluateReviewEvidence("runnable-slice",sha,[evidence("running-trace"),evidence("regression")]);
- assert.equal(x.status,"REVIEWABLE");
+ assert.equal(x.status,"EVIDENCE_FORMAT_READY");
+ assert.equal(x.independentlyVerified,false);
  assert.equal(x.releaseAuthorized,false);
  const wrong=evaluateReviewEvidence("runnable-slice",sha,[evidence("running-trace",{sourceSha:"f".repeat(40)}),evidence("regression")]);
  assert.equal(wrong.status,"NOT_REVIEWABLE");
 });
 test("untrusted synthetic evidence and missing real tester session fail closed",()=>{
  const fake=evidence("running-trace",{verifiedByTrustedAdapter:false});
- assert.equal(evaluateReviewEvidence("runnable-slice",sha,[fake,evidence("regression")]).status,"NOT_REVIEWABLE");
+ const result=evaluateReviewEvidence("runnable-slice",sha,[fake,evidence("regression")]);
+ assert.equal(result.status,"EVIDENCE_FORMAT_READY");
+ assert.equal(result.independentlyVerified,false);
+ // Even a forged true flag cannot turn untrusted input into a verified gate.
+ assert.equal(evaluateReviewEvidence("runnable-slice",sha,[evidence("running-trace"),evidence("regression")]).qualityGatePassed,false);
  assert.equal(evaluateReviewEvidence("release-candidate",sha,[evidence("release-build"),evidence("tester-session")]).status,"NOT_REVIEWABLE");
  const ready=evaluateReviewEvidence("release-candidate",sha,[evidence("release-build"),evidence("tester-session"),evidence("defect-report")]);
- assert.equal(ready.status,"REVIEWABLE");
+ assert.equal(ready.status,"EVIDENCE_FORMAT_READY");
  assert.equal(ready.qualityGatePassed,false);
  assert.equal(evaluateReviewEvidence("operational-observation",sha,[evidence("deployment")]).status,"NOT_REVIEWABLE");
 });
@@ -65,7 +72,8 @@ test("tester records exact build, steps, expected/actual and cannot certify prod
  expectedResult:"validation shows inline",actualResult:"page crashes",
  severity:"major",evidenceRef:"artifact:repro-video-01",status:"FAIL"};
  const ok=evaluateTesterCase(testcase,d);
- assert.equal(ok.status,"REVIEWABLE_TESTER_REPORT");
+ assert.equal(ok.status,"TESTER_SPEC_FORMAT_READY");
+ assert.equal(ok.realSessionObserved,false);
  assert.equal(ok.qualityGatePassed,false);
  const bad=evaluateTesterCase({...testcase,buildSha:"invalid"},d);
  assert.equal(bad.reason,"INVALID_BUILD_SHA");
@@ -83,4 +91,15 @@ test("unified contract rejects duplicate alias, fake review authority, early pro
  assert.match(validate({d:changed}).join(","),/12-department|established 12/);
  const dup=structuredClone(ra);dup.aliases[0].phrase=ma.aliases[0].phrase;
  assert.match(validate({ra:dup}).join(","),/duplicate command aliases/);
+});
+
+test("review and tester structures with attacker-supplied verified=true remain UNVERIFIED",()=>{
+ const spoof=evidence("running-trace",{verifiedByTrustedAdapter:true,contentDigest:"sha256:"+"c".repeat(64)});
+ const x=evaluateReviewEvidence("runnable-slice",sha,[spoof,evidence("regression")]);
+ assert.equal(x.status,"EVIDENCE_FORMAT_READY");
+ assert.equal(x.independentlyVerified,false);
+ assert.equal(x.qualityGatePassed,false);
+ assert.equal(x.productAccepted,false);
+ const omitted=evaluateTesterCase({status:"PASS",buildSha:sha},d);
+ assert.equal(omitted.status,"BLOCKED");
 });
