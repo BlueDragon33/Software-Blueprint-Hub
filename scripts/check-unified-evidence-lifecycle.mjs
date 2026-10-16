@@ -37,7 +37,24 @@ export function validateUnifiedLifecycle(c,d,m,ma,mr,mw,r,ra){
     !c?.evidenceStates?.includes("EVIDENCE_FORMAT_READY")||
     !c?.evidenceStates?.includes("TESTER_SPEC_FORMAT_READY"))
     e.push("forged or missing review evidence trust boundary");
- if(c?.scope?.newCentralDatabase!==false||c?.guardrails?.duplicateApprovalDatabasesForbidden!==true||
+ const actions=c?.nextActionUX;
+ if(actions?.kind!=="universal-next-action-suggestion"||actions?.status!=="candidate-not-active"||
+   actions?.scope?.projectCoverage!=="all-existing-active-and-future-governed-projects-on-adoption"||
+   actions?.scope?.mustNotClaimAutomaticDeploymentToExistingApps!==true||
+   actions?.scope?.newDatabase!==false||actions?.scope?.oneCentralContract!==true||
+   actions?.recommendationRules?.maximumButtons!==2||actions?.recommendationRules?.maximumPrimary!==1||
+   actions?.recommendationRules?.oneClickSubmitsRequestNotCompletesTask!==true||
+   actions?.recommendationRules?.chatButtonsArePresentationNotRepositoryFeature!==true||
+   actions?.recommendationRules?.noInferredApproval!==true||
+   actions?.recommendationRules?.noDirectIrreversibleAction!==true||
+   actions?.recommendationRules?.hideWhenStatusDoneOrBlockedWithoutSafeAction!==true||
+   actions?.adoption?.productionAuthorized!==false||
+   actions?.adoption?.notAutoInstalledOnChatGPT!==true||
+   actions?.adoption?.constitutionalRatificationRequiredForNormativeEnforcement!==true||
+   new Set((actions?.actionKinds??[]).map(x=>x.kind)).size!==4||
+   !["continue","status","fix","review"].every(id=>actions?.actionKinds?.some(x=>x.kind===id)))
+   e.push("unsafe or duplicate universal next-action controls");
+  if(c?.scope?.newCentralDatabase!==false||c?.guardrails?.duplicateApprovalDatabasesForbidden!==true||
    c?.implementationBoundary?.candidateReadOnlyOrchestration!==true||
    c?.implementationBoundary?.doesNotTriggerGenerationOrWrite!==true||
    c?.implementationBoundary?.noAutomaticReviewSignoff!==true||
@@ -71,6 +88,50 @@ export function validateUnifiedLifecycle(c,d,m,ma,mr,mw,r,ra){
  if(new Set([...(ma.aliases??[]),...(ra.aliases??[])].map(x=>x.phrase?.normalize("NFC").toLocaleLowerCase("vi-VN").trim())).size!==
    (ma.aliases??[]).length+(ra.aliases??[]).length)e.push("duplicate command aliases");
  return e;
+}
+
+/**
+ * Read-only ChatGPT UI suggestions for any governed project, without implying
+ * buttons are installed in native apps. Caller renders these as user-triggered
+ * issueNewTurn controls, not as implicit API mutations or permission grants.
+ */
+export function suggestNextProjectActions(input){
+ const repoName=input?.repository;
+ const ref=input?.workItemRef;
+ if(typeof repoName!=="string"||!/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(repoName)||
+   typeof ref!=="string"||!/^((?:PR|Issue) #[1-9][0-9]{0,6}|[a-z][a-z0-9-]{1,40}:[a-z0-9._/-]{2,100})$/.test(ref))
+   return Object.freeze([]);
+ if(["DONE","DEPLOYED","BLOCKED_NO_SAFE_ACTION","AMBIGUOUS"].includes(input?.workStatus))
+   return Object.freeze([]);
+ const target=repoName+" — "+ref;
+ const make=(kind,label,query)=>{
+  if(query.length>530)throw Error("unsafe action query length");
+  return Object.freeze({kind,label,query,hostAction:"issueNewTurn",
+   readOnly:kind==="status",completesTask:false,authorityGranted:false});
+ };
+ const report=make("status","Kiểm tra tiến độ",
+   "Báo checkpoint — "+target+". Chỉ đọc trạng thái GitHub và bằng chứng thực tế. Không thay đổi dữ liệu hoặc chạy lại CI.");
+ if(input?.workStatus==="UNVERIFIED"||input?.workStatus==="REVIEW_BLOCKED")
+   return Object.freeze([report]);
+ if(input?.observedDefect===true&&input?.workStatus==="ACTIVE"){
+  return Object.freeze([
+   make("fix","Sửa lỗi","Điều tra và sửa lỗi thực tế trong "+target+
+     ". Đối chiếu HEAD, logs, phạm vi quyền và kiểm thử hồi quy; không tự merge hoặc phê duyệt."),
+   report]);
+ }
+ if(input?.workStatus==="REVIEW_PENDING"){
+  return Object.freeze([
+   make("review","Chuẩn bị review","Kiểm tra bằng chứng và chuẩn bị review độc lập cho "+target+
+     ". Không tự phê chuẩn, không tự merge, không vượt Quality Gates."),
+   report]);
+ }
+ if(input?.workStatus==="ACTIVE"||input?.workStatus==="VERIFIED_PENDING"){
+  return Object.freeze([
+   make("continue","Tiếp tục công việc","Tiếp tục từ checkpoint "+target+
+    ". Kiểm tra HEAD và trạng thái thật trước khi làm; chỉ thực hiện bước có đủ thẩm quyền."),
+   report]);
+ }
+ return Object.freeze([report]);
 }
 
 const kinds={
