@@ -1,0 +1,36 @@
+name: UI Mockup Round-Trip Candidate Contract CI
+
+on:
+  pull_request:
+    paths:
+      - "docs/UI-MOCKUP-ROUNDTRIP-CONSTITUTION.v1.candidate.md"
+      - "control/ui-mockup-roundtrip.contract.v1.json"
+      - "control/ui-mockup-command-aliases.v1.json"
+      - "control/ui-mockup-registry.v1.json"
+      - "prompt-workflows/templates/ui-mockup-roundtrip.v1.json"
+      - "scripts/check-ui-mockup-roundtrip.mjs"
+      - "tests/governance/ui-mockup-roundtrip.test.mjs"
+      - ".github/workflows/ui-mockup-roundtrip-candidate-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Validate contract and DAG with no mutating capability
+        run: node scripts/check-ui-mockup-roundtrip.mjs
+      - name: Adversarial intent and authority regression
+        run: node --test tests/governance/ui-mockup-roundtrip.test.mjs
+      - name: Clarify constitutional status
+        run: echo "CANDIDATE ONLY; no mockup generated or approved, no UI code changed, no Quality Gate PASS or Production authority."
