@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { inspectPendingOnboarding, githubJson } from "./verify-governance-onboarding-live.mjs";
 
 const RUE = "BlueDragon33/Blueprint-Russian-Expert-Engine";
@@ -37,7 +38,7 @@ export async function verifyRuePrivateOnboarding(queue, contract, getJson=github
   });
 }
 
-if (process.argv[1] && import.meta.url === new URL("file://" + process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     if (process.env.BLUEPRINT_RUE_PRIVATE_CHECK !== "true" ||
         typeof process.env.GITHUB_TOKEN !== "string" ||
