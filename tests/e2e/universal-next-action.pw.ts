@@ -65,7 +65,7 @@ test("canonical Project Profile: offline Chromium renders visible task links wit
 test("pending-onboarding without Profile: offline Chromium displays only truthful setup/source links", async ({page}) => {
   const action = trackedNextAction({
     projectId:"project:blueprint-russian-expert-engine",
-    repository:"BlueDragon33/Russian-Expert-Engine",
+    repository:"BlueDragon33/Blueprint-Russian-Expert-Engine",
     hasCanonicalProfile:false,
     registrationState:"pending-onboarding"
   });
@@ -79,7 +79,7 @@ test("pending-onboarding without Profile: offline Chromium displays only truthfu
   const links=region.getByRole("link");
   await expect(links).toHaveCount(2);
   await expect(links.first()).toHaveAttribute("href","/projects/new");
-  await expect(links.nth(1)).toHaveAttribute("href","https://github.com/BlueDragon33/Russian-Expert-Engine");
+  await expect(links.nth(1)).toHaveAttribute("href","https://github.com/BlueDragon33/Blueprint-Russian-Expert-Engine");
   for (let i=0;i<2;i++){
     const rect=await links.nth(i).boundingBox();
     expect(rect).not.toBeNull();
