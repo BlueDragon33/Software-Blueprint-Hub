@@ -22,6 +22,8 @@ export { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { ScopedGitHubReadExecutor } from "./workflow-scoped-github-executor";
 export { PinnedInspectionQaVerifier } from "./workflow-observation-qa";
 export { executeAndVerifyScopedInspection } from "./workflow-inspection-pipeline";
+export { inspectAuthorizedNextAction } from "./next-action-inspection-adapter";
+export type { AuthorizedNextActionInspectionInput, TrustedNextActionInspectionServices } from "./next-action-inspection-adapter";
 export { PostgresWorkflowInspectionQaJournal } from "./workflow-inspection-qa-journal";
 import { AuthorityService } from "@blueprint-os/core";
 import {
