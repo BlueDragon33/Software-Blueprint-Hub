@@ -42,7 +42,25 @@ export default async function ProjectRoadmapPage({
     (item) => item.id === "work:p2-115-blueprint-signed-source-inspection"
   );
   const issue115Query = (await searchParams)?.issue115;
+  // A URL query parameter is not an admission receipt. Only claim successful
+  // readback after the current canonical WorkPackage AND all four distinct
+  // unapproved gates are read from the runtime, not from client navigation.
+  const issue115GateReadback = existingIssue115
+    ? await workspace.runtime.workQuality.listQualityGates(
+      workspace.actor, workspace.projectId
+    )
+    : [];
+  const issue115TrackedGates = issue115GateReadback.filter(item =>
+    existingIssue115?.qualityGateIds.includes(item.gate.id));
   const issue115Confirmed = existingIssue115?.status === "blocked" &&
+    existingIssue115.meta.recordVersion === 1 &&
+    existingIssue115.qualityGateIds.length === 4 &&
+    new Set(existingIssue115.qualityGateIds).size === 4 &&
+    issue115TrackedGates.length === 4 &&
+    issue115TrackedGates.every(item =>
+      item.gate.status === "not-ready" &&
+      item.gate.meta.recordVersion === 1 &&
+      item.evidence.length === 0) &&
     (issue115Query === "created" || issue115Query === "already-present");
 
   const completed = workPackages.filter(
