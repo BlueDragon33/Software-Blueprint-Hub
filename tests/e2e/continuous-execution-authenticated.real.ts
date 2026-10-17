@@ -1,12 +1,10 @@
-import { test, expect, type Page, type APIResponse } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { createPrismaClient } from "../../packages/persistence/src/client";
 import { requireRealAuthEnvironment, type AuthenticatedRole } from "./continuous-authenticated-environment";
 
 const env=requireRealAuthEnvironment();
 const path="/projects/"+encodeURIComponent(env.projectId);
 const prisma=createPrismaClient(env.databaseURL);
-const runPost=(r:APIResponse):boolean=>
-  r.request().method()==="POST" && r.url().includes("/projects/");
 const buttonName="Kiểm tra lại READY bằng dữ liệu thật";
 
 async function verifyPersistedActors():Promise<void>{
