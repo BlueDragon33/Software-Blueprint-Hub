@@ -8,6 +8,9 @@ on:
       - "apps/web/app/projects/[projectId]/actions.ts"
       - "apps/web/app/projects/[projectId]/page.tsx"
       - "control/unified-next-action.candidate.v1.json"
+      - "packages/runtime/src/next-action-inspection-adapter.ts"
+      - "packages/runtime/src/index.ts"
+      - "tests/application/unified-next-action-execution.test.ts"
       - "tests/application/unified-next-action.test.ts"
       - "docs/UNIFIED-NEXT-ACTION-WORK-HANDOFF.candidate.md"
       - ".github/workflows/unified-next-action-candidate.yml"
@@ -34,10 +37,11 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm prisma:generate
       - name: Test one CTA, versioned contract and fail-closed Server Action intent
-        run: pnpm exec vitest run tests/application/unified-next-action.test.ts
+        run: pnpm exec vitest run tests/application/unified-next-action.test.ts tests/application/unified-next-action-execution.test.ts
       - name: Typecheck application and Next project Overview
         run: |
           pnpm --filter @blueprint-os/application typecheck
+          pnpm --filter @blueprint-os/runtime typecheck
           pnpm --filter @blueprint-os/web typecheck
       - name: Mark real executor and Work session E2E not verified
         run: echo "PASS means contract + UI + server-action types; NOT authenticated browser E2E, Work host or real executor."
