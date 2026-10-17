@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { unifiedNextActionPresentation } from "@blueprint-os/application";
 import type { BlueprintServerRuntime } from "@blueprint-os/runtime";
 import {
   EmptyState,
@@ -51,6 +53,8 @@ export function ReadinessOverview({
 }: {
   readonly readiness: ReadinessSnapshot;
 }) {
+  const nextAction = unifiedNextActionPresentation(readiness);
+
   return (
     <>
       <section
@@ -161,9 +165,12 @@ export function ReadinessOverview({
 
         <div className="readiness-side-stack">
           <article className="next-action-card">
-            <p className="section-kicker">Next action</p>
-            <h2>{readiness.nextAction.label}</h2>
+            <p className="section-kicker">Công việc tiếp theo</p>
+            <h2>{nextAction.description}</h2>
             <p>{readiness.nextAction.reason}</p>
+            <Link className="primary-button" href={nextAction.href}>
+              {nextAction.label} →
+            </Link>
           </article>
 
           <article className="readiness-panel">
