@@ -49,6 +49,13 @@ export function isRegisteredGovernedProject(projectId: string): boolean {
   return workflowRegistry.isGovernedProject(projectId);
 }
 
+export function registeredGovernedRepository(projectId: string): string | null {
+  // Registry identity can locate a repository AFTER authenticated canonical
+  // Project Profile access; it never creates a Project Profile or execution grant.
+  return workflowRegistry.repositoryForProject(projectId)?.repository ?? null;
+}
+
+
 export function registeredWorkflowNodes(
   projectId: string,
   workflowId: string
