@@ -428,6 +428,7 @@ model WorkflowExecutionAdoptionDecision {
 /// This does not authorize execution, sign grants or release Production.
 model NextActionWorkBindingDecision {
   id                         String   @id @db.VarChar(160)
+  decisionSequence           BigInt   @unique @default(autoincrement())
   projectId                  String   @db.VarChar(160)
   workPackageId              String   @db.VarChar(160)
   workPackageRecordVersion   Int
