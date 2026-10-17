@@ -8,7 +8,11 @@ import {
   createPrismaClient,
   PostgresAuthorityRepository,
   PostgresWorkQualityRepository,
-  PostgresProjectProfileRepository
+  PostgresProjectProfileRepository,
+  PostgresContinuousPreflightRepository,
+  preflightGateDigest,
+  CONTINUOUS_PREFLIGHT_CHECK_IDS,
+  type PreflightBinding
 } from "../../packages/persistence/src";
 
 /**
@@ -154,6 +158,63 @@ const runnable=process.env.BLUEPRINT_QA_DB_INTEGRATION==="true" && !!url;
     const oldVersion={...ready,canonicalRevision:null};
     expect(assessCanonicalContinuousReadiness(oldVersion).state).toBe("UNVERIFIED");
   },30000);
+  it("stores eight-factor Owner attestation and never treats Editor/Viewer/Reviewer as issuer",async()=>{
+    const repository=new PostgresContinuousPreflightRepository(prisma,authority);
+    const source=await read(existing,owner,actualHead);
+    const item=source.workPackages.find(w=>w.status==="ready")!;
+    const gateDigest=preflightGateDigest({required:[...source.requiredGateIds].sort(),
+      bundles:(await quality.listQualityGates(owner,existing)).map(b=>({
+        gate:b.gate,evidence:[...b.evidence]
+      })).sort((a,b)=>a.gate.id.localeCompare(b.gate.id))});
+    const binding:PreflightBinding={
+      projectId:existing,workId:item.id,profileVersion:source.profileVersion,
+      workVersion:item.meta.recordVersion,canonicalDigest:source.canonicalRevision,
+      appHead:actualHead,gateDigest,policyVersion:"1.3.0",
+      checks:CONTINUOUS_PREFLIGHT_CHECK_IDS.map(id=>({
+        id,evidence:"canonical:attestation:"+id
+      }))
+    };
+    const note="Scoped engineering preflight; unresolved independent QA and release authority remain blocked.";
+    await expect(repository.append(editor,binding,"attest",0,note))
+      .rejects.toBeInstanceOf(AuthorizationDeniedError);
+    await expect(repository.append(viewer,binding,"attest",0,note))
+      .rejects.toBeInstanceOf(AuthorizationDeniedError);
+    await expect(repository.append(reviewer,binding,"attest",0,note))
+      .rejects.toBeInstanceOf(AuthorizationDeniedError);
+    expect(await repository.latest(viewer,binding)).toBeNull();
+    const first=await repository.append(owner,binding,"attest",0,note);
+    expect(first).toMatchObject({sequence:1,decision:"attest",current:true});
+    expect((await repository.latest(editor,binding))?.current).toBe(true);
+    expect((await repository.latest(viewer,binding))?.current).toBe(true);
+    expect((await repository.latest(owner,{...binding,appHead:"a".repeat(40)}))?.current)
+      .toBe(false);
+    expect((await repository.latest(owner,{...binding,canonicalDigest:"sha256:"+"a".repeat(64)}))?.current)
+      .toBe(false);
+    expect((await repository.latest(owner,{...binding,gateDigest:"sha256:"+"e".repeat(64)}))?.current)
+      .toBe(false);
+    expect((await repository.latest(owner,{...binding,workVersion:1}))?.current)
+      .toBe(false);
+    await expect(repository.append(owner,binding,"attest",0,note))
+      .rejects.toThrow(/CAS|Unique|constraint|Transaction|write conflict/);
+    const concurrent=await Promise.allSettled([
+      repository.append(owner,binding,"revoke",1,note),
+      repository.append(owner,binding,"revoke",1,note)
+    ]);
+    expect(concurrent.filter(r=>r.status==="fulfilled")).toHaveLength(1);
+    expect((await repository.latest(owner,binding))?.current).toBe(false);
+    expect((await repository.latest(owner,binding))?.sequence).toBe(2);
+    const row=await prisma.continuousPreflightReceipt.findFirstOrThrow({
+      where:{projectId:existing,workId:item.id},orderBy:{sequence:"asc"}});
+    expect(row.productionReleaseAuthority).toBe(false);
+    await expect(prisma.continuousPreflightReceipt.update({
+      where:{id:row.id},data:{decision:"attest"}
+    })).rejects.toThrow(/append-only/);
+    await expect(prisma.continuousPreflightReceipt.delete({where:{id:row.id}}))
+      .rejects.toThrow(/append-only/);
+    const other={...binding,projectId:fresh};
+    expect((await repository.latest(owner,other))).toBeNull();
+  },30000);
+
   it("cross-project privilege cannot be inferred from one role or claimed by unauthenticated actor",async()=>{
     await expect(quality.createWorkPackage(viewer,work("work:pg-unauthorized",fresh)))
       .rejects.toBeInstanceOf(AuthorizationDeniedError);
