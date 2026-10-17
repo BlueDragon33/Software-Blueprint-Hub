@@ -13,11 +13,13 @@ import { readAuthenticatedContinuousPreflight } from "../../../src/server/contin
 export async function recheckContinuousExecutionPreflight(
   projectId: string,
   expectedProfileVersion: number,
-  expectedCanonicalRevision: string
+  expectedCanonicalRevision: string,
+  expectedAppHead: string
 ): Promise<void> {
   if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
       !Number.isInteger(expectedProfileVersion) || expectedProfileVersion < 1 ||
-      !expectedCanonicalRevision.trim()) {
+      !expectedCanonicalRevision.trim() ||
+      !/^[a-f0-9]{40}$/.test(expectedAppHead)) {
     throw new Error("Invalid project preflight binding");
   }
   const workspace = await loadProjectWorkspace(encodeURIComponent(projectId));
@@ -29,8 +31,9 @@ export async function recheckContinuousExecutionPreflight(
   }
   const snapshot = await readAuthenticatedContinuousPreflight(workspace);
   if (snapshot.canonicalRevision !== expectedCanonicalRevision ||
-      snapshot.profileVersion !== expectedProfileVersion) {
-    throw new Error("Canonical work/gate evidence changed: refresh before proceeding");
+      snapshot.profileVersion !== expectedProfileVersion ||
+      snapshot.appHead !== expectedAppHead) {
+    throw new Error("Canonical evidence or repository HEAD changed: refresh before proceeding");
   }
   const path = "/projects/" + encodeURIComponent(projectId);
   revalidatePath(path);
