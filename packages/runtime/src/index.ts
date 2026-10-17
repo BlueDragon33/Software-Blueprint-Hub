@@ -18,6 +18,7 @@ import {
 import { GitHubConstitutionPublicationVerifier } from "./constitution-publication";
 import { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { PostgresWorkflowExecutionAuthority } from "./workflow-execution-authority";
+export { PostgresNextActionWorkBindingRepository } from "@blueprint-os/persistence";
 export { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { ScopedGitHubReadExecutor } from "./workflow-scoped-github-executor";
 export { PinnedInspectionQaVerifier } from "./workflow-observation-qa";
