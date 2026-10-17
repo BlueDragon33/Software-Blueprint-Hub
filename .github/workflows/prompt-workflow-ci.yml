@@ -19,6 +19,7 @@ on:
       - "apps/web/app/projects/**/roadmap/**"
       - "docs/work-packages/issue-115-admission.payload.json"
       - "tests/application/issue-115-intake.test.ts"
+      - "tests/e2e/issue-115-local-acceptance.pw.ts"
       - "packages/persistence/prisma/schema.prisma"
       - "packages/persistence/prisma/migrations/**"
       - "scripts/generate-prompt-workflow-imports.mjs"
@@ -86,6 +87,8 @@ jobs:
         run: pnpm --filter @blueprint-os/web typecheck
       - name: Candidate projection authorization and drift tests
         run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-authority.test.ts tests/application/prompt-workflow-journal.test.ts tests/application/prompt-workflow-github-executor.test.ts tests/application/prompt-workflow-operational-e2e.test.ts tests/application/prompt-workflow-observation-qa.test.ts tests/application/prompt-workflow-inspection-pipeline.test.ts tests/application/prompt-workflow-qa-journal.test.ts tests/application/issue-115-intake.test.ts
+      - name: Compile opt-in localhost acceptance Playwright tests (LIST ONLY; NOT E2E)
+        run: pnpm exec playwright test tests/e2e/issue-115-local-acceptance.pw.ts --list
       - name: Visual Workflow Studio semantic SSR tests
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
       - name: Vietnamese launcher, app grouping and no-invented-deployment tests
