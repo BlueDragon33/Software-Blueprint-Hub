@@ -5895,3 +5895,39 @@ textarea:focus-visible,
   .project-workspace-header h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); }
   .project-workspace-header { gap: .6rem; }
 }
+
+
+/* Universal, project-scoped Next Action: navigation only, never fake execution. */
+.universal-next-action {
+  display: grid;
+  gap: .55rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.universal-next-action-controls {
+  display: grid;
+  gap: .6rem;
+  margin-top: .5rem;
+}
+.universal-next-action-controls a {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 2.8rem;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: .7rem 1rem;
+  white-space: normal;
+}
+.universal-next-action .universal-next-action-caveat {
+  margin: .5rem 0 0;
+  color: #52627a;
+  font-size: .81rem;
+  line-height: 1.5;
+}
+.universal-next-action-controls a:focus-visible {
+  outline: 3px solid #536be8;
+  outline-offset: 3px;
+}

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { UniversalNextAction } from "../_components/universal-next-action";
+import { trackedNextAction } from "../../src/lib/universal-next-action";
 import { useMemo, useState } from "react";
 import {
   appSearchKey, groupLabels, groupOrder, matchesApp,
@@ -87,17 +89,12 @@ export function EcosystemDirectory({ apps, canonicalProjectIds, initialAppId }: 
                 <div><dt>Blueprint</dt><dd>{selected.blueprintLevel}</dd></div>
                 {pending && selected.sourceRevision && <div><dt>SHA</dt><dd><code>{selected.sourceRevision.slice(0, 12)}</code> ({en ? "historic observation" : "ghi nhận trước đó"})</dd></div>}
               </dl>
-              <div className={styles.actions}>
-                {eligible && (
-                  <Link className={styles.primary} href={"/projects/" + encodeURIComponent(selected.projectId)}>
-                    {en ? "Open workspace →" : "Mở nội dung dự án →"}
-                  </Link>
-                )}
-                <a className={styles.secondary} href={"https://github.com/" + selected.repository}
-                  target="_blank" rel="noopener noreferrer">
-                  {en ? "View actual source ↗" : "Xem mã nguồn thực tế ↗"}
-                </a>
-              </div>
+              <UniversalNextAction action={trackedNextAction({
+                projectId: selected.projectId,
+                repository: selected.repository,
+                hasCanonicalProfile: provisioned.has(selected.projectId),
+                registrationState: selected.registrationState
+              })} />
               {!eligible && <p className={styles.note}>{pending
                 ? en ? "This repo is tracked for onboarding only. Its recorded SHA is not a live HEAD check. No canonical project access, Quality Gate PASS or Production approval is implied."
                      : "Repo chỉ được theo dõi để tiếp nhận. SHA đã ghi không phải xác minh HEAD trực tiếp. Chưa được cấp quyền dự án, Quality Gate PASS hoặc Production."

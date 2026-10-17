@@ -1,4 +1,6 @@
 import type { BlueprintServerRuntime } from "@blueprint-os/runtime";
+import { canonicalNextAction } from "../../../../src/lib/universal-next-action";
+import { UniversalNextAction } from "../../../_components/universal-next-action";
 import {
   EmptyState,
   MetricCard,
@@ -160,11 +162,12 @@ export function ReadinessOverview({
         </article>
 
         <div className="readiness-side-stack">
-          <article className="next-action-card">
-            <p className="section-kicker">Next action</p>
-            <h2>{readiness.nextAction.label}</h2>
-            <p>{readiness.nextAction.reason}</p>
-          </article>
+          <UniversalNextAction action={canonicalNextAction({
+            projectId: readiness.projectId,
+            kind: readiness.nextAction.kind,
+            label: readiness.nextAction.label,
+            reason: readiness.nextAction.reason
+          })} />
 
           <article className="readiness-panel">
             <SectionHeading
