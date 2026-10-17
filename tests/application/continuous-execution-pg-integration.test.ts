@@ -211,6 +211,18 @@ const runnable=process.env.BLUEPRINT_QA_DB_INTEGRATION==="true" && !!url;
     })).rejects.toThrow(/append-only/);
     await expect(prisma.continuousPreflightReceipt.delete({where:{id:row.id}}))
       .rejects.toThrow(/append-only/);
+    const temporary=await authority.resolveIdentity({
+      provider:"github",providerSubject:"pg-preflight-temporary-owner-"+randomUUID()
+    });
+    const temporaryActor={principalId:temporary.id};
+    await authority.grantProjectRole(owner,{projectId:existing,
+      principalId:temporary.id,role:"OWNER"});
+    const temporarilyApproved=await repository.append(temporaryActor,binding,
+      "attest",2,note);
+    expect(temporarilyApproved.current).toBe(true);
+    await authority.grantProjectRole(owner,{projectId:existing,
+      principalId:temporary.id,role:"VIEWER"});
+    expect((await repository.latest(owner,binding))?.current).toBe(false);
     const other={...binding,projectId:fresh};
     expect((await repository.latest(owner,other))).toBeNull();
   },30000);
