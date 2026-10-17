@@ -30,6 +30,9 @@ on:
       - 'tests/application/continuous-real-auth-contract.test.ts'
       - 'playwright.real-auth.config.ts'
       - 'docs/qa/CONTINUOUS-EXECUTION-REAL-AUTH-E2E-20261017.md'
+      - 'scripts/continuous-localhost-precheck.mjs'
+      - 'scripts/continuous-localhost-precheck-core.mjs'
+      - 'tests/governance/continuous-localhost-precheck.test.mjs'
       - '.gitignore'
       - 'apps/web/src/auth/continuous-mutation-origin.ts'
       - 'apps/web/src/server/continuous-execution-origin.ts'
@@ -64,6 +67,9 @@ on:
       - 'tests/application/continuous-real-auth-contract.test.ts'
       - 'playwright.real-auth.config.ts'
       - 'docs/qa/CONTINUOUS-EXECUTION-REAL-AUTH-E2E-20261017.md'
+      - 'scripts/continuous-localhost-precheck.mjs'
+      - 'scripts/continuous-localhost-precheck-core.mjs'
+      - 'tests/governance/continuous-localhost-precheck.test.mjs'
       - '.gitignore'
       - 'apps/web/src/auth/continuous-mutation-origin.ts'
       - 'apps/web/src/server/continuous-execution-origin.ts'
@@ -92,6 +98,8 @@ jobs:
         run: node scripts/product-goal-continuity.mjs
       - name: Test goal anchoring, bounded autonomy, status-loop prevention
         run: node --test tests/governance/product-goal-continuity.test.mjs
+      - name: Test Windows read-only localhost preflight safety
+        run: node --test tests/governance/continuous-localhost-precheck.test.mjs
       - name: Install exact dependencies and generate Prisma types
         run: |
           pnpm install --frozen-lockfile
