@@ -173,6 +173,9 @@ export async function executeSignedContinuousDiscovery(
       if (actual.appHead!==offer.context.appHead ||
           actual.canonicalRevision!==offer.context.canonicalDigest ||
           actual.assessment.state!=="READY_WORK_FOUND" ||
+          actual.assessment.preflightEvidenceReady!==true ||
+          actual.preflightSequence!==preflight.preflightSequence ||
+          actual.preflightBinding?.gateDigest!==preflight.preflightBinding?.gateDigest ||
           actual.assessment.nextWorkId!==offer.workId) {
         throw new Error("Canonical state or READY task drifted before execution.");
       }
