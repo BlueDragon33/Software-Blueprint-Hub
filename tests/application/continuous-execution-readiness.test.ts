@@ -152,7 +152,7 @@ describe("fresh project may request PLANNED setup, never instant READY",()=>{
     const planned=work(input.projectId,"work:initial-product","planned");
     const after={...input,workPackages:[planned]};
     const next=planContinuousRecovery(after,assessCanonicalContinuousReadiness(after));
-    expect(next[0]?.kind).toBe("prepare-work");
+    expect(next[0]?.kind).toBe("human-confirm-ready");
     expect(next.every(action=>action.kind!=="authority-grant")).toBe(true);
   });
 });
@@ -182,5 +182,28 @@ describe("PASS-linked evidence stays fail-closed",()=>{
       evidence:[{id:"evidence:offline-1",gateId:g.id,kind:"test",
         source:"github:repo@sha",revision:SHA,createdAt:at}]}).state)
       .toBe("READY_WORK_FOUND");
+  });
+});
+
+describe("human READY promotion is only a candidate if prerequisites hold",()=>{
+  it("never offers READY confirmation for an incomplete dependency chain",()=>{
+    const base=snapshot("project:new-onboarding-app");
+    const a=work(base.projectId,"work:manual-start","planned",["work:unfinished"]);
+    const b=work(base.projectId,"work:unfinished","planned");
+    const input={...base,workPackages:[a,b]};
+    const actions=planContinuousRecovery(input,
+      assessCanonicalContinuousReadiness(input));
+    expect(actions.some(x=>x.id==="work:manual-start" &&
+      x.kind==="human-confirm-ready")).toBe(false);
+  });
+  it("does not offer READY confirmation when a required Gate has FAIL",()=>{
+    const base=snapshot("project:new-onboarding-app");
+    const input={...base,
+      workPackages:[work(base.projectId,"work:manual-start","planned")],
+      gates:[gate(base.projectId,"gate:offline-smoke","fail")]};
+    const actions=planContinuousRecovery(input,
+      assessCanonicalContinuousReadiness(input));
+    expect(actions.some(x=>x.kind==="human-confirm-ready")).toBe(false);
+    expect(actions[0]?.kind).toBe("human-review");
   });
 });
