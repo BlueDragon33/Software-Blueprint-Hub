@@ -5,7 +5,7 @@ import {
   type ContinuousExecutionAssessment
 } from "../../../../packages/core/src/continuous-execution";
 import type { ProjectWorkspaceLoadResult } from "./project-workspace";
-import { registeredWorkflowSummaries, verifiedRepoHead } from "./prompt-workflow";
+import { registeredGovernedRepository, registeredWorkflowSummaries, verifiedRepoHead } from "./prompt-workflow";
 
 export type AuthorizedProjectWorkspace = Extract<
   ProjectWorkspaceLoadResult, { readonly state: "ready" }
@@ -34,15 +34,15 @@ export async function readAuthenticatedContinuousPreflight(
     runtime.prompts.currentSourceRevisionFromProfile(actor, projectId, project),
     runtime.authority.can(actor, projectId, "PROJECT_MUTATE")
   ]);
+  const registeredRepo = registeredGovernedRepository(projectId);
   const workflows = registeredWorkflowSummaries(projectId);
   const selectedWorkflow = workflows.find(row =>
-    row.projectId === projectId && row.repository ===
-    workflows[0]?.repository
+    row.projectId === projectId && row.repository === registeredRepo
   ) ?? null;
   let appHead: string | null = null;
-  if (selectedWorkflow) {
+  if (registeredRepo) {
     try {
-      appHead = await verifiedRepoHead(selectedWorkflow.repository);
+      appHead = await verifiedRepoHead(registeredRepo);
     } catch {
       // Network failure or missing verified repository HEAD fails closed.
       // No fallback to caller input, presentation metadata or prior SHA.
