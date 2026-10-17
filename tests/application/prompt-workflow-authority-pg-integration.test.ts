@@ -269,6 +269,19 @@ suite("P1 workflow execution authority PostgreSQL integrity", () => {
       readback: realService
     };
     const ownerActor={principalId:ownerId};
+    const viewerPrincipal = await authority.resolveIdentity({
+      provider: "github", providerSubject: "ci-p2-115-viewer"
+    });
+    const viewerActor = {principalId: viewerPrincipal.id};
+    // Use the REAL AuthService/Postgres role scope, not the unit-test mock.
+    // This principal has no PROJECT_MUTATE grant; no transaction may start.
+    await expect(admitIssue115Candidate(boundary, null, project, 1))
+      .rejects.toThrow(/authenticated/);
+    await expect(admitIssue115Candidate(boundary, viewerActor, project, 1))
+      .rejects.toThrow(/PROJECT_MUTATE|Authorization denied/);
+    await expect(admitIssue115Candidate(boundary, ownerActor, "project:other", 1))
+      .rejects.toThrow(/exact-project/);
+    expect(createdGates).toBe(0);
     await expect(admitIssue115Candidate(boundary,ownerActor,project,1))
       .rejects.toThrow(/CI injected/);
     expect(await prisma.workPackage.count({where:{projectId:project}})).toBe(0);
