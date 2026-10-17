@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   validateGoalContinuityCandidate,validateGoalCheckpoint,
-  selectGoalAnchoredNextAction,buildBoundedWorkEscalation
+  selectGoalAnchoredNextAction,buildBoundedWorkEscalation,
+  assessContinuousExecutionPreflight
 } from "../../scripts/product-goal-continuity.mjs";
 
 const policy=JSON.parse(readFileSync(
@@ -188,4 +189,79 @@ test("human gate must name reviewer, action and reason",()=>{
 test("work input fails closed instead of throwing on null entry",()=>{
   const x=checkpoint();x.workItems=[null];
   assert.equal(selectGoalAnchoredNextAction(x).state,"UNVERIFIED");
+});
+
+function continuousPreflight(x=checkpoint()){
+  return {
+    projectId:x.project.id,goalRevision:x.checkpoint.goalRevision,
+    appHead:x.checkpoint.appHead,workRevision:x.checkpoint.workRevision,
+    evidenceRevision:x.checkpoint.evidenceRevision,
+    policyVersion:x.checkpoint.policyVersion,
+    checks:policy.continuousExecution.requiredChecks.map(id=>({
+      id,state:"EVIDENCE_COLLECTED",
+      evidenceRef:"authenticated-source-readback/fixture/"+id
+    })),
+    blockers:[]
+  };
+}
+test("universal preflight candidate covers past/current/future; remains non-authoritative",()=>{
+  assert.deepEqual(policy.continuousExecution.scope,["existing","active","future"]);
+  assert.deepEqual(validateGoalContinuityCandidate(policy),[]);
+  const weakened=structuredClone(policy);
+  weakened.continuousExecution.preflightRequiredBeforeContinuousAction=false;
+  assert.match(validateGoalContinuityCandidate(weakened).join(" "),/unsafe continuous execution/);
+  const missing=structuredClone(policy);
+  missing.continuousExecution.requiredChecks.pop();
+  assert.match(validateGoalContinuityCandidate(missing).join(" "),/universal preflight/);
+  const inflated=structuredClone(policy);
+  inflated.implementationState.realUiIntegrated=true;
+  assert(validateGoalContinuityCandidate(inflated).length);
+});
+test("continuous button remains unauthorised even with complete client evidence format",()=>{
+  const x=checkpoint(),p=continuousPreflight(x);
+  const r=assessContinuousExecutionPreflight(x,p);
+  assert.equal(r.state,"PREFLIGHT_EVIDENCE_FORMAT_READY");
+  assert.equal(r.buttonAuthorized,false);
+  assert.equal(r.canOfferAfterTrustedReadback,true);
+  assert.equal(r.requiresAuthenticatedSourceAndActor,true);
+  assert.equal(r.requiresHeadRecheckAtClick,true);
+  assert.equal(r.executesInBackground,false);
+});
+test("missing, invented or stale preflight evidence fails closed",()=>{
+  const x=checkpoint(),p=continuousPreflight(x);
+  p.checks.pop();
+  assert.equal(assessContinuousExecutionPreflight(x,p).state,"PREFLIGHT_INCOMPLETE");
+  p.checks=continuousPreflight(x).checks;
+  p.checks[0].evidenceRef="";
+  assert.equal(assessContinuousExecutionPreflight(x,p).state,"PREFLIGHT_INCOMPLETE");
+  p.checks=continuousPreflight(x).checks;
+  p.appHead="b".repeat(40);
+  assert.equal(assessContinuousExecutionPreflight(x,p).state,"PREFLIGHT_INCOMPLETE");
+  const stale=checkpoint();
+  stale.checkpoint.workRevision="c".repeat(40);
+  assert.equal(assessContinuousExecutionPreflight(stale,continuousPreflight(x)).state,
+    "UNVERIFIED");
+});
+test("critical-path blocker prevents button; unrelated honest blocker permits only independent READY slice",()=>{
+  const x=checkpoint(),p=continuousPreflight(x);
+  p.blockers=[{id:"ru03-human-review",impact:"CRITICAL_PATH",
+    kind:"HUMAN_AUTHORITY",state:"OPEN",evidenceRef:"reviewers-empty"}];
+  assert.equal(assessContinuousExecutionPreflight(x,p).state,"BLOCKED_CRITICAL_PATH");
+  p.blockers[0].impact="INDEPENDENT";
+  const r=assessContinuousExecutionPreflight(x,p);
+  assert.equal(r.state,"PREFLIGHT_EVIDENCE_FORMAT_READY");
+  assert.deepEqual(r.unresolvedIndependent,["ru03-human-review"]);
+  assert.equal(r.buttonAuthorized,false);
+  p.blockers[0].evidenceRef="";
+  assert.equal(assessContinuousExecutionPreflight(x,p).state,"PREFLIGHT_INCOMPLETE");
+});
+test("no independent READY engineering task means no continuous button",()=>{
+  const x=checkpoint();
+  x.workItems=[task("review-owner","review",{
+    humanGate:true,safeAutonomous:false,priority:100,
+    humanGateDetails:{reviewer:"Project Authority",
+      action:"Check real acceptance",reason:"Human-only gate"}})];
+  const result=assessContinuousExecutionPreflight(x,continuousPreflight(x));
+  assert.equal(result.state,"NO_SAFE_READY_WORK");
+  assert.equal(result.canOfferAfterTrustedReadback,false);
 });
