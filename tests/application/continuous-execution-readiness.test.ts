@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { QualityGate, WorkPackage } from "../../packages/contracts/src";
 import {
   assessCanonicalContinuousReadiness,
+  planContinuousRecovery,
   type ContinuousProjectSnapshot
 } from "../../packages/core/src/continuous-execution";
 
@@ -95,5 +96,45 @@ describe("authenticated-source continuous readiness projection (no issuer author
     const result=assessCanonicalContinuousReadiness({...data,workPackages:updated});
     expect(result.state).toBe("BLOCKED");
     expect(result.nextWorkId).toBeNull();
+  });
+});
+
+describe("automatic source remediation + user-confirmed canonical repair guidance",()=>{
+  it("unverified HEAD returns bounded non-mutating automatic readback only",()=>{
+    const input={...snapshot("project:bauman-master-ai-system"),appHead:null};
+    const assessment=assessCanonicalContinuousReadiness(input);
+    const actions=planContinuousRecovery(input,assessment);
+    expect(actions.map(x=>x.kind)).toEqual(["automatic-readback"]);
+    expect(actions[0]?.requiresConfirmation).toBe(false);
+    expect(actions[0]?.canChangeCanonicalState).toBe(false);
+  });
+  it("missing required gate offers explicit NOT_READY creation, never PASS",()=>{
+    const input={...snapshot("project:bauman-master-ai-system"),gates:[]};
+    const assessment=assessCanonicalContinuousReadiness(input);
+    const actions=planContinuousRecovery(input,assessment);
+    expect(assessment.state).toBe("BLOCKED");
+    expect(actions[0]?.kind).toBe("human-confirm-gate");
+    expect(actions[0]?.requiresConfirmation).toBe(true);
+    expect(actions[0]?.explanation).toMatch(/NOT_READY/);
+    expect(actions.some(x=>x.kind==="authority-grant")).toBe(false);
+  });
+  it("READY work only requests a real separate issuer grant, never auto-signs",()=>{
+    const input=snapshot("project:bauman-master-ai-system");
+    const actions=planContinuousRecovery(input,assessCanonicalContinuousReadiness(input));
+    expect(actions.map(x=>x.kind)).toEqual(["authority-grant"]);
+    expect(actions[0]?.canChangeCanonicalState).toBe(false);
+  });
+  it("project Viewer must request authorized access instead of creation form",()=>{
+    const input={...snapshot("project:bauman-master-ai-system"),canMutate:false};
+    const actions=planContinuousRecovery(input,assessCanonicalContinuousReadiness(input));
+    expect(actions.map(x=>x.kind)).toEqual(["human-review"]);
+    expect(actions[0]?.canChangeCanonicalState).toBe(false);
+  });
+  it("failing Gate requires human review and never automatically changes PASS",()=>{
+    const base=snapshot("project:bauman-master-ai-system");
+    const input={...base,gates:[gate(base.projectId,"gate:offline-smoke","fail")]};
+    const actions=planContinuousRecovery(input,assessCanonicalContinuousReadiness(input));
+    expect(actions.map(x=>x.kind)).toEqual(["human-review"]);
+    expect(actions.every(x=>x.requiresConfirmation)).toBe(true);
   });
 });
