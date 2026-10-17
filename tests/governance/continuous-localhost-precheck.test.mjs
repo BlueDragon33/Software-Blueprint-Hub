@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname,resolve } from "node:path";
 import {
   classifyLocalE2eConfig,safeLocalhostUrl,safeDisposablePostgres,
-  classifyPnpmAvailability,localDisposablePostgresProbe
+  classifyPnpmAvailability,localDisposablePostgresProbe,postgresSslReplyAccepted,probeLocalPostgresProtocol
 } from "../../scripts/continuous-localhost-precheck-core.mjs";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"../..");
@@ -47,6 +47,30 @@ test("Windows runner CLI uses validated disposable database port, never printed 
   assert.match(source,/localDisposablePostgresProbe\(process\.env\.DATABASE_URL\)/);
   assert.match(source,/await tcp\(dbProbe\.host,dbProbe\.port\)/);
   assert.doesNotMatch(source,/console\.log\([^\n]*process\.env\.DATABASE_URL/);
+});
+test("PostgreSQL SSLRequest response recognizes ONLY one-byte S/N",()=>{
+  assert.equal(postgresSslReplyAccepted(Buffer.from("S")),true);
+  assert.equal(postgresSslReplyAccepted(Buffer.from("N")),true);
+  for(const payload of ["E","S\\n","HTTP/1.1 200 OK","","0"])
+    assert.equal(postgresSslReplyAccepted(Buffer.from(payload)),false,payload);
+  assert.equal(postgresSslReplyAccepted("S"),false);
+});
+test("read-only wire probe refuses remote or malformed endpoint before connecting",async()=>{
+  for(const endpoint of [
+    {host:"db.example",port:5432},
+    {host:"192.168.1.20",port:5432},
+    {host:"127.0.0.1",port:0},
+    {host:"127.0.0.1",port:99999},
+    null
+  ])assert.equal(await probeLocalPostgresProtocol(endpoint),false);
+});
+test("CLI no longer treats missing docker/psql PATH as proof localhost lacks PostgreSQL",()=>{
+  const source=readFileSync(
+    new URL("../../scripts/continuous-localhost-precheck.mjs",import.meta.url),"utf8");
+  assert.match(source,/await probeLocalPostgresProtocol\\(dbProbe\\)/);
+  assert.match(source,/localDbTools\\|\\|postgresWireProtocol/);
+  assert.match(source,/PostgreSQL protocol localhost/);
+  assert.doesNotMatch(source,/DATABASE_URL\\)\\s*\\+\\s*"/);
 });
 test("never mark real-auth prerequisites ready with absent SSO credentials",()=>{
   const result=classifyLocalE2eConfig({},root);
