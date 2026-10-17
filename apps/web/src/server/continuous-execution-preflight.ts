@@ -1,5 +1,5 @@
 import "server-only";
-import { preflightGateDigest, type PreflightBinding } from "@blueprint-os/persistence";
+import { preflightGateDigest, type PreflightBinding } from "../../../../packages/persistence/src/continuous-preflight-repository";
 import { CONSTITUTION_POLICY_VERSION } from "@blueprint-os/application";
 
 import {
