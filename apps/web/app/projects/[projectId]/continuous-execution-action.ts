@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireContinuousSameOrigin } from "../../../src/server/continuous-execution-origin";
 import { randomUUID } from "node:crypto";
 import { executeBoundedWorkflowNode } from "@blueprint-os/application";
 import { ScopedGitHubReadExecutor } from "@blueprint-os/runtime";
@@ -21,6 +22,7 @@ export async function recheckContinuousExecutionPreflight(
   expectedCanonicalRevision: string,
   expectedAppHead: string
 ): Promise<void> {
+  await requireContinuousSameOrigin();
   if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
       !Number.isInteger(expectedProfileVersion) || expectedProfileVersion < 1 ||
       !expectedCanonicalRevision.trim() ||
@@ -51,6 +53,7 @@ export async function retryContinuousSourceRead(
   projectId: string,
   expectedProfileVersion: number
 ): Promise<void> {
+  await requireContinuousSameOrigin();
   if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
       !Number.isInteger(expectedProfileVersion) || expectedProfileVersion < 1) {
     throw new Error("Invalid source-readback scope");
@@ -81,6 +84,7 @@ export async function confirmCreateMissingQualityGate(
   gateId: string,
   formData: FormData
 ): Promise<void> {
+  await requireContinuousSameOrigin();
   if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
       !Number.isInteger(expectedProfileVersion) || expectedProfileVersion < 1 ||
       !/^sha256:[a-f0-9]{64}$/.test(expectedCanonicalRevision) ||
@@ -136,6 +140,7 @@ export async function executeSignedContinuousDiscovery(
   projectId:string,expectedProfileVersion:number,
   expectedCanonicalRevision:string,expectedAppHead:string
 ):Promise<void> {
+  await requireContinuousSameOrigin();
   if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
       !Number.isInteger(expectedProfileVersion) || expectedProfileVersion<1 ||
       !/^sha256:[a-f0-9]{64}$/.test(expectedCanonicalRevision) ||
@@ -200,6 +205,7 @@ export async function confirmCreatePlannedWorkPackage(
   expectedCanonicalRevision:string,expectedAppHead:string,
   formData:FormData
 ):Promise<void> {
+  await requireContinuousSameOrigin();
   if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
       !Number.isInteger(expectedProfileVersion) || expectedProfileVersion<1 ||
       !/^sha256:[a-f0-9]{64}$/.test(expectedCanonicalRevision) ||
@@ -258,6 +264,7 @@ export async function confirmPromotePlannedWorkToReady(
   expectedCanonicalRevision:string,expectedAppHead:string,
   workId:string,formData:FormData
 ):Promise<void> {
+  await requireContinuousSameOrigin();
   if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
       !Number.isInteger(expectedProfileVersion) || expectedProfileVersion<1 ||
       !/^sha256:[a-f0-9]{64}$/.test(expectedCanonicalRevision) ||
@@ -330,6 +337,7 @@ export async function confirmContinuousPreflightDecision(
   expectedCanonicalDigest:string,expectedHead:string,workId:string,
   expectedSequence:number,decision:"attest"|"revoke",formData:FormData
 ):Promise<void> {
+  await requireContinuousSameOrigin();
   if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
       !Number.isInteger(expectedProfileVersion) || expectedProfileVersion<1 ||
       !/^sha256:[a-f0-9]{64}$/.test(expectedCanonicalDigest) ||
