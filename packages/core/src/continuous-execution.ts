@@ -120,7 +120,7 @@ export function assessCanonicalContinuousReadiness(
 
 export interface ContinuousRecoveryAction {
   readonly id: string;
-  readonly kind: "automatic-readback" | "human-confirm-gate" | "human-review" | "authority-grant" | "prepare-work";
+  readonly kind: "automatic-readback" | "human-confirm-gate" | "human-confirm-work" | "human-review" | "authority-grant" | "prepare-work";
   readonly label: string;
   readonly explanation: string;
   readonly requiresConfirmation: boolean;
@@ -171,6 +171,11 @@ export function planContinuousRecovery(
       label:"Xác thực workflow, issuer và quyền thực thi",
       explanation:"Nhiệm vụ kỹ thuật READY chưa phải signed grant; không thể tự cấp quyền hoặc khởi chạy.",
       requiresConfirmation:true,canChangeCanonicalState:false});
+  } else if (!actions.length && source.workPackages.length===0) {
+    append({id:"work:missing",kind:"human-confirm-work",
+      label:"Xác nhận tạo hồ sơ Work Package đầu tiên",
+      explanation:"Yêu cầu tên, mục tiêu và điều kiện nghiệm thu cụ thể. Chỉ tạo PLANNED, không tự gắn READY, PASS hoặc ký lệnh.",
+      requiresConfirmation:true,canChangeCanonicalState:true});
   } else if (!actions.length) {
     append({id:"work-graph",kind:"prepare-work",
       label:"Chuẩn bị Work Package đủ điều kiện READY",
