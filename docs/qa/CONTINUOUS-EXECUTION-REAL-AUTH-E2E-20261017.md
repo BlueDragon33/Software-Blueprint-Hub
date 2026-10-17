@@ -17,7 +17,25 @@ The separate opt-in `playwright.real-auth.config.ts` **never** launches an imper
 
 Nếu `corepack enable pnpm` báo `EPERM` tại `C:\\Program Files\\nodejs\\pnpx`, **không cần Administrator và không chạy lại lệnh này**. Xác minh phiên bản bằng `corepack pnpm --version` ngay trong repository; kết quả mong muốn là `12.4.0`. Lệnh tiền kiểm từ PR #147 mới sẽ xác nhận `[OK] pnpm` bằng cách kiểm tra cả `pnpm --version` lẫn phiên bản Corepack có sẵn trong cache; probe tự giới hạn `COREPACK_ENABLE_NETWORK=0` và `COREPACK_ENABLE_AUTO_PIN=0` để không tự tải gói hay chỉnh package.json. Nếu chưa được cache, chỉ bật/tải Corepack trong một bước người dùng quyết định ở shell riêng, không dùng tiền kiểm để cài đặt.
 
-Khi `pnpm` chưa nằm trong PATH, dùng `corepack pnpm install --frozen-lockfile`, `corepack pnpm prisma:generate` và `corepack corepack pnpm --filter @blueprint-os/web dev` cho các bước vận hành tiếp theo, thay cho `pnpm ...` trực tiếp. Không cần thiết lập shim hoặc ghi `Program Files`.
+Khi `pnpm` chưa nằm trong PATH, dùng `corepack pnpm install --frozen-lockfile`, `corepack pnpm prisma:generate` và `corepack pnpm --filter @blueprint-os/web dev` cho các bước vận hành tiếp theo, thay cho `pnpm ...` trực tiếp. Không cần thiết lập shim hoặc ghi `Program Files`.
+
+### Nếu bạn đã có mã nguồn tại E:\\BaumanWeb\\Software-Blueprint-Hub (ưu tiên)
+
+Mở **PowerShell** ngay trên máy cá nhân. Không `git clone` thêm hoặc chạy `corepack enable` nếu trước đó gặp `EPERM`:
+
+```powershell
+cd E:\BaumanWeb\Software-Blueprint-Hub
+git status --short
+git branch --show-current
+git pull --ff-only
+git rev-parse HEAD
+corepack pnpm --version
+node scripts/continuous-localhost-precheck.mjs
+```
+
+Chỉ `git pull --ff-only` khi đúng nhánh `feature/universal-goal-continuity-next-action-candidate` và working tree không có thay đổi cần bảo vệ. Nếu không thể fast-forward, **dừng**, không `git reset --hard`, không `git merge` tự động. **Giữ nguyên toàn bộ dấu `[OK]`/`[BLOCKED]` khi phản hồi**, nhưng không gửi URL có mật khẩu DB, cookie, token, hoặc các tệp `storageState`. Người sử dụng có thể dán những dòng kết luận kỹ thuật không nhạy cảm.
+
+**Phân biệt:** công cụ báo `[OK] PostgreSQL TCP localhost:55432` chỉ có nghĩa là có dịch vụ nghe cổng, **không** chứng minh database đã migrate hoặc đăng nhập hợp lệ. Khi chưa đặt biến `DATABASE_URL` ở PowerShell đang chạy, precheck vẫn dò mặc định `5432` và luôn để yêu cầu database cấu hình là `BLOCKED`. Không cần bật SSO hay cấp grant chỉ để chạy tiền kiểm.
 
 ### Bước 1 — Chuẩn bị bộ công cụ và mã nguồn đúng Draft PR
 
@@ -37,7 +55,7 @@ Nếu đã clone từ trước, chỉ chạy `git status` rồi `git switch feat
 
 ### Bước 2 — PostgreSQL dùng riêng, tuyệt đối không đụng dữ liệu thật
 
-Cách dễ cho người mới: trong **pgAdmin 4** hoặc công cụ quản trị PostgreSQL đang có, dùng server **local** `127.0.0.1:5432`; tạo một database mới tên **`blueprint_qa_test`**. Không đổi tên DB Production, không chạy migrate trên DB khác. Hãy đảm bảo database này **đã trống hoặc dùng riêng cho kiểm thử**, chứ không chứa hồ sơ đang sử dụng. Dùng tài khoản PostgreSQL thử nghiệm, không dùng mật khẩu DB Production.
+Cách dễ cho người mới: trong **pgAdmin 4** hoặc công cụ quản trị PostgreSQL đang có, dùng server **local** `127.0.0.1` với **đúng cổng QA đang cấu hình** (có thể là `5432` hoặc `55432`); tạo một database mới tên **`blueprint_qa_test`**. Không đổi tên DB Production, không chạy migrate trên DB khác. Hãy đảm bảo database này **đã trống hoặc dùng riêng cho kiểm thử**, chứ không chứa hồ sơ đang sử dụng. Dùng tài khoản PostgreSQL thử nghiệm, không dùng mật khẩu DB Production.
 
 Trong PowerShell tại thư mục repo, tạo biến môi trường ở **phiên shell hiện tại** (thay bằng thông tin tự bạn biết; không dán giá trị vào chat/Git):
 
@@ -49,7 +67,7 @@ corepack pnpm db:migrate:status
 corepack pnpm db:migrate:deploy
 ```
 
-Dấu `<...>` là chỗ bạn tự điền **trên máy**; không được sao chép nguyên dấu này vào cấu hình thật. Migration chỉ được phép chạy khi đã kiểm tra URL đúng `blueprint_qa_test`. `db:migrate:deploy` thay đổi database thử nghiệm, không phải lệnh kiểm tra chỉ đọc.
+Dấu `<...>` là chỗ bạn tự điền **trên máy**; hãy thay cổng `5432` bằng cổng thật, ví dụ `55432` nếu PostgreSQL QA lắng nghe tại cổng đó. Lệnh tiền kiểm tự lấy cổng từ URL localhost đã được chặn chỉ cho database `blueprint_qa_test`, tuyệt đối không in username/password; không được sao chép nguyên dấu này vào cấu hình thật. Migration chỉ được phép chạy khi đã kiểm tra URL đúng `blueprint_qa_test`. `db:migrate:deploy` thay đổi database thử nghiệm, không phải lệnh kiểm tra chỉ đọc.
 
 ### Bước 3 — Khởi chạy ứng dụng và đăng nhập **thật**
 
