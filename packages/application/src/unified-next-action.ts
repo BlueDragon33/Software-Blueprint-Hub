@@ -61,3 +61,43 @@ export function unifiedNextActionPresentation(
     buttonCount: 1 as const
   });
 }
+
+
+/** Revalidate server-rendered intent against the fresh authorized canonical read.
+ * A successful result is a READ-ONLY navigation permit, never executable authority.
+ * Callers must resolve the actor and PROJECT_READ on the server on EVERY POST.
+ */
+export type UnifiedNextActionPreflight =
+  | Readonly<{ state: "current"; href: string; mayExecute: false }>
+  | Readonly<{ state: "stale"; reason: "project" | "profile-version" | "action-changed" | "invalid-intent"; mayExecute: false }>;
+
+export function preflightUnifiedNextAction(
+  intent: Readonly<{
+    projectId: string;
+    profileVersion: number;
+    actionKind: CanonicalNextAction["nextAction"]["kind"];
+  }>,
+  canonical: Readonly<{
+    projectId: string;
+    profileVersion: number;
+    nextAction: CanonicalNextAction["nextAction"];
+  }>
+): UnifiedNextActionPreflight {
+  if (!/^project:[a-z0-9][a-z0-9-]{0,158}$/.test(intent.projectId) ||
+      !Number.isSafeInteger(intent.profileVersion) || intent.profileVersion < 1) {
+    return Object.freeze({state: "stale", reason: "invalid-intent", mayExecute: false});
+  }
+  if (intent.projectId !== canonical.projectId) {
+    return Object.freeze({state: "stale", reason: "project", mayExecute: false});
+  }
+  if (intent.profileVersion !== canonical.profileVersion) {
+    return Object.freeze({state: "stale", reason: "profile-version", mayExecute: false});
+  }
+  if (intent.actionKind !== canonical.nextAction.kind) {
+    return Object.freeze({state: "stale", reason: "action-changed", mayExecute: false});
+  }
+  const action = unifiedNextActionPresentation({
+    projectId: canonical.projectId, nextAction: canonical.nextAction
+  });
+  return Object.freeze({state: "current", href: action.href, mayExecute: false});
+}
