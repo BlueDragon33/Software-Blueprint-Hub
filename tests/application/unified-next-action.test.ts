@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { preflightUnifiedNextAction, unifiedNextActionPresentation } from "../../packages/application/src/unified-next-action";
 import type { ProjectReadinessSnapshot } from "../../packages/core/src/project-readiness";
@@ -103,5 +104,55 @@ describe("One-button server preflight data contract", () => {
     expect(preflightUnifiedNextAction({
       ...intent,actionKind:"malicious" as typeof intent.actionKind
     },current)).toMatchObject({state:"stale",reason:"action-changed"});
+  });
+});
+
+
+describe("Unified Constitution inheritance candidate (not ratified)", () => {
+  const contract=JSON.parse(readFileSync(
+    new URL("../../control/unified-next-action.candidate.v1.json", import.meta.url),
+    "utf8"
+  ));
+  it("defines one canonical action and withholds a second Work action without host proof", () => {
+    expect(contract.status).toBe("candidate-not-ratified");
+    expect(contract.constitution.minimumVersion).toBe("1.3.0");
+    expect(contract.constitution.mutatesConstitution).toBe(false);
+    expect(contract.presentation.primary.count).toBe(1);
+    expect(contract.presentation.primary.automaticExecution).toBe(false);
+    expect(contract.presentation.work.additionalButtonDefault).toBe(false);
+    expect(contract.presentation.work.allowGenericChatUrlAsWorkSession).toBe(false);
+    expect(contract.presentation.work.displayOnlyIf).toEqual([
+      "host-supported-work-mode",
+      "host-verified-same-chatgpt-project-session",
+      "trusted-bound-launch-target"
+    ]);
+  });
+  it("never upgrades read-only preflight into workflow execution, approval, or publish", () => {
+    expect(contract.preflight.projectReadPermission).toBe("PROJECT_READ");
+    expect(contract.preflight.enforceAtEveryPost).toBe(true);
+    expect(contract.preflight.successAuthority).toBe("read-only-project-scoped-navigation");
+    expect(contract.preflight.allowsWorkPackageExecution).toBe(false);
+    expect(contract.futureExecutor.status).toBe("not-integrated");
+    expect(contract.futureExecutor.neverImplicit).toEqual(
+      expect.arrayContaining(["merge","dispatch","ratify","issuer-grant","production-release","quality-gate-pass"])
+    );
+    expect(contract.adoption.allOtherProjects.state).toBe("not-claimed");
+  });
+  it("wires the Hub's actual CTA through a live server revalidation, not a direct bypass Link", () => {
+    const component=readFileSync(new URL(
+      "../../apps/web/app/projects/[projectId]/_components/readiness-overview.tsx",
+      import.meta.url
+    ),"utf8");
+    const serverAction=readFileSync(new URL(
+      "../../apps/web/app/projects/[projectId]/actions.ts",
+      import.meta.url
+    ),"utf8");
+    expect(component).toContain("action={continueCanonicalNextAction.bind(");
+    expect(component).toContain('type="submit"');
+    expect(serverAction).toContain('"use server"');
+    expect(serverAction).toContain("loadProjectWorkspace");
+    expect(serverAction).toContain("workspace.runtime.readiness.read(");
+    expect(serverAction).toContain("preflightUnifiedNextAction(");
+    expect(serverAction).not.toMatch(/workflowExecutionJournal\.claim\(|dispatchExecution\(/);
   });
 });
