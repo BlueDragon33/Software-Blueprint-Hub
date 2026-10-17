@@ -7,6 +7,13 @@ on:
       - 'scripts/product-goal-continuity.mjs'
       - 'tests/governance/product-goal-continuity.test.mjs'
       - 'docs/amendments/CONSTITUTION-PRODUCT-GOAL-NEXT-ACTION-20261016-PROPOSAL.md'
+      - 'packages/core/src/continuous-execution.ts'
+      - 'packages/core/src/index.ts'
+      - 'apps/web/src/server/continuous-execution-preflight.ts'
+      - 'apps/web/src/server/prompt-workflow.ts'
+      - 'apps/web/app/projects/[projectId]/page.tsx'
+      - 'apps/web/app/projects/[projectId]/continuous-execution-action.ts'
+      - 'tests/application/continuous-execution-readiness.test.ts'
       - '.github/workflows/product-goal-continuity-candidate.yml'
   push:
     branches: [main]
@@ -15,6 +22,13 @@ on:
       - 'scripts/product-goal-continuity.mjs'
       - 'tests/governance/product-goal-continuity.test.mjs'
       - 'docs/amendments/CONSTITUTION-PRODUCT-GOAL-NEXT-ACTION-20261016-PROPOSAL.md'
+      - 'packages/core/src/continuous-execution.ts'
+      - 'packages/core/src/index.ts'
+      - 'apps/web/src/server/continuous-execution-preflight.ts'
+      - 'apps/web/src/server/prompt-workflow.ts'
+      - 'apps/web/app/projects/[projectId]/page.tsx'
+      - 'apps/web/app/projects/[projectId]/continuous-execution-action.ts'
+      - 'tests/application/continuous-execution-readiness.test.ts'
       - '.github/workflows/product-goal-continuity-candidate.yml'
   workflow_dispatch:
 
@@ -25,14 +39,26 @@ jobs:
   validate-proposed-goal-continuity:
     name: Candidate contract and adversarial navigation tests (not law)
     runs-on: ubuntu-24.04
-    timeout-minutes: 4
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: '24'
           package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
       - name: Validate candidate policy without ratification
         run: node scripts/product-goal-continuity.mjs
       - name: Test goal anchoring, bounded autonomy, status-loop prevention
         run: node --test tests/governance/product-goal-continuity.test.mjs
+      - name: Install exact dependencies and generate Prisma types
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma:generate
+      - name: Typecheck actual Next.js authenticated preflight route
+        run: pnpm --filter @blueprint-os/web typecheck
+      - name: Two project pilots and negative READY/authority gates
+        run: pnpm exec vitest run tests/application/continuous-execution-readiness.test.ts
