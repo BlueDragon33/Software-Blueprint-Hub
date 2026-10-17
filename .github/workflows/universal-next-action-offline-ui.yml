@@ -1,0 +1,38 @@
+name: Universal Next Action Isolated Offline Chromium Smoke
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/src/lib/universal-next-action.ts"
+      - "apps/web/app/_components/universal-next-action.tsx"
+      - "apps/web/app/ecosystem/**"
+      - "apps/web/app/projects/**/_components/readiness-overview.tsx"
+      - "apps/web/app/globals.css"
+      - "tests/e2e/universal-next-action.pw.ts"
+      - "playwright.universal-next-action.config.ts"
+      - ".github/workflows/universal-next-action-offline-ui.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-offline-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install isolated Chromium browser
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Real Chromium offline Next Action UI acceptance (NOT authenticated runtime)
+        run: pnpm exec playwright test --config playwright.universal-next-action.config.ts
