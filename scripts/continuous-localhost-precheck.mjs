@@ -4,7 +4,7 @@
  * - Does not start Docker, create a database, login, read session contents,
  *   assign roles, send a POST or sign grants.
  * - Reports no database credentials, tokens, Principal IDs or cookie contents.
- * - Port 5432 and root HTTP status prove only reachability, NOT authentication.
+ * - Safe disposable DB loopback port and root HTTP status prove only reachability, NOT authentication.
  */
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
@@ -12,7 +12,7 @@ import { spawnSync } from "node:child_process";
 import { connect } from "node:net";
 import {
   classifyLocalE2eConfig, safeLocalhostUrl, safeDisposablePostgres,
-  classifyPnpmAvailability
+  classifyPnpmAvailability, localDisposablePostgresProbe
 } from "./continuous-localhost-precheck-core.mjs";
 
 const root=resolve(fileURLToPath(new URL("..",import.meta.url)));
@@ -31,9 +31,9 @@ const existsCommand=(name)=>{
   }
   return exec("which",[name])!==null;
 };
-async function tcp(port){
+async function tcp(host,port){
   return await new Promise(done=>{
-    const socket=connect({host:"127.0.0.1",port});
+    const socket=connect({host,port});
     const finish=(ok)=>{socket.destroy();done(ok);};
     socket.setTimeout(1200,()=>finish(false));
     socket.once("error",()=>finish(false));
@@ -106,8 +106,10 @@ if(git){
     branch==="feature/universal-goal-continuity-next-action-candidate",
     "Chuyển sang nhánh Draft PR #147, không merge main.");
 }
-check("PostgreSQL TCP localhost:5432",await tcp(5432),
-  "Chưa có PostgreSQL lắng nghe ở 127.0.0.1:5432; không đụng DB Production.");
+const configuredDbProbe=localDisposablePostgresProbe(process.env.DATABASE_URL);
+const dbProbe=configuredDbProbe??{host:"127.0.0.1",port:5432};
+check("PostgreSQL TCP localhost:"+dbProbe.port,await tcp(dbProbe.host,dbProbe.port),
+  "Chưa có PostgreSQL QA lắng nghe trên cổng localhost đã cấu hình; không đụng DB Production.");
 const base=process.env.BLUEPRINT_REAL_AUTH_E2E_BASE_URL;
 check("Web Blueprint OS localhost",await webOk(base),
   "Chưa xác minh web Blueprint OS thật trên URL localhost đã cấu hình.");
