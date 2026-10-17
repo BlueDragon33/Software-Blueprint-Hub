@@ -3,7 +3,7 @@ import "server-only";
 import {
   assessCanonicalContinuousReadiness,
   type ContinuousExecutionAssessment
-} from "@blueprint-os/core";
+} from "../../../../packages/core/src/continuous-execution";
 import type { ProjectWorkspaceLoadResult } from "./project-workspace";
 import { registeredWorkflowSummaries, verifiedRepoHead } from "./prompt-workflow";
 
