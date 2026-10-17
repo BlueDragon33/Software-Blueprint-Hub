@@ -11,6 +11,10 @@ on:
       - "packages/runtime/src/next-action-inspection-adapter.ts"
       - "packages/runtime/src/index.ts"
       - "tests/application/unified-next-action-execution.test.ts"
+      - "tests/application/unified-next-action-binding-pg-integration.test.ts"
+      - "packages/persistence/src/next-action-work-binding-repository.ts"
+      - "packages/persistence/prisma/schema.prisma"
+      - "packages/persistence/prisma/migrations/20261017110000_next_action_work_binding/**"
       - "tests/application/unified-next-action.test.ts"
       - "docs/UNIFIED-NEXT-ACTION-WORK-HANDOFF.candidate.md"
       - ".github/workflows/unified-next-action-candidate.yml"
@@ -45,3 +49,47 @@ jobs:
           pnpm --filter @blueprint-os/web typecheck
       - name: Mark real executor and Work session E2E not verified
         run: echo "PASS means contract + UI + server-action types; NOT authenticated browser E2E, Work host or real executor."
+  canonical-binding-postgres:
+    name: Disposable PostgreSQL binding authority and immutable readback
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_next_action_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_next_action_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_next_action_test
+      BLUEPRINT_QA_DB_INTEGRATION: "true"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Build canonical Prisma schema only on disposable DB
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma:generate
+          pnpm exec prisma validate --config prisma7.config.ts
+          pnpm db:migrate:deploy
+          pnpm db:migrate:status
+      - name: Exercise real PostgreSQL owner/adoption/binding revocation constraints
+        run: pnpm exec vitest run tests/application/unified-next-action-binding-pg-integration.test.ts
+      - name: Explicit non-acceptance of runtime executor
+        run: echo "Disposable PostgreSQL binding decision tests, NOT authenticated Work runner E2E or owner approval."
