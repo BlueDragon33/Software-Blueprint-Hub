@@ -1,45 +1,16 @@
 import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { expect, test } from "@playwright/test";
 
-import { UniversalNextAction } from "../../apps/web/app/_components/universal-next-action";
-import { canonicalNextAction, trackedNextAction } from "../../apps/web/src/lib/universal-next-action";
-
-const fromWeb = createRequire(resolve(process.cwd(), "apps/web/package.json"));
-const { renderToStaticMarkup } = fromWeb("react-dom/server") as {
-  renderToStaticMarkup: (value: unknown) => string
-};
-const { createElement } = fromWeb("react") as {
-  createElement: (...args: unknown[]) => unknown
-};
-
-function makeMarkup(action: ReturnType<typeof canonicalNextAction>): string {
-  return renderToStaticMarkup(createElement(UniversalNextAction, {action}));
-}
-
-const stylesheet = readFileSync(
-  resolve(process.cwd(), "apps/web/app/globals.css"), "utf8"
-);
-function documentFor(action: ReturnType<typeof canonicalNextAction>): string {
-  // Actual shared React component and application CSS; NO fixture endpoint or
-  // fake signed-in actor is allowed to be mistaken for full Next.js runtime.
-  return `<!doctype html><html lang="vi"><head><meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <style>${stylesheet}</style></head><body>
-    <main style="max-width:620px;margin:auto;padding:12px">${makeMarkup(action)}</main>
-    </body></html>`;
+// HTML was rendered using the actual React component under Vitest, not a
+// Playwright JSX transformer (which creates non-React __pw_type elements).
+function documentFor(kind:"canonical"|"pending"): string {
+  return readFileSync(resolve(process.cwd(),"artifacts/universal-next-action",kind+".html"),"utf8");
 }
 
 test("canonical Project Profile: offline Chromium renders visible task links without fake executor", async ({page}) => {
-  const action = canonicalNextAction({
-    projectId:"project:blueprint-os",
-    kind:"unblock-work",
-    label:"Xác minh SHA runtime sau khởi động",
-    reason:"Work Package phải hoàn thành kiểm định restart/readback"
-  });
   await page.setViewportSize({width:390,height:844});
-  await page.setContent(documentFor(action));
+  await page.setContent(documentFor("canonical"));
   const region=page.getByRole("region",{name:"Công việc tiếp theo"});
   await expect(region).toBeVisible();
   await expect(region).toHaveAttribute("data-next-action-state","canonical-guidance");
@@ -64,14 +35,8 @@ test("canonical Project Profile: offline Chromium renders visible task links wit
 });
 
 test("pending-onboarding without Profile: offline Chromium displays only truthful setup/source links", async ({page}) => {
-  const action = trackedNextAction({
-    projectId:"project:blueprint-russian-expert-engine",
-    repository:"BlueDragon33/Blueprint-Russian-Expert-Engine",
-    hasCanonicalProfile:false,
-    registrationState:"pending-onboarding"
-  });
   await page.setViewportSize({width:360,height:780});
-  await page.setContent(documentFor(action));
+  await page.setContent(documentFor("pending"));
   const region=page.getByRole("region",{name:"Công việc tiếp theo"});
   await expect(region).toBeVisible();
   await expect(region).toHaveAttribute("data-next-action-state","onboarding-required");
