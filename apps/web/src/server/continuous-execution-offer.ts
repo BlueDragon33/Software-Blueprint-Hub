@@ -40,12 +40,11 @@ export async function readVerifiedContinuousExecutionOffer(
 ) {
   if (preflight.assessment.state!=="READY_WORK_FOUND" ||
       !preflight.assessment.nextWorkId ||
-      !preflight.appHead || !preflight.selectedWorkflowId) return null;
+      !preflight.appHead) return null;
   const candidate=serverProvisionedGrant(workspace.projectId);
   if (!candidate || typeof candidate!=="object" ||
       !("workflowId" in candidate) ||
-      typeof candidate.workflowId!=="string" ||
-      candidate.workflowId!==preflight.selectedWorkflowId) return null;
+      typeof candidate.workflowId!=="string") return null;
 
   const manifest=registeredWorkflowManifest(workspace.projectId,candidate.workflowId);
   const repo=registeredGovernedRepository(workspace.projectId);
