@@ -5,6 +5,9 @@ on:
       - "packages/application/src/unified-next-action.ts"
       - "packages/application/src/index.ts"
       - "apps/web/app/projects/[projectId]/_components/readiness-overview.tsx"
+      - "apps/web/app/projects/[projectId]/actions.ts"
+      - "apps/web/app/projects/[projectId]/page.tsx"
+      - "control/unified-next-action.candidate.v1.json"
       - "tests/application/unified-next-action.test.ts"
       - "docs/UNIFIED-NEXT-ACTION-WORK-HANDOFF.candidate.md"
       - ".github/workflows/unified-next-action-candidate.yml"
@@ -30,11 +33,17 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm prisma:generate
-      - name: Test one CTA + no fake Work mode redirect
+      - name: Test one CTA, versioned contract and fail-closed Server Action intent
         run: pnpm exec vitest run tests/application/unified-next-action.test.ts
       - name: Typecheck application and Next project Overview
         run: |
           pnpm --filter @blueprint-os/application typecheck
           pnpm --filter @blueprint-os/web typecheck
       - name: Mark real executor and Work session E2E not verified
-        run: echo "PASS means candidate UI+types only. Continuous executor, verified Work deep-link, and adoption across apps are NOT VERIFIED."
+        run: echo "PASS means contract + UI + server-action types; NOT authenticated browser E2E, Work host or real executor."
+
+        run: pnpm exec vitest run tests/application/unified-next-action.test.ts
+      - name: Typecheck application and Next project Overview
+        run: |
+          pnpm --filter @blueprint-os/application typecheck
+          pnpm --filter @blueprint-os/web typecheck
