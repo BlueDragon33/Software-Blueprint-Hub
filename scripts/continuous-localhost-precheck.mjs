@@ -12,7 +12,7 @@ import { spawnSync } from "node:child_process";
 import { connect } from "node:net";
 import {
   classifyLocalE2eConfig, safeLocalhostUrl, safeDisposablePostgres,
-  classifyPnpmAvailability, localDisposablePostgresProbe
+  classifyPnpmAvailability, localDisposablePostgresProbe, probeLocalPostgresProtocol
 } from "./continuous-localhost-precheck-core.mjs";
 
 const root=resolve(fileURLToPath(new URL("..",import.meta.url)));
@@ -93,9 +93,10 @@ check("pnpm",pnpmStatus.ready,
   "Không tìm thấy pnpm 12.4.0 qua lệnh trực tiếp hoặc Corepack ngoại tuyến. Thử corepack pnpm --version (không cần Admin).");
 if(pnpmStatus.method==="corepack")
   console.log("pnpm 12.4.0 qua Corepack: OK (không cần Administrator hay ghi Program Files).");
-check("Docker/Podman hoặc PostgreSQL",existsCommand("docker")||
-  existsCommand("podman")||existsCommand("psql"),
-  "Cài Docker Desktop hoặc PostgreSQL 16 cho CSDL QA dùng riêng.");
+// Command availability is not the same as service availability: Windows
+// PostgreSQL often runs as a service while psql.exe is not in PATH.
+const localDbTools=existsCommand("docker")||
+  existsCommand("podman")||existsCommand("psql");
 if(git){
   const sha=exec("git",["rev-parse","HEAD"]);
   check("Bản Git đã checkout",Boolean(sha),
@@ -110,6 +111,13 @@ const configuredDbProbe=localDisposablePostgresProbe(process.env.DATABASE_URL);
 const dbProbe=configuredDbProbe??{host:"127.0.0.1",port:5432};
 check("PostgreSQL TCP localhost:"+dbProbe.port,await tcp(dbProbe.host,dbProbe.port),
   "Chưa có PostgreSQL QA lắng nghe trên cổng localhost đã cấu hình; không đụng DB Production.");
+const postgresWireProtocol=await probeLocalPostgresProtocol(dbProbe);
+check("PostgreSQL protocol localhost:"+dbProbe.port,postgresWireProtocol,
+  "Cổng localhost không trả lời như PostgreSQL; chưa được coi là PostgreSQL. Không cài đặt đè hoặc tự tạo database.");
+check("Docker/Podman hoặc PostgreSQL",localDbTools||postgresWireProtocol,
+  "Chưa có công cụ DB trong PATH hoặc phản hồi PostgreSQL hợp lệ; hãy kiểm tra dịch vụ trước khi cài thêm.");
+if(!localDbTools && postgresWireProtocol)
+  console.log("PostgreSQL localhost đã phản hồi giao thức thật, không cần cài Docker hay đưa psql.exe vào PATH chỉ để tiền kiểm.");
 const base=process.env.BLUEPRINT_REAL_AUTH_E2E_BASE_URL;
 check("Web Blueprint OS localhost",await webOk(base),
   "Chưa xác minh web Blueprint OS thật trên URL localhost đã cấu hình.");
