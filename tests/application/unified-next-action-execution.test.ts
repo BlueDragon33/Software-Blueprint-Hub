@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import { inspectAuthorizedNextAction } from "../../packages/runtime/src/next-action-inspection-adapter";
+import { workflowManifestDigest } from "../../packages/application/src/prompt-workflow-orchestration";
 import type { BlueprintServerRuntime } from "../../packages/runtime/src";
 import type {
   AuthorizedNextActionInspectionInput,
@@ -68,7 +69,7 @@ function harness(overrides: {
       nextActionWorkBindingDecision:{
         findFirst:vi.fn(async()=>overrides.bindingDenied?null:{
           projectId,workPackageId:"work:inspect",workPackageRecordVersion:1,
-          workflowId:"workflow-inspect",workflowDigest:"sha256:"+"0".repeat(64),
+          workflowId:"workflow-inspect",workflowDigest:workflowManifestDigest(manifest),
           appHead:context.appHead,policyVersion:context.policyVersion,decision:"bind"
         })
       },
