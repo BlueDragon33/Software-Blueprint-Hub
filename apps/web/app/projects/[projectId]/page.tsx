@@ -3,7 +3,12 @@ import { ProjectWorkspaceFrame, ProjectWorkspaceState } from "./_components/proj
 import { ReadinessOverview } from "./_components/readiness-overview";
 import { loadProjectWorkspace } from "../../../src/server/project-workspace";
 import { readAuthenticatedContinuousPreflight } from "../../../src/server/continuous-execution-preflight";
-import { recheckContinuousExecutionPreflight } from "./continuous-execution-action";
+import {
+  recheckContinuousExecutionPreflight,
+  retryContinuousSourceRead,
+  confirmCreateMissingQualityGate
+} from "./continuous-execution-action";
+import { ContinuousPreflightFocusRefresh } from "./_components/continuous-preflight-focus-refresh";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +35,8 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
   // Failing HEAD/evidence reads never enable a continuous execution action.
   const continuous = await readAuthenticatedContinuousPreflight(workspace)
     .catch(() => null);
-  const checked = (await searchParams)?.continuous === "checked";
+  const queryState = (await searchParams)?.continuous;
+  const checked = queryState === "checked" || queryState === "rechecked";
 
   return (
     <ProjectWorkspaceFrame
@@ -46,6 +52,7 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
       </section>
 
       <ReadinessOverview readiness={readiness} />
+      <ContinuousPreflightFocusRefresh />
 
       <section className="workspace-section" aria-labelledby="continuous-execution-title">
         <div className="workspace-section-heading">
@@ -112,6 +119,78 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
           <p role="status">Không thể xác minh dữ liệu chuẩn hoặc phiên làm việc.
             Nút thực thi phải giữ trạng thái khóa.</p>
         )}
+        {queryState === "gate-recorded" ? (
+          <p role="status">Đã xác minh hồ sơ Quality Gate NOT_READY trong cơ sở dữ liệu
+            chuẩn. Đây không phải Quality Gate PASS hoặc quyền khởi chạy.</p>
+        ) : null}
+        {continuous ? (
+          <section aria-labelledby="continuous-recovery-title">
+            <h4 id="continuous-recovery-title">Tự khắc phục và giải quyết điểm nghẽn</h4>
+            <p className="readiness-provenance-note">
+              Hệ thống tự đọc nguồn chuẩn và thử lại lỗi kết nối tạm thời một lần.
+              Nếu có quyết định chuyên môn hoặc thay đổi hồ sơ bắt buộc, chỉ
+              hiển thị bước xác nhận cụ thể; không tự cấp quyền.
+              Khi trở lại trang, trạng thái được cập nhật tự động.
+            </p>
+            {continuous.recoveryActions.slice(0,5).map(action => (
+              <details key={action.kind + action.id}
+                className="canonical-disclosure">
+                <summary>{action.label}</summary>
+                <div className="canonical-disclosure-body">
+                  <p>{action.explanation}</p>
+                  {action.kind==="automatic-readback" ? (
+                    <form action={retryContinuousSourceRead.bind(
+                      null,workspace.projectId,continuous.profileVersion)}>
+                      <button className="secondary-button" type="submit">
+                        Tự kiểm tra và phục hồi kết nối
+                      </button>
+                    </form>
+                  ) : null}
+                  {action.kind==="human-confirm-gate" &&
+                    continuous.canMutate && continuous.canonicalRevision &&
+                    continuous.appHead ? (
+                    <form action={confirmCreateMissingQualityGate.bind(
+                      null,workspace.projectId,continuous.profileVersion,
+                      continuous.canonicalRevision,continuous.appHead,action.id)}>
+                      <label>
+                        Tên Gate
+                        <input name="gateName" required minLength={4}
+                          maxLength={120} placeholder="Tên tiêu chí cần kiểm tra" />
+                      </label>
+                      <label>
+                        Điều kiện nghiệm thu đo được
+                        <textarea name="acceptanceRequirement" required
+                          minLength={12} maxLength={600}
+                          placeholder="Mô tả đầu ra, cách kiểm tra và bằng chứng cần thu thập" />
+                      </label>
+                      <label>
+                        <input name="confirmCreateNotReady" type="checkbox" required />
+                        Tôi xác nhận chỉ tạo hồ sơ NOT_READY để chuẩn bị kiểm định.
+                      </label>
+                      <button className="secondary-button" type="submit">
+                        Xác nhận tạo hồ sơ và đọc lại dữ liệu
+                      </button>
+                    </form>
+                  ) : null}
+                  {action.kind==="human-review" ||
+                   action.kind==="prepare-work" ? (
+                    <Link className="text-link" href={
+                      "/projects/"+encodeURIComponent(workspace.projectId)+
+                      (action.kind==="human-review" &&
+                        action.id!=="request-project-role" ? "/quality" : "/roadmap")
+                    }>Mở hồ sơ chuẩn để xử lý điểm nghẽn →</Link>
+                  ) : null}
+                  {action.kind==="authority-grant" ? (
+                    <Link className="text-link" href={
+                      "/projects/"+encodeURIComponent(workspace.projectId)+
+                      "/prompt/workflow"}>
+                      Xem workflow và các điều kiện cấp quyền →</Link>
+                  ) : null}
+                </div>
+              </details>
+            ))}
+          </section>
+        ) : null}
         <button className="primary-button" type="button" disabled
           aria-describedby="continuous-execution-gate">
           Thực hiện nhiệm vụ liên tục — chưa được cấp quyền
