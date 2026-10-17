@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { randomUUID } from "node:crypto";
 import { executeBoundedWorkflowNode } from "@blueprint-os/application";
 import { ScopedGitHubReadExecutor } from "@blueprint-os/runtime";
 import { resolveGitHubPublicationToken } from "../../../src/auth/server-actor";
@@ -187,4 +188,58 @@ export async function executeSignedContinuousDiscovery(
   // NEVER completes the Work Package or passes a Quality Gate.
   redirect(path+"?continuous="+
     (report.status==="submitted-for-verification" ? "submitted-for-qa" : "task-stopped"));
+}
+
+
+/** User-approved, project-scoped initialization. PLANNED is never READY. */
+export async function confirmCreatePlannedWorkPackage(
+  projectId: string,expectedProfileVersion:number,
+  expectedCanonicalRevision:string,expectedAppHead:string,
+  formData:FormData
+):Promise<void> {
+  if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
+      !Number.isInteger(expectedProfileVersion) || expectedProfileVersion<1 ||
+      !/^sha256:[a-f0-9]{64}$/.test(expectedCanonicalRevision) ||
+      !/^[a-f0-9]{40}$/.test(expectedAppHead) ||
+      formData.get("confirmPlannedWork")!=="on") {
+    throw new Error("A source-bound explicit PLANNED work confirmation is required.");
+  }
+  const title=String(formData.get("workTitle")??"").trim();
+  const purpose=String(formData.get("workPurpose")??"").trim();
+  const acceptance=String(formData.get("workAcceptance")??"").trim();
+  if (title.length<5 || title.length>120 ||
+      purpose.length<20 || purpose.length>600 ||
+      acceptance.length<15 || acceptance.length>600) {
+    throw new Error("Provide meaningful work title, purpose and measurable acceptance.");
+  }
+  const workspace=await loadProjectWorkspace(encodeURIComponent(projectId));
+  if (workspace.state!=="ready" || workspace.projectId!==projectId ||
+      workspace.project.profile.meta.recordVersion!==expectedProfileVersion) {
+    throw new Error("Changed or unauthorized canonical project.");
+  }
+  await workspace.runtime.authority.require(workspace.actor,projectId,"PROJECT_MUTATE");
+  const snapshot=await readAuthenticatedContinuousPreflight(workspace);
+  if (snapshot.canonicalRevision!==expectedCanonicalRevision ||
+      snapshot.appHead!==expectedAppHead ||
+      !snapshot.recoveryActions.some(action=>action.kind==="human-confirm-work")) {
+    throw new Error("Work Package initiation is no longer applicable.");
+  }
+  const now=new Date().toISOString();
+  const workId="work:continuous-"+randomUUID();
+  await workspace.runtime.workQuality.createWorkPackage(workspace.actor,{
+    id:workId,projectId,title,purpose,
+    dependencies:[],acceptanceCriteria:[acceptance],qualityGateIds:[],
+    status:"planned",meta:{
+      schemaVersion:"1.0.0",recordVersion:1,createdAt:now,updatedAt:now
+    }
+  });
+  const items=await workspace.runtime.workQuality.listWorkPackages(
+    workspace.actor,projectId);
+  if (!items.some(item=>item.id===workId && item.status==="planned")) {
+    throw new Error("PLANNED Work Package cannot be confirmed from canonical readback.");
+  }
+  const path="/projects/"+encodeURIComponent(projectId);
+  revalidatePath(path);
+  revalidatePath(path+"/roadmap");
+  redirect(path+"?continuous=work-recorded");
 }
