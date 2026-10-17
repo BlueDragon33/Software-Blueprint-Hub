@@ -9,7 +9,8 @@ import {
   confirmCreateMissingQualityGate,
   confirmCreatePlannedWorkPackage,
   confirmPromotePlannedWorkToReady,
-  executeSignedContinuousDiscovery
+  executeSignedContinuousDiscovery,
+  confirmContinuousPreflightDecision
 } from "./continuous-execution-action";
 import { ContinuousPreflightFocusRefresh } from "./_components/continuous-preflight-focus-refresh";
 import { readVerifiedContinuousExecutionOffer } from "../../../src/server/continuous-execution-offer";
@@ -136,6 +137,56 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
         {queryState === "gate-recorded" ? (
           <p role="status">Đã xác minh hồ sơ Quality Gate NOT_READY trong cơ sở dữ liệu
             chuẩn. Đây không phải Quality Gate PASS hoặc quyền khởi chạy.</p>
+        ) : null}
+        {queryState==="preflight-attested" ? (
+          <p role="status">Đã lưu và đọc lại biên bản tiền kiểm của Owner.
+            Đây chỉ là xác nhận tiền kiểm kỹ thuật, không phải QA PASS hoặc giấy phép phát hành.</p>
+        ) : null}
+        {queryState==="preflight-revoked" ? (
+          <p role="status">Đã ghi quyết định thu hồi tiền kiểm. Nút thực thi giữ khóa.</p>
+        ) : null}
+        {continuous?.preflightBinding && continuous.canAttest ? (
+          <details className="canonical-disclosure">
+            <summary>
+              {continuous.assessment.preflightEvidenceReady
+                ? "Quản lý biên bản tiền kiểm đã xác nhận"
+                : "Owner: xác nhận tám điều kiện tiền kiểm trước khi thực thi"}
+            </summary>
+            <div className="canonical-disclosure-body">
+              <p>Đọc lại Profile, Work Package, Gate/Evidence, HEAD và tám nguồn đối chiếu.
+                Owner chỉ xác nhận đủ điều kiện bắt đầu bước kỹ thuật an toàn,
+                không thay thế reviewer, chữ ký issuer hoặc QA độc lập.</p>
+              <p className="readiness-provenance-note">
+                Work: {continuous.preflightBinding.workId}
+                {" "}· Record version: {continuous.preflightBinding.workVersion}
+                {" "}· Gate digest: {continuous.preflightBinding.gateDigest}
+                {" "}· Receipt sequence: {continuous.preflightSequence}
+              </p>
+              <form action={confirmContinuousPreflightDecision.bind(
+                null,workspace.projectId,continuous.profileVersion,
+                continuous.preflightBinding.canonicalDigest,
+                continuous.preflightBinding.appHead,
+                continuous.preflightBinding.workId,continuous.preflightSequence,
+                continuous.assessment.preflightEvidenceReady ? "revoke" : "attest"
+              )}>
+                <label>
+                  Nhận xét, bằng chứng và giới hạn cần người duyệt
+                  <textarea name="ownerPreflightNote" required minLength={25}
+                    maxLength={900} placeholder="Mô tả bằng chứng đã đối chiếu và giới hạn quyền còn lại" />
+                </label>
+                <label>
+                  <input name="confirmPreflightScope" type="checkbox" required />
+                  Tôi xác nhận quyết định với đúng dự án, SHA, Work Package và
+                  tám điều kiện. Không tự PASS Quality Gate hay cấp issuer.
+                </label>
+                <button className="secondary-button" type="submit">
+                  {continuous.assessment.preflightEvidenceReady
+                    ? "Owner: thu hồi biên bản tiền kiểm"
+                    : "Owner: lưu biên bản tiền kiểm có xác thực"}
+                </button>
+              </form>
+            </div>
+          </details>
         ) : null}
         {continuous ? (
           <section aria-labelledby="continuous-recovery-title">
