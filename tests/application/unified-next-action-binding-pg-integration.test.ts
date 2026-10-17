@@ -170,6 +170,40 @@ suite("P2 canonical WorkPackage ↔ adopted workflow ↔ SHA PostgreSQL binding"
       .rejects.toThrow(/adopted workflow/);
   });
 
+  it("refuses tied-timestamp adopt/revoke even if UUID ordering incorrectly favors adopt",async()=>{
+    const target=await work("work:p2-binding-adoption-tie");
+    const workflowId="binding-same-tick";
+    const tieScope={...target,workflowId};
+    const decidedAt=new Date("2026-10-17T00:00:00.000Z");
+    // Entirely disposable CI-only fixture; not a human decision or live
+    // issuer. The adoption repository orders by timestamp then UUID, so the
+    // deliberate synthetic IDs prove that tie-breaking is NOT revocation-safe.
+    await prisma.workflowExecutionAdoptionDecision.create({
+      data:{
+        id:"workflow-adoption:zzz-tie",projectId,workflowId,workflowDigest,
+        policyVersion,decision:"adopt",decidedByPrincipalId:owner,
+        decidedAt,productionReleaseAuthority:false
+      }
+    });
+    await repo.record({...tieScope,decision:"bind",actorPrincipalId:owner});
+    await expect(repo.assertCurrent(tieScope)).resolves.toBeUndefined();
+    await prisma.workflowExecutionAdoptionDecision.create({
+      data:{
+        id:"workflow-adoption:aaa-tie",projectId,workflowId,workflowDigest,
+        policyVersion,decision:"revoke",decidedByPrincipalId:owner,
+        decidedAt,productionReleaseAuthority:false
+      }
+    });
+    const uuidBased=await prisma.workflowExecutionAdoptionDecision.findFirst({
+      where:{projectId,workflowId,workflowDigest},
+      orderBy:[{decidedAt:"desc"},{id:"desc"}]
+    });
+    expect(uuidBased?.decision).toBe("adopt");
+    await expect(repo.assertCurrent(tieScope)).rejects.toThrow(/BINDING_DENIED/);
+    await expect(repo.record({...tieScope,decision:"bind",actorPrincipalId:owner}))
+      .rejects.toThrow(/unambiguous adopted workflow/);
+  });
+
   it("refuses cross-project and stale WorkPackage binding attempts",async()=>{
     const target=await work("work:p2-binding-cross-project");
     await expect(repo.record({
