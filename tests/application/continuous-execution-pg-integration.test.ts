@@ -162,10 +162,12 @@ const runnable=process.env.BLUEPRINT_QA_DB_INTEGRATION==="true" && !!url;
     const repository=new PostgresContinuousPreflightRepository(prisma,authority);
     const source=await read(existing,owner,actualHead);
     const item=source.workPackages.find(w=>w.status==="ready")!;
-    const gateDigest=preflightGateDigest({required:[...source.requiredGateIds].sort(),
+    const gateDigest=preflightGateDigest({
       bundles:(await quality.listQualityGates(owner,existing)).map(b=>({
-        gate:b.gate,evidence:[...b.evidence]
-      })).sort((a,b)=>a.gate.id.localeCompare(b.gate.id))});
+        gate:b.gate,evidence:[...b.evidence].sort((a,b)=>a.id.localeCompare(b.id))
+      })).sort((a,b)=>a.gate.id.localeCompare(b.gate.id)),
+      risks:[],debts:[]
+    });
     const binding:PreflightBinding={
       projectId:existing,workId:item.id,profileVersion:source.profileVersion,
       workVersion:item.meta.recordVersion,canonicalDigest:source.canonicalRevision,
