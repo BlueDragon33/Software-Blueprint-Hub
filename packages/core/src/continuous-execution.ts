@@ -129,6 +129,22 @@ export function assessCanonicalContinuousReadiness(
 }
 
 
+/**
+ * The visible execution button needs two independent layers:
+ * (1) canonical engineering READY; (2) independently VERIFIED eight-factor
+ * project preflight. A signed grant is verified later by the server and
+ * cannot replace either. Core readiness currently never issues preflight
+ * attestations, so this intentionally fails closed pending canonical receipts.
+ */
+export function canOfferContinuousExecution(
+  assessment: ContinuousExecutionAssessment
+): boolean {
+  return assessment.state === "READY_WORK_FOUND" &&
+    assessment.preflightEvidenceReady === true &&
+    typeof assessment.nextWorkId === "string" &&
+    assessment.nextWorkId.length > 0;
+}
+
 export interface ContinuousRecoveryAction {
   readonly id: string;
   readonly kind: "automatic-readback" | "human-confirm-gate" | "human-confirm-work" | "human-confirm-ready" | "human-review" | "authority-grant" | "prepare-work";
