@@ -138,6 +138,64 @@ agreement is a consistency test, not a signed receipt. The real integration
 must call existing `loadProjectWorkspace`/runtime Profile and Work Quality
 read APIs with an authenticated actor and show unavailable/forbidden states.
 
+## Owner-directed universal continuous-execution preflight — 2026-10-17
+
+**Scope and authority:** The owner explicitly requests the same Blueprint OS
+workflow for **existing, in-progress and future projects**. The active law
+1.3.0 already mandates bounded, evidence-grounded execution (R15–R22).
+This section is a **candidate operational projection**, not a self-ratified
+new constitutional law, new Project Profile, or second workflow registry.
+
+**Two required phases, in order:**
+
+1. **PREPARE / VERIFY / REPAIR BEFORE THE BUTTON.** Resolve the current
+   Constitution/adoption and Project Profile; restore product outcome and
+   end-user acceptance; inspect current source HEAD and relevant PR/evidence;
+   reconcile dependencies and one critical path; reproduce/fix actionable
+   *entry-blocking* engineering defects with focused regressions; measure
+   relevant security, data persistence, offline/runtime and Quality Gates;
+   classify HUMAN_AUTHORITY, CAPABILITY and SECURITY blockers explicitly;
+   record an exact-revision canonical checkpoint with one safe READY task,
+   bounded scope and stop predicate.
+2. **CONTINUE SAFE WORK ON EXPLICIT USER TRIGGER.** Only after an authenticated
+   server/host implementation rechecks that preflight and live HEAD, offer the
+   true user-triggered continuous-execution control. Within one authorized
+   execution keep going READY task → implement → test → diagnose/root-cause
+   repair → re-test → next independent READY task. Apply R7 finite repair
+   bounds, R18 scope discipline, R19 genuine intervention and R20 exit
+   evidence. Do not require routine user confirmation for ordinary,
+   authorized engineering actions; do not promise background execution.
+
+**Blocker rule (no impossible zero-defect claim):** All **known, actionable
+entry-blocking problems** must be fixed and retested before “ready.”
+A pending mandatory human/qualified expert acceptance, unavailable device,
+credential, legal source right, or protected release permission cannot be
+“automatically solved.” If it blocks the active critical path and no safe
+independent READY slice exists, show `BLOCKED` plus the precise remediation,
+**not a misleading execution button**. If truly independent READY work exists,
+it may continue while the dependent item remains openly blocked. New defects
+found during execution are treated via R7/R17; unknown future defects cannot be
+pre-certified absent.
+
+**Auditable candidate fields:** the existing
+`control/product-goal-continuity.candidate.v1.json` declares eight mandatory
+preflight evidence dimensions and source-readback requirements. The existing
+`scripts/product-goal-continuity.mjs` offers
+`assessContinuousExecutionPreflight`, which deliberately returns
+`PREFLIGHT_EVIDENCE_FORMAT_READY` and `buttonAuthorized:false` for even a
+complete caller-supplied packet. It does NOT authenticate source, actor, Project
+Authority, automated host execution, gate PASS or Production. A connected
+server must resolve actual canonical records and scope before a live control
+may be enabled; a user-triggered chat action is not an always-running worker.
+
+**Migration and test:** stage one already-governed application and one newly
+admitted application using real canonical Profile/Work Package/Quality Gate
+records. Prove permitted vs blocked states, stale source revision, broken
+dependency, missing QA, unresolved entry defects, unrelated human gates and
+no safe READY work. Do not claim cross-portfolio rollout or universal
+`VERIFIED` from candidate CI alone. Preserve the existing proposal-only
+constitutional review/ratification sequence.
+
 ## Impact review checklist (NOT YET SIGNED OFF)
 
 - **Product/UX:** single prioritized main CTA versus G4's "no button for every
