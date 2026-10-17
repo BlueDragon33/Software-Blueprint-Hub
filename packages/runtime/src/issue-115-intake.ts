@@ -1,7 +1,7 @@
 import { isDeepStrictEqual } from "node:util";
-import type { AuthenticatedActor } from "@blueprint-os/core";
+import { AuthorityService, type AuthenticatedActor } from "@blueprint-os/core";
 import { WorkQualityApplicationService } from "@blueprint-os/application";
-import { PostgresWorkQualityRepository, type BlueprintPrismaClient } from "@blueprint-os/persistence";
+import { PostgresAuthorityRepository, PostgresWorkQualityRepository, type BlueprintPrismaClient } from "@blueprint-os/persistence";
 import rawCandidate from "../../../docs/work-packages/issue-115-admission.payload.json";
 import type { BlueprintServerRuntime } from "./index";
 
@@ -223,8 +223,17 @@ export async function admitIssue115FromRuntime(
       // Prisma's interactive transaction exposes the same WorkQuality
       // delegates as PrismaClient. Only the existing application service
       // writes; this is not a raw SQL or new authority path.
-      const repo = new PostgresWorkQualityRepository(tx as unknown as BlueprintPrismaClient);
-      const service = new WorkQualityApplicationService(repo, runtime.authority);
+      const transactionalClient = tx as unknown as BlueprintPrismaClient;
+      // Project role revocation must not fall between the outer POST
+      // authorization and the actual writes. Re-read the same System Owner /
+      // project-role rules using the transactional snapshot, then use them
+      // again for each application service create within this transaction.
+      const transactionalAuthority = new AuthorityService(
+        new PostgresAuthorityRepository(transactionalClient)
+      );
+      await transactionalAuthority.require(actor, projectId, "PROJECT_MUTATE");
+      const repo = new PostgresWorkQualityRepository(transactionalClient);
+      const service = new WorkQualityApplicationService(repo, transactionalAuthority);
       return callback(service);
     }, { isolationLevel: "Serializable", maxWait: 5000, timeout: 10000 }),
     readback: runtime.workQuality
