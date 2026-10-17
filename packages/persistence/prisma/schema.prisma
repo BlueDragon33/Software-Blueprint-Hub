@@ -24,6 +24,7 @@ model Project {
   promptSnapshots        PromptProjectionSnapshot[]
   workflowExecutionAdoptions WorkflowExecutionAdoptionDecision[]
   workflowExecutionIssuers   WorkflowExecutionIssuerDecision[]
+  continuousPreflightReceipts ContinuousPreflightReceipt[]
 }
 
 model ProjectProfile {
@@ -221,6 +222,7 @@ model Principal {
   constitutionPublications ConstitutionPublication[] @relation("ConstitutionPublicationPublisher")
   workflowExecutionAdoptions WorkflowExecutionAdoptionDecision[] @relation("WorkflowExecutionAdoptionDecider")
   workflowExecutionIssuers WorkflowExecutionIssuerDecision[] @relation("WorkflowExecutionIssuerDecider")
+  continuousPreflightDecisions ContinuousPreflightReceipt[] @relation("ContinuousPreflightDecider")
 
   @@unique([provider, providerSubject])
 }
@@ -498,4 +500,31 @@ model AppManagementSsoLink {
   @@id([issuer, subject])
   @@unique([issuer, principalId])
   @@index([principalId])
+}
+
+
+/// Append-only OWNER-attested, source-bound engineering preflight.
+/// Neither the receipt nor its approval represents independent QA, RU03 or Production authorization.
+model ContinuousPreflightReceipt {
+  id               String   @id @db.VarChar(160)
+  projectId        String   @db.VarChar(160)
+  workId           String   @db.VarChar(160)
+  sequence         Int
+  decision         String   @db.VarChar(16)
+  profileVersion   Int
+  workVersion      Int
+  canonicalDigest  String   @db.VarChar(80)
+  appHead          String   @db.VarChar(40)
+  gateDigest       String   @db.VarChar(80)
+  policyVersion    String   @db.VarChar(32)
+  checks           Json
+  note             String   @db.VarChar(900)
+  actorPrincipalId String   @db.VarChar(160)
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+  productionReleaseAuthority Boolean @default(false)
+
+  project Project @relation(fields:[projectId],references:[id],onDelete:Restrict)
+  decider Principal @relation("ContinuousPreflightDecider",fields:[actorPrincipalId],references:[id],onDelete:Restrict)
+  @@unique([projectId,workId,sequence])
+  @@index([projectId,workId,createdAt])
 }
