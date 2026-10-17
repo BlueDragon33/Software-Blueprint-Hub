@@ -27,7 +27,7 @@ const input:AuthorizedNextActionInspectionInput={
 function harness(overrides: {
   deny?: boolean; stale?: boolean; changedAction?: boolean;
   missingWork?: boolean; blockedWork?: boolean; missingGate?: boolean;
-  revokedAfter?: number
+  revokedAfter?: number; bindingDenied?: boolean
 }={}) {
   let checks=0;
   const authorize=vi.fn(async (_actor:unknown,_project:string,action:string)=>{
@@ -75,6 +75,9 @@ function harness(overrides: {
     freshness:{assertCurrent:vi.fn(async()=>{})},
     trust:{publicKeyFor:vi.fn(()=>null)},
     verifier:{verify:vi.fn(async()=>false)},
+    binding:{assertCurrent:vi.fn(async()=>{
+      if(overrides.bindingDenied) throw new Error("CANONICAL_WORKFLOW_BINDING_UNVERIFIED");
+    })},
     clock:()=>now
   } as unknown as TrustedNextActionInspectionServices;
   return {runtime,services,authorize,runner,qa,source};
@@ -130,6 +133,21 @@ describe("One-button internal execution adapter: no fake authority or dispatch",
     const h=harness();
     await expect(inspectAuthorizedNextAction(h.runtime,input,h.services))
       .rejects.toThrow(/Invalid signed execution grant shape|Invalid workflow/);
+    expect(h.runtime.workflowExecutionJournal.claim).not.toHaveBeenCalled();
+    expect(h.runner).not.toHaveBeenCalled();
+  });
+  it("fails closed if the host has no trusted WorkPackage-to-workflow mapping",async()=>{
+    const h=harness();
+    const withoutBinding={...h.services,binding:undefined} as unknown as TrustedNextActionInspectionServices;
+    await expect(inspectAuthorizedNextAction(h.runtime,input,withoutBinding))
+      .rejects.toThrow(/no trusted WorkPackage-to-workflow binding source/);
+    expect(h.runner).not.toHaveBeenCalled();
+    expect(h.runtime.workflowExecutionJournal.claim).not.toHaveBeenCalled();
+  });
+  it("refuses a revoked or unverified trusted workflow mapping before any journal writes",async()=>{
+    const h=harness({bindingDenied:true});
+    await expect(inspectAuthorizedNextAction(h.runtime,input,h.services))
+      .rejects.toThrow("CANONICAL_WORKFLOW_BINDING_UNVERIFIED");
     expect(h.runtime.workflowExecutionJournal.claim).not.toHaveBeenCalled();
     expect(h.runner).not.toHaveBeenCalled();
   });
