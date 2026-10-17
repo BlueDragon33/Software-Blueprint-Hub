@@ -28,6 +28,30 @@ export function validateGoalContinuityCandidate(contract) {
   })) {
     if (contract?.nextAction?.[name] !== value) errors.push("unsafe next-action rule: "+name);
   }
+  const ce=contract?.continuousExecution;
+  const required=["effective-authority","product-goal-and-exit-criteria",
+    "current-source-and-checkpoint","critical-path-and-dependencies",
+    "blocking-defects-and-repair","relevant-quality-gates",
+    "risk-human-and-capability-boundaries","durable-handoff"];
+  for (const [name,value] of Object.entries({
+    preflightRequiredBeforeContinuousAction:true,
+    resolveActionableEntryBlockersBeforeOffer:true,
+    classifyUnresolvedHumanOrCapabilityBoundaries:true,
+    allowIndependentVerifiedReadyWork:true,
+    stopWhenNoSafeReadyWork:true,
+    noUnsupportedPromiseOfZeroDefects:true,
+    sourceRecheckRequiredOnUserTrigger:true,
+    requireAuthenticatedCanonicalAndHostBindingForLiveButton:true,
+    noImplicitBackgroundExecution:true,
+    noReleaseOrApprovalFromPreflight:true
+  })) {
+    if (ce?.[name] !== value) errors.push("unsafe continuous execution rule: "+name);
+  }
+  if (!Array.isArray(ce?.scope) || ce.scope.join(",") !== "existing,active,future" ||
+      !Array.isArray(ce?.requiredChecks) ||
+      ce.requiredChecks.join(",") !== required.join(",")) {
+    errors.push("universal preflight must cover all project cohorts and checks");
+  }
   if (contract?.nextAction?.secondaryMax > 2 ||
       contract?.nextAction?.secondaryMax < 0 ||
       contract?.evidence?.forbidFabricatedCompletion !== true ||
@@ -241,6 +265,87 @@ export function buildBoundedWorkEscalation(input, gap) {
       {kind:"PREPARE_WORK_HANDOFF",label:"Copy bounded Work handoff for manual execution",
         prompt,advisoryOnly:true}
     ]};
+}
+
+const EXECUTION_PREFLIGHT_CHECKS=[
+  "effective-authority","product-goal-and-exit-criteria",
+  "current-source-and-checkpoint","critical-path-and-dependencies",
+  "blocking-defects-and-repair","relevant-quality-gates",
+  "risk-human-and-capability-boundaries","durable-handoff"
+];
+
+/**
+ * Advisory, fail-closed gate for the user-triggered "continuous execution"
+ * handoff across existing, active and future projects. This is NOT a trusted
+ * preflight verifier: callers must authenticate canonical readback and actor
+ * authority at the server boundary, then re-check HEAD on actual user click.
+ * No pure projection can certify that every unknown defect was fixed.
+ */
+export function assessContinuousExecutionPreflight(input, preflight) {
+  const sourceErrors=validateGoalCheckpoint(input);
+  if (sourceErrors.length) return {
+    state:"UNVERIFIED",buttonAuthorized:false,canOfferAfterTrustedReadback:false,
+    errors:sourceErrors
+  };
+  const c=input.checkpoint;
+  const errors=[];
+  if (!preflight || preflight.projectId!==input.project.id ||
+      preflight.goalRevision!==c.goalRevision ||
+      preflight.appHead!==c.appHead ||
+      preflight.workRevision!==c.workRevision ||
+      preflight.evidenceRevision!==c.evidenceRevision ||
+      preflight.policyVersion!==c.policyVersion) {
+    errors.push("preflight does not match current canonical checkpoint");
+  }
+  const steps=list(preflight?.checks);
+  if (steps.length!==EXECUTION_PREFLIGHT_CHECKS.length ||
+      !unique(steps.map(x=>x?.id)) ||
+      !EXECUTION_PREFLIGHT_CHECKS.every(id=>steps.some(x=>x?.id===id))) {
+    errors.push("missing or duplicate mandatory preflight checks");
+  }
+  for (const row of steps) {
+    if (!row || !EXECUTION_PREFLIGHT_CHECKS.includes(row.id) ||
+        row.state!=="EVIDENCE_COLLECTED" || !str(row.evidenceRef)) {
+      errors.push("missing evidence for mandatory preflight step");
+      break;
+    }
+  }
+  if (!Array.isArray(preflight?.blockers) ||
+      preflight.blockers.some(x=>!x||!str(x.id)||
+        !["CRITICAL_PATH","INDEPENDENT"].includes(x.impact)||
+        !["RESOLVED","OPEN"].includes(x.state)||
+        !["ENGINEERING","CAPABILITY","HUMAN_AUTHORITY","SECURITY","EXTERNAL"].includes(x.kind)||
+        !str(x.evidenceRef)) ||
+      !unique(list(preflight?.blockers).map(x=>x.id))) {
+    errors.push("blocker inventory missing or malformed");
+  }
+  if (errors.length) return {
+    state:"PREFLIGHT_INCOMPLETE",buttonAuthorized:false,
+    canOfferAfterTrustedReadback:false,errors
+  };
+  const unresolved=preflight.blockers.filter(x=>x.state==="OPEN");
+  if (unresolved.some(x=>x.impact==="CRITICAL_PATH")) return {
+    state:"BLOCKED_CRITICAL_PATH",buttonAuthorized:false,
+    canOfferAfterTrustedReadback:false,errors:[],
+    unresolved:unresolved.map(x=>x.id)
+  };
+  const advice=selectGoalAnchoredNextAction(input);
+  if (advice.state!=="ACTIONABLE"||!advice.primary?.autonomous) return {
+    state:"NO_SAFE_READY_WORK",buttonAuthorized:false,
+    canOfferAfterTrustedReadback:false,errors:advice.errors??[],
+    unresolved:advice.unresolved??[]
+  };
+  return {
+    // Caller-provided evidence can satisfy a FORMAT gate ONLY.
+    // Neither authenticated Project Authority nor a live UI is proved here.
+    state:"PREFLIGHT_EVIDENCE_FORMAT_READY",
+    buttonAuthorized:false,canOfferAfterTrustedReadback:true,
+    requiresAuthenticatedSourceAndActor:true,
+    requiresHeadRecheckAtClick:true,
+    executesInBackground:false,
+    primary:advice.primary,unresolvedIndependent:unresolved.map(x=>x.id),
+    errors:[]
+  };
 }
 
 const invoked = process.argv[1] && fileURLToPath(import.meta.url) ===
