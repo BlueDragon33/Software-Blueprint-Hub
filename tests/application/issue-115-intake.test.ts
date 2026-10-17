@@ -126,6 +126,38 @@ describe("Issue #115 canonical candidate-only authenticated admission", () => {
     expect(active.writes).toBe(0);
   });
 
+  it("handles a concurrent unique or serialization collision ONLY when committed canonical readback is identical", async () => {
+    for (const code of ["P2002", "P2034"]) {
+      const winning = harness();
+      await admitIssue115Candidate(winning.boundary, owner, project, 1);
+      winning.boundary.atomic = async () => {
+        throw Object.assign(new Error("injected concurrent collision"), {code});
+      };
+      const idempotent = await admitIssue115Candidate(winning.boundary, owner, project, 1);
+      expect(idempotent).toMatchObject({
+        state: "already-present", workRecordVersion: 1, executionAuthorized: false
+      });
+      expect(winning.state.works).toHaveLength(1);
+      expect(winning.state.gates).toHaveLength(4);
+
+      const noWinner = harness();
+      noWinner.boundary.atomic = async () => {
+        throw Object.assign(new Error("injected concurrent collision"), {code});
+      };
+      await expect(admitIssue115Candidate(noWinner.boundary, owner, project, 1))
+        .rejects.toThrow(/injected concurrent collision/);
+      expect(noWinner.state.works).toHaveLength(0);
+
+      const partialWinner = harness();
+      partialWinner.state.gates.push(cloned(proposal.qualityGates[0] as QualityGate));
+      partialWinner.boundary.atomic = async () => {
+        throw Object.assign(new Error("injected concurrent collision"), {code});
+      };
+      await expect(admitIssue115Candidate(partialWinner.boundary, owner, project, 1))
+        .rejects.toThrow(/injected concurrent collision/);
+    }
+  });
+
   it("fails closed when committed canonical records cannot be independently read back", async () => {
     const h=harness({breakReadback:true});
     await expect(admitIssue115Candidate(h.boundary,owner,project,1)).rejects.toThrow(/readback/);
