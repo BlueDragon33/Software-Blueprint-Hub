@@ -25,6 +25,11 @@ on:
       - 'tests/application/continuous-execution-pg-integration.test.ts'
       - 'tests/application/continuous-mutation-origin.test.ts'
       - 'tests/e2e/continuous-execution-anonymous.pw.ts'
+      - 'tests/e2e/continuous-authenticated-environment.ts'
+      - 'tests/e2e/continuous-execution-authenticated.real.ts'
+      - 'tests/application/continuous-real-auth-contract.test.ts'
+      - 'playwright.real-auth.config.ts'
+      - '.gitignore'
       - 'apps/web/src/auth/continuous-mutation-origin.ts'
       - 'apps/web/src/server/continuous-execution-origin.ts'
       - '.github/workflows/product-goal-continuity-candidate.yml'
@@ -53,6 +58,11 @@ on:
       - 'tests/application/continuous-execution-pg-integration.test.ts'
       - 'tests/application/continuous-mutation-origin.test.ts'
       - 'tests/e2e/continuous-execution-anonymous.pw.ts'
+      - 'tests/e2e/continuous-authenticated-environment.ts'
+      - 'tests/e2e/continuous-execution-authenticated.real.ts'
+      - 'tests/application/continuous-real-auth-contract.test.ts'
+      - 'playwright.real-auth.config.ts'
+      - '.gitignore'
       - 'apps/web/src/auth/continuous-mutation-origin.ts'
       - 'apps/web/src/server/continuous-execution-origin.ts'
       - '.github/workflows/product-goal-continuity-candidate.yml'
@@ -86,8 +96,10 @@ jobs:
           pnpm prisma:generate
       - name: Typecheck actual Next.js authenticated preflight route
         run: pnpm --filter @blueprint-os/web typecheck
+      - name: Lint new externally-authenticated E2E harness and session guard
+        run: pnpm exec eslint tests/e2e/continuous-authenticated-environment.ts tests/e2e/continuous-execution-authenticated.real.ts tests/application/continuous-real-auth-contract.test.ts playwright.real-auth.config.ts
       - name: Two project pilots and negative READY/authority gates
-        run: pnpm exec vitest run tests/application/continuous-execution-readiness.test.ts tests/application/project-readiness.test.ts tests/application/continuous-mutation-origin.test.ts
+        run: pnpm exec vitest run tests/application/continuous-execution-readiness.test.ts tests/application/project-readiness.test.ts tests/application/continuous-mutation-origin.test.ts tests/application/continuous-real-auth-contract.test.ts
 
   continuous-preflight-postgres:
     name: Isolated PostgreSQL + anonymous Chromium (NOT authenticated user E2E)
