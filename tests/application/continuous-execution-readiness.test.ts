@@ -138,3 +138,21 @@ describe("automatic source remediation + user-confirmed canonical repair guidanc
     expect(actions.every(x=>x.requiresConfirmation)).toBe(true);
   });
 });
+
+describe("fresh project may request PLANNED setup, never instant READY",()=>{
+  it("offers a real human-confirm Work Package input only for an empty project",()=>{
+    const input={...snapshot("project:new-onboarding-app"),workPackages:[]};
+    const assessment=assessCanonicalContinuousReadiness(input);
+    expect(assessment.state).toBe("BLOCKED");
+    const actions=planContinuousRecovery(input,assessment);
+    expect(actions).toHaveLength(1);
+    expect(actions[0]?.kind).toBe("human-confirm-work");
+    expect(actions[0]?.canChangeCanonicalState).toBe(true);
+    expect(actions[0]?.explanation).toContain("PLANNED");
+    const planned=work(input.projectId,"work:initial-product","planned");
+    const after={...input,workPackages:[planned]};
+    const next=planContinuousRecovery(after,assessCanonicalContinuousReadiness(after));
+    expect(next[0]?.kind).toBe("prepare-work");
+    expect(next.every(action=>action.kind!=="authority-grant")).toBe(true);
+  });
+});
