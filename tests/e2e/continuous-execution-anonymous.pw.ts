@@ -6,6 +6,16 @@ import { expect, test } from "@playwright/test";
  * PostgreSQL service identity tests cover those role policies separately.
  */
 test.describe("isolated browser unauthenticated continuous-execution fail-closed",()=>{
+  test("real signed-out homepage publishes Blueprint OS identity markers",async({page})=>{
+    const reply=await page.goto("/");
+    expect(reply?.status()).toBe(200);
+    await expect(page).toHaveTitle("Blueprint OS");
+    await expect(page.locator('meta[name="application-name"]')).toHaveAttribute(
+      "content","Blueprint OS"
+    );
+    // Identity is public read-only metadata; no user session or DB read grant.
+    await expect(page.getByRole("heading",{name:"Trung tâm ứng dụng"})).toBeVisible();
+  });
   test("existing project requires sign-in and leaks no execution controls",async({page})=>{
     await page.goto("/projects/project%3Aqa-existing-russian");
     await expect(page.getByText("Đăng nhập để mở dự án này.")).toBeVisible();
