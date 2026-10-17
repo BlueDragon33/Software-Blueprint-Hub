@@ -13,6 +13,12 @@ The separate opt-in `playwright.real-auth.config.ts` **never** launches an imper
 
 **Bắt đầu từ đây, không đặt mật khẩu trong ChatGPT:** chỉ sử dụng máy Windows của bạn. Nút kiểm tra dùng lệnh **chỉ đọc** mới: `node scripts/continuous-localhost-precheck.mjs`. Lệnh này chỉ dò công cụ, HEAD cục bộ, cổng TCP của PostgreSQL, trạng thái HTTP localhost và sự tồn tại của ba tệp phiên ở **ngoài** repository; không đăng nhập hộ, không truy cập nội dung tệp phiên, không ký issuer, không tạo dự án và không sửa DB.
 
+### Windows non-admin — xử lý pnpm EPERM mà không ghi Program Files
+
+Nếu `corepack enable pnpm` báo `EPERM` tại `C:\\Program Files\\nodejs\\pnpx`, **không cần Administrator và không chạy lại lệnh này**. Xác minh phiên bản bằng `corepack pnpm --version` ngay trong repository; kết quả mong muốn là `12.4.0`. Lệnh tiền kiểm từ PR #147 mới sẽ xác nhận `[OK] pnpm` bằng cách kiểm tra cả `pnpm --version` lẫn phiên bản Corepack có sẵn trong cache; probe tự giới hạn `COREPACK_ENABLE_NETWORK=0` và `COREPACK_ENABLE_AUTO_PIN=0` để không tự tải gói hay chỉnh package.json. Nếu chưa được cache, chỉ bật/tải Corepack trong một bước người dùng quyết định ở shell riêng, không dùng tiền kiểm để cài đặt.
+
+Khi `pnpm` chưa nằm trong PATH, dùng `corepack pnpm install --frozen-lockfile`, `corepack pnpm prisma:generate` và `corepack corepack pnpm --filter @blueprint-os/web dev` cho các bước vận hành tiếp theo, thay cho `pnpm ...` trực tiếp. Không cần thiết lập shim hoặc ghi `Program Files`.
+
 ### Bước 1 — Chuẩn bị bộ công cụ và mã nguồn đúng Draft PR
 
 Cài **Git for Windows**, **Node.js 24**, **pnpm 12.4.0 qua Corepack**, và **PostgreSQL 16 hoặc Docker Desktop** từ nhà cung cấp chính thức. Nếu đã có các công cụ, không cài lại. Mở **Windows PowerShell**:
@@ -23,9 +29,7 @@ cd Software-Blueprint-Hub
 git switch feature/universal-goal-continuity-next-action-candidate
 git rev-parse HEAD
 node --version
-corepack enable
-corepack prepare pnpm@12.4.0 --activate
-pnpm --version
+corepack pnpm --version
 node scripts/continuous-localhost-precheck.mjs
 ```
 
@@ -39,10 +43,10 @@ Trong PowerShell tại thư mục repo, tạo biến môi trường ở **phiên
 
 ```powershell
 $env:DATABASE_URL = 'postgresql://<local-qa-user>:<private-password>@127.0.0.1:5432/blueprint_qa_test'
-pnpm install --frozen-lockfile
-pnpm prisma:generate
-pnpm db:migrate:status
-pnpm db:migrate:deploy
+corepack pnpm install --frozen-lockfile
+corepack pnpm prisma:generate
+corepack pnpm db:migrate:status
+corepack pnpm db:migrate:deploy
 ```
 
 Dấu `<...>` là chỗ bạn tự điền **trên máy**; không được sao chép nguyên dấu này vào cấu hình thật. Migration chỉ được phép chạy khi đã kiểm tra URL đúng `blueprint_qa_test`. `db:migrate:deploy` thay đổi database thử nghiệm, không phải lệnh kiểm tra chỉ đọc.
@@ -87,14 +91,14 @@ $env:BLUEPRINT_REAL_AUTH_E2E_EXPECT_SIGNED_GRANT = 'false'
 node scripts/continuous-localhost-precheck.mjs
 ```
 
-Chỉ khi tự kiểm tra báo đủ điều kiện và **chủ sở hữu thực sự cấp phép**, chạy `pnpm exec playwright test --config=playwright.real-auth.config.ts`. Đây là **bước kiểm thử có thể phát sinh POST đọc và ghi**; muốn chạy phần xác nhận/thu hồi biên bản trên DB QA riêng cần Owner đồng ý và đổi `BLUEPRINT_REAL_AUTH_E2E_ALLOW_OWNER_WRITES=true` trong đúng phiên máy thử nghiệm. Không bật nếu đang dùng dự án không thể thay đổi hoặc DB có giá trị thực tế.
+Chỉ khi tự kiểm tra báo đủ điều kiện và **chủ sở hữu thực sự cấp phép**, chạy `corepack pnpm exec playwright test --config=playwright.real-auth.config.ts`. Đây là **bước kiểm thử có thể phát sinh POST đọc và ghi**; muốn chạy phần xác nhận/thu hồi biên bản trên DB QA riêng cần Owner đồng ý và đổi `BLUEPRINT_REAL_AUTH_E2E_ALLOW_OWNER_WRITES=true` trong đúng phiên máy thử nghiệm. Không bật nếu đang dùng dự án không thể thay đổi hoặc DB có giá trị thực tế.
 
 Khi lệnh báo `BLOCKED`: thực hiện đúng **một** điểm thiếu đầu tiên rồi chạy lại. Đầu ra chỉ chứa **tên hạng mục**, không hiện token hoặc mật khẩu. Không đánh giá E2E PASS chỉ vì TCP 5432 mở hoặc URL có HTTP 200; những kiểm tra đó chỉ chứng minh **có thể kết nối**.
 
 ### Ranh giới nghiệm thu
 
 - `node scripts/continuous-localhost-precheck.mjs` là **precheck read-only**; không thể chứng minh ba phiên là của ai hoặc grant hợp lệ.
-- `pnpm exec playwright test --config=playwright.real-auth.config.ts` là **E2E có xác thực nếu và chỉ nếu** các phiên/thẩm quyền thực được đưa vào từ bên ngoài. Mọi thiếu sót phải báo **BLOCKED**, không cấp lại session tự động.
+- `corepack pnpm exec playwright test --config=playwright.real-auth.config.ts` là **E2E có xác thực nếu và chỉ nếu** các phiên/thẩm quyền thực được đưa vào từ bên ngoài. Mọi thiếu sót phải báo **BLOCKED**, không cấp lại session tự động.
 - Phần `EXPECTED_SIGNED_GRANT=true` chỉ dùng khi tổ chức đã cấp **grant chữ ký issuer hợp lệ + workflow adoption thật**. Không tạo grant để chạy qua kiểm thử. Nút RUN phải giữ khóa khi thiếu bất kỳ điều kiện nào.
 
 
@@ -125,7 +129,7 @@ BLUEPRINT_REAL_AUTH_E2E_EXPECT_SIGNED_GRANT=false
 Run:
 
 ```sh
-pnpm exec playwright test --config=playwright.real-auth.config.ts
+corepack pnpm exec playwright test --config=playwright.real-auth.config.ts
 ```
 
 Playwright session and request contents are intentionally **not** retained in HTML report, trace, screenshot or video. Do not change the default to upload authenticated recordings to CI.
