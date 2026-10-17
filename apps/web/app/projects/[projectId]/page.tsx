@@ -6,9 +6,11 @@ import { readAuthenticatedContinuousPreflight } from "../../../src/server/contin
 import {
   recheckContinuousExecutionPreflight,
   retryContinuousSourceRead,
-  confirmCreateMissingQualityGate
+  confirmCreateMissingQualityGate,
+  executeSignedContinuousDiscovery
 } from "./continuous-execution-action";
 import { ContinuousPreflightFocusRefresh } from "./_components/continuous-preflight-focus-refresh";
+import { readVerifiedContinuousExecutionOffer } from "../../../src/server/continuous-execution-offer";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +37,8 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
   // Failing HEAD/evidence reads never enable a continuous execution action.
   const continuous = await readAuthenticatedContinuousPreflight(workspace)
     .catch(() => null);
+  const offer = continuous ? await readVerifiedContinuousExecutionOffer(workspace,continuous)
+    .catch(() => null) : null;
   const queryState = (await searchParams)?.continuous;
   const checked = queryState === "checked" || queryState === "rechecked";
 
@@ -191,12 +195,35 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
             ))}
           </section>
         ) : null}
-        <button className="primary-button" type="button" disabled
-          aria-describedby="continuous-execution-gate">
-          Thực hiện nhiệm vụ liên tục — chưa được cấp quyền
-        </button>
+        {offer && continuous?.canonicalRevision && continuous.appHead ? (
+          <form action={executeSignedContinuousDiscovery.bind(
+            null,workspace.projectId,continuous.profileVersion,
+            continuous.canonicalRevision,continuous.appHead
+          )}>
+            <button className="primary-button" type="submit"
+              aria-describedby="continuous-execution-gate">
+              Thực hiện nhiệm vụ liên tục — bước khảo sát được ký
+            </button>
+          </form>
+        ) : (
+          <p role="status" className="readiness-provenance-note">
+            Chưa có lệnh thực thi được ký và thẩm định cho phiên bản hiện tại.
+            Nút thực thi sẽ tự xuất hiện sau khi nguồn chuẩn, workflow,
+            quyền cấp phép và tác vụ READY được xác thực lại.
+          </p>
+        )}
+        {queryState==="submitted-for-qa" ? (
+          <p role="status">Đã thực hiện bước khảo sát có chữ ký và ghi nhật ký.
+            Kết quả gửi kiểm tra độc lập; không tự PASS Quality Gate.</p>
+        ) : null}
+        {queryState==="task-stopped" ? (
+          <p role="alert">Lượt thực thi đã dừng theo điều kiện an toàn.
+            Xem nhật ký chuẩn; không tự chạy lại grant đã sử dụng.</p>
+        ) : null}
         <p id="continuous-execution-gate" className="readiness-provenance-note">
-          Một Work Package READY không phải signed execution grant. Chỉ bật
+          Nút khởi chạy chỉ nhận grant server-side đã xác thực, kiểm tra lại phiên/HEAD
+          và thực hiện một bước DISCOVER bằng executor chỉ đọc, có nhật ký.
+          Mỗi bước tiếp theo phải có grant và QA riêng. Chỉ bật
           thực thi sau khi Project Authority phê chuẩn đúng workflow, issuer,
           runtime và actor; POST phải kiểm tra lại HEAD, quyền và bằng chứng.
           Không tự merge, xuất bản hay đánh dấu PASS.
