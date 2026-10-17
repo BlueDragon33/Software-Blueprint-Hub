@@ -12,7 +12,8 @@ import { spawnSync } from "node:child_process";
 import { connect } from "node:net";
 import {
   classifyLocalE2eConfig, safeLocalhostUrl, safeDisposablePostgres,
-  classifyPnpmAvailability, localDisposablePostgresProbe, probeLocalPostgresProtocol
+  classifyPnpmAvailability, localDisposablePostgresProbe, probeLocalPostgresProtocol,
+  matchesBlueprintLandingPage
 } from "./continuous-localhost-precheck-core.mjs";
 
 const root=resolve(fileURLToPath(new URL("..",import.meta.url)));
@@ -46,7 +47,11 @@ async function webOk(url){
     const response=await fetch(new URL("/",url),{
       method:"GET",redirect:"manual",signal:AbortSignal.timeout(2000)
     });
-    return response.status>=200 && response.status<500;
+    if(response.status!==200)return false;
+    const size=Number(response.headers.get("content-length")??"0");
+    if(Number.isFinite(size) && size>512000)return false;
+    const body=await response.text();
+    return matchesBlueprintLandingPage(response.headers.get("content-type")??"",body);
   }catch{return false;}
 }
 const nodeMajor=Number(process.versions.node.split(".")[0]);
@@ -120,7 +125,7 @@ if(!localDbTools && postgresWireProtocol)
   console.log("PostgreSQL localhost đã phản hồi giao thức thật, không cần cài Docker hay đưa psql.exe vào PATH chỉ để tiền kiểm.");
 const base=process.env.BLUEPRINT_REAL_AUTH_E2E_BASE_URL;
 check("Web Blueprint OS localhost",await webOk(base),
-  "Chưa xác minh web Blueprint OS thật trên URL localhost đã cấu hình.");
+  "Web localhost phải trả HTTP 200 HTML với metadata Blueprint OS thật; HTTP 200 từ ứng dụng khác chưa đủ.");
 for(const c of classifyLocalE2eConfig(process.env,root))
   check(c.id,c.status==="READY",c.hint);
 if(safeDisposablePostgres(process.env.DATABASE_URL)){
