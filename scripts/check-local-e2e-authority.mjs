@@ -81,7 +81,7 @@ function configured(value) {
 }
 
 function validScope(e) {
-  return /^work:[A-Za-z0-9:_./-]+$/.test(e.BLUEPRINT_E2E_WORK_PACKAGE_ID ?? "") &&
+  return /^[a-zA-Z][a-zA-Z0-9:._/-]{1,159}$/.test(e.BLUEPRINT_E2E_WORK_PACKAGE_ID ?? "") &&
     /^[a-z][a-z0-9-]{1,79}$/.test(e.BLUEPRINT_E2E_WORKFLOW_ID ?? "") &&
     DIGEST.test(e.BLUEPRINT_E2E_WORKFLOW_DIGEST ?? "") &&
     /^[a-z][a-z0-9-]{1,79}$/.test(e.BLUEPRINT_E2E_ISSUER_ID ?? "");
