@@ -112,6 +112,14 @@ async function snapshot(
   return {works, gates};
 }
 
+function isConcurrentInsertConflict(error: unknown): boolean {
+  // P2002: unique constraint, P2034: transaction serialization failure.
+  // Neither grants success: the committed canonical five-record set must
+  // independently match before any retry can be called idempotent.
+  return !!error && typeof error === "object" && "code" in error &&
+    (error.code === "P2002" || error.code === "P2034");
+}
+
 export async function admitIssue115Candidate(
   boundary: Issue115AdmissionBoundary,
   actor: AuthenticatedActor | null,
@@ -137,7 +145,9 @@ export async function admitIssue115Candidate(
       executionAuthorized: false as const
     });
 
-  const result = await boundary.atomic(async service => {
+  let result: Issue115AdmissionResult;
+  try {
+    result = await boundary.atomic(async service => {
     const prior = await snapshot(service, actor);
     if (inspectRecords(prior.works, prior.gates, expected) === "complete") {
       return makeResult("already-present");
@@ -158,7 +168,22 @@ export async function admitIssue115Candidate(
       throw new Error("Issue 115 in-transaction readback did not match proposed records");
     }
     return makeResult("created");
-  });
+    });
+  } catch (error) {
+    if (!isConcurrentInsertConflict(error)) throw error;
+    // Another authorized request may have won an exact-ID race. Returning
+    // "already-present" is safe ONLY if its committed source-bound records
+    // are identical to this already authenticated and validated proposal.
+    const committed = await snapshot(boundary.readback, actor);
+    try {
+      if (inspectRecords(committed.works, committed.gates, expected) === "complete") {
+        return makeResult("already-present");
+      }
+    } catch {
+      // Conflict, partial records, or competing active work: fail closed.
+    }
+    throw error;
+  }
   // The post-commit readback uses the canonical runtime service, not the
   // in-memory request, and refuses a missing or contradictory transaction.
   const after = await snapshot(boundary.readback, actor);
