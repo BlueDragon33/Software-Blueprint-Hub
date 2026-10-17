@@ -74,7 +74,15 @@ export class PostgresNextActionWorkBindingRepository {
       await tx.nextActionWorkBindingDecision.create({
         data:{
           id:"work-binding:"+randomUUID(),
-          ...input,
+          projectId:input.projectId,
+          workPackageId:input.workPackageId,
+          workPackageRecordVersion:input.workPackageRecordVersion,
+          workflowId:input.workflowId,
+          workflowDigest:input.workflowDigest,
+          appHead:input.appHead,
+          policyVersion:input.policyVersion,
+          decision:input.decision,
+          decidedByPrincipalId:input.actorPrincipalId,
           productionReleaseAuthority:false
         }
       });
