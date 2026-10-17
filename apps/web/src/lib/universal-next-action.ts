@@ -54,6 +54,7 @@ export function canonicalNextAction(input: {
 export function trackedNextAction(input: {
   readonly projectId: string;
   readonly hasCanonicalProfile: boolean;
+  readonly repository: string;
   readonly registrationState: "sealed-baseline" | "admitted-registration" | "pending-onboarding";
 }): NextActionNavigation {
   const canonical = input.hasCanonicalProfile && input.registrationState !== "pending-onboarding";
@@ -83,8 +84,8 @@ export function trackedNextAction(input: {
       href: input.hasCanonicalProfile ? root + "/profile" : "/projects/new"
     }),
     secondary: Object.freeze({
-      label: "Xem hướng dẫn tiếp nhận dự án",
-      href: "/ecosystem"
+      label: "Xem mã nguồn để kiểm tra tiếp nhận",
+      href: "https://github.com/" + input.repository
     }),
     executionAuthorized: false as const
   });
