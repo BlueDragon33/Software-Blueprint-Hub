@@ -6,6 +6,7 @@ import {
 } from "@blueprint-os/application";
 import { explainWorkPackageReadiness, type AuthenticatedActor } from "@blueprint-os/core";
 import type { BlueprintServerRuntime } from "./index";
+import { PostgresNextActionWorkBindingRepository } from "@blueprint-os/persistence";
 import { PostgresWorkflowExecutionAuthority } from "./workflow-execution-authority";
 import { PostgresWorkflowInspectionQaJournal } from "./workflow-inspection-qa-journal";
 import {
@@ -25,18 +26,7 @@ type SourceContext = Parameters<typeof executeAndVerifyScopedInspection>[2];
 export type TrustedNextActionInspectionServices = Pick<
   WorkflowInspectionDependencies,
   "source" | "trust" | "verifier" | "runner" | "qa" | "freshness" | "clock"
-> & {
-  /** Mandatory trusted canonical mapping; same project alone is insufficient. */
-  readonly binding: {
-    assertCurrent(input: Readonly<{
-      projectId: string;
-      workPackageId: string;
-      workflowId: string;
-      workflowDigest: string;
-      appHead: string;
-    }>): Promise<void>;
-  };
-};
+>;
 
 export interface AuthorizedNextActionInspectionInput {
   readonly actor: AuthenticatedActor | null;
@@ -44,6 +34,7 @@ export interface AuthorizedNextActionInspectionInput {
   readonly displayedProfileVersion: number;
   readonly displayedActionKind: "continue-work";
   readonly workPackageId: string;
+  readonly workPackageRecordVersion: number;
   readonly workflow: Manifest;
   readonly context: SourceContext;
   readonly grant: unknown; // must be a separately signed exact-scope grant
@@ -83,6 +74,7 @@ async function assertCanonicalInspectionEligible(
   const work = works.find(item => item.id === input.workPackageId);
   if (!work || (work.status !== "ready" && work.status !== "in-progress") ||
       work.projectId !== input.projectId ||
+      work.meta.recordVersion !== input.workPackageRecordVersion ||
       explainWorkPackageReadiness(work, works).state !== "ready") {
     throw new Error("NEXT_ACTION_BLOCKED: WorkPackage missing, blocked or has incomplete dependencies");
   }
@@ -108,19 +100,19 @@ export async function inspectAuthorizedNextAction(
       (input.grant as Partial<WorkflowExecutionGrant>).mode !== "inspect-scoped") {
     throw new Error("NEXT_ACTION_BLOCKED: only signed inspect-scoped grants are eligible");
   }
-  if (typeof services.binding?.assertCurrent !== "function") {
-    throw new Error("NEXT_ACTION_BLOCKED: no trusted WorkPackage-to-workflow binding source");
-  }
+  const binding = new PostgresNextActionWorkBindingRepository(runtime.prisma);
   const assertEligible = async (): Promise<void> => {
     await assertCanonicalInspectionEligible(runtime, input);
     // Read this mapping again before each runner/QA step, never infer
     // canonical adoption from shared projectId or workflow.status.
-    await services.binding.assertCurrent({
+    await binding.assertCurrent({
       projectId: input.projectId,
       workPackageId: input.workPackageId,
       workflowId: input.workflow.workflowId,
       workflowDigest: workflowManifestDigest(input.workflow),
-      appHead: input.context.appHead
+      appHead: input.context.appHead,
+      workPackageRecordVersion: input.workPackageRecordVersion,
+      policyVersion: input.context.policyVersion
     });
   };
   await assertEligible();
