@@ -37,14 +37,14 @@ pnpm build
 pnpm exec playwright test tests/e2e/issue-115-local-acceptance.pw.ts --project=desktop-chromium
 ```
 
-The test fails closed before any writes unless all guards pass. It **does not** seed a Project, issue tokens, bootstrap an Owner or add a role. Any received cookies must come from externally authorized interactive login; storageState file paths are secrets and should not appear in CI output.
+The test fails closed before any writes unless all guards pass. It verifies empty Work/Gate state through authenticated canonical Roadmap and Quality GETs before submitting, and checks the persisted state through both of those authenticated read models afterward. It **does not** seed a Project, issue tokens, bootstrap an Owner or add a role. Any received cookies must come from externally authorized interactive login; storageState file paths are secrets and should not appear in CI output.
 
 ## Required observed outcomes
 
 - Anonymous and Viewer have no P2-115 intake button. Owner and Editor have it in the real authenticated Roadmap view.
 - Route interception modifies **the real Next Server Action POST** with an external `Origin`; require a 4xx response and verify **zero** WorkPackages/QualityGates afterward. UI source/config inspection alone is not sufficient.
 - Two independent authorized browsers submit the same blocked candidate together; require at least one success and exactly **one** persisted WorkPackage and **four** unique NOT_READY QualityGates (v1, no evidence). The losing request may fail closed; it must never produce duplicate or upgraded authority.
-- Canonical GET after POST shows existing BLOCKED WorkPackage. This is **NOT** a signed completion receipt, workflow adoption, QA PASS, three-service E2E, or Production release.
+- Canonical GET after POST shows exactly one existing BLOCKED WorkPackage, and the separate canonical Quality view shows exactly four NOT READY gates with zero evidence and zero PASS. These two views read real PostgreSQL through the existing authenticated application service; the Playwright test does not import generated Prisma code or run direct SQL. This is **NOT** a signed completion receipt, workflow adoption, QA PASS, three-service E2E, or Production release.
 - Operator must collect exact git SHA, isolated DB identity (no password), Playwright output, server Action response metadata, and after-commit record IDs/statuses/versions. **Do not record cookies, signed actions, tokens, passwords or personal data.**
 - After review, destroy the entire disposable database and any temporary session storage. Never clean up individual canonical rows in a real project database.
 
