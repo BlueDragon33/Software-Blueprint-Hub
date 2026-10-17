@@ -17,7 +17,7 @@ export interface ContinuousProjectSnapshot {
 }
 
 export interface ContinuousExecutionAssessment {
-  readonly state: "UNVERIFIED" | "BLOCKED" | "READ_ONLY" | "ENGINEERING_READY";
+  readonly state: "UNVERIFIED" | "BLOCKED" | "READ_ONLY" | "READY_WORK_FOUND";
   readonly nextWorkId: string | null;
   readonly nextWorkTitle: string | null;
   readonly reasons: readonly string[];
@@ -38,7 +38,7 @@ export function assessCanonicalContinuousReadiness(
   ): ContinuousExecutionAssessment => Object.freeze({
     state, nextWorkId: work?.id ?? null, nextWorkTitle: work?.title ?? null,
     reasons: Object.freeze([...reasons]),
-    preflightEvidenceReady: state === "ENGINEERING_READY",
+    preflightEvidenceReady: false,
     canDispatch: false as const
   });
 
@@ -114,5 +114,5 @@ export function assessCanonicalContinuousReadiness(
   // No automatic dispatch: an independently verified signed execution grant,
   // explicit owner adoption, trusted runner and POST-side readback are absent.
   reasons.push("Signed execution grant and live runner authorization remain separate.");
-  return finish("ENGINEERING_READY", ready[0]);
+  return finish("READY_WORK_FOUND", ready[0]);
 }
