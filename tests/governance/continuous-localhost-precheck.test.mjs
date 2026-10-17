@@ -5,7 +5,8 @@ import { fileURLToPath } from "node:url";
 import { dirname,resolve } from "node:path";
 import {
   classifyLocalE2eConfig,safeLocalhostUrl,safeDisposablePostgres,
-  classifyPnpmAvailability,localDisposablePostgresProbe,postgresSslReplyAccepted,probeLocalPostgresProtocol
+  classifyPnpmAvailability,localDisposablePostgresProbe,postgresSslReplyAccepted,probeLocalPostgresProtocol,
+  matchesBlueprintLandingPage
 } from "../../scripts/continuous-localhost-precheck-core.mjs";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"../..");
@@ -16,6 +17,26 @@ test("only exact loopback URLs, reject Preview/Production and credential-in-URL"
     "http://user:password@localhost:3000/","http://localhost:3000/login",
     "http://127.0.0.1:3000?x=1","file:///localhost"])
     assert.equal(safeLocalhostUrl(u),false,u);
+});
+test("web readiness demands Blueprint OS HTML metadata, not unrelated 200",()=>{
+  const valid='<html><head><title>Blueprint OS</title><meta name="application-name" content="Blueprint OS"/></head><body><main>Trung tâm ứng dụng</main></body></html>';
+  assert.equal(matchesBlueprintLandingPage("text/html; charset=utf-8",valid),true);
+  assert.equal(matchesBlueprintLandingPage("text/html",valid.replace('name="application-name" content="Blueprint OS"','content="Blueprint OS" name="application-name"')),true);
+  for(const html of [
+    '<html><head><title>Unrelated app</title><meta name="application-name" content="Other"/></head></html>',
+    '<html><head><title>Blueprint OS</title></head></html>',
+    '<html><head><meta name="application-name" content="Blueprint OS"/></head></html>',
+    '<html><head><title>Blueprint OS Fake</title><meta name="application-name" content="Blueprint OS"/></head></html>',
+    ""
+  ]) assert.equal(matchesBlueprintLandingPage("text/html",html),false);
+  assert.equal(matchesBlueprintLandingPage("application/json",valid),false);
+  assert.equal(matchesBlueprintLandingPage("text/html"," ".repeat(512001)),false);
+});
+test("CLI cannot mark unknown localhost HTTP server as authenticated Blueprint",()=>{
+  const source=readFileSync(new URL("../../scripts/continuous-localhost-precheck.mjs",import.meta.url),"utf8");
+  assert.ok(source.includes('if(response.status!==200)return false'));
+  assert.ok(source.includes('matchesBlueprintLandingPage(response.headers.get("content-type")??"",body)'));
+  assert.equal(source.includes("response.status>=200 && response.status<500"),false);
 });
 test("database scope cannot be remote, production or other projects",()=>{
   assert.equal(safeDisposablePostgres(
