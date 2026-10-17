@@ -116,3 +116,70 @@ export function assessCanonicalContinuousReadiness(
   reasons.push("Signed execution grant and live runner authorization remain separate.");
   return finish("READY_WORK_FOUND", ready[0]);
 }
+
+
+export interface ContinuousRecoveryAction {
+  readonly id: string;
+  readonly kind: "automatic-readback" | "human-confirm-gate" | "human-review" | "authority-grant" | "prepare-work";
+  readonly label: string;
+  readonly explanation: string;
+  readonly requiresConfirmation: boolean;
+  readonly canChangeCanonicalState: boolean;
+}
+
+/**
+ * Real next-step recovery guidance only; never raises a gate to PASS.
+ * Automatic source readback is a bounded, non-mutating retry of trusted reads.
+ * Mutating repair is only available through an explicit PROJECT_MUTATE action.
+ */
+export function planContinuousRecovery(
+  source: ContinuousProjectSnapshot,
+  result: ContinuousExecutionAssessment
+): readonly ContinuousRecoveryAction[] {
+  const actions: ContinuousRecoveryAction[] = [];
+  const append = (item: ContinuousRecoveryAction): void => { actions.push(Object.freeze(item)); };
+  if (result.state === "UNVERIFIED") {
+    append({id:"source-readback",kind:"automatic-readback",
+      label:"Tự kiểm tra lại nguồn dự án",
+      explanation:"Đọc lại Project Profile, revision và GitHub HEAD từ máy chủ có xác thực. Không tạo dữ liệu hoặc quyền giả.",
+      requiresConfirmation:false,canChangeCanonicalState:false});
+    return Object.freeze(actions);
+  }
+  if (result.state === "READ_ONLY") {
+    append({id:"request-project-role",kind:"human-review",
+      label:"Yêu cầu người quản trị dự án cấp quyền phù hợp",
+      explanation:"Chỉ PROJECT_READ không cho phép sửa hồ sơ hoặc thực thi.",
+      requiresConfirmation:true,canChangeCanonicalState:false});
+    return Object.freeze(actions);
+  }
+  const existing = new Set(source.gates.map(g => g.id));
+  for (const gateId of [...new Set(source.requiredGateIds)].filter(id=>!existing.has(id))) {
+    append({id:gateId,kind:"human-confirm-gate",
+      label:"Xác nhận tạo hồ sơ Gate còn thiếu: "+gateId,
+      explanation:"Chỉ tạo hồ sơ NOT_READY bằng tiêu chí thật do người có quyền nhập; không PASS hoặc cấp quyền thực thi.",
+      requiresConfirmation:true,canChangeCanonicalState:true});
+  }
+  for (const gate of source.gates.filter(g=>g.status==="fail" ||
+      (g.status==="pass" && gateEvidenceIsMissing(gate)))) {
+    append({id:gate.id,kind:"human-review",
+      label:"Kiểm tra lại Gate: "+gate.name,
+      explanation:"Phải khắc phục bằng chứng/đánh giá theo Project Authority và reviewer độc lập.",
+      requiresConfirmation:true,canChangeCanonicalState:false});
+  }
+  if (result.state==="READY_WORK_FOUND") {
+    append({id:result.nextWorkId ?? "next-work",kind:"authority-grant",
+      label:"Xác thực workflow, issuer và quyền thực thi",
+      explanation:"Nhiệm vụ kỹ thuật READY chưa phải signed grant; không thể tự cấp quyền hoặc khởi chạy.",
+      requiresConfirmation:true,canChangeCanonicalState:false});
+  } else if (!actions.length) {
+    append({id:"work-graph",kind:"prepare-work",
+      label:"Chuẩn bị Work Package đủ điều kiện READY",
+      explanation:"Hoàn thiện phụ thuộc, tiêu chí chấp nhận và Quality Gate trong hồ sơ chuẩn.",
+      requiresConfirmation:true,canChangeCanonicalState:false});
+  }
+  return Object.freeze(actions);
+}
+
+function gateEvidenceIsMissing(gate: QualityGate): boolean {
+  return gate.evidenceIds.length===0;
+}
