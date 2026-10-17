@@ -1,6 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { executeBoundedWorkflowNode } from "@blueprint-os/application";
+import { ScopedGitHubReadExecutor } from "@blueprint-os/runtime";
+import { resolveGitHubPublicationToken } from "../../../src/auth/server-actor";
+import { readVerifiedContinuousExecutionOffer } from "../../../src/server/continuous-execution-offer";
 import { redirect } from "next/navigation";
 import { loadProjectWorkspace } from "../../../src/server/project-workspace";
 import { readAuthenticatedContinuousPreflight } from "../../../src/server/continuous-execution-preflight";
@@ -123,4 +127,64 @@ export async function confirmCreateMissingQualityGate(
   revalidatePath(path);
   revalidatePath(path+"/quality");
   redirect(path+"?continuous=gate-recorded");
+}
+
+
+/** Opt-in genuine signed discovery. POST never trusts a browser-provided grant. */
+export async function executeSignedContinuousDiscovery(
+  projectId:string,expectedProfileVersion:number,
+  expectedCanonicalRevision:string,expectedAppHead:string
+):Promise<void> {
+  if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
+      !Number.isInteger(expectedProfileVersion) || expectedProfileVersion<1 ||
+      !/^sha256:[a-f0-9]{64}$/.test(expectedCanonicalRevision) ||
+      !/^[a-f0-9]{40}$/.test(expectedAppHead)) {
+    throw new Error("Malformed source-bound execution request.");
+  }
+  const workspace=await loadProjectWorkspace(encodeURIComponent(projectId));
+  if (workspace.state!=="ready" || workspace.projectId!==projectId ||
+      workspace.project.profile.meta.recordVersion!==expectedProfileVersion) {
+    throw new Error("Authentication or canonical Profile changed.");
+  }
+  await workspace.runtime.authority.require(workspace.actor,projectId,"PROJECT_MUTATE");
+  const preflight=await readAuthenticatedContinuousPreflight(workspace);
+  if (preflight.canonicalRevision!==expectedCanonicalRevision ||
+      preflight.appHead!==expectedAppHead ||
+      preflight.profileVersion!==expectedProfileVersion ||
+      preflight.assessment.state!=="READY_WORK_FOUND") {
+    throw new Error("Preflight/HEAD changed; no signed execution permitted.");
+  }
+  const offer=await readVerifiedContinuousExecutionOffer(workspace,preflight);
+  if (!offer) throw new Error("No verified signed continuous-execution grant.");
+  const runner=new ScopedGitHubReadExecutor({
+    repository:offer.context.repository,
+    tokenProvider:async()=>await resolveGitHubPublicationToken() ??
+      process.env.WORKFLOW_RECEIPT_GITHUB_READ_TOKEN?.trim() ?? null
+  });
+  const freshness={
+    assertCurrent:async ()=>{
+      const latest=await loadProjectWorkspace(encodeURIComponent(projectId));
+      if (latest.state!=="ready" || latest.actor.principalId!==workspace.actor.principalId ||
+          latest.project.profile.meta.recordVersion!==expectedProfileVersion) {
+        throw new Error("Project actor/profile changed before execution.");
+      }
+      const actual=await readAuthenticatedContinuousPreflight(latest);
+      if (actual.appHead!==offer.context.appHead ||
+          actual.canonicalRevision!==offer.context.canonicalDigest ||
+          actual.assessment.state!=="READY_WORK_FOUND" ||
+          actual.assessment.nextWorkId!==offer.workId) {
+        throw new Error("Canonical state or READY task drifted before execution.");
+      }
+    }
+  };
+  const report=await executeBoundedWorkflowNode(
+    offer.grant,offer.manifest,offer.context,offer.plan,offer.authority,
+    workspace.runtime.workflowExecutionJournal,runner,freshness
+  );
+  const path="/projects/"+encodeURIComponent(projectId);
+  revalidatePath(path);
+  // A successfully observed inspection only submits a QA candidate. It
+  // NEVER completes the Work Package or passes a Quality Gate.
+  redirect(path+"?continuous="+
+    (report.status==="submitted-for-verification" ? "submitted-for-qa" : "task-stopped"));
 }
