@@ -8,6 +8,96 @@ CI runs Next.js + Chromium against a real disposable DB to prove that anonymous 
 
 The separate opt-in `playwright.real-auth.config.ts` **never** launches an impersonation server, issues JWTs, seals SSO cookies, grants roles, or enters Production. The suite fails before tests if an independent login, the correct Profile, or a disposable runtime is unavailable.
 
+
+## Windows 11 — hướng dẫn ngắn, không cần sửa mã nguồn (17/10/2026)
+
+**Bắt đầu từ đây, không đặt mật khẩu trong ChatGPT:** chỉ sử dụng máy Windows của bạn. Nút kiểm tra dùng lệnh **chỉ đọc** mới: `node scripts/continuous-localhost-precheck.mjs`. Lệnh này chỉ dò công cụ, HEAD cục bộ, cổng TCP của PostgreSQL, trạng thái HTTP localhost và sự tồn tại của ba tệp phiên ở **ngoài** repository; không đăng nhập hộ, không truy cập nội dung tệp phiên, không ký issuer, không tạo dự án và không sửa DB.
+
+### Bước 1 — Chuẩn bị bộ công cụ và mã nguồn đúng Draft PR
+
+Cài **Git for Windows**, **Node.js 24**, **pnpm 12.4.0 qua Corepack**, và **PostgreSQL 16 hoặc Docker Desktop** từ nhà cung cấp chính thức. Nếu đã có các công cụ, không cài lại. Mở **Windows PowerShell**:
+
+```powershell
+git clone https://github.com/BlueDragon33/Software-Blueprint-Hub.git
+cd Software-Blueprint-Hub
+git switch feature/universal-goal-continuity-next-action-candidate
+git rev-parse HEAD
+node --version
+corepack enable
+corepack prepare pnpm@12.4.0 --activate
+pnpm --version
+node scripts/continuous-localhost-precheck.mjs
+```
+
+Nếu đã clone từ trước, chỉ chạy `git status` rồi `git switch feature/universal-goal-continuity-next-action-candidate`. **Không `git reset --hard`, không merge, không xóa tệp chưa commit.** Đối chiếu HEAD với checkpoint ở PR #147 (có thể tiến lên do sửa lỗi); đừng nhầm với `main`.
+
+### Bước 2 — PostgreSQL dùng riêng, tuyệt đối không đụng dữ liệu thật
+
+Cách dễ cho người mới: trong **pgAdmin 4** hoặc công cụ quản trị PostgreSQL đang có, dùng server **local** `127.0.0.1:5432`; tạo một database mới tên **`blueprint_qa_test`**. Không đổi tên DB Production, không chạy migrate trên DB khác. Hãy đảm bảo database này **đã trống hoặc dùng riêng cho kiểm thử**, chứ không chứa hồ sơ đang sử dụng. Dùng tài khoản PostgreSQL thử nghiệm, không dùng mật khẩu DB Production.
+
+Trong PowerShell tại thư mục repo, tạo biến môi trường ở **phiên shell hiện tại** (thay bằng thông tin tự bạn biết; không dán giá trị vào chat/Git):
+
+```powershell
+$env:DATABASE_URL = 'postgresql://<local-qa-user>:<private-password>@127.0.0.1:5432/blueprint_qa_test'
+pnpm install --frozen-lockfile
+pnpm prisma:generate
+pnpm db:migrate:status
+pnpm db:migrate:deploy
+```
+
+Dấu `<...>` là chỗ bạn tự điền **trên máy**; không được sao chép nguyên dấu này vào cấu hình thật. Migration chỉ được phép chạy khi đã kiểm tra URL đúng `blueprint_qa_test`. `db:migrate:deploy` thay đổi database thử nghiệm, không phải lệnh kiểm tra chỉ đọc.
+
+### Bước 3 — Khởi chạy ứng dụng và đăng nhập **thật**
+
+Trong môi trường localhost này, ứng dụng dùng **GitHub OAuth qua Auth.js**: `apps/web/src/auth/authjs-config.ts` yêu cầu **`AUTH_SECRET`, `GITHUB_ID` và `GITHUB_SECRET`**. GitHub OAuth App cho localhost cần redirect/callback được chủ sở hữu đăng ký hợp lệ tại **`http://127.0.0.1:3000/api/auth/callback/github`**; không tự lấy secret của Preview hoặc sửa callback online. Nếu chưa có OAuth App riêng cho localhost, bước đăng nhập vẫn **BLOCKED** và phải nhờ Owner cấu hình. Tuyệt đối không khởi tạo ba cookie JWT giả.
+
+**App-Manager SSO hiện ghim callback vào HTTPS Preview** trong `apps/web/src/auth/appmanage-sso.ts`, do đó **không thể dùng App-Manager SSO Preview làm phiên localhost thật**. Không tùy tiện sửa chính sách issuer; dùng GitHub Auth.js có quyền hợp lệ hoặc triển khai một đăng ký SSO localhost riêng đã được review trước.
+
+Khi chủ sở hữu cung cấp cấu hình OAuth localhost thật cho môi trường QA, đặt các biến bảo mật riêng trên máy (không commit `.env`, không đưa vào chat), bật HTTP localhost chỉ dành riêng cho QA, rồi chạy:
+
+```powershell
+$env:BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH = 'true'
+pnpm --filter @blueprint-os/web dev
+```
+
+Sau đó mở **`http://127.0.0.1:3000/api/auth/signin`** trên chính PC và đăng nhập bằng GitHub thật. `AUTH_SECRET/GITHUB_ID/GITHUB_SECRET` và `DATABASE_URL` phải được cấu hình **trong tiến trình chạy server**; nếu đăng nhập không hoạt động hoặc bị từ chối, dừng và đọc thông báo, không tự cấp quyền.
+
+### Bước 4 — Ba tài khoản và hồ sơ QA
+
+Cần **ba Principal thật khác nhau**, đã được Owner cấp quyền **OWNER, EDITOR, VIEWER** theo cơ chế Authority của Blueprint OS cho *một* dự án QA có mã bắt đầu `project:qa-`. Vai trò phải tồn tại trong PostgreSQL thật và khớp với tài khoản đăng nhập. Không tự bootstrap Owner cho dữ liệu đang sử dụng, không gán `OWNER` cho Reviewer/Viewer và không viết trực tiếp SQL để lách kiểm duyệt. Hồ sơ QA cần có Work Package `READY`, đủ Quality Gate theo chính sách, một repository đã đăng ký thực, HEAD được đọc thật và không có Risk/Technical Debt nghiêm trọng còn mở.
+
+Từng người đăng nhập trong **trình duyệt riêng**, xuất Playwright `storageState` qua quy trình lấy trạng thái Playwright được phê duyệt, lưu ở thư mục riêng bên ngoài checkout. Các tệp này là **bí mật phiên đăng nhập**: không gửi qua chat, GitHub, Zalo hay CI artifacts. Nếu chưa có ba phiên thật hoặc chưa có cách an toàn lấy trạng thái, nghiệm thu E2E = **BLOCKED**.
+
+### Bước 5 — Tiền kiểm và chỉ khởi chạy E2E khi sẵn sàng
+
+Trong một cửa sổ PowerShell khác, ở thư mục repo, khai báo biến (chỉ tên minh họa, điền giá trị riêng tại PC):
+
+```powershell
+$env:BLUEPRINT_REAL_AUTH_E2E = 'true'
+$env:BLUEPRINT_REAL_AUTH_E2E_BASE_URL = 'http://127.0.0.1:3000/'
+$env:BLUEPRINT_REAL_AUTH_E2E_PROJECT = 'project:qa-<id-du-an-dung>'
+$env:BLUEPRINT_REAL_AUTH_E2E_OWNER_PRINCIPAL = 'principal:<uuid-owner>'
+$env:BLUEPRINT_REAL_AUTH_E2E_EDITOR_PRINCIPAL = 'principal:<uuid-editor>'
+$env:BLUEPRINT_REAL_AUTH_E2E_VIEWER_PRINCIPAL = 'principal:<uuid-viewer>'
+$env:BLUEPRINT_REAL_AUTH_E2E_OWNER_STATE = '<private-absolute-path>\\owner.json'
+$env:BLUEPRINT_REAL_AUTH_E2E_EDITOR_STATE = '<private-absolute-path>\\editor.json'
+$env:BLUEPRINT_REAL_AUTH_E2E_VIEWER_STATE = '<private-absolute-path>\\viewer.json'
+$env:BLUEPRINT_REAL_AUTH_E2E_ALLOW_OWNER_WRITES = 'false'
+$env:BLUEPRINT_REAL_AUTH_E2E_EXPECT_SIGNED_GRANT = 'false'
+node scripts/continuous-localhost-precheck.mjs
+```
+
+Chỉ khi tự kiểm tra báo đủ điều kiện và **chủ sở hữu thực sự cấp phép**, chạy `pnpm exec playwright test --config=playwright.real-auth.config.ts`. Đây là **bước kiểm thử có thể phát sinh POST đọc và ghi**; muốn chạy phần xác nhận/thu hồi biên bản trên DB QA riêng cần Owner đồng ý và đổi `BLUEPRINT_REAL_AUTH_E2E_ALLOW_OWNER_WRITES=true` trong đúng phiên máy thử nghiệm. Không bật nếu đang dùng dự án không thể thay đổi hoặc DB có giá trị thực tế.
+
+Khi lệnh báo `BLOCKED`: thực hiện đúng **một** điểm thiếu đầu tiên rồi chạy lại. Đầu ra chỉ chứa **tên hạng mục**, không hiện token hoặc mật khẩu. Không đánh giá E2E PASS chỉ vì TCP 5432 mở hoặc URL có HTTP 200; những kiểm tra đó chỉ chứng minh **có thể kết nối**.
+
+### Ranh giới nghiệm thu
+
+- `node scripts/continuous-localhost-precheck.mjs` là **precheck read-only**; không thể chứng minh ba phiên là của ai hoặc grant hợp lệ.
+- `pnpm exec playwright test --config=playwright.real-auth.config.ts` là **E2E có xác thực nếu và chỉ nếu** các phiên/thẩm quyền thực được đưa vào từ bên ngoài. Mọi thiếu sót phải báo **BLOCKED**, không cấp lại session tự động.
+- Phần `EXPECTED_SIGNED_GRANT=true` chỉ dùng khi tổ chức đã cấp **grant chữ ký issuer hợp lệ + workflow adoption thật**. Không tạo grant để chạy qua kiểm thử. Nút RUN phải giữ khóa khi thiếu bất kỳ điều kiện nào.
+
+
 ## Prerequisites and external authorization
 
 1. Run **the real compiled Blueprint OS application**, with independently configured authentication provider, at `http://127.0.0.1:3000` or approved HTTPS loopback; its `DATABASE_URL` must point only at **localhost database `blueprint_qa_test`** with actual migrations. Use a disposable project with ID beginning `project:qa-`, a canonical Profile, an actual governed HEAD and required gates/work. Do not bypass `PROJECT_READ` or `PROJECT_ADMIN`. Any valid signed `inspect-scoped` grant must be provided independently by the authorized issuer; the tests do not create it.
