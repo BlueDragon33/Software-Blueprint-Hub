@@ -23,6 +23,10 @@ on:
       - 'tests/application/continuous-execution-readiness.test.ts'
       - 'tests/application/project-readiness.test.ts'
       - 'tests/application/continuous-execution-pg-integration.test.ts'
+      - 'tests/application/continuous-mutation-origin.test.ts'
+      - 'tests/e2e/continuous-execution-anonymous.pw.ts'
+      - 'apps/web/src/auth/continuous-mutation-origin.ts'
+      - 'apps/web/src/server/continuous-execution-origin.ts'
       - '.github/workflows/product-goal-continuity-candidate.yml'
   push:
     branches: [main]
@@ -47,6 +51,10 @@ on:
       - 'tests/application/continuous-execution-readiness.test.ts'
       - 'tests/application/project-readiness.test.ts'
       - 'tests/application/continuous-execution-pg-integration.test.ts'
+      - 'tests/application/continuous-mutation-origin.test.ts'
+      - 'tests/e2e/continuous-execution-anonymous.pw.ts'
+      - 'apps/web/src/auth/continuous-mutation-origin.ts'
+      - 'apps/web/src/server/continuous-execution-origin.ts'
       - '.github/workflows/product-goal-continuity-candidate.yml'
   workflow_dispatch:
 
@@ -79,12 +87,12 @@ jobs:
       - name: Typecheck actual Next.js authenticated preflight route
         run: pnpm --filter @blueprint-os/web typecheck
       - name: Two project pilots and negative READY/authority gates
-        run: pnpm exec vitest run tests/application/continuous-execution-readiness.test.ts tests/application/project-readiness.test.ts
+        run: pnpm exec vitest run tests/application/continuous-execution-readiness.test.ts tests/application/project-readiness.test.ts tests/application/continuous-mutation-origin.test.ts
 
   continuous-preflight-postgres:
-    name: Isolated PostgreSQL canonical preflight pilot (NOT live user E2E)
+    name: Isolated PostgreSQL + anonymous Chromium (NOT authenticated user E2E)
     runs-on: ubuntu-24.04
-    timeout-minutes: 14
+    timeout-minutes: 22
     permissions:
       contents: read
     services:
@@ -129,3 +137,12 @@ jobs:
         run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts
       - name: Verify signature/adoption/issuer denial and bounded signed runner (no fake grant)
         run: pnpm exec vitest run tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-authority.test.ts tests/application/prompt-workflow-operational-e2e.test.ts
+      - name: Build actual Next.js site for unauthenticated browser smoke
+        run: pnpm --filter @blueprint-os/web build
+      - name: Install isolated Chromium for browser E2E
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Chromium/HTTP deny anonymous project access and hostile Origin (no mock login)
+        env:
+          BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH: "true"
+        run: pnpm exec playwright test tests/e2e/continuous-execution-anonymous.pw.ts --project=desktop-chromium
+
