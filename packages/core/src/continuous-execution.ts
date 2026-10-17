@@ -1,4 +1,4 @@
-import type { WorkPackage, QualityGate } from "@blueprint-os/contracts";
+import type { WorkPackage, QualityGate, GateEvidence } from "@blueprint-os/contracts";
 
 /**
  * Read-only engineering readiness. Canonical records are supplied only by a
@@ -14,6 +14,7 @@ export interface ContinuousProjectSnapshot {
   readonly requiredGateIds: readonly string[];
   readonly workPackages: readonly WorkPackage[];
   readonly gates: readonly QualityGate[];
+  readonly evidence?: readonly GateEvidence[];
 }
 
 export interface ContinuousExecutionAssessment {
@@ -92,8 +93,18 @@ export function assessCanonicalContinuousReadiness(
   }
   for (const gate of gateById.values()) {
     if (gate.status === "fail") reasons.push("Recorded gate failed: " + gate.id);
-    if (gate.status === "pass" && gate.evidenceIds.length === 0)
-      reasons.push("Gate claims PASS without linked evidence: " + gate.id);
+    if (gate.status === "pass") {
+      if (gate.evidenceIds.length === 0) {
+        reasons.push("Gate claims PASS without linked evidence: " + gate.id);
+      } else {
+        const evidence = new Map(input.evidence?.map(row=>[row.id,row]) ?? []);
+        if (gate.evidenceIds.some(id=>{
+          const row=evidence.get(id);
+          return !row || row.gateId!==gate.id || !row.source.trim() ||
+            !row.revision.trim();
+        })) reasons.push("PASS evidence reference is missing or malformed: "+gate.id);
+      }
+    }
   }
   if (reasons.length) return finish("BLOCKED");
   if (!input.canMutate) {
