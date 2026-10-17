@@ -87,10 +87,10 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
               {" "}· Live HEAD:
               {" "}<code>{continuous.appHead ?? "UNVERIFIED"}</code>
             </p>
-            {continuous.canonicalRevision ? (
+            {continuous.canonicalRevision && continuous.appHead ? (
               <form action={recheckContinuousExecutionPreflight.bind(
                 null, workspace.projectId, continuous.profileVersion,
-                continuous.canonicalRevision
+                continuous.canonicalRevision, continuous.appHead
               )}>
                 <button className="secondary-button registry-action" type="submit">
                   Kiểm tra lại READY bằng dữ liệu thật
