@@ -223,6 +223,7 @@ model Principal {
   constitutionPublications ConstitutionPublication[] @relation("ConstitutionPublicationPublisher")
   workflowExecutionAdoptions WorkflowExecutionAdoptionDecision[] @relation("WorkflowExecutionAdoptionDecider")
   workflowExecutionIssuers WorkflowExecutionIssuerDecision[] @relation("WorkflowExecutionIssuerDecider")
+  nextActionWorkBindings NextActionWorkBindingDecision[] @relation("NextActionWorkBindingDecider")
 
   @@unique([provider, providerSubject])
 }
