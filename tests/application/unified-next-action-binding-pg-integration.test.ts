@@ -121,6 +121,43 @@ suite("P2 canonical WorkPackage ↔ adopted workflow ↔ SHA PostgreSQL binding"
       .rejects.toThrow(/append-only/);
   });
 
+  it("orders bind/revoke decisions by monotonic sequence, not UUID or timestamp",async()=>{
+    const target=await work("work:p2-binding-sequence");
+    await repo.record({...target,decision:"bind",actorPrincipalId:owner});
+    await repo.record({...target,decision:"revoke",actorPrincipalId:owner});
+    const rows=await prisma.nextActionWorkBindingDecision.findMany({
+      where:{workPackageId:target.workPackageId},
+      orderBy:{decisionSequence:"asc"}
+    });
+    expect(rows.map(x=>x.decision)).toEqual(["bind","revoke"]);
+    expect(rows).toHaveLength(2);
+    expect(rows[1]!.decisionSequence>rows[0]!.decisionSequence).toBe(true);
+    await expect(repo.assertCurrent(target)).rejects.toThrow(/BINDING_DENIED/);
+    // No human authority was created: these are isolated CI owner fixtures.
+    expect(rows.every(x=>x.productionReleaseAuthority===false)).toBe(true);
+  });
+
+  it("concurrent owner decisions either serialize or fail closed; latest committed ledger wins",async()=>{
+    const target=await work("work:p2-binding-race");
+    const outcomes=await Promise.allSettled([
+      repo.record({...target,decision:"bind",actorPrincipalId:owner}),
+      repo.record({...target,decision:"revoke",actorPrincipalId:owner})
+    ]);
+    expect(outcomes.some(x=>x.status==="fulfilled")).toBe(true);
+    const records=await prisma.nextActionWorkBindingDecision.findMany({
+      where:{workPackageId:target.workPackageId},
+      orderBy:{decisionSequence:"asc"}
+    });
+    expect(records.length).toBe(outcomes.filter(x=>x.status==="fulfilled").length);
+    expect(records.every(x=>x.productionReleaseAuthority===false)).toBe(true);
+    const latest=records.at(-1);
+    if(latest?.decision==="bind"){
+      await expect(repo.assertCurrent(target)).resolves.toBeUndefined();
+    } else {
+      await expect(repo.assertCurrent(target)).rejects.toThrow(/BINDING_DENIED/);
+    }
+  });
+
   it("revoked workflow adoption invalidates binding without editing binding history",async()=>{
     const target=await work("work:p2-binding-adoption");
     await repo.record({...target,decision:"bind",actorPrincipalId:owner});
