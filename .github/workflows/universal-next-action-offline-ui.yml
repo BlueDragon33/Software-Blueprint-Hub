@@ -9,6 +9,7 @@ on:
       - "apps/web/app/projects/**/_components/readiness-overview.tsx"
       - "apps/web/app/globals.css"
       - "tests/e2e/universal-next-action.pw.ts"
+      - "tests/web/universal-next-action-browser-fixtures.test.tsx"
       - "playwright.universal-next-action.config.ts"
       - ".github/workflows/universal-next-action-offline-ui.yml"
   workflow_dispatch:
@@ -32,6 +33,10 @@ jobs:
           cache: pnpm
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
+      - name: Render canonical and pending UI through React and Vitest
+        env:
+          BLUEPRINT_UI_FIXTURE_DIR: artifacts/universal-next-action
+        run: pnpm exec vitest run tests/web/universal-next-action-browser-fixtures.test.tsx
       - name: Install isolated Chromium browser
         run: pnpm exec playwright install --with-deps chromium
       - name: Real Chromium offline Next Action UI acceptance (NOT authenticated runtime)
