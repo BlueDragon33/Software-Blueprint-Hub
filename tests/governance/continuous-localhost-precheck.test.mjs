@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { dirname,resolve } from "node:path";
 import {
   classifyLocalE2eConfig,safeLocalhostUrl,safeDisposablePostgres,
-  classifyPnpmAvailability
+  classifyPnpmAvailability,localDisposablePostgresProbe
 } from "../../scripts/continuous-localhost-precheck-core.mjs";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"../..");
@@ -25,6 +25,28 @@ test("database scope cannot be remote, production or other projects",()=>{
     "https://127.0.0.1:5432/blueprint_qa_test"]){
     assert.equal(safeDisposablePostgres(u),false);
   }
+});
+test("custom localhost PostgreSQL port 55432 does not become a false Windows blocker",()=>{
+  const configured="postgresql://qa:secret@127.0.0.1:55432/blueprint_qa_test";
+  assert.deepEqual(localDisposablePostgresProbe(configured),{
+    host:"127.0.0.1",port:55432
+  });
+  assert.deepEqual(localDisposablePostgresProbe(
+    "postgresql://qa:secret@localhost/blueprint_qa_test"),{
+      host:"127.0.0.1",port:5432
+  });
+  for(const url of [
+    "postgresql://qa:secret@remote.example:55432/blueprint_qa_test",
+    "postgresql://qa:secret@127.0.0.1:55432/blueprint_production",
+    "postgresql://qa:secret@127.0.0.1:99999/blueprint_qa_test"
+  ])assert.equal(localDisposablePostgresProbe(url),null);
+});
+test("Windows runner CLI uses validated disposable database port, never printed credentials",()=>{
+  const source=readFileSync(
+    new URL("../../scripts/continuous-localhost-precheck.mjs",import.meta.url),"utf8");
+  assert.match(source,/localDisposablePostgresProbe\(process\.env\.DATABASE_URL\)/);
+  assert.match(source,/await tcp\(dbProbe\.host,dbProbe\.port\)/);
+  assert.doesNotMatch(source,/console\.log\([^\n]*process\.env\.DATABASE_URL/);
 });
 test("never mark real-auth prerequisites ready with absent SSO credentials",()=>{
   const result=classifyLocalE2eConfig({},root);
