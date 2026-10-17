@@ -64,7 +64,8 @@ export async function readAuthenticatedContinuousPreflight(
     canMutate,
     requiredGateIds: project.blueprint.requiredGates,
     workPackages,
-    gates: bundles.map(row => row.gate)
+    gates: bundles.map(row => row.gate),
+    evidence: bundles.flatMap(row => row.evidence)
   };
   const assessment = assessCanonicalContinuousReadiness(canonicalSource);
   const recoveryActions = planContinuousRecovery(canonicalSource, assessment);
