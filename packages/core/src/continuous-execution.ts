@@ -145,7 +145,7 @@ export function planContinuousRecovery(
       requiresConfirmation:false,canChangeCanonicalState:false});
     return Object.freeze(actions);
   }
-  if (result.state === "READ_ONLY") {
+  if (result.state === "READ_ONLY" || !source.canMutate) {
     append({id:"request-project-role",kind:"human-review",
       label:"Yêu cầu người quản trị dự án cấp quyền phù hợp",
       explanation:"Chỉ PROJECT_READ không cho phép sửa hồ sơ hoặc thực thi.",
