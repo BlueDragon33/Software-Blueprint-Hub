@@ -2,6 +2,8 @@ import "server-only";
 
 import {
   assessCanonicalContinuousReadiness,
+  planContinuousRecovery,
+  type ContinuousRecoveryAction,
   type ContinuousExecutionAssessment
 } from "../../../../packages/core/src/continuous-execution";
 import type { ProjectWorkspaceLoadResult } from "./project-workspace";
@@ -17,6 +19,8 @@ export interface AuthenticatedContinuousSnapshot {
   readonly canonicalRevision: string | null;
   readonly appHead: string | null;
   readonly selectedWorkflowId: string | null;
+  readonly recoveryActions: readonly ContinuousRecoveryAction[];
+  readonly canMutate: boolean;
 }
 
 /**
@@ -41,14 +45,18 @@ export async function readAuthenticatedContinuousPreflight(
   ) ?? null;
   let appHead: string | null = null;
   if (registeredRepo) {
-    try {
-      appHead = await verifiedRepoHead(registeredRepo);
-    } catch {
-      // Network failure or missing verified repository HEAD fails closed.
-      // No fallback to caller input, presentation metadata or prior SHA.
+    // Resolve transient read outages with one bounded, side-effect-free retry.
+    // Never retry 401/403; never replace an unavailable SHA with a stale one.
+    for (let attempt=0;attempt<2;attempt++) {
+      try {
+        appHead = await verifiedRepoHead(registeredRepo);
+        break;
+      } catch (error) {
+        if (attempt===1 || /HTTP (?:401|403|404|429)/.test(String(error))) break;
+      }
     }
   }
-  const assessment = assessCanonicalContinuousReadiness({
+  const canonicalSource = {
     projectId,
     profileVersion: project.profile.meta.recordVersion,
     canonicalRevision,
@@ -57,10 +65,13 @@ export async function readAuthenticatedContinuousPreflight(
     requiredGateIds: project.blueprint.requiredGates,
     workPackages,
     gates: bundles.map(row => row.gate)
-  });
+  };
+  const assessment = assessCanonicalContinuousReadiness(canonicalSource);
+  const recoveryActions = planContinuousRecovery(canonicalSource, assessment);
   return Object.freeze({
     assessment, profileVersion: project.profile.meta.recordVersion,
     canonicalRevision, appHead,
-    selectedWorkflowId: selectedWorkflow?.workflowId ?? null
+    selectedWorkflowId: selectedWorkflow?.workflowId ?? null,
+    recoveryActions,canMutate
   });
 }
