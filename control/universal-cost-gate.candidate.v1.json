@@ -1,0 +1,26 @@
+{
+  "schema": "blueprint-os/universal-cost-gate-candidate/v1",
+  "status": "PROPOSED_NOT_RATIFIED",
+  "activeConstitution": "1.3.0",
+  "constitutionalAuthorityRequired": true,
+  "intendedScope": "ALL_GOVERNED_AND_FUTURE_APPS",
+  "ownerAdditionalGithubSpendUsd": 0,
+  "default": "LOCAL_FIRST",
+  "githubHostedCI": "BLOCK_WHEN_BUDGET_UNKNOWN_OR_EXHAUSTED",
+  "nativeMacOSAndPhysicalIPhoneQA": "BLOCKED_WITHOUT_REAL_EVIDENCE",
+  "selfHostedRunner": "DISABLED_UNTIL_ISOLATED_AND_REVIEWED",
+  "proposedRules": [
+    "Z1: preserve the product goal and choose the smallest relevant tests, avoid CI repetition without meaningful SHA or dependency change",
+    "Z2: before private GitHub-hosted jobs, check account-wide free allocation and billing gate; unknown or exhausted = BLOCKED; never auto-pay",
+    "Z3: run Node, Python, Playwright, build and local app smoke natively on Windows without invoking GitHub Actions where suitable",
+    "Z4: App-manager must not run arbitrary repository commands, privileged shells, untrusted PRs or third-party code; require approved allow-list and non-admin isolation",
+    "Z5: self-hosted Actions runner requires reviewed isolated disposable environment; not authorized as a cost-saving shortcut",
+    "Z6: signed Xcode/macOS, RU03, App Group, real device, human reviews, QA, Production and publication gates remain unchanged",
+    "Z7: on failed billing/runner provisioning, stop retries and record BLOCKED_NOT_EXECUTED, not FAIL_SOURCE or PASS",
+    "Z8: never turn a private repo public to reduce bills without independent owner authority",
+    "Z9: Work only if essential; present Chat continuation and optimized bounded Work prompt, with stop and token-budget limits",
+    "Z10: each checkpoint has one actionable product-goal Next Action; do not loop on the same unchanged blocker"
+  ],
+  "rollout": ["P0_READ_ONLY_AUDIT", "P1_LOCAL_ALLOWLIST_PILOT", "P2_REVIEWED_REPO_WORKFLOW_ADJUSTMENTS", "P3_CONSTITUTIONAL_REVIEW_AND_RATIFICATION"],
+  "nonAuthority": ["NO_AUTO_RATIFY", "NO_AUTO_MERGE", "NO_AUTO_PUBLISH", "NO_AUTO_GITHUB_BUDGET_CHANGE", "NO_FAKE_CI_PASS", "NO_FAKE_DEVICE_PASS"]
+}
