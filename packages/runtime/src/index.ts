@@ -35,6 +35,7 @@ import {
   PostgresReleaseRepository,
   PostgresWorkQualityRepository,
   PostgresWorkflowExecutionAuthorityRepository,
+  PostgresContinuousPreflightRepository,
   type BlueprintPrismaClient
 } from "@blueprint-os/persistence";
 
@@ -55,6 +56,7 @@ export interface BlueprintServerRuntime {
   readonly workflowExecutionJournal: PostgresWorkflowExecutionJournal;
   /** Canonical append-only adoption and issuer decisions; no private keys. */
   readonly workflowExecutionAuthority: PostgresWorkflowExecutionAuthorityRepository;
+  readonly continuousPreflight: PostgresContinuousPreflightRepository;
 }
 
 export function createBlueprintServerRuntime(
@@ -133,6 +135,7 @@ export function createBlueprintServerRuntime(
   );
   const workflowExecutionJournal = new PostgresWorkflowExecutionJournal(prisma);
   const workflowExecutionAuthority = new PostgresWorkflowExecutionAuthorityRepository(prisma);
+  const continuousPreflight = new PostgresContinuousPreflightRepository(prisma,authority);
 
   return Object.freeze({
     prisma,
@@ -148,7 +151,8 @@ export function createBlueprintServerRuntime(
     prompts,
     professionalReview,
     workflowExecutionJournal,
-    workflowExecutionAuthority
+    workflowExecutionAuthority,
+    continuousPreflight
   });
 }
 

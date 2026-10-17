@@ -1,0 +1,225 @@
+name: Product Goal Continuity — candidate only
+
+on:
+  pull_request:
+    paths:
+      - 'control/product-goal-continuity.candidate.v1.json'
+      - 'scripts/product-goal-continuity.mjs'
+      - 'tests/governance/product-goal-continuity.test.mjs'
+      - 'docs/amendments/CONSTITUTION-PRODUCT-GOAL-NEXT-ACTION-20261016-PROPOSAL.md'
+      - 'packages/core/src/continuous-execution.ts'
+      - 'packages/core/src/index.ts'
+      - 'apps/web/src/server/continuous-execution-preflight.ts'
+      - 'packages/persistence/src/continuous-preflight-repository.ts'
+      - 'packages/persistence/src/index.ts'
+      - 'packages/persistence/prisma/schema.prisma'
+      - 'packages/persistence/prisma/migrations/20261017090000_continuous_preflight_receipt/migration.sql'
+      - 'packages/runtime/src/index.ts'
+      - 'apps/web/src/server/continuous-execution-offer.ts'
+      - 'apps/web/app/projects/[projectId]/_components/continuous-preflight-focus-refresh.tsx'
+      - 'apps/web/src/server/prompt-workflow.ts'
+      - 'apps/web/app/projects/[projectId]/page.tsx'
+      - 'apps/web/app/projects/[projectId]/continuous-execution-action.ts'
+      - 'tests/application/continuous-execution-readiness.test.ts'
+      - 'tests/application/project-readiness.test.ts'
+      - 'tests/application/continuous-execution-pg-integration.test.ts'
+      - 'tests/application/continuous-mutation-origin.test.ts'
+      - 'tests/e2e/continuous-execution-anonymous.pw.ts'
+      - 'tests/e2e/continuous-authenticated-environment.ts'
+      - 'tests/e2e/continuous-execution-authenticated.real.ts'
+      - 'tests/application/continuous-real-auth-contract.test.ts'
+      - 'playwright.real-auth.config.ts'
+      - 'docs/qa/CONTINUOUS-EXECUTION-REAL-AUTH-E2E-20261017.md'
+      - 'scripts/continuous-localhost-precheck.mjs'
+      - 'scripts/continuous-localhost-precheck-core.mjs'
+      - 'tests/governance/continuous-localhost-precheck.test.mjs'
+      - '.gitignore'
+      - 'apps/web/src/auth/continuous-mutation-origin.ts'
+      - 'apps/web/src/server/continuous-execution-origin.ts'
+      - '.github/workflows/product-goal-continuity-candidate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'control/product-goal-continuity.candidate.v1.json'
+      - 'scripts/product-goal-continuity.mjs'
+      - 'tests/governance/product-goal-continuity.test.mjs'
+      - 'docs/amendments/CONSTITUTION-PRODUCT-GOAL-NEXT-ACTION-20261016-PROPOSAL.md'
+      - 'packages/core/src/continuous-execution.ts'
+      - 'packages/core/src/index.ts'
+      - 'apps/web/src/server/continuous-execution-preflight.ts'
+      - 'packages/persistence/src/continuous-preflight-repository.ts'
+      - 'packages/persistence/src/index.ts'
+      - 'packages/persistence/prisma/schema.prisma'
+      - 'packages/persistence/prisma/migrations/20261017090000_continuous_preflight_receipt/migration.sql'
+      - 'packages/runtime/src/index.ts'
+      - 'apps/web/src/server/continuous-execution-offer.ts'
+      - 'apps/web/app/projects/[projectId]/_components/continuous-preflight-focus-refresh.tsx'
+      - 'apps/web/src/server/prompt-workflow.ts'
+      - 'apps/web/app/projects/[projectId]/page.tsx'
+      - 'apps/web/app/projects/[projectId]/continuous-execution-action.ts'
+      - 'tests/application/continuous-execution-readiness.test.ts'
+      - 'tests/application/project-readiness.test.ts'
+      - 'tests/application/continuous-execution-pg-integration.test.ts'
+      - 'tests/application/continuous-mutation-origin.test.ts'
+      - 'tests/e2e/continuous-execution-anonymous.pw.ts'
+      - 'tests/e2e/continuous-authenticated-environment.ts'
+      - 'tests/e2e/continuous-execution-authenticated.real.ts'
+      - 'tests/application/continuous-real-auth-contract.test.ts'
+      - 'playwright.real-auth.config.ts'
+      - 'docs/qa/CONTINUOUS-EXECUTION-REAL-AUTH-E2E-20261017.md'
+      - 'scripts/continuous-localhost-precheck.mjs'
+      - 'scripts/continuous-localhost-precheck-core.mjs'
+      - 'tests/governance/continuous-localhost-precheck.test.mjs'
+      - '.gitignore'
+      - 'apps/web/src/auth/continuous-mutation-origin.ts'
+      - 'apps/web/src/server/continuous-execution-origin.ts'
+      - '.github/workflows/product-goal-continuity-candidate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-proposed-goal-continuity:
+    name: Candidate contract and adversarial navigation tests (not law)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - name: Validate candidate policy without ratification
+        run: node scripts/product-goal-continuity.mjs
+      - name: Test goal anchoring, bounded autonomy, status-loop prevention
+        run: node --test tests/governance/product-goal-continuity.test.mjs
+      - name: Test Windows read-only localhost preflight safety
+        run: node --test tests/governance/continuous-localhost-precheck.test.mjs
+      - name: Install exact dependencies and generate Prisma types
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma:generate
+      - name: Typecheck actual Next.js authenticated preflight route
+        run: pnpm --filter @blueprint-os/web typecheck
+      - name: Lint new externally-authenticated E2E harness and session guard
+        run: pnpm exec eslint tests/e2e/continuous-authenticated-environment.ts tests/e2e/continuous-execution-authenticated.real.ts tests/application/continuous-real-auth-contract.test.ts playwright.real-auth.config.ts
+      - name: Two project pilots and negative READY/authority gates
+        run: pnpm exec vitest run tests/application/continuous-execution-readiness.test.ts tests/application/project-readiness.test.ts tests/application/continuous-mutation-origin.test.ts tests/application/continuous-real-auth-contract.test.ts
+
+  continuous-preflight-postgres:
+    name: Isolated PostgreSQL + anonymous Chromium (NOT authenticated user E2E)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_qa_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_qa_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_qa_test
+      BLUEPRINT_QA_DB_INTEGRATION: "true"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Generate Prisma Client and apply canonical migrations to throwaway DB
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma:generate
+          pnpm exec prisma validate --config prisma7.config.ts
+          pnpm db:migrate:deploy
+          pnpm db:migrate:status
+      - name: Confirm real local PostgreSQL wire protocol without auth or SQL
+        run: |
+          node --input-type=module -e "import { probeLocalPostgresProtocol } from './scripts/continuous-localhost-precheck-core.mjs'; if (!(await probeLocalPostgresProtocol({host:'127.0.0.1',port:5432}))) { console.error('BLOCKED_NO_POSTGRES_PROTOCOL'); process.exitCode=1; }"
+      - name: Verify actual Profile Work Gate authority and stale CAS with two isolated projects
+        run: pnpm exec vitest run tests/application/continuous-execution-pg-integration.test.ts
+      - name: Verify actual durable PostgreSQL anti-replay and immutable independent QA journal
+        run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts
+      - name: Verify signature/adoption/issuer denial and bounded signed runner (no fake grant)
+        run: pnpm exec vitest run tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-authority.test.ts tests/application/prompt-workflow-operational-e2e.test.ts
+      - name: Build actual Next.js site for unauthenticated browser smoke
+        run: pnpm --filter @blueprint-os/web build
+      - name: Install isolated Chromium for browser E2E
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Chromium/HTTP deny anonymous project access and hostile Origin (no mock login)
+        env:
+          BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH: "true"
+        run: pnpm exec playwright test tests/e2e/continuous-execution-anonymous.pw.ts --project=desktop-chromium
+
+  windows-local-preflight-real-runner:
+    name: Windows 2025 real runner — read-only preflight, genuine SSO BLOCKED
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 147
+    runs-on: windows-2025
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout actual Draft head, not PR merge ref
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - name: Execute actual Windows preflight and distinguish BLOCKED from QA PASS
+        shell: pwsh
+        run: |
+          $expected = '${{ github.event.pull_request.head.sha }}'
+          $actual = (git rev-parse HEAD).Trim()
+          if ($actual -ne $expected) { throw "Windows HEAD mismatch; refusing status." }
+          $results = @(node scripts/continuous-localhost-precheck.mjs 2>&1)
+          $exitCode = $LASTEXITCODE
+          $results | ForEach-Object { Write-Output $_ }
+          if ($exitCode -ne 2) { throw "Unprovisioned Windows runner must report BLOCKED with exit code 2." }
+          foreach ($required in @(
+            '[OK] Node.js 24',
+            '[OK] Git',
+            '[OK] pnpm',
+            '[OK] Nhánh Draft PR #147',
+            '[BLOCKED] PostgreSQL TCP localhost:5432',
+            '[BLOCKED] owner-session',
+            '[BLOCKED] editor-session',
+            '[BLOCKED] viewer-session',
+            'KẾT LUẬN: BLOCKED'
+          )) {
+            if (-not (($results -join "`n").Contains($required))) {
+              throw "Windows preflight missing required exact truth marker: $required"
+            }
+          }
+          # pwsh GitHub Actions appends an implicit 'exit $LASTEXITCODE'. The
+          # expected read-only diagnostic uses 2 for genuine blockers; after
+          # validating it, reset ONLY the wrapper status, never the report.
+          $global:LASTEXITCODE = 0
+          Write-Output 'WINDOWS_PREFLIGHT_DIAGNOSTIC_PASS: runner real, localhost/SSO blocked as expected.'
