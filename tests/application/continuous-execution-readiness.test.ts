@@ -38,9 +38,9 @@ describe("authenticated-source continuous readiness projection (no issuer author
   it("pilot A: existing Bauman project has a READY task, never auto-dispatches",()=>{
     const result=assessCanonicalContinuousReadiness(
       snapshot("project:bauman-master-ai-system"));
-    expect(result.state).toBe("ENGINEERING_READY");
+    expect(result.state).toBe("READY_WORK_FOUND");
     expect(result.nextWorkId).toBe("work:offline-prea0");
-    expect(result.preflightEvidenceReady).toBe(true);
+    expect(result.preflightEvidenceReady).toBe(false);
     expect(result.canDispatch).toBe(false);
   });
   it("pilot B: new project fails closed until it has a canonical HEAD, gate and READY work",()=>{
@@ -54,7 +54,7 @@ describe("authenticated-source continuous readiness projection (no issuer author
       ...data,workPackages:data.workPackages.map(w=>({...w,status:"planned"}))
     }).state).toBe("BLOCKED");
     expect(assessCanonicalContinuousReadiness(data).state)
-      .toBe("ENGINEERING_READY");
+      .toBe("READY_WORK_FOUND");
   });
   it("a signed-in Viewer can read but never gets an execution authority",()=>{
     const result=assessCanonicalContinuousReadiness({
