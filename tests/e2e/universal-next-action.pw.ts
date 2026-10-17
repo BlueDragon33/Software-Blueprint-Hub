@@ -1,11 +1,12 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { resolve } from "node:path";
 import { expect, test } from "@playwright/test";
 
 import { UniversalNextAction } from "../../apps/web/app/_components/universal-next-action";
 import { canonicalNextAction, trackedNextAction } from "../../apps/web/src/lib/universal-next-action";
 
-const fromWeb = createRequire(new URL("../../apps/web/package.json", import.meta.url));
+const fromWeb = createRequire(resolve(process.cwd(), "apps/web/package.json"));
 const { renderToStaticMarkup } = fromWeb("react-dom/server") as {
   renderToStaticMarkup: (value: unknown) => string
 };
@@ -18,7 +19,7 @@ function makeMarkup(action: ReturnType<typeof canonicalNextAction>): string {
 }
 
 const stylesheet = readFileSync(
-  new URL("../../apps/web/app/globals.css", import.meta.url), "utf8"
+  resolve(process.cwd(), "apps/web/app/globals.css"), "utf8"
 );
 function documentFor(action: ReturnType<typeof canonicalNextAction>): string {
   // Actual shared React component and application CSS; NO fixture endpoint or
