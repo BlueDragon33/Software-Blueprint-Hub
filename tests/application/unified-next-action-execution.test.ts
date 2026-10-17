@@ -20,7 +20,7 @@ const manifest={
 const input:AuthorizedNextActionInspectionInput={
   actor:{principalId:"principal:editor"},projectId,
   displayedProfileVersion:1,displayedActionKind:"continue-work",
-  workPackageId:"work:inspect",workflow:manifest,context,
+  workPackageId:"work:inspect",workPackageRecordVersion:1,workflow:manifest,context,
   grant:{mode:"inspect-scoped"} // invalid grant: signature/adoption MUST reject
 };
 
@@ -52,7 +52,7 @@ function harness(overrides: {
     workQuality:{
       listWorkPackages:vi.fn(async()=>overrides.missingWork?[]:[{
         id:"work:inspect",projectId,status:overrides.blockedWork?"blocked":"ready",
-        dependencies:[],qualityGateIds:["gate:inspect"]
+        meta:{recordVersion:1},dependencies:[],qualityGateIds:["gate:inspect"]
       }]),
       listQualityGates:vi.fn(async()=>[{
         gate:{id:"gate:inspect",projectId,status:overrides.missingGate?"not-ready":"pass"},
@@ -64,7 +64,22 @@ function harness(overrides: {
       latestAdoption:vi.fn(),latestIssuer:vi.fn()
     },
     workflowExecutionJournal:{claim:vi.fn(),append:vi.fn(),read:vi.fn()},
-    prisma:{workflowExecutionQaVerification:{create:vi.fn(),findUnique:vi.fn()}}
+    prisma:{
+      nextActionWorkBindingDecision:{
+        findFirst:vi.fn(async()=>overrides.bindingDenied?null:{
+          projectId,workPackageId:"work:inspect",workPackageRecordVersion:1,
+          workflowId:"workflow-inspect",workflowDigest:"sha256:"+"0".repeat(64),
+          appHead:context.appHead,policyVersion:context.policyVersion,decision:"bind"
+        })
+      },
+      workPackage:{findUnique:vi.fn(async()=>({
+        projectId,recordVersion:1,status:"ready"
+      }))},
+      workflowExecutionAdoptionDecision:{findFirst:vi.fn(async()=>({
+        policyVersion:context.policyVersion,decision:"adopt"
+      }))},
+      workflowExecutionQaVerification:{create:vi.fn(),findUnique:vi.fn()}
+    }
   } as unknown as BlueprintServerRuntime;
   const runner=vi.fn();
   const qa=vi.fn();
@@ -75,9 +90,6 @@ function harness(overrides: {
     freshness:{assertCurrent:vi.fn(async()=>{})},
     trust:{publicKeyFor:vi.fn(()=>null)},
     verifier:{verify:vi.fn(async()=>false)},
-    binding:{assertCurrent:vi.fn(async()=>{
-      if(overrides.bindingDenied) throw new Error("CANONICAL_WORKFLOW_BINDING_UNVERIFIED");
-    })},
     clock:()=>now
   } as unknown as TrustedNextActionInspectionServices;
   return {runtime,services,authorize,runner,qa,source};
@@ -136,24 +148,17 @@ describe("One-button internal execution adapter: no fake authority or dispatch",
     expect(h.runtime.workflowExecutionJournal.claim).not.toHaveBeenCalled();
     expect(h.runner).not.toHaveBeenCalled();
   });
-  it("fails closed if the host has no trusted WorkPackage-to-workflow mapping",async()=>{
-    const h=harness();
-    const withoutBinding={...h.services,binding:undefined} as unknown as TrustedNextActionInspectionServices;
-    await expect(inspectAuthorizedNextAction(h.runtime,input,withoutBinding))
-      .rejects.toThrow(/no trusted WorkPackage-to-workflow binding source/);
-    expect(h.runner).not.toHaveBeenCalled();
-    expect(h.runtime.workflowExecutionJournal.claim).not.toHaveBeenCalled();
-  });
-  it("refuses a revoked or unverified trusted workflow mapping before any journal writes",async()=>{
+  it("rejects missing or revoked canonical binding before the runner or journal",async()=>{
     const h=harness({bindingDenied:true});
     await expect(inspectAuthorizedNextAction(h.runtime,input,h.services))
-      .rejects.toThrow("CANONICAL_WORKFLOW_BINDING_UNVERIFIED");
+      .rejects.toThrow(/NEXT_ACTION_BINDING_DENIED/);
     expect(h.runtime.workflowExecutionJournal.claim).not.toHaveBeenCalled();
     expect(h.runner).not.toHaveBeenCalled();
   });
   it("uses only existing Postgres authority, execution journal and separate QA storage",()=>{
     const source=readFileSync(new URL("../../packages/runtime/src/next-action-inspection-adapter.ts",import.meta.url),"utf8");
     expect(source).toContain("PostgresWorkflowExecutionAuthority.load(");
+    expect(source).toContain("new PostgresNextActionWorkBindingRepository(runtime.prisma)");
     expect(source).toContain("runtime.workflowExecutionJournal");
     expect(source).toContain("new PostgresWorkflowInspectionQaJournal(runtime.prisma)");
     expect(source).toContain("executeAndVerifyScopedInspection(");
