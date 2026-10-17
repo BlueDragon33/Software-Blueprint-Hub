@@ -1,11 +1,10 @@
 "use server";
 
 import { preflightUnifiedNextAction } from "@blueprint-os/application";
-import type { ProjectReadinessSnapshot } from "@blueprint-os/core";
 import { redirect } from "next/navigation";
 import { loadProjectWorkspace } from "../../../src/server/project-workspace";
 
-type NextActionKind = ProjectReadinessSnapshot["nextAction"]["kind"];
+type NextActionKind = Parameters<typeof preflightUnifiedNextAction>[0]["actionKind"];
 
 /** Server-authenticated preflight for the single Next Action CTA.
  * Never starts execution, issues grants, approves gates, or dispatches workers.
