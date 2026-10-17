@@ -47,8 +47,23 @@ export class PostgresNextActionWorkBindingRepository {
       throw new TypeError("Unknown WorkPackage-workflow binding decision");
     }
     await this.prisma.$transaction(async tx => {
-      const [bootstrap, work, adoption] = await Promise.all([
-        tx.systemBootstrap.findUnique({where:{id:"system"},select:{ownerPrincipalId:true}}),
+      const bootstrap = await tx.systemBootstrap.findUnique({
+        where:{id:"system"},select:{ownerPrincipalId:true}
+      });
+      if (!bootstrap || bootstrap.ownerPrincipalId !== input.actorPrincipalId) {
+        throw new Error("System Owner required for binding decision");
+      }
+      // Serialize decision insertion per WorkPackage. Without the row lock,
+      // concurrent bind/revoke operations could have identical timestamps and
+      // become ambiguous; an aborted Serializable transaction fails closed.
+      const locked = await tx.$queryRaw<Array<{id:string}>>`
+        SELECT "id" FROM "WorkPackage"
+        WHERE "id" = ${input.workPackageId} FOR UPDATE
+      `;
+      if (locked.length !== 1) {
+        throw new Error("Canonical WorkPackage project or recordVersion mismatch");
+      }
+      const [work, adoption] = await Promise.all([
         tx.workPackage.findUnique({where:{id:input.workPackageId},
           select:{projectId:true,recordVersion:true,status:true}}),
         tx.workflowExecutionAdoptionDecision.findFirst({
@@ -57,9 +72,6 @@ export class PostgresNextActionWorkBindingRepository {
           orderBy:[{decidedAt:"desc"},{id:"desc"}]
         })
       ]);
-      if (!bootstrap || bootstrap.ownerPrincipalId !== input.actorPrincipalId) {
-        throw new Error("System Owner required for binding decision");
-      }
       if (!work || work.projectId !== input.projectId ||
           work.recordVersion !== input.workPackageRecordVersion) {
         throw new Error("Canonical WorkPackage project or recordVersion mismatch");
@@ -112,7 +124,7 @@ export class PostgresNextActionWorkBindingRepository {
     const [latest, work, adoption] = await Promise.all([
       this.prisma.nextActionWorkBindingDecision.findFirst({
         where:{projectId:scope.projectId,workPackageId:scope.workPackageId},
-        orderBy:[{decidedAt:"desc"},{id:"desc"}]
+        orderBy:{decisionSequence:"desc"}
       }),
       this.prisma.workPackage.findUnique({
         where:{id:scope.workPackageId},
