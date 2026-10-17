@@ -215,4 +215,8 @@ jobs:
               throw "Windows preflight missing required exact truth marker: $required"
             }
           }
+          # pwsh GitHub Actions appends an implicit 'exit $LASTEXITCODE'. The
+          # expected read-only diagnostic uses 2 for genuine blockers; after
+          # validating it, reset ONLY the wrapper status, never the report.
+          $global:LASTEXITCODE = 0
           Write-Output 'WINDOWS_PREFLIGHT_DIAGNOSTIC_PASS: runner real, localhost/SSO blocked as expected.'
