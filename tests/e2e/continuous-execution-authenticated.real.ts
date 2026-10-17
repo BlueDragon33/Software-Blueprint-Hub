@@ -48,9 +48,14 @@ test.describe("actual Owner browser (external provider-authenticated session onl
     // are available, otherwise report a genuine blocker rather than invent it.
     const owner=page.getByText(/Owner: xác nhận tám điều kiện tiền kiểm|Quản lý biên bản tiền kiểm đã xác nhận/);
     await expect(owner).toBeVisible();
-    if(!env.expectGrant){
-      await expect(page.getByRole("button",{
-        name:"Thực hiện nhiệm vụ liên tục — bước khảo sát được ký"})).toHaveCount(0);
+    const signedButton=page.getByRole("button",{
+      name:"Thực hiện nhiệm vụ liên tục — bước khảo sát được ký"});
+    if(env.expectGrant){
+      // Positive UI acceptance requires an independently issued, unexpired
+      // real grant and a currently verified Owner preflight receipt.
+      await expect(signedButton).toBeVisible();
+    }else{
+      await expect(signedButton).toHaveCount(0);
     }
   });
   test("real valid Server Action POST accepts localhost Origin; hostile Origin is denied",async({page})=>{
