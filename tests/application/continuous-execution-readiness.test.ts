@@ -167,3 +167,20 @@ describe("least privilege during recovery",()=>{
     expect(actions.every(a=>!a.canChangeCanonicalState)).toBe(true);
   });
 });
+
+describe("PASS-linked evidence stays fail-closed",()=>{
+  it("rejects evidence IDs without actual canonical WorkQuality readback",()=>{
+    const base=snapshot("project:bauman-master-ai-system");
+    const g=gate(base.projectId,"gate:offline-smoke","pass",["evidence:offline-1"]);
+    expect(assessCanonicalContinuousReadiness({...base,gates:[g]}).state)
+      .toBe("BLOCKED");
+    expect(assessCanonicalContinuousReadiness({...base,gates:[g],
+      evidence:[{id:"evidence:offline-1",gateId:"gate:other",kind:"test",
+        source:"github:repo@sha",revision:SHA,createdAt:at}]}).state)
+      .toBe("BLOCKED");
+    expect(assessCanonicalContinuousReadiness({...base,gates:[g],
+      evidence:[{id:"evidence:offline-1",gateId:g.id,kind:"test",
+        source:"github:repo@sha",revision:SHA,createdAt:at}]}).state)
+      .toBe("READY_WORK_FOUND");
+  });
+});
