@@ -17,6 +17,7 @@ on:
       - 'apps/web/app/projects/[projectId]/continuous-execution-action.ts'
       - 'tests/application/continuous-execution-readiness.test.ts'
       - 'tests/application/project-readiness.test.ts'
+      - 'tests/application/continuous-execution-pg-integration.test.ts'
       - '.github/workflows/product-goal-continuity-candidate.yml'
   push:
     branches: [main]
@@ -35,6 +36,7 @@ on:
       - 'apps/web/app/projects/[projectId]/continuous-execution-action.ts'
       - 'tests/application/continuous-execution-readiness.test.ts'
       - 'tests/application/project-readiness.test.ts'
+      - 'tests/application/continuous-execution-pg-integration.test.ts'
       - '.github/workflows/product-goal-continuity-candidate.yml'
   workflow_dispatch:
 
@@ -68,3 +70,52 @@ jobs:
         run: pnpm --filter @blueprint-os/web typecheck
       - name: Two project pilots and negative READY/authority gates
         run: pnpm exec vitest run tests/application/continuous-execution-readiness.test.ts tests/application/project-readiness.test.ts
+
+  continuous-preflight-postgres:
+    name: Isolated PostgreSQL canonical preflight pilot (NOT live user E2E)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_qa_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_qa_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_qa_test
+      BLUEPRINT_QA_DB_INTEGRATION: "true"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Generate Prisma Client and apply canonical migrations to throwaway DB
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma:generate
+          pnpm exec prisma validate --config prisma7.config.ts
+          pnpm db:migrate:deploy
+          pnpm db:migrate:status
+      - name: Verify actual Profile Work Gate authority and stale CAS with two isolated projects
+        run: pnpm exec vitest run tests/application/continuous-execution-pg-integration.test.ts
+      - name: Verify actual durable PostgreSQL anti-replay and immutable independent QA journal
+        run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts
+      - name: Verify signature/adoption/issuer denial and bounded signed runner (no fake grant)
+        run: pnpm exec vitest run tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-authority.test.ts tests/application/prompt-workflow-operational-e2e.test.ts
