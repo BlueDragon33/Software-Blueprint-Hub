@@ -131,7 +131,7 @@ export function assessCanonicalContinuousReadiness(
 
 export interface ContinuousRecoveryAction {
   readonly id: string;
-  readonly kind: "automatic-readback" | "human-confirm-gate" | "human-confirm-work" | "human-review" | "authority-grant" | "prepare-work";
+  readonly kind: "automatic-readback" | "human-confirm-gate" | "human-confirm-work" | "human-confirm-ready" | "human-review" | "authority-grant" | "prepare-work";
   readonly label: string;
   readonly explanation: string;
   readonly requiresConfirmation: boolean;
@@ -171,7 +171,7 @@ export function planContinuousRecovery(
       requiresConfirmation:true,canChangeCanonicalState:true});
   }
   for (const gate of source.gates.filter(g=>g.status==="fail" ||
-      (g.status==="pass" && gateEvidenceIsMissing(g)))) {
+      (g.status==="pass" && gateEvidenceIsMissing(g,source.evidence)))) {
     append({id:gate.id,kind:"human-review",
       label:"Kiểm tra lại Gate: "+gate.name,
       explanation:"Phải khắc phục bằng chứng/đánh giá theo Project Authority và reviewer độc lập.",
@@ -188,14 +188,33 @@ export function planContinuousRecovery(
       explanation:"Yêu cầu tên, mục tiêu và điều kiện nghiệm thu cụ thể. Chỉ tạo PLANNED, không tự gắn READY, PASS hoặc ký lệnh.",
       requiresConfirmation:true,canChangeCanonicalState:true});
   } else if (!actions.length) {
-    append({id:"work-graph",kind:"prepare-work",
+    const byId=new Map(source.workPackages.map(w=>[w.id,w]));
+    const gates=new Map(source.gates.map(g=>[g.id,g]));
+    const planned=source.workPackages.filter(w=>
+      w.status==="planned" && w.acceptanceCriteria.length>0 &&
+      w.dependencies.every(id=>byId.get(id)?.status==="completed") &&
+      w.qualityGateIds.every(id=>gates.has(id) && gates.get(id)?.status!=="fail")
+    ).sort((a,b)=>a.id.localeCompare(b.id))[0];
+    if (planned) {
+      append({id:planned.id,kind:"human-confirm-ready",
+        label:"Xác nhận bắt đầu Work Package: "+planned.title,
+        explanation:"Chỉ chuyển PLANNED sang READY sau kiểm tra phụ thuộc và tiêu chí; không nhận là hoàn thành hay Quality Gate PASS.",
+        requiresConfirmation:true,canChangeCanonicalState:true});
+    } else {
+      append({id:"work-graph",kind:"prepare-work",
       label:"Chuẩn bị Work Package đủ điều kiện READY",
       explanation:"Hoàn thiện phụ thuộc, tiêu chí chấp nhận và Quality Gate trong hồ sơ chuẩn.",
       requiresConfirmation:true,canChangeCanonicalState:false});
+    }
   }
   return Object.freeze(actions);
 }
 
-function gateEvidenceIsMissing(gate: QualityGate): boolean {
-  return gate.evidenceIds.length===0;
+function gateEvidenceIsMissing(gate: QualityGate, evidence: readonly GateEvidence[] | undefined): boolean {
+  if (!gate.evidenceIds.length) return true;
+  const byId=new Map(evidence?.map(row=>[row.id,row]) ?? []);
+  return gate.evidenceIds.some(id=>{
+    const row=byId.get(id);
+    return !row || row.gateId!==gate.id || !row.source.trim() || !row.revision.trim();
+  });
 }
