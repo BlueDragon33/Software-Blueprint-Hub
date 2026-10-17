@@ -1,4 +1,6 @@
 import "server-only";
+import { preflightGateDigest, type PreflightBinding } from "@blueprint-os/persistence";
+import { CONSTITUTION_POLICY_VERSION } from "@blueprint-os/application";
 
 import {
   assessCanonicalContinuousReadiness,
@@ -21,6 +23,9 @@ export interface AuthenticatedContinuousSnapshot {
   readonly selectedWorkflowId: string | null;
   readonly recoveryActions: readonly ContinuousRecoveryAction[];
   readonly canMutate: boolean;
+  readonly canAttest: boolean;
+  readonly preflightBinding: PreflightBinding | null;
+  readonly preflightSequence: number;
 }
 
 /**
@@ -67,12 +72,49 @@ export async function readAuthenticatedContinuousPreflight(
     gates: bundles.map(row => row.gate),
     evidence: bundles.flatMap(row => row.evidence)
   };
-  const assessment = assessCanonicalContinuousReadiness(canonicalSource);
+  const candidate = assessCanonicalContinuousReadiness(canonicalSource);
+  const selectedWork = workPackages.find(w => w.id === candidate.nextWorkId);
+  const canAttest = await runtime.authority.can(actor,projectId,"PROJECT_ADMIN");
+  let preflightBinding: PreflightBinding | null = null;
+  let preflightSequence = 0;
+  let preflightEvidenceReady = false;
+  if (candidate.state === "READY_WORK_FOUND" && selectedWork &&
+      canonicalRevision && appHead && registeredRepo) {
+    const gateDigest = preflightGateDigest({
+      required: [...project.blueprint.requiredGates].sort(),
+      bundles: bundles.map(b => ({
+        gate:b.gate,evidence:[...b.evidence].sort((a,b)=>a.id.localeCompare(b.id))
+      })).sort((a,b)=>a.gate.id.localeCompare(b.gate.id))
+    });
+    // Eight evidence anchors are derived on the server from the real canonical
+    // Profile, WorkQuality and governed HEAD; no client-provided PASS bits.
+    preflightBinding = {
+      projectId, workId:selectedWork.id,
+      profileVersion:project.profile.meta.recordVersion,
+      workVersion:selectedWork.meta.recordVersion,
+      canonicalDigest:canonicalRevision, appHead,gateDigest,
+      policyVersion:CONSTITUTION_POLICY_VERSION,
+      checks:[
+        {id:"effective-authority",evidence:"canonical:authority:"+projectId},
+        {id:"product-goal-and-exit-criteria",evidence:"canonical:work:"+selectedWork.id},
+        {id:"current-source-and-checkpoint",evidence:"canonical:revision:"+canonicalRevision},
+        {id:"critical-path-and-dependencies",evidence:"canonical:dependencies:"+canonicalRevision},
+        {id:"blocking-defects-and-repair",evidence:"canonical:known-blockers:"+gateDigest},
+        {id:"relevant-quality-gates",evidence:"canonical:quality:"+gateDigest},
+        {id:"risk-human-and-capability-boundaries",evidence:"canonical:owner-attestation:"+projectId},
+        {id:"durable-handoff",evidence:"canonical:handoff:"+canonicalRevision}
+      ]
+    };
+    const latest = await runtime.continuousPreflight.latest(actor,preflightBinding);
+    preflightSequence = latest?.sequence ?? 0;
+    preflightEvidenceReady = latest?.current === true;
+  }
+  const assessment = Object.freeze({...candidate,preflightEvidenceReady});
   const recoveryActions = planContinuousRecovery(canonicalSource, assessment);
   return Object.freeze({
     assessment, profileVersion: project.profile.meta.recordVersion,
     canonicalRevision, appHead,
     selectedWorkflowId: selectedWorkflow?.workflowId ?? null,
-    recoveryActions,canMutate
+    recoveryActions,canMutate,canAttest,preflightBinding,preflightSequence
   });
 }
