@@ -75,7 +75,13 @@ export class PostgresContinuousPreflightRepository {
     const match=row.decision==="attest" && row.profileVersion===binding.profileVersion &&
       row.workVersion===binding.workVersion && row.canonicalDigest===binding.canonicalDigest &&
       row.appHead===binding.appHead && row.gateDigest===binding.gateDigest &&
-      row.policyVersion===binding.policyVersion && JSON.stringify(values)===JSON.stringify(binding.checks);
+      row.policyVersion===binding.policyVersion && Array.isArray(values) && values.length===binding.checks.length &&
+      binding.checks.every((check,i)=>{
+        const stored=values[i];
+        return stored!==null && typeof stored==="object" &&
+          "id" in stored && "evidence" in stored &&
+          stored.id===check.id && stored.evidence===check.evidence;
+      });
     // An Owner/reviewer access revocation cannot leave a once-attested receipt active.
     const attesterStillAuthorized=match && await this.authority.can(
       {principalId:row.actorPrincipalId},binding.projectId,"PROJECT_ADMIN");
@@ -106,10 +112,10 @@ export class PostgresContinuousPreflightRepository {
         tx.projectProfile.findUnique({where:{projectId:binding.projectId}}),
         tx.workPackage.findUnique({where:{id:binding.workId}})
       ]);
-      if (!profile || profile.recordVersion!==binding.profileVersion ||
+      if (decision==="attest" && (!profile || profile.recordVersion!==binding.profileVersion ||
           !work || work.projectId!==binding.projectId ||
           work.recordVersion!==binding.workVersion ||
-          work.status!=="ready") {
+          work.status!=="ready")) {
         throw new Error("PREFLIGHT_SOURCE_DRIFT: Profile or READY Work Package changed");
       }
       const row=await tx.continuousPreflightReceipt.create({data:{
