@@ -35,7 +35,7 @@ export function requireRealAuthEnvironment(configuration: NodeJS.ProcessEnv=proc
     throw new Error("BLOCKED_REAL_AUTH_E2E_REQUIRES_DISPOSABLE_POSTGRES");
   }
   const projectId=configuration.BLUEPRINT_REAL_AUTH_E2E_PROJECT?.trim()??"";
-  if (!/^project:[a-z][a-z0-9-]+$/.test(projectId)) {
+  if (!/^project:qa-[a-z0-9-]+$/.test(projectId)) {
     throw new Error("BLOCKED_REAL_AUTH_E2E_CANONICAL_PROJECT_REQUIRED");
   }
   const principalIds={} as Record<AuthenticatedRole,string>;
