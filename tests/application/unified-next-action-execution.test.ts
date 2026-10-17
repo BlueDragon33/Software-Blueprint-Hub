@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 import { inspectAuthorizedNextAction } from "../../packages/runtime/src/next-action-inspection-adapter";
 import type { BlueprintServerRuntime } from "../../packages/runtime/src";
@@ -133,8 +134,7 @@ describe("One-button internal execution adapter: no fake authority or dispatch",
     expect(h.runner).not.toHaveBeenCalled();
   });
   it("uses only existing Postgres authority, execution journal and separate QA storage",()=>{
-    const fs=require("node:fs") as typeof import("node:fs");
-    const source=fs.readFileSync(new URL("../../packages/runtime/src/next-action-inspection-adapter.ts",import.meta.url),"utf8");
+    const source=readFileSync(new URL("../../packages/runtime/src/next-action-inspection-adapter.ts",import.meta.url),"utf8");
     expect(source).toContain("PostgresWorkflowExecutionAuthority.load(");
     expect(source).toContain("runtime.workflowExecutionJournal");
     expect(source).toContain("new PostgresWorkflowInspectionQaJournal(runtime.prisma)");
