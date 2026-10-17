@@ -211,13 +211,22 @@ export async function admitIssue115FromRuntime(
       return found?.profile.meta.recordVersion ?? null;
     },
     atomic: callback => runtime.prisma.$transaction(async tx => {
+      // Close the profile-version TOCTOU gap: exact ProjectProfile metadata
+      // must still match INSIDE the same serializable write transaction.
+      const profile = await tx.projectProfile.findUnique({
+        where: { projectId },
+        select: { recordVersion: true }
+      });
+      if (!profile || profile.recordVersion !== expectedProfileVersion) {
+        throw new Error("Issue 115 canonical profile version changed within transaction");
+      }
       // Prisma's interactive transaction exposes the same WorkQuality
       // delegates as PrismaClient. Only the existing application service
       // writes; this is not a raw SQL or new authority path.
       const repo = new PostgresWorkQualityRepository(tx as unknown as BlueprintPrismaClient);
       const service = new WorkQualityApplicationService(repo, runtime.authority);
       return callback(service);
-    }),
+    }, { isolationLevel: "Serializable", maxWait: 5000, timeout: 10000 }),
     readback: runtime.workQuality
   }, actor, projectId, expectedProfileVersion);
 }
