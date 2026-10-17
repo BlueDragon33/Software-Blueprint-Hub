@@ -121,21 +121,34 @@ export async function inspectAuthorizedNextAction(
     runtime.workflowExecutionAuthority,
     input.projectId, input.workflow.workflowId, input.context.policyVersion
   );
+  // The pipeline verifies the Ed25519 signature and this request's issuer
+  // snapshot. Re-check its LIVE adoption and issuer decision before *each*
+  // protected step: an issuer revoke after initial signature verification
+  // must not leave a stale inspection capability at the runner/QA boundary.
+  const assertFreshExecutionAuthority = async (): Promise<void> => {
+    await assertEligible();
+    await authority.assertAdopted(
+      input.projectId, input.workflow.workflowId, workflowManifestDigest(input.workflow)
+    );
+    await authority.assertMayExecute(
+      input.projectId, input.workflow.workflowId, grant.issuerId
+    );
+  };
   const chainedFreshness: WorkflowExecutionTrustedDependencies["freshness"] = {
     assertCurrent: async (context) => {
-      await assertEligible();
+      await assertFreshExecutionAuthority();
       await services.freshness.assertCurrent(context);
     }
   };
   const scopedRunner: WorkflowExecutionTrustedDependencies["runner"] = {
     execute: async action => {
-      await assertEligible();
+      await assertFreshExecutionAuthority();
       return services.runner.execute(action);
     }
   };
   const scopedQa: WorkflowInspectionDependencies["qa"] = {
     verify: async (action, observation) => {
-      await assertEligible();
+      await assertFreshExecutionAuthority();
       return services.qa.verify(action, observation);
     }
   };
