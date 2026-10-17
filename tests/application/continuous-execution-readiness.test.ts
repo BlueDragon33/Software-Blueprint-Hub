@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { QualityGate, WorkPackage } from "../../packages/contracts/src";
 import {
   assessCanonicalContinuousReadiness,
+  canOfferContinuousExecution,
   planContinuousRecovery,
   type ContinuousProjectSnapshot
 } from "../../packages/core/src/continuous-execution";
@@ -205,5 +206,27 @@ describe("human READY promotion is only a candidate if prerequisites hold",()=>{
       assessCanonicalContinuousReadiness(input));
     expect(actions.some(x=>x.kind==="human-confirm-ready")).toBe(false);
     expect(actions[0]?.kind).toBe("human-review");
+  });
+});
+
+describe("eight-factor preflight is mandatory even after canonical READY",()=>{
+  it("a READY package is not enough to reveal the execution control",()=>{
+    const a=assessCanonicalContinuousReadiness(
+      snapshot("project:bauman-master-ai-system"));
+    expect(a.state).toBe("READY_WORK_FOUND");
+    expect(a.preflightEvidenceReady).toBe(false);
+    expect(canOfferContinuousExecution(a)).toBe(false);
+  });
+  it("no unsigned or stale/blocked preflight can reveal the execution control",()=>{
+    const a=assessCanonicalContinuousReadiness(
+      snapshot("project:bauman-master-ai-system"));
+    expect(canOfferContinuousExecution({...a,state:"BLOCKED",
+      preflightEvidenceReady:true})).toBe(false);
+    expect(canOfferContinuousExecution({...a,nextWorkId:null,
+      preflightEvidenceReady:true})).toBe(false);
+    // This positive format case is NOT produced by the current canonical
+    // adapter. A real eight-factor signed receipt must precede such state.
+    expect(canOfferContinuousExecution({...a,preflightEvidenceReady:true}))
+      .toBe(true);
   });
 });
