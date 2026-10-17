@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, realpathSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { expect, test, type Page, type Route } from "@playwright/test";
 
 // Browser-only canonical readback; importing the generated Prisma .ts ESM
@@ -42,7 +42,30 @@ function checkedEnvironment(): {
   }
   const resolved = states.map(p => realpathSync(p!));
   if (new Set(resolved).size !== 3) {
-    throw new Error("STOP: Owner/Editor/Viewer authenticated sessions must be distinct");
+    throw new Error("STOP: Owner/Editor/Viewer authenticated session files must be distinct");
+  }
+  // Different file paths do NOT prove different authenticated principals.
+  // Compare only known signed session cookie values in memory; never print,
+  // persist, or expose raw storageState credentials, even on test failure.
+  const sessions=resolved.map(statePath => {
+    const raw: unknown=JSON.parse(readFileSync(statePath, "utf8"));
+    if (!raw || typeof raw !== "object" || !("cookies" in raw) ||
+        !Array.isArray(raw.cookies)) {
+      throw new Error("STOP: malformed Playwright authenticated storageState");
+    }
+    const credentials=raw.cookies.filter((cookie: unknown) => {
+      if (!cookie || typeof cookie !== "object" ||
+          !("name" in cookie) || !("value" in cookie)) return false;
+      const c=cookie as {name: unknown; value: unknown};
+      return typeof c.name === "string" && typeof c.value === "string" &&
+        /^(?:__Secure-)?authjs\.session-token$|^__Host-blueprint-am-session$/.test(c.name) &&
+        c.value.length > 0;
+    }).map((cookie: {name:string;value:string}) => cookie.name+":"+cookie.value).sort().join("\n");
+    if (!credentials) throw new Error("STOP: real Auth.js/SSO session cookie absent");
+    return credentials;
+  });
+  if (new Set(sessions).size !== 3) {
+    throw new Error("STOP: Owner/Editor/Viewer session cookies must be distinct");
   }
   if (process.env.BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH !== "true" ||
       !process.env.AUTH_SECRET || process.env.AUTH_SECRET.length < 32) {
@@ -141,10 +164,17 @@ test.describe("Issue #115 — opt-in genuine localhost browser acceptance (NOT C
         ownerPage.locator('input[name="confirmBlockedIntake"]').check(),
         editorPage.locator('input[name="confirmBlockedIntake"]').check()
       ]);
+      // A pair of clicks is not proof of concurrent admission: require one
+      // actual framework POST request from EACH signed-in browser context.
+      const isIntakePost=(request: {method:()=>string;url:()=>string}) =>
+        request.method()==="POST" && new URL(request.url()).pathname.endsWith("/roadmap");
+      const ownerPost=ownerPage.waitForRequest(isIntakePost);
+      const editorPost=editorPage.waitForRequest(isIntakePost);
       const results=await Promise.allSettled([
         ownerPage.getByRole("button",{name:button}).click(),
         editorPage.getByRole("button",{name:button}).click()
       ]);
+      await Promise.all([ownerPost,editorPost]);
       if (results.every(x=>x.status==="rejected")) {
         throw new Error("STOP: both authorized browser POSTs failed");
       }
