@@ -58,3 +58,17 @@ export function classifyLocalE2eConfig(env,repositoryRoot){
     "Chỉ bật BLUEPRINT_REAL_AUTH_E2E=true khi các phiên thật đã sẵn sàng.");
   return checks;
 }
+
+/**
+ * This repository pins pnpm@12.4.0. On Windows a non-admin cannot usually
+ * create Corepack pnpm/pnpx shims in Program Files. A cached Corepack
+ * invocation is equally valid without changing global PATH or requiring UAC.
+ * Command execution is in the CLI; this decision is pure and testable.
+ */
+export function classifyPnpmAvailability(directVersion,corepackVersion){
+  if(directVersion==="12.4.0")
+    return Object.freeze({ready:true,method:"direct"});
+  if(corepackVersion==="12.4.0")
+    return Object.freeze({ready:true,method:"corepack"});
+  return Object.freeze({ready:false,method:null});
+}
