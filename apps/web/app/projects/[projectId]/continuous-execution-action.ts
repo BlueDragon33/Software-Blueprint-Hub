@@ -243,3 +243,76 @@ export async function confirmCreatePlannedWorkPackage(
   revalidatePath(path+"/roadmap");
   redirect(path+"?continuous=work-recorded");
 }
+
+
+/**
+ * Exact-CAS transition approved by the authenticated project Editor/Owner.
+ * Only a genuinely dependency-satisfied PLANNED package can become READY.
+ * READY never equals executed, reviewed, QA PASS or released.
+ */
+export async function confirmPromotePlannedWorkToReady(
+  projectId:string,expectedProfileVersion:number,
+  expectedCanonicalRevision:string,expectedAppHead:string,
+  workId:string,formData:FormData
+):Promise<void> {
+  if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
+      !Number.isInteger(expectedProfileVersion) || expectedProfileVersion<1 ||
+      !/^sha256:[a-f0-9]{64}$/.test(expectedCanonicalRevision) ||
+      !/^[a-f0-9]{40}$/.test(expectedAppHead) ||
+      !/^work:[a-zA-Z0-9_.:-]{3,120}$/.test(workId) ||
+      formData.get("confirmReadyNotDone")!=="on") {
+    throw new Error("Explicit source-bound READY confirmation is required.");
+  }
+  const workspace=await loadProjectWorkspace(encodeURIComponent(projectId));
+  if (workspace.state!=="ready" || workspace.projectId!==projectId ||
+      workspace.project.profile.meta.recordVersion!==expectedProfileVersion) {
+    throw new Error("Canonical project/actor or profile changed.");
+  }
+  await workspace.runtime.authority.require(workspace.actor,projectId,"PROJECT_MUTATE");
+  const snapshot=await readAuthenticatedContinuousPreflight(workspace);
+  if (snapshot.canonicalRevision!==expectedCanonicalRevision ||
+      snapshot.appHead!==expectedAppHead ||
+      !snapshot.recoveryActions.some(action=>
+        action.kind==="human-confirm-ready" && action.id===workId)) {
+    throw new Error("Work readiness preconditions changed; no promotion.");
+  }
+  const items=await workspace.runtime.workQuality.listWorkPackages(
+    workspace.actor,projectId);
+  const item=items.find(row=>row.id===workId);
+  if (!item || item.status!=="planned" || !item.acceptanceCriteria.length) {
+    throw new Error("Work Package is no longer an eligible PLANNED item.");
+  }
+  const dependency=await workspace.runtime.workQuality.readiness(
+    workspace.actor,workId);
+  if (!dependency || dependency.state!=="ready") {
+    throw new Error("Canonical dependency graph is not READY.");
+  }
+  const gateRows=await workspace.runtime.workQuality.listQualityGates(
+    workspace.actor,projectId);
+  const byId=new Map(gateRows.map(row=>[row.gate.id,row.gate]));
+  const required=new Set([...workspace.project.blueprint.requiredGates,...item.qualityGateIds]);
+  if ([...required].some(id=>!byId.has(id) || byId.get(id)?.status==="fail")) {
+    throw new Error("Unresolved required gate blocks readiness.");
+  }
+  const updated=await workspace.runtime.workQuality.updateWorkPackage(
+    workspace.actor,{
+      ...item,status:"ready",
+      meta:{...item.meta,recordVersion:item.meta.recordVersion+1,
+        updatedAt:new Date().toISOString()}
+    },
+    item.meta.recordVersion
+  );
+  if (updated.id!==workId || updated.status!=="ready") {
+    throw new Error("Canonical READY update was not confirmed.");
+  }
+  const readback=await workspace.runtime.workQuality.listWorkPackages(
+    workspace.actor,projectId);
+  if (!readback.some(row=>row.id===workId && row.status==="ready" &&
+      row.meta.recordVersion===item.meta.recordVersion+1)) {
+    throw new Error("READY work update could not be verified by canonical readback.");
+  }
+  const path="/projects/"+encodeURIComponent(projectId);
+  revalidatePath(path);
+  revalidatePath(path+"/roadmap");
+  redirect(path+"?continuous=work-ready");
+}
