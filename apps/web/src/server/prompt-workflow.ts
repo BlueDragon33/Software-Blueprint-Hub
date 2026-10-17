@@ -56,6 +56,14 @@ export function registeredGovernedRepository(projectId: string): string | null {
 }
 
 
+/**
+ * Read-only access to centrally authored manifest after an independently
+ * authenticated canonical PROJECT_READ. Manifest status is not adoption.
+ */
+export function registeredWorkflowManifest(projectId: string, workflowId: string) {
+  return workflowRegistry.workflowForProject(projectId, workflowId) ?? null;
+}
+
 export function registeredWorkflowNodes(
   projectId: string,
   workflowId: string
