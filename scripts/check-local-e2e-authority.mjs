@@ -87,6 +87,20 @@ function validScope(e) {
     /^[a-z][a-z0-9-]{1,79}$/.test(e.BLUEPRINT_E2E_ISSUER_ID ?? "");
 }
 
+/**
+ * pg.Client permits only one command in flight. Keep multi-query reads
+ * serial on the same REPEATABLE READ / READ ONLY transaction connection.
+ */
+export async function querySerially(client, statements) {
+  const results = [];
+  for (const [sql, params] of statements) {
+    results.push(params === undefined
+      ? await client.query(sql)
+      : await client.query(sql, params));
+  }
+  return results;
+}
+
 async function databaseReadOnly(url, e) {
   // Require the locally installed, pinned pg dependency of persistence.
   // There is no need for a web server, Auth.js cookie or synthetic Owner.
@@ -100,10 +114,10 @@ async function databaseReadOnly(url, e) {
   try {
     await client.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY");
     opened = true;
-    const [principals, owner, project] = await Promise.all([
-      client.query('SELECT count(*)::int AS n FROM "Principal"'),
-      client.query('SELECT count(*)::int AS n FROM "SystemBootstrap" WHERE "id" = $1', ["system"]),
-      client.query('SELECT count(*)::int AS n FROM "Project" WHERE "id" = $1', [PROJECT_ID])
+    const [principals, owner, project] = await querySerially(client, [
+      ['SELECT count(*)::int AS n FROM "Principal"'],
+      ['SELECT count(*)::int AS n FROM "SystemBootstrap" WHERE "id" = $1', ["system"]],
+      ['SELECT count(*)::int AS n FROM "Project" WHERE "id" = $1', [PROJECT_ID]]
     ]);
     const result = {
       principalRecordsPresent: principals.rows[0].n > 0,
@@ -119,11 +133,11 @@ async function databaseReadOnly(url, e) {
       const workflowDigest=e.BLUEPRINT_E2E_WORKFLOW_DIGEST;
       const issuerId=e.BLUEPRINT_E2E_ISSUER_ID;
       const workId=e.BLUEPRINT_E2E_WORK_PACKAGE_ID;
-      const [adoptions,issuers,bindings,works] = await Promise.all([
-        client.query('SELECT "decision", "decidedAt", "policyVersion" FROM "WorkflowExecutionAdoptionDecision" WHERE "projectId"=$1 AND "workflowId"=$2 AND "workflowDigest"=$3 ORDER BY "decidedAt" DESC, "id" DESC LIMIT 2', [PROJECT_ID,workflowId,workflowDigest]),
-        client.query('SELECT "decision", "decidedAt", "policyVersion" FROM "WorkflowExecutionIssuerDecision" WHERE "projectId"=$1 AND "workflowId"=$2 AND "issuerId"=$3 ORDER BY "decidedAt" DESC, "id" DESC LIMIT 2', [PROJECT_ID,workflowId,issuerId]),
-        client.query('SELECT "decision", "workflowId", "workflowDigest", "appHead", "policyVersion", "workPackageRecordVersion" FROM "NextActionWorkBindingDecision" WHERE "projectId"=$1 AND "workPackageId"=$2 ORDER BY "decisionSequence" DESC LIMIT 1', [PROJECT_ID,workId]),
-        client.query('SELECT "recordVersion", "status" FROM "WorkPackage" WHERE "projectId"=$1 AND "id"=$2', [PROJECT_ID,workId])
+      const [adoptions,issuers,bindings,works] = await querySerially(client, [
+        ['SELECT "decision", "decidedAt", "policyVersion" FROM "WorkflowExecutionAdoptionDecision" WHERE "projectId"=$1 AND "workflowId"=$2 AND "workflowDigest"=$3 ORDER BY "decidedAt" DESC, "id" DESC LIMIT 2', [PROJECT_ID,workflowId,workflowDigest]],
+        ['SELECT "decision", "decidedAt", "policyVersion" FROM "WorkflowExecutionIssuerDecision" WHERE "projectId"=$1 AND "workflowId"=$2 AND "issuerId"=$3 ORDER BY "decidedAt" DESC, "id" DESC LIMIT 2', [PROJECT_ID,workflowId,issuerId]],
+        ['SELECT "decision", "workflowId", "workflowDigest", "appHead", "policyVersion", "workPackageRecordVersion" FROM "NextActionWorkBindingDecision" WHERE "projectId"=$1 AND "workPackageId"=$2 ORDER BY "decisionSequence" DESC LIMIT 1', [PROJECT_ID,workId]],
+        ['SELECT "recordVersion", "status" FROM "WorkPackage" WHERE "projectId"=$1 AND "id"=$2', [PROJECT_ID,workId]]
       ]);
       const a=latestUnambiguous(adoptions.rows);
       const i=latestUnambiguous(issuers.rows);

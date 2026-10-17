@@ -1,7 +1,7 @@
 import {strict as assert} from "node:assert";
 import {test} from "node:test";
 import {
-  localDbTarget, latestUnambiguous, preliminaryBlockers, run
+  localDbTarget, latestUnambiguous, preliminaryBlockers, querySerially, run
 } from "../../scripts/check-local-e2e-authority.mjs";
 
 test("only the explicitly acknowledged disposable loopback PostgreSQL target is inspectable",()=>{
@@ -67,4 +67,31 @@ test("preflight never prints or re-exports OAuth, Postgres or signing secrets",a
   assert.ok(report.blockers.includes("DISPOSABLE_DB_NOT_ACKNOWLEDGED"));
   assert.equal(report.genuineOwnerSession,"NOT_VERIFIED_BY_READ_ONLY_CLI");
   assert.equal(report.signedEd25519Grant,"NOT_VERIFIED_BY_READ_ONLY_CLI");
+});
+
+test("serializes all pg.Client reads within one transaction without overlapping query calls", async()=>{
+  const calls=[];
+  let running=0, maximum=0;
+  const mock={
+    query: async(sql, params)=>{
+      running++;
+      maximum=Math.max(maximum,running);
+      calls.push([sql,params]);
+      await new Promise(resolve=>setTimeout(resolve,1));
+      running--;
+      return {rows:[{sql}]};
+    }
+  };
+  const results=await querySerially(mock,[
+    ["SELECT first"],
+    ["SELECT second",["owner"]],
+    ["SELECT third"],
+    ["SELECT fourth",["workflow"]]
+  ]);
+  assert.equal(maximum,1);
+  assert.deepEqual(calls.map(x=>x[0]),[
+    "SELECT first","SELECT second","SELECT third","SELECT fourth"
+  ]);
+  assert.deepEqual(calls[1][1],["owner"]);
+  assert.deepEqual(results.map(x=>x.rows[0].sql),calls.map(x=>x[0]));
 });
