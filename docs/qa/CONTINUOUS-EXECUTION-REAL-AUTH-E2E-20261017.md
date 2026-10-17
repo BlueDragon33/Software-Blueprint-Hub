@@ -63,6 +63,14 @@ node scripts/continuous-localhost-precheck.mjs
 
 Chỉ `pull --ff-only` khi worktree đúng nhánh và không có thay đổi cục bộ cần bảo vệ. **Không tạo thêm PostgreSQL hoặc DB trước khi đã kiểm tra dịch vụ thực.** Chỉ chia sẻ các dòng `[OK]`, `[BLOCKED]` không nhạy cảm; tuyệt đối không dán mật khẩu, cookie, token, session state hoặc DATABASE_URL có credentials.
 
+### Máy Windows thực: localhost web phản hồi nhưng QA Project/DB vẫn chưa xác minh
+
+Nếu `[OK] PostgreSQL protocol localhost:5432` và `[OK] Web Blueprint OS localhost` đồng thời các hạng mục `disposable-project` và `local-disposable-database` đang `BLOCKED`, điều này **không cho phép** chạy migration, thêm Project hay cấp Owner trên database hiện có. PostgreSQL SSLRequest chỉ xác minh giao thức. Phép kiểm Web mới còn đối chiếu **HTTP 200 + `text/html` + `<title>Blueprint OS</title>` + metadata `application-name=Blueprint OS`** từ ứng dụng trên loopback. Đây vẫn chỉ là kiểm tra danh tính trang web mức HTTP, **không chứng minh session SSO hay database backend là QA**.
+
+**Bước kế tiếp an toàn và riêng biệt (không ghi DB):** Dùng công cụ quản trị PostgreSQL đã có (ví dụ pgAdmin trên PC) xem **danh sách database** của instance tại `127.0.0.1:5432` bằng quyền đăng nhập vốn có, và chỉ xác nhận có hay không database `blueprint_qa_test`. Không gửi tên người dùng/mật khẩu hoặc DATABASE_URL sang chat. Nếu database chưa có, **dừng ở trạng thái BLOCKED** cho tới khi tài khoản quản trị có thẩm quyền tạo database QA riêng; tuyệt đối không dùng database đang vận hành hoặc mượn quyền Production để thỏa precheck.
+
+Không thể giả định một Project ID theo dạng `project:qa-` tự động tồn tại khi database vừa được tạo: đó là một đối tượng canonical có Profile, Authority và work/gates thật cần được tạo bằng workflow quản trị có thẩm quyền riêng, sau khi migrations vào **đúng DB QA** được nghiệm thu. Không tạo Principal hoặc role synthetic để gọi là phiên đăng nhập người thật.
+
 ### Bước 1 — Chuẩn bị bộ công cụ và mã nguồn đúng Draft PR
 
 Cài **Git for Windows**, **Node.js 24**, **pnpm 12.4.0 qua Corepack**, và **PostgreSQL 16 hoặc Docker Desktop** từ nhà cung cấp chính thức. Nếu đã có các công cụ, không cài lại. Mở **Windows PowerShell**:
