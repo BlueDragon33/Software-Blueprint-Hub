@@ -6,6 +6,7 @@ import {
   type WorkflowExecutionGrant
 } from "@blueprint-os/application";
 import { PostgresWorkflowExecutionAuthority } from "@blueprint-os/runtime";
+import { canOfferContinuousExecution } from "../../../../packages/core/src/continuous-execution";
 import {
   readRegisteredWorkflowReadiness,
   registeredWorkflowManifest,
@@ -38,7 +39,7 @@ export async function readVerifiedContinuousExecutionOffer(
   workspace: AuthorizedProjectWorkspace,
   preflight: AuthenticatedContinuousSnapshot
 ) {
-  if (preflight.assessment.state!=="READY_WORK_FOUND" ||
+  if (!canOfferContinuousExecution(preflight.assessment) ||
       !preflight.assessment.nextWorkId ||
       !preflight.appHead) return null;
   const candidate=serverProvisionedGrant(workspace.projectId);
