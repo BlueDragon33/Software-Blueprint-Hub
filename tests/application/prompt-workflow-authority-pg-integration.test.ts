@@ -13,7 +13,8 @@ import { PostgresWorkflowExecutionJournal } from "../../packages/runtime/src/wor
 import { PostgresWorkflowInspectionQaJournal } from "../../packages/runtime/src/workflow-inspection-qa-journal";
 import { WorkQualityApplicationService } from "../../packages/application/src/work-quality-service";
 import { PostgresWorkQualityRepository, type BlueprintPrismaClient } from "../../packages/persistence/src";
-import { admitIssue115Candidate } from "../../packages/runtime/src/issue-115-intake";
+import { admitIssue115Candidate, admitIssue115FromRuntime } from "../../packages/runtime/src/issue-115-intake";
+import type { BlueprintServerRuntime } from "../../packages/runtime/src";
 import { executeAndVerifyScopedInspection } from "../../packages/runtime/src/workflow-inspection-pipeline";
 import { ScopedGitHubReadExecutor } from "../../packages/runtime/src/workflow-scoped-github-executor";
 import { PinnedInspectionQaVerifier } from "../../packages/runtime/src/workflow-observation-qa";
@@ -240,6 +241,83 @@ suite("P1 workflow execution authority PostgreSQL integrity", () => {
     // a TEST identity; no canonical Product Authority or release approval.
     const project = "project:blueprint-os";
     await prisma.project.create({data:{id:project}});
+    // AUTHORITY TOCTOU and profile-version drift are exercised by the REAL
+    // PostgreSQL-backed runtime adapter, not by the mocked unit boundary.
+    const testTime = new Date().toISOString();
+    await prisma.projectProfile.create({
+      data: {
+        id: "profile:blueprint-os", projectId: project,
+        schemaVersion: "1.0.0", recordVersion: 1,
+        document: {
+          id: "profile:blueprint-os", projectId: project,
+          meta: {schemaVersion:"1.0.0", recordVersion:1,
+            createdAt:testTime, updatedAt:testTime},
+          name:"CI isolated Blueprint OS", projectType:"platform",
+          blueprintLevel:"B4", primaryUsers:["CI runner"],
+          jobsToBeDone:["Verify authorized intake"], dataSensitivity:"internal",
+          persistence:"server", authentication:"required",
+          authorization:"policy-based", deploymentTarget:"local",
+          expectedLifetime:"temporary"
+        }
+      }
+    });
+    const editorRecord = await authority.resolveIdentity({
+      provider: "github", providerSubject: "ci-p2-115-transactional-editor"
+    });
+    const editorActor = {principalId:editorRecord.id};
+    const ownerActorForGrant = {principalId:ownerId};
+    const roleForEditor = async (role: "EDITOR" | "VIEWER") =>
+      authority.grantProjectRole(ownerActorForGrant,
+        {projectId:project, principalId:editorRecord.id, role});
+    await roleForEditor("EDITOR");
+
+    function injectedRuntime(
+      beforeTransaction: () => Promise<void>
+    ): BlueprintServerRuntime {
+      return {
+        prisma: {
+          $transaction: async (
+            callback: (tx: BlueprintPrismaClient) => Promise<unknown>,
+            options: {isolationLevel: "Serializable";maxWait:number;timeout:number}
+          ) => {
+            await beforeTransaction();
+            return prisma.$transaction(
+              async tx => callback(tx as unknown as BlueprintPrismaClient),
+              options
+            );
+          }
+        },
+        authority,
+        profiles: {
+          read: async () => ({
+            profile: {meta: {recordVersion: 1}}
+          })
+        },
+        workQuality: new WorkQualityApplicationService(
+          new PostgresWorkQualityRepository(prisma), authority
+        )
+      } as unknown as BlueprintServerRuntime;
+    }
+
+    await expect(admitIssue115FromRuntime(
+      injectedRuntime(async () => roleForEditor("VIEWER").then(() => undefined)),
+      editorActor, project, 1
+    )).rejects.toThrow(/PROJECT_MUTATE|Authorization denied/);
+    expect(await prisma.workPackage.count({where:{projectId:project}})).toBe(0);
+    expect(await prisma.qualityGate.count({where:{projectId:project}})).toBe(0);
+
+    await roleForEditor("EDITOR");
+    await expect(admitIssue115FromRuntime(
+      injectedRuntime(async () => {
+        await prisma.projectProfile.update({
+          where: {projectId:project}, data:{recordVersion:2}
+        });
+      }),
+      editorActor, project, 1
+    )).rejects.toThrow(/profile version changed within transaction/);
+    expect(await prisma.workPackage.count({where:{projectId:project}})).toBe(0);
+    expect(await prisma.qualityGate.count({where:{projectId:project}})).toBe(0);
+
     let failThirdGate = true;
     let createdGates = 0;
     const realService = new WorkQualityApplicationService(
