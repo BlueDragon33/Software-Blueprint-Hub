@@ -274,8 +274,14 @@ suite("P1 workflow execution authority PostgreSQL integrity", () => {
     expect(await prisma.workPackage.count({where:{projectId:project}})).toBe(0);
     expect(await prisma.qualityGate.count({where:{projectId:project}})).toBe(0);
     failThirdGate=false;
-    const result=await admitIssue115Candidate(boundary,ownerActor,project,1);
-    expect(result).toMatchObject({state:"created",executionAuthorized:false,allNotReady:true});
+    // Simultaneous requests must result in exactly one durable candidate;
+    // a losing insert is "already-present" only after exact DB readback.
+    const concurrent = await Promise.all([
+      admitIssue115Candidate(boundary, ownerActor, project, 1),
+      admitIssue115Candidate(boundary, ownerActor, project, 1)
+    ]);
+    expect(concurrent.map(x => x.state).sort()).toEqual(["already-present", "created"]);
+    expect(concurrent.every(x => x.executionAuthorized === false)).toBe(true);
     expect(await prisma.workPackage.count({where:{projectId:project}})).toBe(1);
     expect(await prisma.qualityGate.count({where:{projectId:project}})).toBe(4);
     const replay=await admitIssue115Candidate(boundary,ownerActor,project,1);
