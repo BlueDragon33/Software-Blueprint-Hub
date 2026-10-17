@@ -316,3 +316,52 @@ export async function confirmPromotePlannedWorkToReady(
   revalidatePath(path+"/roadmap");
   redirect(path+"?continuous=work-ready");
 }
+
+
+/**
+ * Owner-only, explicit eight-factor engineering preflight attestation/revoke.
+ * The client provides NO evidence, checklist statuses, issuer key or grant.
+ */
+export async function confirmContinuousPreflightDecision(
+  projectId:string,expectedProfileVersion:number,
+  expectedCanonicalDigest:string,expectedHead:string,workId:string,
+  expectedSequence:number,decision:"attest"|"revoke",formData:FormData
+):Promise<void> {
+  if (!/^project:[a-z][a-z0-9-]+$/.test(projectId) ||
+      !Number.isInteger(expectedProfileVersion) || expectedProfileVersion<1 ||
+      !/^sha256:[a-f0-9]{64}$/.test(expectedCanonicalDigest) ||
+      !/^[a-f0-9]{40}$/.test(expectedHead) ||
+      !/^work:[a-zA-Z0-9_.:-]{3,120}$/.test(workId) ||
+      !Number.isInteger(expectedSequence) || expectedSequence<0 ||
+      !["attest","revoke"].includes(decision) ||
+      formData.get("confirmPreflightScope")!=="on") {
+    throw new Error("Owner must explicitly confirm an exact scoped decision.");
+  }
+  const note=String(formData.get("ownerPreflightNote")??"").trim();
+  if (note.length<25 || note.length>900) {
+    throw new Error("Explain the real evidence, residual risks and human boundaries.");
+  }
+  const workspace=await loadProjectWorkspace(encodeURIComponent(projectId));
+  if (workspace.state!=="ready" || workspace.projectId!==projectId ||
+      workspace.project.profile.meta.recordVersion!==expectedProfileVersion) {
+    throw new Error("Stale or unauthorized canonical project Profile.");
+  }
+  await workspace.runtime.authority.require(workspace.actor,projectId,"PROJECT_ADMIN");
+  const verified=await readAuthenticatedContinuousPreflight(workspace);
+  if (!verified.preflightBinding ||
+      verified.preflightBinding.workId!==workId ||
+      verified.canonicalRevision!==expectedCanonicalDigest ||
+      verified.appHead!==expectedHead ||
+      verified.preflightSequence!==expectedSequence) {
+    throw new Error("Current source, selected work or preflight sequence has drifted.");
+  }
+  if (decision==="attest" && verified.assessment.state!=="READY_WORK_FOUND") {
+    throw new Error("Cannot attest without verified independent READY work.");
+  }
+  await workspace.runtime.continuousPreflight.append(
+    workspace.actor,verified.preflightBinding,decision,expectedSequence,note);
+  const path="/projects/"+encodeURIComponent(projectId);
+  revalidatePath(path);
+  redirect(path+"?continuous="+
+    (decision==="attest"?"preflight-attested":"preflight-revoked"));
+}
