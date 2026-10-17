@@ -11,7 +11,8 @@ import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { connect } from "node:net";
 import {
-  classifyLocalE2eConfig, safeLocalhostUrl, safeDisposablePostgres
+  classifyLocalE2eConfig, safeLocalhostUrl, safeDisposablePostgres,
+  classifyPnpmAvailability
 } from "./continuous-localhost-precheck-core.mjs";
 
 const root=resolve(fileURLToPath(new URL("..",import.meta.url)));
@@ -53,8 +54,45 @@ check("Node.js 24",nodeMajor===24,
   "Cài Node.js 24 LTS theo yêu cầu engines của repository.");
 const git=existsCommand("git");
 check("Git",git,"Cài Git for Windows.");
-check("pnpm",existsCommand("pnpm"),
-  "Cài pnpm 12.4.0 bằng Corepack sau khi cài Node.js.");
+// Probe exact versions, not just PATH: Corepack may be installed and pnpm
+// usable on Windows without permission to write nodejs/pnpm[x] shims.
+// Fixed command strings (no user data). Disable Corepack network and
+// package.json auto-pin to preserve the preflight's read-only contract.
+const pnpmProbeEnvironment={
+  ...process.env, COREPACK_ENABLE_NETWORK:"0",COREPACK_ENABLE_AUTO_PIN:"0",
+  COREPACK_ENABLE_DOWNLOAD_PROMPT:"0"
+};
+const packageManagerVersion=(command)=>{
+  const runner=process.platform==="win32" ? "cmd.exe" : command;
+  const args=process.platform==="win32"
+    ? ["/d","/s","/c",command+" --version"]
+    : ["--version"];
+  const result=spawnSync(runner,args,{
+    cwd:root,env:pnpmProbeEnvironment,encoding:"utf8",timeout:7000,
+    shell:false,windowsHide:true
+  });
+  return result.status===0 ? (result.stdout??"").trim() : null;
+};
+const directPnpmVersion=packageManagerVersion("pnpm");
+const corepackPnpmVersion=directPnpmVersion==="12.4.0"
+  ? null
+  : (()=>{
+    const runner=process.platform==="win32" ? "cmd.exe" : "corepack";
+    const args=process.platform==="win32"
+      ? ["/d","/s","/c","corepack pnpm --version"]
+      : ["pnpm","--version"];
+    const result=spawnSync(runner,args,{
+      cwd:root,env:pnpmProbeEnvironment,encoding:"utf8",timeout:7000,
+      shell:false,windowsHide:true
+    });
+    return result.status===0 ? (result.stdout??"").trim() : null;
+  })();
+const pnpmStatus=classifyPnpmAvailability(
+  directPnpmVersion,corepackPnpmVersion);
+check("pnpm",pnpmStatus.ready,
+  "Không tìm thấy pnpm 12.4.0 qua lệnh trực tiếp hoặc Corepack ngoại tuyến. Thử corepack pnpm --version (không cần Admin).");
+if(pnpmStatus.method==="corepack")
+  console.log("pnpm 12.4.0 qua Corepack: OK (không cần Administrator hay ghi Program Files).");
 check("Docker/Podman hoặc PostgreSQL",existsCommand("docker")||
   existsCommand("podman")||existsCommand("psql"),
   "Cài Docker Desktop hoặc PostgreSQL 16 cho CSDL QA dùng riêng.");
