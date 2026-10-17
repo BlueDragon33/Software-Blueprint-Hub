@@ -160,7 +160,7 @@ export function planContinuousRecovery(
       requiresConfirmation:true,canChangeCanonicalState:true});
   }
   for (const gate of source.gates.filter(g=>g.status==="fail" ||
-      (g.status==="pass" && gateEvidenceIsMissing(gate)))) {
+      (g.status==="pass" && gateEvidenceIsMissing(g)))) {
     append({id:gate.id,kind:"human-review",
       label:"Kiểm tra lại Gate: "+gate.name,
       explanation:"Phải khắc phục bằng chứng/đánh giá theo Project Authority và reviewer độc lập.",
