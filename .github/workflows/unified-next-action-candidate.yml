@@ -41,9 +41,3 @@ jobs:
           pnpm --filter @blueprint-os/web typecheck
       - name: Mark real executor and Work session E2E not verified
         run: echo "PASS means contract + UI + server-action types; NOT authenticated browser E2E, Work host or real executor."
-
-        run: pnpm exec vitest run tests/application/unified-next-action.test.ts
-      - name: Typecheck application and Next project Overview
-        run: |
-          pnpm --filter @blueprint-os/application typecheck
-          pnpm --filter @blueprint-os/web typecheck
