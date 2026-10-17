@@ -108,14 +108,31 @@ export class PostgresContinuousPreflightRepository {
         throw new Error("PREFLIGHT_CAS_CONFLICT: stale confirmation or replay");
       }
       // A stale source cannot be used merely because the browser kept a token.
-      const [profile,work]=await Promise.all([
+      const [profile,work,gates,risks,debts]=await Promise.all([
         tx.projectProfile.findUnique({where:{projectId:binding.projectId}}),
-        tx.workPackage.findUnique({where:{id:binding.workId}})
+        tx.workPackage.findUnique({where:{id:binding.workId}}),
+        tx.qualityGate.findMany({
+          where:{projectId:binding.projectId},orderBy:{id:"asc"},
+          include:{evidence:{orderBy:{id:"asc"}}}
+        }),
+        tx.risk.findMany({where:{projectId:binding.projectId},orderBy:{id:"asc"}}),
+        tx.technicalDebt.findMany({where:{projectId:binding.projectId},orderBy:{id:"asc"}})
       ]);
+      // Protect against a defect/Gate edit between GET and Owner POST.
+      // This read occurs in the same SERIALIZABLE transaction as the append.
+      const currentGateDigest=preflightGateDigest({
+        bundles:gates.map(row=>({
+          gate:row.document,
+          evidence:row.evidence.map(item=>item.document)
+        })),
+        risks:risks.map(row=>row.document),
+        debts:debts.map(row=>row.document)
+      });
       if (decision==="attest" && (!profile || profile.recordVersion!==binding.profileVersion ||
           !work || work.projectId!==binding.projectId ||
           work.recordVersion!==binding.workVersion ||
-          work.status!=="ready")) {
+          work.status!=="ready" ||
+          currentGateDigest!==binding.gateDigest)) {
         throw new Error("PREFLIGHT_SOURCE_DRIFT: Profile or READY Work Package changed");
       }
       const row=await tx.continuousPreflightReceipt.create({data:{
