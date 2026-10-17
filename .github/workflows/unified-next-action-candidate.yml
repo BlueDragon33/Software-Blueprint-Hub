@@ -1,0 +1,40 @@
+name: Unified Next Action Candidate CI (not Work E2E)
+on:
+  pull_request:
+    paths:
+      - "packages/application/src/unified-next-action.ts"
+      - "packages/application/src/index.ts"
+      - "apps/web/app/projects/[projectId]/_components/readiness-overview.tsx"
+      - "tests/application/unified-next-action.test.ts"
+      - "docs/UNIFIED-NEXT-ACTION-WORK-HANDOFF.candidate.md"
+      - ".github/workflows/unified-next-action-candidate.yml"
+permissions:
+  contents: read
+jobs:
+  focused-next-action:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install exact dependencies and generate types
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma:generate
+      - name: Test one CTA + no fake Work mode redirect
+        run: pnpm exec vitest run tests/application/unified-next-action.test.ts
+      - name: Typecheck application and Next project Overview
+        run: |
+          pnpm --filter @blueprint-os/application typecheck
+          pnpm --filter @blueprint-os/web typecheck
+      - name: Mark real executor and Work session E2E not verified
+        run: echo "PASS means candidate UI+types only. Continuous executor, verified Work deep-link, and adoption across apps are NOT VERIFIED."
