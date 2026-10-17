@@ -1,0 +1,97 @@
+{
+  "schema": "blueprint-os/zero-spend-owner-repos-candidate/v1",
+  "status": "READ_ONLY_INVENTORY_NOT_CONSTITUTIONAL_APPROVAL",
+  "observed": "2026-10-17",
+  "owner": "BlueDragon33",
+  "source": "Connected GitHub owner repositories and visibility; default branch workflow directories inspected separately. No GH billing allocation inferred.",
+  "repositories": [
+    {
+      "name": "Application-Management",
+      "visibility": "public"
+    },
+    {
+      "name": "Bauman-master-ai-system",
+      "visibility": "public"
+    },
+    {
+      "name": "Bauman-Russian-iOS",
+      "visibility": "private"
+    },
+    {
+      "name": "Blueprint-Russian-Expert-Engine",
+      "visibility": "private"
+    },
+    {
+      "name": "BOIECH_AI",
+      "visibility": "public"
+    },
+    {
+      "name": "CAD_CAM_3D",
+      "visibility": "public"
+    },
+    {
+      "name": "CAE_Simulation",
+      "visibility": "public"
+    },
+    {
+      "name": "ECAD_Design",
+      "visibility": "public"
+    },
+    {
+      "name": "GrowUP_MyChildren",
+      "visibility": "public"
+    },
+    {
+      "name": "Hardware_Simulation",
+      "visibility": "public"
+    },
+    {
+      "name": "Health_Care",
+      "visibility": "public"
+    },
+    {
+      "name": "Math_Bauman",
+      "visibility": "public"
+    },
+    {
+      "name": "MPC_PID_System",
+      "visibility": "public"
+    },
+    {
+      "name": "NC03_Modem",
+      "visibility": "public"
+    },
+    {
+      "name": "pc-manager-desktop",
+      "visibility": "public"
+    },
+    {
+      "name": "PriceReport_Tunggiabao",
+      "visibility": "public"
+    },
+    {
+      "name": "ROS-1-2",
+      "visibility": "public"
+    },
+    {
+      "name": "RU_LIFE",
+      "visibility": "public"
+    },
+    {
+      "name": "Software-Blueprint-Execution-Gateway",
+      "visibility": "private"
+    },
+    {
+      "name": "Software-Blueprint-Execution-Worker",
+      "visibility": "private"
+    },
+    {
+      "name": "Software-Blueprint-Hub",
+      "visibility": "public"
+    },
+    {
+      "name": "Software-Blueprint-QA-Worker",
+      "visibility": "private"
+    }
+  ]
+}
