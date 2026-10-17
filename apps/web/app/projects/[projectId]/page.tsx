@@ -58,7 +58,7 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
             </p>
           </div>
           <span className={"status-chip " +
-            (continuous?.assessment.state === "ENGINEERING_READY"
+            (continuous?.assessment.state === "READY_WORK_FOUND"
               ? "status-chip-info" : "status-chip-warning")}>
             {continuous?.assessment.state ?? "UNVERIFIED"}
           </span>
