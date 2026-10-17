@@ -8,6 +8,7 @@ import {
   retryContinuousSourceRead,
   confirmCreateMissingQualityGate,
   confirmCreatePlannedWorkPackage,
+  confirmPromotePlannedWorkToReady,
   executeSignedContinuousDiscovery
 } from "./continuous-execution-action";
 import { ContinuousPreflightFocusRefresh } from "./_components/continuous-preflight-focus-refresh";
@@ -124,6 +125,10 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
           <p role="status">Không thể xác minh dữ liệu chuẩn hoặc phiên làm việc.
             Nút thực thi phải giữ trạng thái khóa.</p>
         )}
+        {queryState === "work-ready" ? (
+          <p role="status">Work Package đã được đọc lại ở trạng thái READY.
+            Nút thực thi vẫn yêu cầu workflow, grant và HEAD hợp lệ.</p>
+        ) : null}
         {queryState === "work-recorded" ? (
           <p role="status">Đã xác minh Work Package PLANNED trong hồ sơ chuẩn.
             Không tự chuyển READY, QA PASS hoặc cấp quyền thực thi.</p>
@@ -208,6 +213,22 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
                       </label>
                       <button className="secondary-button" type="submit">
                         Xác nhận lưu Work Package và kiểm tra lại
+                      </button>
+                    </form>
+                  ) : null}
+                  {action.kind==="human-confirm-ready" &&
+                    continuous.canMutate && continuous.canonicalRevision &&
+                    continuous.appHead ? (
+                    <form action={confirmPromotePlannedWorkToReady.bind(
+                      null,workspace.projectId,continuous.profileVersion,
+                      continuous.canonicalRevision,continuous.appHead,action.id)}>
+                      <label>
+                        <input name="confirmReadyNotDone" type="checkbox" required />
+                        Tôi xác nhận Work Package đã đủ điều kiện bắt đầu kỹ thuật,
+                        không xác nhận hoàn thành hay Quality Gate PASS.
+                      </label>
+                      <button className="secondary-button" type="submit">
+                        Xác nhận PLANNED → READY và kiểm tra lại
                       </button>
                     </form>
                   ) : null}
