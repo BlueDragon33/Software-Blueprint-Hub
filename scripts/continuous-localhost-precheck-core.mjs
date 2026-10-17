@@ -16,6 +16,23 @@ export function safeLocalhostUrl(value) {
   return ["http:","https:"].includes(u.protocol) && LOOPBACK.has(u.hostname) &&
     !u.username && !u.password && u.pathname==="/" && !u.search && !u.hash;
 }
+/**
+ * Read-only HTML identity check. HTTP 200 from an unrelated localhost server
+ * is insufficient evidence that the Blueprint OS app is running.
+ * Metadata is authored by apps/web/app/layout.tsx on signed-in AND
+ * signed-out routes, so no session/cookie or credentials are needed.
+ */
+export function matchesBlueprintLandingPage(contentType,html){
+  if(typeof contentType!=="string" || !/^text\/html(?:\s*;|\s*$)/i.test(contentType))
+    return false;
+  if(typeof html!=="string" || html.length===0 || html.length>512000)
+    return false;
+  const title=/<title\b[^>]*>\s*Blueprint OS\s*<\/title>/i.test(html);
+  const meta=/<meta\b[^>]*\bname=["']application-name["'][^>]*\bcontent=["']Blueprint OS["'][^>]*>/i.test(html) ||
+    /<meta\b[^>]*\bcontent=["']Blueprint OS["'][^>]*\bname=["']application-name["'][^>]*>/i.test(html);
+  return title&&meta;
+}
+
 export function safeDisposablePostgres(value){
   if(typeof value!=="string" || !value.trim()) return false;
   let u;
