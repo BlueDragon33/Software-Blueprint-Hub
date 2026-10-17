@@ -263,9 +263,10 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
           </form>
         ) : (
           <p role="status" className="readiness-provenance-note">
-            Chưa có lệnh thực thi được ký và thẩm định cho phiên bản hiện tại.
-            Nút thực thi sẽ tự xuất hiện sau khi nguồn chuẩn, workflow,
-            quyền cấp phép và tác vụ READY được xác thực lại.
+            Chưa xác minh đủ biên bản tiền kiểm tám điều kiện và lệnh
+            thực thi được ký đúng phiên bản. Nút chỉ tự xuất hiện khi cả
+            tiền kiểm của dự án, nguồn chuẩn, workflow, issuer và nhiệm vụ
+            READY đều được thẩm định trên máy chủ.
           </p>
         )}
         {queryState==="submitted-for-qa" ? (
