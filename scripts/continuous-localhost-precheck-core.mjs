@@ -22,6 +22,21 @@ export function safeDisposablePostgres(value){
   return (u.protocol==="postgresql:" || u.protocol==="postgres:") &&
     LOOPBACK.has(u.hostname) && u.pathname==="/blueprint_qa_test";
 }
+/**
+ * Return ONLY a sanitized loopback host/port for the exact disposable QA DB.
+ * Never echo credentials or permit a remote/production TCP probe. Different
+ * Windows PostgreSQL installations may map their isolated instance to 55432.
+ */
+export function localDisposablePostgresProbe(value){
+  if(!safeDisposablePostgres(value))return null;
+  const u=new URL(value);
+  const port=Number(u.port || "5432");
+  if(!Number.isSafeInteger(port) || port<1 || port>65535)return null;
+  // A loopback URL must never become a remote DNS or user-provided hostname.
+  const host=u.hostname==="[::1]" || u.hostname==="::1" ? "::1" : "127.0.0.1";
+  return Object.freeze({host,port});
+}
+
 export function sessionFileReady(filename,repoDir){
   if(!filename || !isAbsolute(filename) || !existsSync(filename))return false;
   try{
