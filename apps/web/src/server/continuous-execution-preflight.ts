@@ -37,11 +37,13 @@ export async function readAuthenticatedContinuousPreflight(
   workspace: AuthorizedProjectWorkspace
 ): Promise<AuthenticatedContinuousSnapshot> {
   const { runtime, actor, project, projectId } = workspace;
-  const [workPackages, bundles, canonicalRevision, canMutate] = await Promise.all([
+  const [workPackages, bundles, canonicalRevision, canMutate, risks, debts] = await Promise.all([
     runtime.workQuality.listWorkPackages(actor, projectId),
     runtime.workQuality.listQualityGates(actor, projectId),
     runtime.prompts.currentSourceRevisionFromProfile(actor, projectId, project),
-    runtime.authority.can(actor, projectId, "PROJECT_MUTATE")
+    runtime.authority.can(actor, projectId, "PROJECT_MUTATE"),
+    runtime.governance.listRisks(actor,projectId),
+    runtime.governance.listTechnicalDebt(actor,projectId)
   ]);
   const registeredRepo = registeredGovernedRepository(projectId);
   const workflows = registeredWorkflowSummaries(projectId);
@@ -72,7 +74,27 @@ export async function readAuthenticatedContinuousPreflight(
     gates: bundles.map(row => row.gate),
     evidence: bundles.flatMap(row => row.evidence)
   };
-  const candidate = assessCanonicalContinuousReadiness(canonicalSource);
+  const rawCandidate = assessCanonicalContinuousReadiness(canonicalSource);
+  const suspectedWork = workPackages.find(w => w.id === rawCandidate.nextWorkId);
+  const inScope = (ids: readonly string[]) =>
+    ids.length===0 || (suspectedWork!==undefined && ids.includes(suspectedWork.id));
+  const activeCriticalRisks=risks.filter(r =>
+    inScope(r.linkedWorkPackageIds) &&
+    (r.impact==="critical" || r.impact==="high") &&
+    (r.status==="open" || r.status==="mitigating"));
+  const activeCriticalDebts=debts.filter(d =>
+    inScope(d.linkedWorkPackageIds) &&
+    (d.severity==="critical" || d.severity==="high") &&
+    (d.status==="open" || d.status==="planned" || d.status==="in-progress"));
+  const blockingIds=[...activeCriticalRisks.map(r=>r.id),...activeCriticalDebts.map(d=>d.id)];
+  // A newly recorded critical blocker revokes the offer by immediately
+  // changing the authenticated readiness state. No optimistic PASS.
+  const candidate = blockingIds.length && rawCandidate.state==="READY_WORK_FOUND"
+    ? Object.freeze({...rawCandidate,state:"BLOCKED" as const,
+        nextWorkId:null,nextWorkTitle:null,
+        reasons:Object.freeze([...rawCandidate.reasons,
+          "Unresolved critical risk/technical debt: "+blockingIds.join(", ")])})
+    : rawCandidate;
   const selectedWork = workPackages.find(w => w.id === candidate.nextWorkId);
   const canAttest = await runtime.authority.can(actor,projectId,"PROJECT_ADMIN");
   let preflightBinding: PreflightBinding | null = null;
@@ -81,10 +103,11 @@ export async function readAuthenticatedContinuousPreflight(
   if (candidate.state === "READY_WORK_FOUND" && selectedWork &&
       canonicalRevision && appHead && registeredRepo) {
     const gateDigest = preflightGateDigest({
-      required: [...project.blueprint.requiredGates].sort(),
       bundles: bundles.map(b => ({
         gate:b.gate,evidence:[...b.evidence].sort((a,b)=>a.id.localeCompare(b.id))
-      })).sort((a,b)=>a.gate.id.localeCompare(b.gate.id))
+      })).sort((a,b)=>a.gate.id.localeCompare(b.gate.id)),
+      risks:[...risks].sort((a,b)=>a.id.localeCompare(b.id)),
+      debts:[...debts].sort((a,b)=>a.id.localeCompare(b.id))
     });
     // Eight evidence anchors are derived on the server from the real canonical
     // Profile, WorkQuality and governed HEAD; no client-provided PASS bits.
