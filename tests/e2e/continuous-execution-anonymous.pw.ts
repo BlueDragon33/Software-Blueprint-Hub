@@ -14,7 +14,7 @@ test.describe("isolated browser unauthenticated continuous-execution fail-closed
       "content","Blueprint OS"
     );
     // Identity is public read-only metadata; no user session or DB read grant.
-    await expect(page.getByRole("heading",{name:"Trung tâm ứng dụng"})).toBeVisible();
+    await expect(page.getByRole("heading",{name:"Trung tâm ứng dụng",exact:true})).toBeVisible();
   });
   test("existing project requires sign-in and leaks no execution controls",async({page})=>{
     await page.goto("/projects/project%3Aqa-existing-russian");
