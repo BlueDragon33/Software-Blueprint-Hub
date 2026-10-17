@@ -225,6 +225,24 @@ const runnable=process.env.BLUEPRINT_QA_DB_INTEGRATION==="true" && !!url;
     await authority.grantProjectRole(owner,{projectId:existing,
       principalId:temporary.id,role:"VIEWER"});
     expect((await repository.latest(owner,binding))?.current).toBe(false);
+    // A new canonical critical risk invalidates even a replay of the
+    // previously accepted eight-check/HEAD binding, independent of browser state.
+    const riskId="risk:pg-new-critical";
+    const riskRecord={
+      id:riskId,projectId:existing,title:"New severe offline data-loss risk",
+      description:"A newly observed unsafe failure must block fresh attestation.",
+      likelihood:"high" as const,impact:"critical" as const,
+      status:"open" as const,mitigation:"Repair and verify before proceeding",
+      linkedWorkPackageIds:[item.id],source:"canonical:pg-isolated-fixture",
+      meta:meta()
+    };
+    await prisma.risk.create({data:{
+      id:riskId,projectId:existing,schemaVersion:"1.0.0",
+      recordVersion:1,likelihood:"high",impact:"critical",status:"open",
+      document:riskRecord
+    }});
+    await expect(repository.append(owner,binding,"attest",3,note))
+      .rejects.toThrow(/PREFLIGHT_SOURCE_DRIFT/);
     const other={...binding,projectId:fresh};
     expect((await repository.latest(owner,other))).toBeNull();
   },30000);
