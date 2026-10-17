@@ -1,5 +1,6 @@
 import {
   preflightUnifiedNextAction,
+  workflowManifestDigest,
   type WorkflowExecutionGrant,
   type WorkflowExecutionTrustedDependencies
 } from "@blueprint-os/application";
@@ -24,7 +25,18 @@ type SourceContext = Parameters<typeof executeAndVerifyScopedInspection>[2];
 export type TrustedNextActionInspectionServices = Pick<
   WorkflowInspectionDependencies,
   "source" | "trust" | "verifier" | "runner" | "qa" | "freshness" | "clock"
->;
+> & {
+  /** Mandatory trusted canonical mapping; same project alone is insufficient. */
+  readonly binding: {
+    assertCurrent(input: Readonly<{
+      projectId: string;
+      workPackageId: string;
+      workflowId: string;
+      workflowDigest: string;
+      appHead: string;
+    }>): Promise<void>;
+  };
+};
 
 export interface AuthorizedNextActionInspectionInput {
   readonly actor: AuthenticatedActor | null;
@@ -96,7 +108,22 @@ export async function inspectAuthorizedNextAction(
       (input.grant as Partial<WorkflowExecutionGrant>).mode !== "inspect-scoped") {
     throw new Error("NEXT_ACTION_BLOCKED: only signed inspect-scoped grants are eligible");
   }
-  await assertCanonicalInspectionEligible(runtime, input);
+  if (typeof services.binding?.assertCurrent !== "function") {
+    throw new Error("NEXT_ACTION_BLOCKED: no trusted WorkPackage-to-workflow binding source");
+  }
+  const assertEligible = async (): Promise<void> => {
+    await assertCanonicalInspectionEligible(runtime, input);
+    // Read this mapping again before each runner/QA step, never infer
+    // canonical adoption from shared projectId or workflow.status.
+    await services.binding.assertCurrent({
+      projectId: input.projectId,
+      workPackageId: input.workPackageId,
+      workflowId: input.workflow.workflowId,
+      workflowDigest: workflowManifestDigest(input.workflow),
+      appHead: input.context.appHead
+    });
+  };
+  await assertEligible();
   const grant = input.grant as WorkflowExecutionGrant;
   const authority = await PostgresWorkflowExecutionAuthority.load(
     runtime.workflowExecutionAuthority,
@@ -104,19 +131,19 @@ export async function inspectAuthorizedNextAction(
   );
   const chainedFreshness: WorkflowExecutionTrustedDependencies["freshness"] = {
     assertCurrent: async (context) => {
-      await assertCanonicalInspectionEligible(runtime, input);
+      await assertEligible();
       await services.freshness.assertCurrent(context);
     }
   };
   const scopedRunner: WorkflowExecutionTrustedDependencies["runner"] = {
     execute: async action => {
-      await assertCanonicalInspectionEligible(runtime, input);
+      await assertEligible();
       return services.runner.execute(action);
     }
   };
   const scopedQa: WorkflowInspectionDependencies["qa"] = {
     verify: async (action, observation) => {
-      await assertCanonicalInspectionEligible(runtime, input);
+      await assertEligible();
       return services.qa.verify(action, observation);
     }
   };
