@@ -156,3 +156,14 @@ describe("fresh project may request PLANNED setup, never instant READY",()=>{
     expect(next.every(action=>action.kind!=="authority-grant")).toBe(true);
   });
 });
+
+describe("least privilege during recovery",()=>{
+  it("Viewer with a missing Gate sees authority referral, not a create form",()=>{
+    const base=snapshot("project:bauman-master-ai-system");
+    const input={...base,canMutate:false,gates:[]};
+    const actions=planContinuousRecovery(
+      input,assessCanonicalContinuousReadiness(input));
+    expect(actions.map(a=>a.kind)).toEqual(["human-review"]);
+    expect(actions.every(a=>!a.canChangeCanonicalState)).toBe(true);
+  });
+});
