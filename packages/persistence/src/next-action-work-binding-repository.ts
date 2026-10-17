@@ -76,12 +76,24 @@ export class PostgresNextActionWorkBindingRepository {
           work.recordVersion !== input.workPackageRecordVersion) {
         throw new Error("Canonical WorkPackage project or recordVersion mismatch");
       }
-      // Binding requires existing, independently authenticated adoption.
+      // The existing adoption store orders by timestamp and UUID. Two
+      // decisions can share a timestamp, and UUID is NOT a decision sequence:
+      // a same-tick revoke must never be silently shadowed by an adopt.
+      // Refuse the tie rather than invent an authorization ordering.
+      const unambiguousAdoption = adoption && await tx.workflowExecutionAdoptionDecision.count({
+        where:{
+          projectId:input.projectId,
+          workflowId:input.workflowId,
+          workflowDigest:input.workflowDigest,
+          decidedAt:adoption.decidedAt
+        }
+      }) === 1;
       // Revocation must remain possible even if adoption itself was revoked.
       if (input.decision === "bind" &&
           (!adoption || adoption.decision !== "adopt" ||
-           adoption.policyVersion !== input.policyVersion)) {
-        throw new Error("Exact adopted workflow decision required before binding");
+           adoption.policyVersion !== input.policyVersion ||
+           !unambiguousAdoption)) {
+        throw new Error("Exact unambiguous adopted workflow decision required before binding");
       }
       await tx.nextActionWorkBindingDecision.create({
         data:{
@@ -136,6 +148,14 @@ export class PostgresNextActionWorkBindingRepository {
         orderBy:[{decidedAt:"desc"},{id:"desc"}]
       })
     ]);
+    const unambiguousAdoption = adoption && await this.prisma.workflowExecutionAdoptionDecision.count({
+      where:{
+        projectId:scope.projectId,
+        workflowId:scope.workflowId,
+        workflowDigest:scope.workflowDigest,
+        decidedAt:adoption.decidedAt
+      }
+    }) === 1;
     if (!latest || latest.decision !== "bind" ||
         latest.projectId !== scope.projectId ||
         latest.workPackageId !== scope.workPackageId ||
@@ -148,7 +168,8 @@ export class PostgresNextActionWorkBindingRepository {
         work.recordVersion !== scope.workPackageRecordVersion ||
         (work.status !== "ready" && work.status !== "in-progress") ||
         !adoption || adoption.decision !== "adopt" ||
-        adoption.policyVersion !== scope.policyVersion) {
+        adoption.policyVersion !== scope.policyVersion ||
+        !unambiguousAdoption) {
       throw new Error("NEXT_ACTION_BINDING_DENIED: missing, revoked or stale canonical WorkPackage/workflow/SHA/adoption");
     }
   }
