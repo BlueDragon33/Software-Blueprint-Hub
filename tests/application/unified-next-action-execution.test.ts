@@ -76,9 +76,10 @@ function harness(overrides: {
       workPackage:{findUnique:vi.fn(async()=>({
         projectId,recordVersion:1,status:"ready"
       }))},
-      workflowExecutionAdoptionDecision:{findFirst:vi.fn(async()=>({
-        policyVersion:context.policyVersion,decision:"adopt"
-      }))},
+      workflowExecutionAdoptionDecision:{
+        findFirst:vi.fn(async()=>({policyVersion:context.policyVersion,decision:"adopt",decidedAt:new Date("2026-10-17T00:00:00Z")})),
+        count:vi.fn(async()=>1)
+      },
       workflowExecutionQaVerification:{create:vi.fn(),findUnique:vi.fn()}
     }
   } as unknown as BlueprintServerRuntime;
