@@ -43,6 +43,7 @@ test.describe("actual Owner browser (external provider-authenticated session onl
   test("authenticated OWNER can read its canonical preflight and only scoped Owner controls",async({page})=>{
     await openProfile(page,"OWNER");
     await expect(page.getByText(/Profile v\d+/)).toBeVisible();
+    await expect(page.getByText("READY_WORK_FOUND",{exact:true})).toBeVisible();
     await expect(page.getByRole("button",{name:buttonName})).toBeVisible();
     // Control can only exist when a real canonical READY Work Package + HEAD
     // are available, otherwise report a genuine blocker rather than invent it.
@@ -167,6 +168,7 @@ test.describe("real Editor browser (cannot sign Owner preflight)",()=>{
   test.use({storageState:env.states.EDITOR});
   test("Editor sees engineering readback but no Owner confirmation",async({page})=>{
     await openProfile(page,"EDITOR");
+    await expect(page.getByText("READY_WORK_FOUND",{exact:true})).toBeVisible();
     await expect(page.getByRole("button",{name:buttonName})).toBeVisible();
     await expect(page.getByText("Owner: xác nhận tám điều kiện tiền kiểm trước khi thực thi")).toHaveCount(0);
     await expect(page.getByText("Quản lý biên bản tiền kiểm đã xác nhận")).toHaveCount(0);
@@ -177,6 +179,7 @@ test.describe("real Viewer browser (no mutation grants)",()=>{
   test.use({storageState:env.states.VIEWER});
   test("Viewer reads its project but cannot confirm Owner or mutate Work/Gate",async({page})=>{
     await openProfile(page,"VIEWER");
+    await expect(page.getByText("READ_ONLY",{exact:true})).toBeVisible();
     await expect(page.getByText("Owner: xác nhận tám điều kiện tiền kiểm trước khi thực thi")).toHaveCount(0);
     await expect(page.getByRole("button",{name:/Xác nhận tạo hồ sơ/})).toHaveCount(0);
     await expect(page.getByRole("button",{name:/Xác nhận PLANNED/})).toHaveCount(0);
