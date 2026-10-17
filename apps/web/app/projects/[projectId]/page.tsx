@@ -7,6 +7,7 @@ import {
   recheckContinuousExecutionPreflight,
   retryContinuousSourceRead,
   confirmCreateMissingQualityGate,
+  confirmCreatePlannedWorkPackage,
   executeSignedContinuousDiscovery
 } from "./continuous-execution-action";
 import { ContinuousPreflightFocusRefresh } from "./_components/continuous-preflight-focus-refresh";
@@ -123,6 +124,10 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
           <p role="status">Không thể xác minh dữ liệu chuẩn hoặc phiên làm việc.
             Nút thực thi phải giữ trạng thái khóa.</p>
         )}
+        {queryState === "work-recorded" ? (
+          <p role="status">Đã xác minh Work Package PLANNED trong hồ sơ chuẩn.
+            Không tự chuyển READY, QA PASS hoặc cấp quyền thực thi.</p>
+        ) : null}
         {queryState === "gate-recorded" ? (
           <p role="status">Đã xác minh hồ sơ Quality Gate NOT_READY trong cơ sở dữ liệu
             chuẩn. Đây không phải Quality Gate PASS hoặc quyền khởi chạy.</p>
@@ -173,6 +178,36 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
                       </label>
                       <button className="secondary-button" type="submit">
                         Xác nhận tạo hồ sơ và đọc lại dữ liệu
+                      </button>
+                    </form>
+                  ) : null}
+                  {action.kind==="human-confirm-work" &&
+                    continuous.canMutate && continuous.canonicalRevision &&
+                    continuous.appHead ? (
+                    <form action={confirmCreatePlannedWorkPackage.bind(
+                      null,workspace.projectId,continuous.profileVersion,
+                      continuous.canonicalRevision,continuous.appHead)}>
+                      <label>
+                        Tên Work Package
+                        <input name="workTitle" required minLength={5}
+                          maxLength={120} placeholder="Đầu ra thực tế của sản phẩm" />
+                      </label>
+                      <label>
+                        Mục tiêu triển khai
+                        <textarea name="workPurpose" required minLength={20}
+                          maxLength={600} placeholder="Nêu rõ nội dung và phạm vi cần làm" />
+                      </label>
+                      <label>
+                        Điều kiện nghiệm thu
+                        <textarea name="workAcceptance" required minLength={15}
+                          maxLength={600} placeholder="Cách đo lường và kiểm tra đầu ra" />
+                      </label>
+                      <label>
+                        <input name="confirmPlannedWork" type="checkbox" required />
+                        Tôi xác nhận chỉ tạo Work Package ở trạng thái PLANNED.
+                      </label>
+                      <button className="secondary-button" type="submit">
+                        Xác nhận lưu Work Package và kiểm tra lại
                       </button>
                     </form>
                   ) : null}
