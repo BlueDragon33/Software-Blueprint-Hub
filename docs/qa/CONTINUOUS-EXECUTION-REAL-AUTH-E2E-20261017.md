@@ -37,6 +37,32 @@ Chỉ `git pull --ff-only` khi đúng nhánh `feature/universal-goal-continuity-
 
 **Phân biệt:** công cụ báo `[OK] PostgreSQL TCP localhost:55432` chỉ có nghĩa là có dịch vụ nghe cổng, **không** chứng minh database đã migrate hoặc đăng nhập hợp lệ. Khi chưa đặt biến `DATABASE_URL` ở PowerShell đang chạy, precheck vẫn dò mặc định `5432` và luôn để yêu cầu database cấu hình là `BLOCKED`. Không cần bật SSO hay cấp grant chỉ để chạy tiền kiểm.
 
+### Windows thực: TCP 5432 mở nhưng không có Docker/psql trong PATH
+
+Nếu công cụ cũ báo `[OK] PostgreSQL TCP localhost:5432` đồng thời `[BLOCKED] Docker/Podman hoặc PostgreSQL`, **không vội cài Docker/PostgreSQL**. TCP mở không chứng minh dịch vụ là PostgreSQL; Windows PostgreSQL có thể đang chạy theo service nhưng `psql.exe` không nằm trong PATH. Bản mới sẽ hỏi đúng một **SSLRequest PostgreSQL 8 byte chỉ đọc** trên loopback và chấp nhận **phản hồi 1 byte `S` hoặc `N`**. Không gửi thông tin đăng nhập, SQL, thao tác khởi tạo hoặc thay đổi dữ liệu.
+
+* `[OK] PostgreSQL protocol localhost:5432`: dịch vụ trên cổng phản hồi theo giao thức PostgreSQL; thiếu Docker hoặc `psql` không còn chặn vô căn cứ.
+* `[BLOCKED] PostgreSQL protocol localhost:5432`: cổng có thể thuộc ứng dụng khác, proxy sai hoặc PostgreSQL chưa chạy đúng; kiểm tra chủ sở hữu dịch vụ trước khi cài.
+* **Ngay cả khi protocol PASS**, `local-disposable-database` vẫn BLOCKED nếu chưa cấu hình đúng database thử nghiệm `blueprint_qa_test`. SSLRequest không kiểm tra user, database, migration hoặc quyền.
+
+Ở PowerShell, có thể xem tiến trình đang giữ cổng (chỉ đọc, không tự tắt tiến trình):
+
+```powershell
+Get-NetTCPConnection -LocalPort 5432 -State Listen |
+  Select-Object LocalAddress, LocalPort, OwningProcess
+```
+
+Để lấy bản kiểm tra mới nhất của PR #147 đã mở riêng:
+
+```powershell
+cd E:\BaumanWeb\Software-Blueprint-Hub-PR147
+git status --short
+git pull --ff-only origin feature/universal-goal-continuity-next-action-candidate
+node scripts/continuous-localhost-precheck.mjs
+```
+
+Chỉ `pull --ff-only` khi worktree đúng nhánh và không có thay đổi cục bộ cần bảo vệ. **Không tạo thêm PostgreSQL hoặc DB trước khi đã kiểm tra dịch vụ thực.** Chỉ chia sẻ các dòng `[OK]`, `[BLOCKED]` không nhạy cảm; tuyệt đối không dán mật khẩu, cookie, token, session state hoặc DATABASE_URL có credentials.
+
 ### Bước 1 — Chuẩn bị bộ công cụ và mã nguồn đúng Draft PR
 
 Cài **Git for Windows**, **Node.js 24**, **pnpm 12.4.0 qua Corepack**, và **PostgreSQL 16 hoặc Docker Desktop** từ nhà cung cấp chính thức. Nếu đã có các công cụ, không cài lại. Mở **Windows PowerShell**:
