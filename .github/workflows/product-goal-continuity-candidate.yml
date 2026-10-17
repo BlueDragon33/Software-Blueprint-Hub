@@ -153,6 +153,9 @@ jobs:
           pnpm exec prisma validate --config prisma7.config.ts
           pnpm db:migrate:deploy
           pnpm db:migrate:status
+      - name: Confirm real local PostgreSQL wire protocol without auth or SQL
+        run: |
+          node --input-type=module -e "import { probeLocalPostgresProtocol } from './scripts/continuous-localhost-precheck-core.mjs'; if (!(await probeLocalPostgresProtocol({host:'127.0.0.1',port:5432}))) { console.error('BLOCKED_NO_POSTGRES_PROTOCOL'); process.exitCode=1; }"
       - name: Verify actual Profile Work Gate authority and stale CAS with two isolated projects
         run: pnpm exec vitest run tests/application/continuous-execution-pg-integration.test.ts
       - name: Verify actual durable PostgreSQL anti-replay and immutable independent QA journal
