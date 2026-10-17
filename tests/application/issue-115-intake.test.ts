@@ -70,6 +70,20 @@ describe("Issue #115 canonical candidate-only authenticated admission", () => {
     expect(checked.gates.every(x=>x.status==="not-ready"&&x.evidenceIds.length===0)).toBe(true);
   });
 
+  it("keeps admission on same-origin POST Server Actions with no permissive origin allowlist", () => {
+    // Config/source regression only; a live cross-origin browser POST remains
+    // UNVERIFIED until a localhost Next server is available for testing.
+    const action = readFileSync(
+      new URL("../../apps/web/app/projects/[projectId]/roadmap/actions.ts", import.meta.url), "utf8");
+    const config = readFileSync(
+      new URL("../../apps/web/next.config.ts", import.meta.url), "utf8");
+    expect(action.trimStart().startsWith('"use server";')).toBe(true);
+    expect(action).toContain('formData.get("confirmBlockedIntake")');
+    expect(action).toContain('"PROJECT_MUTATE"');
+    expect(action).toContain('loadProjectWorkspace(');
+    expect(config).not.toMatch(/allowedOrigins|allowedDevOrigins/);
+  });
+
   it("rejects anonymous, VIEWER, wrong project and stale profile before any write", async () => {
     const h=harness();
     await expect(admitIssue115Candidate(h.boundary,null,project,1)).rejects.toThrow(/authenticated/);
