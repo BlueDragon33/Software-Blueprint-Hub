@@ -4,6 +4,7 @@
  */
 import { isAbsolute, relative, sep } from "node:path";
 import { existsSync, realpathSync, statSync } from "node:fs";
+import { connect } from "node:net";
 
 const LOOPBACK=new Set(["127.0.0.1","localhost","::1","[::1]"]);
 export const REAL_ROLES=["OWNER","EDITOR","VIEWER"];
@@ -35,6 +36,43 @@ export function localDisposablePostgresProbe(value){
   // A loopback URL must never become a remote DNS or user-provided hostname.
   const host=u.hostname==="[::1]" || u.hostname==="::1" ? "::1" : "127.0.0.1";
   return Object.freeze({host,port});
+}
+
+/**
+ * PostgreSQL SSLRequest exchange: a read-only 8-byte protocol negotiation.
+ * This proves only that localhost speaks the PostgreSQL wire protocol.
+ * Never sends a StartupMessage, credentials, SQL, or user data. In
+ * particular it DOES NOT prove blueprint_qa_test exists or is disposable.
+ */
+export function postgresSslReplyAccepted(data){
+  return Buffer.isBuffer(data) && data.length===1 &&
+    (data[0]===0x53 || data[0]===0x4e); // "S" or "N"
+}
+export function probeLocalPostgresProtocol(endpoint){
+  if(!endpoint || !["127.0.0.1","::1"].includes(endpoint.host) ||
+    !Number.isSafeInteger(endpoint.port) ||
+    endpoint.port<1 || endpoint.port>65535) return Promise.resolve(false);
+  return new Promise(done=>{
+    const socket=connect({host:endpoint.host,port:endpoint.port});
+    let finished=false;
+    const finish=ok=>{
+      if(finished)return;
+      finished=true;
+      socket.destroy();
+      done(ok);
+    };
+    socket.setTimeout(1500,()=>finish(false));
+    socket.once("error",()=>finish(false));
+    socket.once("close",()=>finish(false));
+    socket.once("connect",()=>{
+      // 0x04d2162f is the standardized PostgreSQL SSLRequest code.
+      // No login or query; the server must respond with one byte S or N.
+      socket.write(Buffer.from([0,0,0,8,4,210,22,47]),err=>{
+        if(err)finish(false);
+      });
+    });
+    socket.once("data",data=>finish(postgresSslReplyAccepted(data)));
+  });
 }
 
 export function sessionFileReady(filename,repoDir){
