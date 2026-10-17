@@ -164,6 +164,15 @@ describe("One-button internal execution adapter: no fake authority or dispatch",
     expect(source).toContain("runtime.workflowExecutionJournal");
     expect(source).toContain("new PostgresWorkflowInspectionQaJournal(runtime.prisma)");
     expect(source).toContain("executeAndVerifyScopedInspection(");
+    expect(source).toContain("await authority.assertAdopted(");
+    expect(source).toContain("await authority.assertMayExecute(");
+    // All three critical callbacks must enforce fresh issuer/adoption state;
+    // checking only the initial grant signature is insufficient on revocation.
+    for(const boundary of ["assertCurrent: async (context)", "execute: async action", "verify: async (action, observation)"]) {
+      const offset=source.indexOf(boundary);
+      expect(offset).toBeGreaterThanOrEqual(0);
+      expect(source.slice(offset,offset+135)).toContain("await assertFreshExecutionAuthority();");
+    }
     expect(source).toContain('runtime.authority.require(input.actor, input.projectId, "PROJECT_MUTATE")');
     expect(source).not.toContain("export async function POST(");
     expect(source).not.toContain("grantProjectRole(");
