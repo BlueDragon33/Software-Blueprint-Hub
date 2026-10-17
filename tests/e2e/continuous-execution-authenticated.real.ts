@@ -99,6 +99,19 @@ test.describe("actual Owner browser (external provider-authenticated session onl
     await expect(disclose).toBeVisible();
     await disclose.click();
     const box=page.locator("details").filter({has:disclose});
+    let capturedOwnerPost:{
+      url:string;body:Buffer;contentType:string;actionId:string|null
+    }|null=null;
+    page.on("request",req=>{
+      if(req.method()==="POST" && req.url().includes("/projects/") &&
+         req.postDataBuffer()){
+        capturedOwnerPost={
+          url:req.url(),body:Buffer.from(req.postDataBuffer()!),
+          contentType:req.headers()["content-type"]??"",
+          actionId:req.headers()["next-action"]??null
+        };
+      }
+    });
     await box.getByRole("textbox",{name:/Nhận xét/}).fill(
       "Manual isolated acceptance: reviewed 8 canonical factors; QA and deployment remain blocked.");
     await box.getByRole("checkbox",{name:/Tôi xác nhận quyết định/}).check();
@@ -109,6 +122,27 @@ test.describe("actual Owner browser (external provider-authenticated session onl
     });
     expect(attested?.decision).toBe("attest");
     expect(attested?.actorPrincipalId).toBe(env.principalIds.OWNER);
+    if(!capturedOwnerPost?.body || !capturedOwnerPost.contentType){
+      throw new Error("BLOCKED_REAL_AUTH_E2E_COULD_NOT_CAPTURE_VALID_OWNER_POST");
+    }
+    // Retry the exact already-used Form Action payload with the legitimate
+    // browser session and same Origin, never minting an alternate issuer.
+    // The stored expected sequence is now stale: the database must refuse it.
+    const replayHeaders:Record<string,string>={
+      origin:env.baseURL,
+      "content-type":capturedOwnerPost.contentType
+    };
+    if(capturedOwnerPost.actionId)
+      replayHeaders["next-action"]=capturedOwnerPost.actionId;
+    const replay=await page.context().request.post(capturedOwnerPost.url,{
+      headers:replayHeaders,data:capturedOwnerPost.body,failOnStatusCode:false
+    });
+    expect(replay.status()).toBeGreaterThanOrEqual(400);
+    const afterReplay=await prisma.continuousPreflightReceipt.findFirst({
+      where:{projectId:env.projectId},orderBy:{createdAt:"desc"}
+    });
+    expect(afterReplay?.id).toBe(attested?.id);
+    expect(afterReplay?.sequence).toBe(attested?.sequence);
     await page.goto(path);
     await page.getByText("Quản lý biên bản tiền kiểm đã xác nhận").click();
     const revoker=page.locator("details").filter({
