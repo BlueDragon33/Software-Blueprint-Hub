@@ -168,3 +168,51 @@ jobs:
           BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH: "true"
         run: pnpm exec playwright test tests/e2e/continuous-execution-anonymous.pw.ts --project=desktop-chromium
 
+  windows-local-preflight-real-runner:
+    name: Windows 2025 real runner — read-only preflight, genuine SSO BLOCKED
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 147
+    runs-on: windows-2025
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout actual Draft head, not PR merge ref
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - name: Execute actual Windows preflight and distinguish BLOCKED from QA PASS
+        shell: pwsh
+        run: |
+          $expected = '${{ github.event.pull_request.head.sha }}'
+          $actual = (git rev-parse HEAD).Trim()
+          if ($actual -ne $expected) { throw "Windows HEAD mismatch; refusing status." }
+          $results = @(node scripts/continuous-localhost-precheck.mjs 2>&1)
+          $exitCode = $LASTEXITCODE
+          $results | ForEach-Object { Write-Output $_ }
+          if ($exitCode -ne 2) { throw "Unprovisioned Windows runner must report BLOCKED with exit code 2." }
+          foreach ($required in @(
+            '[OK] Node.js 24',
+            '[OK] Git',
+            '[OK] pnpm',
+            '[OK] Nhánh Draft PR #147',
+            '[BLOCKED] PostgreSQL TCP localhost:5432',
+            '[BLOCKED] owner-session',
+            '[BLOCKED] editor-session',
+            '[BLOCKED] viewer-session',
+            'KẾT LUẬN: BLOCKED'
+          )) {
+            if (-not (($results -join "`n").Contains($required))) {
+              throw "Windows preflight missing required exact truth marker: $required"
+            }
+          }
+          Write-Output 'WINDOWS_PREFLIGHT_DIAGNOSTIC_PASS: runner real, localhost/SSO blocked as expected.'
