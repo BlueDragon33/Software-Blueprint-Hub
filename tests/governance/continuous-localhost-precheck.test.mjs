@@ -67,10 +67,10 @@ test("read-only wire probe refuses remote or malformed endpoint before connectin
 test("CLI no longer treats missing docker/psql PATH as proof localhost lacks PostgreSQL",()=>{
   const source=readFileSync(
     new URL("../../scripts/continuous-localhost-precheck.mjs",import.meta.url),"utf8");
-  assert.match(source,/await probeLocalPostgresProtocol\\(dbProbe\\)/);
-  assert.match(source,/localDbTools\\|\\|postgresWireProtocol/);
-  assert.match(source,/PostgreSQL protocol localhost/);
-  assert.doesNotMatch(source,/DATABASE_URL\\)\\s*\\+\\s*"/);
+  assert.ok(source.includes("await probeLocalPostgresProtocol(dbProbe)"));
+  assert.ok(source.includes("localDbTools||postgresWireProtocol"));
+  assert.ok(source.includes("PostgreSQL protocol localhost"));
+  assert.equal(source.includes("console.log(process.env.DATABASE_URL"),false);
 });
 test("never mark real-auth prerequisites ready with absent SSO credentials",()=>{
   const result=classifyLocalE2eConfig({},root);
