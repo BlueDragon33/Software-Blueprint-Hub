@@ -4,7 +4,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname,resolve } from "node:path";
 import {
-  classifyLocalE2eConfig,safeLocalhostUrl,safeDisposablePostgres
+  classifyLocalE2eConfig,safeLocalhostUrl,safeDisposablePostgres,
+  classifyPnpmAvailability
 } from "../../scripts/continuous-localhost-precheck-core.mjs";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"../..");
@@ -37,4 +38,31 @@ test("source checker never mints cookies, performs POST or changes local DB",()=
   const f=readFileSync(new URL("../../scripts/continuous-localhost-precheck.mjs",import.meta.url),"utf8");
   assert.match(f,/method:"GET"/);
   assert.doesNotMatch(f,/createPrismaClient|cookieJar|writeFile|sealSsoCookie|signJwt|fetch\([^\n]+method:"POST"/);
+});
+
+
+test("Windows Corepack fallback accepts exact cached pnpm 12.4.0 without admin shims",()=>{
+  assert.deepEqual(classifyPnpmAvailability(null,"12.4.0"),{
+    ready:true,method:"corepack"
+  });
+  assert.deepEqual(classifyPnpmAvailability("11.19.0","12.4.0"),{
+    ready:true,method:"corepack"
+  });
+  assert.deepEqual(classifyPnpmAvailability("12.4.0",null),{
+    ready:true,method:"direct"
+  });
+  for(const versions of [[null,null],["12.3.0",null],
+    ["12.5.0","12.3.0"],[null,"v12.4.0"]]){
+    assert.deepEqual(classifyPnpmAvailability(...versions),{
+      ready:false,method:null
+    });
+  }
+});
+test("Corepack read-only probe neither downloads nor pins nor needs Program Files",()=>{
+  const f=readFileSync(new URL("../../scripts/continuous-localhost-precheck.mjs",import.meta.url),"utf8");
+  assert.match(f,/COREPACK_ENABLE_NETWORK:"0"/);
+  assert.match(f,/COREPACK_ENABLE_AUTO_PIN:"0"/);
+  assert.match(f,/corepack pnpm --version/);
+  assert.match(f,/classifyPnpmAvailability/);
+  assert.doesNotMatch(f,/corepack enable|pnpm add -g|corepack prepare/);
 });
