@@ -44,5 +44,32 @@
     "allAppPropagationVerified": false,
     "productionAuthority": false,
     "universalQualityGatePassed": false
+  },
+  "continuousExecution": {
+    "scope": [
+      "existing",
+      "active",
+      "future"
+    ],
+    "preflightRequiredBeforeContinuousAction": true,
+    "requiredChecks": [
+      "effective-authority",
+      "product-goal-and-exit-criteria",
+      "current-source-and-checkpoint",
+      "critical-path-and-dependencies",
+      "blocking-defects-and-repair",
+      "relevant-quality-gates",
+      "risk-human-and-capability-boundaries",
+      "durable-handoff"
+    ],
+    "resolveActionableEntryBlockersBeforeOffer": true,
+    "classifyUnresolvedHumanOrCapabilityBoundaries": true,
+    "allowIndependentVerifiedReadyWork": true,
+    "stopWhenNoSafeReadyWork": true,
+    "noUnsupportedPromiseOfZeroDefects": true,
+    "sourceRecheckRequiredOnUserTrigger": true,
+    "requireAuthenticatedCanonicalAndHostBindingForLiveButton": true,
+    "noImplicitBackgroundExecution": true,
+    "noReleaseOrApprovalFromPreflight": true
   }
 }
