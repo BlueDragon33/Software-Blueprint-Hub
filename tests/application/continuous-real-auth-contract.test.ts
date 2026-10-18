@@ -1,5 +1,5 @@
 import { describe,it,expect } from "vitest";
-import { requireRealAuthEnvironment } from "../e2e/continuous-authenticated-environment";
+import { requireRealAuthEnvironment, assertRealSessionPrincipalBinding, ROLES } from "../e2e/continuous-authenticated-environment";
 import { readFileSync } from "node:fs";
 
 describe("real authenticated browser E2E prerequisites are fail-closed",()=>{
@@ -23,6 +23,36 @@ describe("real authenticated browser E2E prerequisites are fail-closed",()=>{
     expect(()=>requireRealAuthEnvironment({...validStart,
       BLUEPRINT_REAL_AUTH_E2E_PROJECT:"project:unverified-production"}))
       .toThrow("BLOCKED_REAL_AUTH_E2E_CANONICAL_PROJECT_REQUIRED");
+  });
+  it("rejects swapped, wrong-role or missing identity without minting any session",()=>{
+    const principals={
+      OWNER:"principal:"+"a".repeat(36),
+      EDITOR:"principal:"+"b".repeat(36),
+      VIEWER:"principal:"+"c".repeat(36)
+    };
+    for(const role of ROLES){
+      expect(()=>assertRealSessionPrincipalBinding(
+        role,principals[role],principals)).not.toThrow();
+      expect(()=>assertRealSessionPrincipalBinding(
+        role,null,principals)).toThrow(
+          "BLOCKED_REAL_AUTH_E2E_"+role+"_SESSION_PRINCIPAL_MISMATCH");
+      for(const wrong of ROLES.filter(value=>value!==role)){
+        expect(()=>assertRealSessionPrincipalBinding(
+          role,principals[wrong],principals)).toThrow(
+            "BLOCKED_REAL_AUTH_E2E_"+role+"_SESSION_PRINCIPAL_MISMATCH");
+      }
+    }
+  });
+  it("server-only QA readback uses the authenticated actor and stays off in production",()=>{
+    const source=readFileSync(
+      new URL("../../apps/web/app/projects/[projectId]/page.tsx",import.meta.url),"utf8");
+    expect(source).toContain('process.env.NODE_ENV !== "production"');
+    expect(source).toContain('process.env.BLUEPRINT_REAL_AUTH_E2E === "true"');
+    expect(source).toContain('db.pathname === "/blueprint_qa_test"');
+    expect(source).toContain('data-principal-id={workspace.actor.principalId}');
+    const testSource=readFileSync(
+      new URL("../e2e/continuous-execution-authenticated.real.ts",import.meta.url),"utf8");
+    expect(testSource).toContain('assertRealSessionPrincipalBinding(');
   });
   it("does not mint an Auth.js token or bypass the real SSO provider",()=>{
     const source=readFileSync(
