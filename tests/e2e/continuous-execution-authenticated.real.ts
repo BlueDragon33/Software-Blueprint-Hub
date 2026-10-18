@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { createPrismaClient } from "../../packages/persistence/src/client";
-import { requireRealAuthEnvironment, type AuthenticatedRole } from "./continuous-authenticated-environment";
+import { requireRealAuthEnvironment, assertRealSessionPrincipalBinding, type AuthenticatedRole } from "./continuous-authenticated-environment";
 
 const env=requireRealAuthEnvironment();
 const path="/projects/"+encodeURIComponent(env.projectId);
@@ -33,6 +33,12 @@ async function openProfile(page:Page,role:AuthenticatedRole):Promise<void>{
   await expect(page.getByText("Đăng nhập để mở dự án này.")).toHaveCount(0);
   await expect(page.getByRole("heading",{name:"Thực hiện nhiệm vụ liên tục"})).toBeVisible();
   await expect(page.getByText("Không thể xác minh dữ liệu chuẩn hoặc phiên làm việc.")).toHaveCount(0);
+  // Readback is emitted ONLY by the server after canonical PROJECT_READ.
+  // A swapped OWNER/EDITOR/VIEWER storageState must fail before other checks.
+  const actor=page.getByTestId("real-auth-principal-readback");
+  await expect(actor).toHaveCount(1);
+  assertRealSessionPrincipalBinding(
+    role,await actor.getAttribute("data-principal-id"),env.principalIds);
 }
 
 test.beforeAll(async()=>{await verifyPersistedActors();});
