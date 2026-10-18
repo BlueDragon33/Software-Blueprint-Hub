@@ -219,6 +219,7 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
               ) : null}
               <WorkflowStudio
                 key={selected.workflowId}
+                repository={selected.repository}
                 nodes={nodes}
                 rootNodeIds={selected.rootNodeIds}
                 graphOnly={graphOnly}
