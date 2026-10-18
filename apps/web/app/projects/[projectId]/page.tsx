@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { headers } from "next/headers";
+import { qaActorReadbackDigest } from "../../../src/auth/qa-actor-readback";
 import { ProjectWorkspaceFrame, ProjectWorkspaceState } from "./_components/project-workspace";
 import { ReadinessOverview } from "./_components/readiness-overview";
 import { loadProjectWorkspace } from "../../../src/server/project-workspace";
@@ -45,33 +47,30 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
   const queryState = (await searchParams)?.continuous;
   const checked = queryState === "checked" || queryState === "rechecked";
 
-  const qaActorReadbackEnabled =
-    process.env.NODE_ENV !== "production" &&
-    process.env.BLUEPRINT_REAL_AUTH_E2E === "true" &&
-    /^project:qa-[a-z0-9-]+$/.test(workspace.projectId) &&
-    process.env.BLUEPRINT_REAL_AUTH_E2E_PROJECT === workspace.projectId &&
-    (() => {
-      try {
-        const db = new URL(process.env.DATABASE_URL ?? "");
-        return ["postgres:", "postgresql:"].includes(db.protocol) &&
-          ["localhost", "127.0.0.1", "[::1]", "::1"].includes(db.hostname) &&
-          db.pathname === "/blueprint_qa_test";
-      } catch {
-        return false;
-      }
-    })();
+  // A QA comparison fingerprint, not a permission or raw Principal ID.
+  // Fail closed outside explicit, isolated, loopback-only development/test.
+  const qaPrincipalDigest = qaActorReadbackDigest({
+    nodeEnv: process.env.NODE_ENV,
+    enabled: process.env.BLUEPRINT_REAL_AUTH_E2E,
+    qaProjectId: process.env.BLUEPRINT_REAL_AUTH_E2E_PROJECT,
+    projectId: workspace.projectId,
+    databaseUrl: process.env.DATABASE_URL,
+    baseUrl: process.env.BLUEPRINT_REAL_AUTH_E2E_BASE_URL,
+    requestHost: (await headers()).get("host"),
+    principalId: workspace.actor.principalId
+  });
 
   return (
     <ProjectWorkspaceFrame
       profile={workspace.project.profile}
       active="overview"
     >
-      {qaActorReadbackEnabled ? (
+      {qaPrincipalDigest ? (
         <span
           hidden
           aria-hidden="true"
           data-testid="real-auth-principal-readback"
-          data-principal-id={workspace.actor.principalId}
+          data-qa-principal-digest={qaPrincipalDigest}
         />
       ) : null}
       <section className="workspace-view-heading">
