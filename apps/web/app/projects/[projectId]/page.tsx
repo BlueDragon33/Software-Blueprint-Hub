@@ -45,11 +45,35 @@ export default async function ProjectOverviewPage({ params, searchParams }: Proj
   const queryState = (await searchParams)?.continuous;
   const checked = queryState === "checked" || queryState === "rechecked";
 
+  const qaActorReadbackEnabled =
+    process.env.NODE_ENV !== "production" &&
+    process.env.BLUEPRINT_REAL_AUTH_E2E === "true" &&
+    /^project:qa-[a-z0-9-]+$/.test(workspace.projectId) &&
+    process.env.BLUEPRINT_REAL_AUTH_E2E_PROJECT === workspace.projectId &&
+    (() => {
+      try {
+        const db = new URL(process.env.DATABASE_URL ?? "");
+        return ["postgres:", "postgresql:"].includes(db.protocol) &&
+          ["localhost", "127.0.0.1", "[::1]", "::1"].includes(db.hostname) &&
+          db.pathname === "/blueprint_qa_test";
+      } catch {
+        return false;
+      }
+    })();
+
   return (
     <ProjectWorkspaceFrame
       profile={workspace.project.profile}
       active="overview"
     >
+      {qaActorReadbackEnabled ? (
+        <span
+          hidden
+          aria-hidden="true"
+          data-testid="real-auth-principal-readback"
+          data-principal-id={workspace.actor.principalId}
+        />
+      ) : null}
       <section className="workspace-view-heading">
         <div>
           <p className="section-kicker">Overview</p>
