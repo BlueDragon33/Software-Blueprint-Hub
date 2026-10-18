@@ -43,6 +43,12 @@ Label each input as VERIFIED CANONICAL, PROJECT DATA or UNTRUSTED EXTERNAL CONTE
 - Actual token/tool attempts when measured, otherwise NOT MEASURED
 - Proposed next node(s) and explicit human/release approvals still required
 
+## Mandatory interactive handoff — R16–R20
+
+For a Blueprint workflow task, terminate with **exactly one** concrete next action and a clearly labeled, enabled **Hỗ trợ / Next Action** button when the hosting UI supports it. Clicking the button must submit the complete specific next-action query; a decorative/disabled button does not satisfy the contract. Preserve the **same complete query in copyable fallback text**, for clients without interactive buttons. Missing both an operable button and a usable fallback is a handoff failure. Do not claim UI-control acceptance without real render/interaction evidence.
+
+This is a workflow instruction, not the ability to install permanent ChatGPT controls, a new Constitution amendment, or authority to merge/publish/approve.
+
 ## Failure contract
 
 No code change or missing credential => BLOCKED / DEFERRED with precise reason. CI green alone => NOT sufficient for professional human UX acceptance. Prompt text => never constitutional ratification, canonical state mutation or Production release authority.
