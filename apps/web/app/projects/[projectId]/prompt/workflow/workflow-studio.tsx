@@ -2,11 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { layoutWorkflowGraph } from "../../../../../../../packages/application/src/prompt-workflow-graph";
+import { composeManagedNextAction } from "../../../../../../../packages/application/src/next-action-output-contract.mjs";
+import { BlueprintNextAction } from "../../../../_components/blueprint-next-action";
 import type { WorkflowNode, WorkflowReadinessPlan } from "@blueprint-os/application";
 
 import styles from "./workflow-studio.module.css";
 
 interface WorkflowStudioProps {
+  readonly repository: string;
   readonly nodes: readonly WorkflowNode[];
   readonly rootNodeIds: readonly string[];
   readonly graphOnly?: boolean;
@@ -79,7 +82,7 @@ function DetailList({ title, values }: { readonly title: string; readonly values
   );
 }
 
-export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError,
+export function WorkflowStudio({ repository, nodes, rootNodeIds, preview, previewError,
   readiness = null, readinessError = "", receiptVerificationConfigured = false,
   graphOnly = false }: WorkflowStudioProps) {
   const [selectedId, setSelectedId] = useState(nodes[0]?.id ?? "");
@@ -90,6 +93,19 @@ export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError,
   if (!selected) return null;
   const selectedState = reviewState(selected, rootNodeIds, readiness, graphOnly);
   const selectedPreview = selected.id === preview?.rootNodeId ? preview : null;
+  const sourceSha = preview?.appHead ?? null;
+  const query = sourceSha
+    ? "NEXT ACTION — Blueprint OS 1.3.0. Inspect the next evidence-required workflow step for " +
+      repository + " at verified source HEAD " + sourceSha + " (selected node " + selected.id +
+      "). Remain read-only, request real evidence, do not approve, merge, publish, ratify or unlock D1."
+    : "NEXT ACTION — Blueprint OS 1.3.0. Read-only source recovery for " + repository +
+      " (selected node " + selected.id +
+      "): verify exact HEAD and canonical Project Profile before executing workflow; " +
+      "do not approve, merge, publish, ratify or unlock D1.";
+  const handoff = composeManagedNextAction({
+    repository, sourceSha, state: sourceSha ? "READ_ONLY_PREVIEW" : "HEAD_UNVERIFIED",
+    query, kind: "copy-next-turn"
+  });
 
   return (
     <section className={styles.studio} aria-labelledby="workflow-studio-heading">
@@ -220,6 +236,7 @@ export function WorkflowStudio({ nodes, rootNodeIds, preview, previewError,
           </section>
         ) : null}
       </div>
+      <BlueprintNextAction handoff={handoff} />
       <p className={styles.footer}>
         {graphOnly
           ? "Central catalog only: authored graph, not a provisioned canonical project, authorized prompt, execution record or Quality Gate PASS."
