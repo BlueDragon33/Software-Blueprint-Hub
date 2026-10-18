@@ -1,4 +1,5 @@
 import { realpathSync, statSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { resolve, relative, isAbsolute, sep } from "node:path";
 
 export type AuthenticatedRole="OWNER"|"EDITOR"|"VIEWER";
@@ -72,9 +73,10 @@ export function requireRealAuthEnvironment(configuration: NodeJS.ProcessEnv=proc
 
 
 /**
- * Compares the real browser session's server-resolved Principal with the
- * independently configured canonical QA Principal for the asserted role.
- * This helper never reads, creates, or signs cookies/JWTs.
+ * Compares a server-produced digest of the authenticated browser Principal
+ * with the independent canonical QA Principal for the asserted role.
+ * The raw Principal ID and all cookies/tokens stay out of the HTML.
+ * This helper never creates or signs sessions and cannot grant authority.
  */
 export function assertRealSessionPrincipalBinding(
   role: AuthenticatedRole,
@@ -82,10 +84,13 @@ export function assertRealSessionPrincipalBinding(
   expected: Readonly<Record<AuthenticatedRole,string>>
 ): void {
   const principal=expected[role];
+  const digest=(value:string):string =>
+    createHash("sha256").update(value).digest("hex");
   if (!/^principal:[0-9a-fA-F-]{36}$/.test(principal) ||
-      observed!==principal ||
-      ROLES.some(other=>other!==role && expected[other]===observed)) {
-    // Do not put Principal IDs, session state, or credentials in test logs.
+      !observed || !/^[a-f0-9]{64}$/.test(observed) ||
+      observed!==digest(principal) ||
+      ROLES.some(other=>other!==role && observed===digest(expected[other]))) {
+    // Never print raw Principal IDs, session state or credential values.
     throw new Error("BLOCKED_REAL_AUTH_E2E_"+role+"_SESSION_PRINCIPAL_MISMATCH");
   }
 }
