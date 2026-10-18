@@ -38,7 +38,7 @@ async function openProfile(page:Page,role:AuthenticatedRole):Promise<void>{
   const actor=page.getByTestId("real-auth-principal-readback");
   await expect(actor).toHaveCount(1);
   assertRealSessionPrincipalBinding(
-    role,await actor.getAttribute("data-principal-id"),env.principalIds);
+    role,await actor.getAttribute("data-qa-principal-digest"),env.principalIds);
 }
 
 test.beforeAll(async()=>{await verifyPersistedActors();});
