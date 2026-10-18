@@ -22,7 +22,7 @@ export function validateManagedNextAction(handoff) {
   if (handoff.schema !== "blueprint-next-action-handoff/v1" ||
     handoff.scope !== "blueprint-workflow" ||
     !validText(handoff.repository, 3, 150) ||
-    !SHA.test(handoff.sourceSha) ||
+    !(SHA.test(handoff.sourceSha ?? "") || (handoff.sourceSha === null && handoff.state === "HEAD_UNVERIFIED")) ||
     !validText(handoff.state, 4, 240)) fail("scope or freshness");
   if (handoff.mode !== "interactive" && handoff.mode !== "text-fallback") fail("render mode");
   if (!Array.isArray(handoff.actions) || handoff.actions.length !== 1) fail("exactly one executable next action");
@@ -30,7 +30,7 @@ export function validateManagedNextAction(handoff) {
   if (!hasKeys(action, ["id", "label", "kind", "query", "button"])) fail("action fields");
   if (action.id !== "blueprint-next-action" ||
     action.label !== NEXT_ACTION_LABEL ||
-    action.kind !== "issue-next-turn" ||
+    !["issue-next-turn", "copy-next-turn"].includes(action.kind) ||
     !validText(action.query, 15, 3000)) fail("action must be actionable");
   if (handoff.fallbackPrompt !== action.query) fail("fallback must repeat exact action");
   if (handoff.mode === "interactive") {
@@ -48,11 +48,11 @@ export function validateManagedNextAction(handoff) {
 }
 
 export function composeManagedNextAction({
-  repository, sourceSha, state, query, interactiveSupported = true
+  repository, sourceSha, state, query, interactiveSupported = true, kind = "issue-next-turn"
 }) {
   const action = {
     id: "blueprint-next-action", label: NEXT_ACTION_LABEL,
-    kind: "issue-next-turn", query,
+    kind, query,
     button: interactiveSupported
       ? { component: "button", enabled: true, actionId: "blueprint-next-action" }
       : null
