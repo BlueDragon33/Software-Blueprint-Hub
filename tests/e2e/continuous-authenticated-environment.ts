@@ -70,3 +70,22 @@ export function requireRealAuthEnvironment(configuration: NodeJS.ProcessEnv=proc
   };
 }
 
+
+/**
+ * Compares the real browser session's server-resolved Principal with the
+ * independently configured canonical QA Principal for the asserted role.
+ * This helper never reads, creates, or signs cookies/JWTs.
+ */
+export function assertRealSessionPrincipalBinding(
+  role: AuthenticatedRole,
+  observed: string | null,
+  expected: Readonly<Record<AuthenticatedRole,string>>
+): void {
+  const principal=expected[role];
+  if (!/^principal:[0-9a-fA-F-]{36}$/.test(principal) ||
+      observed!==principal ||
+      ROLES.some(other=>other!==role && expected[other]===observed)) {
+    // Do not put Principal IDs, session state, or credentials in test logs.
+    throw new Error("BLOCKED_REAL_AUTH_E2E_"+role+"_SESSION_PRINCIPAL_MISMATCH");
+  }
+}
