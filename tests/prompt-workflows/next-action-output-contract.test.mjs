@@ -62,3 +62,18 @@ test("central prompt projection and template carry mandatory button+fallback ins
  assert.match(template,/Hỗ trợ \/ Next Action/);
  assert.match(template,/complete query in copyable fallback text/);
 });
+
+test("actual Workflow Studio is wired to the shared copy-only handoff renderer",()=>{
+ const studio=readFileSync(new URL("../../apps/web/app/projects/[projectId]/prompt/workflow/workflow-studio.tsx",import.meta.url),"utf8");
+ const page=readFileSync(new URL("../../apps/web/app/projects/[projectId]/prompt/workflow/page.tsx",import.meta.url),"utf8");
+ const renderer=readFileSync(new URL("../../apps/web/app/_components/blueprint-next-action.tsx",import.meta.url),"utf8");
+ assert.match(studio, /<BlueprintNextAction handoff=\{handoff\}/);
+ assert.match(studio, /composeManagedNextAction/);
+ assert.match(studio, /kind: "copy-next-turn"/);
+ assert.match(page, /repository=\{selected\.repository\}/);
+ assert.match(renderer, /navigator\.clipboard\?\.writeText\(action\.query\)/);
+ assert.match(renderer, /field\.current\?\.select\(\)/);
+ assert.match(renderer, /Copyable Next Action fallback/);
+ assert.match(renderer, /onClick=\{\(\) => \{ void copyNextAction\(\); \}\}/);
+ assert.doesNotMatch(renderer, /GenUI\.issueNewTurn|github\.merge|productionAuthorized: true/);
+});
