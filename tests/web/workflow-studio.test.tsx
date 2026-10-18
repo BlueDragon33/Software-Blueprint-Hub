@@ -17,6 +17,7 @@ const manifest = JSON.parse(readFileSync(
 describe("Visual Workflow Studio semantic and fail-closed output", () => {
   it("renders real node controls, dependency paths, and no fake completed status", () => {
     const markup = renderToStaticMarkup(createElement(WorkflowStudio, {
+      repository: "BlueDragon33/Application-Management",
       nodes: manifest.nodes,
       rootNodeIds: ["inventory"],
       preview: null,
@@ -30,12 +31,16 @@ describe("Visual Workflow Studio semantic and fail-closed output", () => {
     expect(markup).toContain("Evidence required");
     expect(markup).toContain("Human gate");
     expect(markup).toContain("On failure: BLOCK");
+    expect(markup).toContain("Hỗ trợ / Next Action");
+    expect(markup).toContain("Copyable Next Action fallback");
+    expect(markup).toContain("verify exact HEAD");
     expect(markup).not.toContain("Gate PASS recorded");
     expect(markup.match(/marker-end=/g)).toHaveLength(6);
   });
 
   it("renders owner-only catalog as manifest graph, without pretending target canonical profile exists", () => {
     const markup = renderToStaticMarkup(createElement(WorkflowStudio, {
+      repository: "BlueDragon33/Application-Management",
       nodes: manifest.nodes,
       rootNodeIds: ["inventory"],
       graphOnly: true,
@@ -46,6 +51,8 @@ describe("Visual Workflow Studio semantic and fail-closed output", () => {
     expect(markup.match(/aria-pressed="/g)).toHaveLength(7);
     expect(markup).toContain("Manifest candidate");
     expect(markup).toContain("Central catalog only");
+    expect(markup).toContain("Hỗ trợ / Next Action");
+    expect(markup).toContain("verify exact HEAD");
     expect(markup).toContain("Registry metadata only");
     expect(markup).toContain("Human gate");
     expect(markup).not.toContain("Canonical prompt + node projection");
@@ -56,6 +63,7 @@ describe("Visual Workflow Studio semantic and fail-closed output", () => {
   it("does not expose a long generated prompt until explicit inspect interaction", () => {
     const marker = "PRIVATE_PREVIEW_CONTENT_SHOULD_NOT_RENDER_BY_DEFAULT";
     const markup = renderToStaticMarkup(createElement(WorkflowStudio, {
+      repository: "BlueDragon33/Application-Management",
       nodes: manifest.nodes,
       rootNodeIds: ["inventory"],
       preview: {
@@ -70,6 +78,9 @@ describe("Visual Workflow Studio semantic and fail-closed output", () => {
     }));
     expect(markup).toContain("Inspect prompt");
     expect(markup).toContain("App HEAD");
+    expect(markup).toContain("Hỗ trợ / Next Action");
+    expect(markup).toContain("at verified source HEAD");
+    expect(markup).toContain("Copyable Next Action fallback");
     expect(markup).not.toContain(marker);
     expect(markup).toContain("aria-expanded=\"false\"");
   });
