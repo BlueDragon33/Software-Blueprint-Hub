@@ -49,6 +49,21 @@ export function isRegisteredGovernedProject(projectId: string): boolean {
   return workflowRegistry.isGovernedProject(projectId);
 }
 
+export function registeredGovernedRepository(projectId: string): string | null {
+  // Registry identity can locate a repository AFTER authenticated canonical
+  // Project Profile access; it never creates a Project Profile or execution grant.
+  return workflowRegistry.repositoryForProject(projectId)?.repository ?? null;
+}
+
+
+/**
+ * Read-only access to centrally authored manifest after an independently
+ * authenticated canonical PROJECT_READ. Manifest status is not adoption.
+ */
+export function registeredWorkflowManifest(projectId: string, workflowId: string) {
+  return workflowRegistry.workflowForProject(projectId, workflowId) ?? null;
+}
+
 export function registeredWorkflowNodes(
   projectId: string,
   workflowId: string

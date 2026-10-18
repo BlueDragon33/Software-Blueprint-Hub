@@ -14,7 +14,8 @@ import {
   type ProjectRoleAssignment,
   type WorkQualityRepository
 } from "../../packages/core/src";
-import { ProjectReadinessApplicationService } from "../../packages/application/src";
+import { ProjectReadinessApplicationService, WorkQualityApplicationService } from "../../packages/application/src";
+import { assessCanonicalContinuousReadiness } from "../../packages/core/src/continuous-execution";
 import { describe, expect, it } from "vitest";
 
 const projectId = "project:p6-readiness-app";
@@ -166,5 +167,65 @@ describe("ProjectReadinessApplicationService", () => {
     expect(result.gateSummary.missingRequired).toBe(1);
     expect(workQuality.batchEvidenceReads).toBe(1);
     expect(workQuality.perGateEvidenceReads).toBe(0);
+  });
+});
+
+describe("PROJECT_READ and PROJECT_MUTATE separation for continuous execution pilots", () => {
+  const meta = {schemaVersion:"1.0.0" as const,recordVersion:1,
+    createdAt:"2026-10-17T00:00:00Z",updatedAt:"2026-10-17T00:00:00Z"};
+  const head = "f".repeat(40);
+  it("an existing governed project's authenticated Viewer has no execution authority", async () => {
+    const project="project:bauman-master-ai-system";
+    const authorityRepository=new MemoryAuthority(), repo=new MemoryWorkQuality();
+    repo.work.push({id:"work:prea0",projectId:project,title:"Offline Pre-A0",
+      purpose:"Hear imitate record compare",dependencies:[],
+      acceptanceCriteria:["Real offline learning loop"],qualityGateIds:["gate:prea0"],
+      status:"ready",meta});
+    repo.gates.push({id:"gate:prea0",projectId:project,name:"PreA0",
+      requirements:["Offline evidence"],status:"not-ready",evidenceIds:[],meta});
+    const service=new WorkQualityApplicationService(repo,new AuthorityService(authorityRepository));
+    await expect(service.listWorkPackages(null,project))
+      .rejects.toBeInstanceOf(AuthorizationDeniedError);
+    authorityRepository.roles.push({projectId:project,principalId:"principal:viewer",role:"VIEWER"});
+    const actor={principalId:"principal:viewer"};
+    const items=await service.listWorkPackages(actor,project);
+    const bundles=await service.listQualityGates(actor,project);
+    const projection=assessCanonicalContinuousReadiness({
+      projectId:project,profileVersion:1,canonicalRevision:"source-v1",
+      appHead:head,canMutate:false,requiredGateIds:["gate:prea0"],
+      workPackages:items,gates:bundles.map(b=>b.gate)
+    });
+    expect(projection.state).toBe("READ_ONLY");
+    expect(projection.canDispatch).toBe(false);
+    await expect(service.listWorkPackages(actor,"project:unrelated"))
+      .rejects.toBeInstanceOf(AuthorizationDeniedError);
+  });
+  it("a newly onboarded project remains closed until its own exact source and READY record exist", async () => {
+    const project="project:new-offline-test-app";
+    const authorityRepository=new MemoryAuthority(),repo=new MemoryWorkQuality();
+    authorityRepository.roles.push({projectId:project,principalId:"principal:editor",role:"EDITOR"});
+    const actor={principalId:"principal:editor"};
+    const service=new WorkQualityApplicationService(repo,new AuthorityService(authorityRepository));
+    const notYet=assessCanonicalContinuousReadiness({
+      projectId:project,profileVersion:1,canonicalRevision:"new-app-record-v1",
+      appHead:null,canMutate:true,requiredGateIds:["gate:new-qa"],
+      workPackages:await service.listWorkPackages(actor,project),gates:[]
+    });
+    expect(notYet.state).toBe("UNVERIFIED");
+    repo.work.push({id:"work:app-shell",projectId:project,title:"Local shell",
+      purpose:"Build offline app",dependencies:[],
+      acceptanceCriteria:["Cold launch offline"],qualityGateIds:["gate:new-qa"],
+      status:"ready",meta});
+    repo.gates.push({id:"gate:new-qa",projectId:project,name:"Offline QA",
+      requirements:["Disconnected readback"],status:"not-ready",evidenceIds:[],meta});
+    const items=await service.listWorkPackages(actor,project);
+    const bundles=await service.listQualityGates(actor,project);
+    const result=assessCanonicalContinuousReadiness({
+      projectId:project,profileVersion:1,canonicalRevision:"new-app-record-v1",
+      appHead:head,canMutate:true,requiredGateIds:["gate:new-qa"],
+      workPackages:items,gates:bundles.map(b=>b.gate)
+    });
+    expect(result.state).toBe("READY_WORK_FOUND");
+    expect(result.canDispatch).toBe(false);
   });
 });
