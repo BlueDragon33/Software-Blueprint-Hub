@@ -27,6 +27,15 @@ test("text-only surface still has a complete exact continuation prompt, no fake 
  assert.equal(output.fallbackPrompt,base.query);
  assert.equal(validateManagedNextAction(output).valid,true);
 });
+test("unverified HEAD uses a source-recovery next action, never a fake SHA",()=>{
+ const output=composeManagedNextAction({...base,sourceSha:null,state:"HEAD_UNVERIFIED",
+   kind:"copy-next-turn"});
+ assert.equal(output.sourceSha,null);
+ assert.equal(output.actions[0].kind,"copy-next-turn");
+ assert.equal(validateManagedNextAction(output).valid,true);
+ assert.throws(()=>composeManagedNextAction({...base,sourceSha:null,state:"READY"}),
+   /NEXT_ACTION_HANDOFF_BLOCKED/);
+});
 test("omitted, fake, duplicate, inert or mismatched Next Action fails closed",()=>{
  const output=composeManagedNextAction(base);
  const bad=[
