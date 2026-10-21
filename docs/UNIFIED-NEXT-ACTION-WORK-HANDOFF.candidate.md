@@ -12,6 +12,22 @@ Status: **DRAFT / NOT RATIFIED**. Applies as a proposed common presentation/orch
 6. Chat/Work buttons never themselves become Project Authority, owner approval, issuer adoption, service dispatch, CI PASS, merged state or Production release authority. Runtime executor must reauthorize at action time, require ready conditions and store pinned before/after evidence.
 7. The shared policy is owned by Software-Blueprint-Hub. Managed apps consume a **versioned contract**; they must not fork the Constitution, invent their own authorization, or create separate control planes. Application-Management may surface actions and verified app/runtime status, not mutate Blueprint governance on behalf of another app.
 
+
+## Directional Chat ↔ Work receipt surfaces (candidate correction, not a live UI)
+
+**The arrows describe where a handoff packet originates and where it is received, not where a launch button navigates.** Do not render both directional handoff controls on the Chat surface.
+
+| Receiving surface | Only incoming handoff | Minimum behavior | Explicitly NOT on that surface |
+| --- | --- | --- | --- |
+| **Chat** | **WORK → CHAT** | Accept a Work result/checkpoint for verification against canonical project HEAD, scope, evidence and Quality Gates; return one truthful Next Action, never import claimed PASS or approval automatically | Incoming **CHAT → WORK** direction |
+| **Work** | **CHAT → WORK** | Accept a bounded user-approved Chat work package in Work mode, after explicit user initiation and same-project/authority checks; do not execute from the packet alone | Incoming **WORK → CHAT** direction |
+
+A host-level **Mở Work của dự án** affordance, if the host ever supports an authenticated same-project Work session, is **mode navigation** and is **not** an additional `CHAT → WORK` handoff control on Chat. No such host integration is present in this PR. A generic chat URL, user-pasted prompt or visual direction label is not an authenticated transfer or permission to start Work. The single primary Next Action remains a project-scoped canonical navigation action until a separately verified executor is authorized; never auto-open Work/Codex.
+
+**Minimum packet references:** canonical project ID; owning repository and exact observed SHA; effective Constitution version; existing WorkPackage/issue ref; approved goal and permitted scope; evidence/gate state; blockers; one next eligible action. These are references for reconciliation, not a replacement Project Profile, independent execution journal, or credentials. Never transfer secrets/private recordings or silently grant review/issuer/Production powers. A `WORK → CHAT` outcome is **UNVERIFIED** until Chat independently reads the real source or durable receipt. `CHAT → WORK` intake cannot implicitly dispatch jobs.
+
+**Related independent candidates:** PR #141 holds proposed R33 interruption recovery (checkpoint/HEAD and ambiguous-write deduplication), PR #147 holds product-goal continuity, and PR #151 holds an alternative read-only navigation UI. This PR #152 does **not** import their code, claim they are merged, create a second law, or make R33 active. Reconcile overlapping interfaces in governance review; reuse the existing R15–R32 and per-owner state until any valid future ratification. Rollout to Bauman and Russian Expert Engine is **NOT_ADOPTED / NOT_TESTED** for this directional contract, even though both declare the active 1.3.0 Constitution.
+
 ## Actual implementation status
 
 **Present**:
