@@ -159,6 +159,9 @@ describe("Unified Constitution inheritance candidate (not ratified)", () => {
 
 
 describe("Directional Chat ↔ Work candidate surfaces (not live Work)", () => {
+  const contract=JSON.parse(readFileSync(
+    new URL("../../control/unified-next-action.candidate.v1.json", import.meta.url),"utf8"
+  ));
   it("receives WORK_TO_CHAT on Chat only, and CHAT_TO_WORK on Work only", () => {
     const c=contract.surfaceHandoff;
     expect(c.contractKind).toBe("directional-surface-handoff-candidate");
