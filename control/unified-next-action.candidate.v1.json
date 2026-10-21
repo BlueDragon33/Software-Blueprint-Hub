@@ -1,0 +1,147 @@
+{
+  "schema": "blueprint-os:unified-next-action-candidate/v1",
+  "contractVersion": "1.0.0",
+  "status": "candidate-not-ratified",
+  "constitution": {
+    "policyId": "blueprint-os:universal-century-grade",
+    "minimumVersion": "1.3.0",
+    "mutatesConstitution": false,
+    "centralOwnerRepository": "BlueDragon33/Software-Blueprint-Hub"
+  },
+  "presentation": {
+    "primary": {
+      "count": 1,
+      "label": "Tiếp tục nhiệm vụ",
+      "source": "authenticated-canonical-project-readiness",
+      "behavior": "reauthorize-and-navigate",
+      "automaticExecution": false
+    },
+    "work": {
+      "additionalButtonDefault": false,
+      "displayOnlyIf": [
+        "host-supported-work-mode",
+        "host-verified-same-chatgpt-project-session",
+        "trusted-bound-launch-target"
+      ],
+      "unverifiedBehavior": "remain-one-button; show-blocker-text-not-fake-link",
+      "allowGenericChatUrlAsWorkSession": false
+    }
+  },
+  "preflight": {
+    "serverActorRequired": true,
+    "projectReadPermission": "PROJECT_READ",
+    "enforceAtEveryPost": true,
+    "requireExactCanonicalProjectId": true,
+    "requireMatchingProjectProfileRecordVersion": true,
+    "requireMatchingFreshCanonicalActionKind": true,
+    "failClosedOn": [
+      "signout",
+      "role-revoked",
+      "canonical-store-unavailable",
+      "project-mismatch",
+      "profile-version-drift",
+      "action-kind-drift"
+    ],
+    "successAuthority": "read-only-project-scoped-navigation",
+    "allowsWorkPackageExecution": false
+  },
+  "futureExecutor": {
+    "status": "not-integrated",
+    "onlyAfterValidatedInputs": [
+      "existing-canonical-work-package-and-required-gates",
+      "project-mutate-permission-at-execution-time",
+      "authorized-workflow-adoption-and-pinned-manifest-digest",
+      "trusted-issuer-and-valid-scoped-expiring-signature",
+      "verified-exact-app-head-and-evidence-readback",
+      "available-authorized-scoped-runner",
+      "durable-idempotent-execution-journal-and-replay-protection"
+    ],
+    "humanStopGates": [
+      "missing-project-authority",
+      "missing-issuer",
+      "review-required",
+      "human-ux-acceptance",
+      "production-authorization"
+    ],
+    "neverImplicit": [
+      "merge",
+      "dispatch",
+      "ratify",
+      "issuer-grant",
+      "production-release",
+      "quality-gate-pass"
+    ],
+    "dependencyOrder": "verify-preconditions-before-each-technical-step",
+    "automaticRemediation": "only-scoped-technical-fixes-with-verified-execution-grant",
+    "successEvidence": "independent-sha-bound-post-operation-readback"
+  },
+  "adoption": {
+    "mechanism": "consume-central-versioned-contract-after-review-not-copy-constitution",
+    "projectDefault": "not-adopted",
+    "requiredProofs": [
+      "per-project-current-head",
+      "readiness-authority-check",
+      "single-primary-cta-regression",
+      "no-fake-work-handoff",
+      "human-review-for-privileged-work"
+    ],
+    "hubPilot": {
+      "state": "draft-implementation",
+      "pullRequest": 152
+    },
+    "allOtherProjects": {
+      "state": "not-claimed"
+    }
+  },
+  "surfaceHandoff": {
+    "contractKind": "directional-surface-handoff-candidate",
+    "status": "candidate-not-integrated",
+    "directionMeaning": "payload-origin-to-recipient-surface-not-a-launch-link",
+    "receivingSurfaces": {
+      "chat": {
+        "incoming": "WORK_TO_CHAT",
+        "source": "work",
+        "destination": "chat",
+        "visibleIncomingDirection": "WORK → CHAT",
+        "mustNotOfferIncoming": "CHAT_TO_WORK"
+      },
+      "work": {
+        "incoming": "CHAT_TO_WORK",
+        "source": "chat",
+        "destination": "work",
+        "visibleIncomingDirection": "CHAT → WORK",
+        "mustNotOfferIncoming": "WORK_TO_CHAT"
+      }
+    },
+    "doNotPlaceBothDirectionalHandoffsOnChat": true,
+    "hostModeLaunchIsNotHandoff": true,
+    "hostVerifiedSameProjectRequired": true,
+    "explicitUserStartRequiredForWork": true,
+    "automaticallyOpenWork": false,
+    "liveHandoffOrchestrationImplemented": false,
+    "minimumPacketReferences": [
+      "canonical-project-id",
+      "repository-and-exact-head",
+      "effective-constitution-version",
+      "work-package-or-existing-issue-reference",
+      "approved-goal-and-allowed-scope",
+      "evidence-and-gate-state",
+      "blockers-and-one-next-action"
+    ],
+    "returnToChatTruth": "WORK_TO_CHAT report is UNVERIFIED until independent readback from canonical project sources",
+    "workIntakeTruth": "CHAT_TO_WORK is a bounded proposal, not an issuer grant, workflow dispatch or automatic job start",
+    "r33Continuity": {
+      "candidateOwnerPr": 141,
+      "lawActive": false,
+      "intent": "reconcile-existing-checkpoint-before-retry",
+      "unknownInFlightMutation": "BLOCK_UNTIL_INDEPENDENT_READBACK",
+      "additionalCanonicalStateStore": false
+    },
+    "propagation": {
+      "canonicalOwner": "BlueDragon33/Software-Blueprint-Hub",
+      "bauman": "not-adopted-by-this-candidate",
+      "russianExpertEngine": "not-adopted-by-this-candidate",
+      "noConstitutionCopy": true
+    }
+  }
+}
