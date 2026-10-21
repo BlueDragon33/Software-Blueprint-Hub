@@ -156,3 +156,46 @@ describe("Unified Constitution inheritance candidate (not ratified)", () => {
     expect(serverAction).not.toMatch(/workflowExecutionJournal\.claim\(|dispatchExecution\(/);
   });
 });
+
+
+describe("Directional Chat ↔ Work candidate surfaces (not live Work)", () => {
+  it("receives WORK_TO_CHAT on Chat only, and CHAT_TO_WORK on Work only", () => {
+    const c=contract.surfaceHandoff;
+    expect(c.contractKind).toBe("directional-surface-handoff-candidate");
+    expect(c.status).toBe("candidate-not-integrated");
+    expect(c.directionMeaning).toBe("payload-origin-to-recipient-surface-not-a-launch-link");
+    expect(c.receivingSurfaces.chat).toMatchObject({
+      incoming:"WORK_TO_CHAT",source:"work",destination:"chat",
+      mustNotOfferIncoming:"CHAT_TO_WORK"
+    });
+    expect(c.receivingSurfaces.work).toMatchObject({
+      incoming:"CHAT_TO_WORK",source:"chat",destination:"work",
+      mustNotOfferIncoming:"WORK_TO_CHAT"
+    });
+    expect(c.receivingSurfaces.chat.incoming).not.toBe(c.receivingSurfaces.work.incoming);
+    expect(c.doNotPlaceBothDirectionalHandoffsOnChat).toBe(true);
+    expect(c.hostModeLaunchIsNotHandoff).toBe(true);
+  });
+
+  it("keeps one Next Action and fail-closes mode launch, resume and authority", () => {
+    const c=contract.surfaceHandoff;
+    expect(contract.presentation.primary.count).toBe(1);
+    expect(contract.presentation.work.additionalButtonDefault).toBe(false);
+    expect(c.automaticallyOpenWork).toBe(false);
+    expect(c.liveHandoffOrchestrationImplemented).toBe(false);
+    expect(c.hostVerifiedSameProjectRequired).toBe(true);
+    expect(c.explicitUserStartRequiredForWork).toBe(true);
+    expect(c.returnToChatTruth).toMatch(/UNVERIFIED/);
+    expect(c.minimumPacketReferences).toContain("repository-and-exact-head");
+    expect(c.minimumPacketReferences).toContain("blockers-and-one-next-action");
+    expect(c.r33Continuity).toMatchObject({
+      candidateOwnerPr:141,lawActive:false,
+      unknownInFlightMutation:"BLOCK_UNTIL_INDEPENDENT_READBACK",
+      additionalCanonicalStateStore:false
+    });
+    expect(c.propagation.bauman).toBe("not-adopted-by-this-candidate");
+    expect(c.propagation.russianExpertEngine).toBe("not-adopted-by-this-candidate");
+    expect(contract.constitution.mutatesConstitution).toBe(false);
+    expect(contract.preflight.allowsWorkPackageExecution).toBe(false);
+  });
+});
