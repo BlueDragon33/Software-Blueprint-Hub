@@ -92,5 +92,56 @@
     "allOtherProjects": {
       "state": "not-claimed"
     }
+  },
+  "surfaceHandoff": {
+    "contractKind": "directional-surface-handoff-candidate",
+    "status": "candidate-not-integrated",
+    "directionMeaning": "payload-origin-to-recipient-surface-not-a-launch-link",
+    "receivingSurfaces": {
+      "chat": {
+        "incoming": "WORK_TO_CHAT",
+        "source": "work",
+        "destination": "chat",
+        "visibleIncomingDirection": "WORK → CHAT",
+        "mustNotOfferIncoming": "CHAT_TO_WORK"
+      },
+      "work": {
+        "incoming": "CHAT_TO_WORK",
+        "source": "chat",
+        "destination": "work",
+        "visibleIncomingDirection": "CHAT → WORK",
+        "mustNotOfferIncoming": "WORK_TO_CHAT"
+      }
+    },
+    "doNotPlaceBothDirectionalHandoffsOnChat": true,
+    "hostModeLaunchIsNotHandoff": true,
+    "hostVerifiedSameProjectRequired": true,
+    "explicitUserStartRequiredForWork": true,
+    "automaticallyOpenWork": false,
+    "liveHandoffOrchestrationImplemented": false,
+    "minimumPacketReferences": [
+      "canonical-project-id",
+      "repository-and-exact-head",
+      "effective-constitution-version",
+      "work-package-or-existing-issue-reference",
+      "approved-goal-and-allowed-scope",
+      "evidence-and-gate-state",
+      "blockers-and-one-next-action"
+    ],
+    "returnToChatTruth": "WORK_TO_CHAT report is UNVERIFIED until independent readback from canonical project sources",
+    "workIntakeTruth": "CHAT_TO_WORK is a bounded proposal, not an issuer grant, workflow dispatch or automatic job start",
+    "r33Continuity": {
+      "candidateOwnerPr": 141,
+      "lawActive": false,
+      "intent": "reconcile-existing-checkpoint-before-retry",
+      "unknownInFlightMutation": "BLOCK_UNTIL_INDEPENDENT_READBACK",
+      "additionalCanonicalStateStore": false
+    },
+    "propagation": {
+      "canonicalOwner": "BlueDragon33/Software-Blueprint-Hub",
+      "bauman": "not-adopted-by-this-candidate",
+      "russianExpertEngine": "not-adopted-by-this-candidate",
+      "noConstitutionCopy": true
+    }
   }
 }
