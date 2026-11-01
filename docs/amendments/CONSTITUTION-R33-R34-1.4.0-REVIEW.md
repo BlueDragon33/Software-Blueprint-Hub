@@ -18,6 +18,14 @@ All governed projects must inherit ONE Hub-owned, versioned behavioral contract,
 5. **App-specific design; common obligations.** Adapt controls to web/mobile/native desktop/offline/CLI and role-specific contexts; keep accessibility, concise visual hierarchy and source-scoped permissions. Do not install duplicate global buttons on all pages, duplicate constitutions or a new registry. The Hub is the exemplar and centralized rule owner.
 6. **Evidence-gated adoption.** Each of the 18 current tracked applications and all future governed projects must report actual adapter version, source revision, independent applicable QA, real host UX/authorization results and remediation blockers before being VERIFIED. The three private execution services are distinct infrastructure. Do not infer adoption from manifest entries or synthetic tests.
 
+### R33.7 — controls must be real, distinct and accompanied by usable guidance
+
+At every governed project checkpoint with a legitimate Next Action, the user must be able to find a functional **HƯỚNG DẪN** control separate from **NEXT ACTION**. Merely writing "NEXT ACTION" as a heading or saying the user can ask for help is not sufficient. The help control opens contextual, scoped instructions containing the actual project, source/profile version when known, concrete task, reason/evidence, effect of pressing the primary action, prerequisites, and the limit of its authority. It must be operable by keyboard, accessible on mobile and readable without new privilege elevation.
+
+NEXT ACTION is a separate primary actionable control: it selects precisely one real task, rechecks canonical authorization and versions, and performs only its advertised permitted navigation or operation. It may not silently become "ask the assistant to do the same thing again", a generic copy prompt, a help text toggle or fake Work/Production execution. When execution is not integrated, disclose "read-only navigation" explicitly.
+
+TRIỂN KHAI TỪ ĐẦU TỚI CUỐI is not interchangeable with NEXT ACTION: it implies R34's continued authorized execution, and a working execute button cannot appear until a trusted scoped runner exists. A disabled or explanatory state is truthful; simulated buttons or inferred ChatGPT host integration are not. Per-project verified adoption requires a real interaction test of HƯỚNG DẪN and NEXT ACTION at exact source revision. The shared contract is owned by Hub, not copied constitutions.
+
 ## Proposed 10.R34 — end-to-end is execution, not one-step delegation
 
 1. **Carry exact context.** Reuse the user-approved goal, known constraints, latest HEAD, previous meaningful PASS evidence and state. Never demand repeated answers, create duplicate discovery work, or request an ordinary available read-only operation from the user.
