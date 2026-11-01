@@ -1,5 +1,5 @@
 {
-  "schema": "blueprint-os:r34-continuation-candidate/v1",
+  "schema": "blueprint-os:r34-continuation-candidate/v2",
   "status": "candidate-not-ratified",
   "rule": "R34",
   "appliesTo": "all-governed-project-checkpoints-after-authorized-adoption",
@@ -46,10 +46,31 @@
     "stopReason",
     "attemptedRecovery",
     "localDirtyState",
-    "oneNextAction"
+    "oneNextAction",
+    "scopeTaskIds",
+    "taskBlockerAndRecovery",
+    "nextActionProof",
+    "previousActionAndEvidenceDelta"
   ],
   "perProjectAcceptanceRequired": true,
   "automaticWorkLaunchWithoutPermission": false,
   "productionReleaseAuthority": false,
-  "constitutionalRatificationAuthority": false
+  "constitutionalRatificationAuthority": false,
+  "contractRevision": "review-next-action-fail-closed-20261101",
+  "finalNextAction": {
+    "onlyAfterEverySafeTaskHasBeenAttempted": true,
+    "rejectGenericContinuationLabels": true,
+    "requireExactlyOne": true,
+    "requireStructuredProof": true,
+    "requireConcreteTargetTaskInApprovedScope": true,
+    "requireProjectAndSourceRevisionBinding": true,
+    "requireOwnerTypeAndSelectionReason": true,
+    "requireExpectedEvidence": true,
+    "blockRepeatWithoutNewEvidence": true,
+    "stopReasonMustMatchBlockedTask": true,
+    "humanInterventionOnlyAtRealHumanGate": true,
+    "completeOnlyWithVerifiedGoalClosure": true,
+    "independentReadbackStillRequired": true,
+    "reviewOnlyProofGate": "packages/application/src/r34-next-action-gate.candidate.mjs"
+  }
 }
