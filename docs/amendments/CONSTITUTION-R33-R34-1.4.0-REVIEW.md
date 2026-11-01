@@ -28,6 +28,18 @@ All governed projects must inherit ONE Hub-owned, versioned behavioral contract,
 6. **Mandatory final receipt.** Record canonical project/revision or UNVERIFIED, operations performed, scoped QA, remaining tasks, real blocker, attempted recovery, protected local dirty state, and exactly ONE Next Action. Never declare success early or turn every single preflight into a new user question.
 7. **Real implementation proof.** The central R34 receipt-shape gate can reject self-reported premature stops, but it is NOT a verified execution agent, authority service, independent QA or native ChatGPT host adapter. Actual adoption needs scoped runtime continuation and negative tests per project.
 
+### R34.8 — NEXT ACTION is not a self-restarting prompt
+
+A final NEXT ACTION must not merely restate the user's standing instruction, open an already-readable diagnostic page, trigger another generic Chat message, or ask the user to do a read that the connected agent is currently authorized and able to perform. For every proposed final Next Action, the reviewer must establish:
+- exactly ONE concrete action with stable actionId and a targetTaskId already in the approved goal's complete task scope;
+- projectId and source revision match the actual scoped checkpoint, with honest UNVERIFIED fallback when readback is blocked;
+- the specific owner (agent, human authority or unavailable external host), stop gate (if incomplete), reason that the action could not already be completed, and expected evidence;
+- no approved safe task remains merely eligible. When safe work is still possible, the correct decision is CONTINUE, not HANDOFF;
+- the proposed action is not the same previous unresolved action unless new independent relevant evidence or a changed gate is identified;
+- human action is requested only at a genuine human authorization/capability boundary and is reduced to the smallest necessary decision.
+
+The R34 review-only gate rejects unstructured or circular Next Actions and truncated task inventories. Its input is an untrusted self-report, so an allowed receipt shape is NOT proof of a genuinely complete task plan, verified blocker, host capability, independent evidence, or permission to dispatch. Actual runtime integration must obtain trusted canonical work scope and source-bound action history before it can enforce this law. Any project that merely copies the rule but still ends in generic self-restarting prompts is NON-COMPLIANT, not an adopter.
+
 ## Version classification and review gate
 
 Proposing 1.4.0 is provisional, not automatic: R33 and R34 add cross-app mandatory behavior, which may break existing interfaces/operating processes. An authorized compatibility reviewer must decide whether this is compatible strengthening suitable for MINOR or a MAJOR change. Preserve published 1.3.0 history. The ratification workflow must bind exact revision, digest, human actor, decision and migration plan before an atomic publication.
