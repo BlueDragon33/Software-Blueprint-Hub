@@ -1,0 +1,20 @@
+.wrap { margin-top: 0.75rem; }
+.helpButton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: 2.75rem; padding: 0.6rem 0.9rem; border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 0.7rem; color: #fff; background: rgba(10, 25, 88, 0.22);
+  font: inherit; font-weight: 700; cursor: pointer;
+}
+.helpButton:hover { background: rgba(10, 25, 88, 0.36); }
+.helpButton:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.helpPanel {
+  margin-top: 0.7rem; padding: 0.85rem 1rem;
+  border: 1px solid rgba(255,255,255,0.65); border-radius: 0.8rem;
+  background: rgba(18, 32, 105, 0.5); color: #fff; line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.helpPanel p, .helpPanel li { color: #fff; font-size: 0.9rem; }
+.helpPanel ol { margin: 0.7rem 0 0.7rem 1.2rem; padding: 0; }
+.helpPanel li + li { margin-top: 0.45rem; }
+.boundary { margin-bottom: 0; }
+@media (max-width: 600px) { .helpButton { width: 100%; } }
