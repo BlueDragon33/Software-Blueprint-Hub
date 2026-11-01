@@ -1,5 +1,6 @@
 import { unifiedNextActionPresentation } from "@blueprint-os/application";
 import { continueCanonicalNextAction } from "../actions";
+import { ProjectActionGuidance } from "./project-action-guidance";
 import type { BlueprintServerRuntime } from "@blueprint-os/runtime";
 import {
   EmptyState,
@@ -170,6 +171,12 @@ export function ReadinessOverview({
             <p className="section-kicker">Công việc tiếp theo</p>
             <h2>{nextAction.description}</h2>
             <p>{readiness.nextAction.reason}</p>
+            <ProjectActionGuidance
+              projectId={readiness.projectId}
+              profileVersion={profileVersion}
+              actionTitle={nextAction.description}
+              reason={readiness.nextAction.reason}
+            />
             {actionChanged ? (
               <p role="status">
                 Trạng thái hoặc phiên quyền của dự án đã thay đổi. Vui lòng
@@ -180,7 +187,7 @@ export function ReadinessOverview({
               null, readiness.projectId, profileVersion, nextAction.actionKind
             )}>
               <button className="primary-button" type="submit">
-                {nextAction.label} →
+                NEXT ACTION — {nextAction.label} →
               </button>
             </form>
           </article>
