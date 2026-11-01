@@ -1,0 +1,61 @@
+# Constitution R33 + R34 — candidate 1.4.0 (REVIEW ONLY)
+
+Repository: BlueDragon33/Software-Blueprint-Hub
+Base dependency: PR #152, head b06d93704b088319e1cc8b26161f0b4dc217858e
+Sealed active constitutional baseline: cd01fb3c2178393628ce968af209db082227d2c4
+Effective policy: 1.3.0 R1–R32. Proposed: 1.4.0 R33–R34.
+Disposition: CHANGES_REQUIRED; NOT_RATIFICATION_READY; NOT_PUBLISHED.
+This is a review proposal, never a self-approved constitutional amendment or execution grant.
+
+## Proposed 10.R33 — universal controls, directional handoff and inheritance
+
+All governed projects must inherit ONE Hub-owned, versioned behavioral contract, but implement device-, role- and application-appropriate interfaces. Preserve the existing ProjectProfile, WorkPackage, dispatch, owner and security boundaries. Application-Management may surface status, not mint constitutional, Production or execution authority.
+
+1. **Exactly one inbound handoff per verified host surface.** Chat receives only WORK → CHAT. Work receives only CHAT → WORK. Never show two inbound inboxes or a direction selector in either receiving surface. An outgoing handoff is a separate export/copy action. Unknown or unverified Chat/Work host context shows neutral manual guidance, never an invented inbox or host transport.
+2. **Consistent controls.** HƯỚNG DẪN explains the actual project/checkpoint; NEXT ACTION selects exactly one currently legitimate next step; TRIỂN KHAI TỪ ĐẦU TỚI CUỐI obeys R34's bounded continuation obligation. CẦN WORK is conditional on a verified host/tool boundary, with explicit user start and truthful copyable handoff. In Work, QUAY LẠI CHAT — TIẾP TỤC NHIỆM VỤ must be available for both completed and blocked work when the host supports it, with a manual copy fallback.
+3. **No invented integration.** The Hub repository cannot automatically change the native ChatGPT Project/Work interface or infer authenticated host context from URL/query strings, pasted prose, project names or simulated browser props. A claimed live Chat/Work integration requires a trusted host adapter, same-project identity and real UX acceptance.
+4. **Scoped receipts.** Work → Chat reports are UNVERIFIED until independent canonical readback of projectId, ProjectProfile/WorkPackage/dispatch versions, source HEAD, changed files, role/owner, QA and decision gates. Reject cross-project, stale and self-signed trust. A copied report never grants approval, production rights or QA PASS.
+5. **App-specific design; common obligations.** Adapt controls to web/mobile/native desktop/offline/CLI and role-specific contexts; keep accessibility, concise visual hierarchy and source-scoped permissions. Do not install duplicate global buttons on all pages, duplicate constitutions or a new registry. The Hub is the exemplar and centralized rule owner.
+6. **Evidence-gated adoption.** Each of the 18 current tracked applications and all future governed projects must report actual adapter version, source revision, independent applicable QA, real host UX/authorization results and remediation blockers before being VERIFIED. The three private execution services are distinct infrastructure. Do not infer adoption from manifest entries or synthetic tests.
+
+## Proposed 10.R34 — end-to-end is execution, not one-step delegation
+
+1. **Carry exact context.** Reuse the user-approved goal, known constraints, latest HEAD, previous meaningful PASS evidence and state. Never demand repeated answers, create duplicate discovery work, or request an ordinary available read-only operation from the user.
+2. **Continue across eligible steps.** TRIỂN KHAI TỪ ĐẦU TỚI CUỐI must execute every accessible, permitted safe step in dependency order, then verify and continue; a single status read, plan, prompt, preflight or patch draft is not completion. A blocker in one branch does not stop independent safe tasks.
+3. **Scoped safety and budget.** Never self-authorize a role, source write, paid Work/Codex, GitHub Actions, merge, ratification, dispatch, Production, or release. Honor exact owner/cost/time/tool and review gates; stop only when a real gate is proven.
+4. **Try safe recovery.** Diagnose actual failure, retry only with new evidence, repair minimally where permitted, and check the result before human escalation. If a tool/read/permission boundary remains, report exact cause and the smallest truly necessary human step.
+5. **Truthful outcomes.** VERIFIED_COMPLETE requires independent relevant source/acceptance evidence; PARTIAL_BLOCKED or PARTIAL_CAPABILITY_LIMIT discloses what remains and why. Test fixture, generated download, script, proposal or screenshot alone is not product delivery or ratification.
+6. **Mandatory final receipt.** Record canonical project/revision or UNVERIFIED, operations performed, scoped QA, remaining tasks, real blocker, attempted recovery, protected local dirty state, and exactly ONE Next Action. Never declare success early or turn every single preflight into a new user question.
+7. **Real implementation proof.** The central R34 receipt-shape gate can reject self-reported premature stops, but it is NOT a verified execution agent, authority service, independent QA or native ChatGPT host adapter. Actual adoption needs scoped runtime continuation and negative tests per project.
+
+## Version classification and review gate
+
+Proposing 1.4.0 is provisional, not automatic: R33 and R34 add cross-app mandatory behavior, which may break existing interfaces/operating processes. An authorized compatibility reviewer must decide whether this is compatible strengthening suitable for MINOR or a MAJOR change. Preserve published 1.3.0 history. The ratification workflow must bind exact revision, digest, human actor, decision and migration plan before an atomic publication.
+
+## Canonical publication protocol — actual code constraint
+
+At active 1.3.0, packages/application/src/constitution-publication-sources.ts expects EXACTLY EIGHT inputs, not five:
+- docs/UNIVERSAL-CONSTITUTION.md
+- control/universal-constitution.contract.json
+- packages/application/src/foundation-templates.ts
+- packages/application/src/constitution-authority.ts
+- control/universal-constitution-version.json
+- .blueprint/constitution-adoption.json
+- control/constitution-ecosystem-snapshot.json
+- control/constitution-compliance-snapshot.json
+
+The latter three may change top-level policy metadata only. Do NOT rewrite their historic per-repository observed manifests, source revisions or compliance snapshots. The strict replay tool also expects real Git diff headers and complete source context. Until a clean exact-checkout eight-source patch passes native replay, rollback and authority-set digest checks, status remains CHANGES_REQUIRED. The historical 1.3.0 candidate builder is deliberately sealed; introduce a separate reviewed 1.4.0 generator instead of rewriting historical records.
+
+## What has and has not been tested
+
+Independent review on November 1, 2026: GitHub main cd01fb3c2178393628ce968af209db082227d2c4, PR #152 head b06d93704b088319e1cc8b26161f0b4dc217858e. Structural assertions on 5 source files 21/21 and projection checks 8/8 passed, not native eight-source publication acceptance. Synthetic eight-source patch applies/reverses only on a fixture; true Git blob indexes, exact clean checkout replay, and per-app authenticated UX remain unverified.
+
+R34 review-only receipt-shape tests: 20/20 Node tests on the candidate module. Result RECEIPT_SHAPE_COMPLETE is never permission for QA PASS; the independent canonical readback must still follow. No automatic Work launch. Pilot PR #152 local checkout was previously reported to contain 34 dirty paths, not independently accessed in this review.
+
+## Required migration evidence
+
+Maintain a single 18-app adoption matrix; start with the Hub pilot and validate source/owner/roles plus real UX at exact revision, then move in app risk waves. Keep all adopters NOT_ADOPTED unless separately demonstrated. ROS stays on branch ros2. Maintain snapshot distinction between 15 historical records and current 18 tracked applications plus 3 infrastructure services.
+
+## ONE next engineering action
+
+Create and execute a version-aware 1.4.0 eight-source candidate verifier on a clean, isolated exact commit, with sealed blob indexes, native strict replay/rollback, digest and historical record preservation. Then request a genuine human impact/compatibility review. Do not ratify or publish in this PR.
