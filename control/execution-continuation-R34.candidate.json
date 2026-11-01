@@ -1,0 +1,55 @@
+{
+  "schema": "blueprint-os:r34-continuation-candidate/v1",
+  "status": "candidate-not-ratified",
+  "rule": "R34",
+  "appliesTo": "all-governed-project-checkpoints-after-authorized-adoption",
+  "centralOwner": "Software-Blueprint-Hub",
+  "actions": {
+    "nextAction": "one-eligible-step",
+    "endToEnd": "bounded-execution-through-completion-or-real-stop-gate"
+  },
+  "mustReuseKnownUserConstraints": true,
+  "mustReusePassAtUnchangedRevision": true,
+  "mustAttemptPermittedConnectedCapabilitiesBeforeEscalation": true,
+  "mustContinueAfterSuccessfulAuthorizedStep": true,
+  "mustContinueIndependentSafeTasksAfterPartialBlocker": true,
+  "mustAttemptSafeRecoveryBeforeHumanHandoff": true,
+  "mustNeverTreatPreflightOrPromptAsDelivery": true,
+  "mustAvoidRepeatQuestionsAlreadyAnswered": true,
+  "mustDiscloseCapabilityLimitsTruthfully": true,
+  "escalationRequires": {
+    "exactFailedCapability": true,
+    "priorAttempts": true,
+    "authorityOrToolBoundary": true,
+    "minimalRequiredHumanAction": true
+  },
+  "legitimateStops": [
+    "authenticated-human-authority-gate",
+    "missing-enabled-tool-capability",
+    "stale-or-conflicting-canonical-revision",
+    "budget-or-cost-limit",
+    "privacy-or-safety-boundary",
+    "requested-goal-verified-complete"
+  ],
+  "outcomes": [
+    "VERIFIED_COMPLETE",
+    "PARTIAL_BLOCKED",
+    "PARTIAL_CAPABILITY_LIMIT"
+  ],
+  "finalReceiptFields": [
+    "projectId",
+    "canonicalVersionOrUnverified",
+    "sourceRevisionOrUnverified",
+    "completedActions",
+    "verifiedEvidence",
+    "remainingWork",
+    "stopReason",
+    "attemptedRecovery",
+    "localDirtyState",
+    "oneNextAction"
+  ],
+  "perProjectAcceptanceRequired": true,
+  "automaticWorkLaunchWithoutPermission": false,
+  "productionReleaseAuthority": false,
+  "constitutionalRatificationAuthority": false
+}
