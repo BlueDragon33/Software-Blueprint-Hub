@@ -1,8 +1,9 @@
 /**
  * R34 REVIEW-ONLY receipt-shape gate; not a runner, trust anchor, source-of-truth,
  * human approval, canonical registry or independent evidence verifier.
- * It refuses premature self-reported completion before authorized review.
+ * Rejects incomplete next actions and premature self-reported completion.
  */
+import { reviewR34NextAction } from './r34-next-action-gate.candidate.mjs';
 const SHA = /^[0-9a-f]{40}$/;
 const PROJECT = /^project:[a-z0-9][a-z0-9-]{0,158}$/;
 const STOPS = new Set([
@@ -32,6 +33,10 @@ export function reviewR34ContinuationReceipt(packet) {
     return result('REJECT', 'not-exactly-one-next-action');
   if (!Array.isArray(packet.tasks) || packet.tasks.length === 0)
     return result('REJECT', 'missing-task-inventory');
+  if (!Array.isArray(packet.scopeTaskIds) || packet.scopeTaskIds.length === 0 ||
+      new Set(packet.scopeTaskIds).size !== packet.scopeTaskIds.length ||
+      !packet.scopeTaskIds.every(id => typeof id === 'string' && id.trim()))
+    return result('REJECT', 'missing-or-duplicated-approved-scope');
   const ids = new Set();
   for (const task of packet.tasks) {
     if (!task || typeof task.id !== 'string' || !task.id.trim() || ids.has(task.id))
@@ -44,7 +49,13 @@ export function reviewR34ContinuationReceipt(packet) {
           task.evidence.independentReadback !== true || task.evidence.realAcceptance !== true)
         return result('REJECT', 'unverified-or-stale-task-evidence');
     }
+    if (task.state === 'blocked' &&
+        (typeof task.blockedBy !== 'string' || !STOPS.has(task.blockedBy) ||
+         !Array.isArray(task.recoveryAttempts) || task.recoveryAttempts.length === 0))
+      return result('REJECT', 'unsupported-task-blocker');
   }
+  if (ids.size !== packet.scopeTaskIds.length || packet.scopeTaskIds.some(id => !ids.has(id)))
+    return result('REJECT', 'incomplete-approved-scope');
   if (packet.tasks.some(x => x.state === 'eligible'))
     return result('CONTINUE', 'eligible-steps-remain');
 
@@ -55,10 +66,13 @@ export function reviewR34ContinuationReceipt(packet) {
     if (packet.tasks.some(x => x.state === 'blocked')) return result('REJECT', 'blocked-task-remains');
     if (!packet.tasks.some(x => x.state === 'verified')) return result('REJECT', 'no-real-verified-action');
     if (packet.stopReason !== 'requested-goal-verified-complete') return result('REJECT', 'invalid-completion-stop');
+    const next = reviewR34NextAction(packet);
+    if (next.state !== 'SHAPE_VALID') return result('REJECT', next.code);
     return result('RECEIPT_SHAPE_COMPLETE', 'independent-real-evidence-must-still-be-read-back');
   }
   if (!STOPS.has(packet.stopReason)) return result('REJECT', 'stop-gate-not-substantiated');
-  if (!packet.tasks.some(x => x.state === 'blocked')) return result('REJECT', 'partial-without-blocker');
+  if (!packet.tasks.some(x => x.state === 'blocked' && x.blockedBy === packet.stopReason))
+    return result('REJECT', 'partial-without-matching-blocker');
   if (!Array.isArray(packet.attemptedRecovery) || packet.attemptedRecovery.length === 0 ||
       packet.attemptedRecovery.some(x => typeof x !== 'string' || !x.trim()))
     return result('REJECT', 'recovery-attempts-not-disclosed');
@@ -68,6 +82,8 @@ export function reviewR34ContinuationReceipt(packet) {
   if (packet.outcome === 'PARTIAL_BLOCKED' &&
       packet.stopReason === 'missing-enabled-tool-capability')
     return result('REJECT', 'capability-gate-misclassified');
+  const next = reviewR34NextAction(packet);
+  if (next.state !== 'SHAPE_VALID') return result('REJECT', next.code);
   return result(packet.outcome === 'PARTIAL_BLOCKED' ? 'RECEIPT_SHAPE_BLOCKED'
     : 'RECEIPT_SHAPE_CAPABILITY_LIMIT', 'external-authority-readback-remains-required');
 }
