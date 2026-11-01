@@ -181,5 +181,62 @@
     ],
     "legacyUnstructuredFinalNextActionRejected": true,
     "runtimeEnforced": false
+  },
+  "contextualActionControls": {
+    "status": "candidate-hub-pilot-not-constitution-ratified",
+    "owner": "Software-Blueprint-Hub",
+    "checkpoint": "canonical-project-readiness",
+    "guidance": {
+      "label": "HƯỚNG DẪN",
+      "mustBeOperableButton": true,
+      "mode": "toggle-contextual-guidance",
+      "contains": [
+        "project-id",
+        "project-profile-version",
+        "exact-next-action",
+        "evidence-reason",
+        "verified-click-behavior",
+        "authority-limit"
+      ],
+      "mustNotRequireExtraPermissionToReadExistingScope": true
+    },
+    "nextAction": {
+      "visibleLabel": "NEXT ACTION — Tiếp tục nhiệm vụ",
+      "mustBeOperableControl": true,
+      "onePrimaryExecutionIntent": true,
+      "actualBehavior": "server-reauthorize-and-navigate",
+      "mustNotPretendToExecuteWork": true,
+      "mustNotBeReplacedByGuideText": true
+    },
+    "endToEnd": {
+      "visibleLabel": "TRIỂN KHAI TỪ ĐẦU TỚI CUỐI",
+      "onlyOfferWorkingActionWhen": "authorized-scoped-runtime-bound",
+      "whenAbsent": "show-truthful-disabled-or-guidance-state",
+      "neverSynthesizeWorkLauncher": true
+    },
+    "distinctSemantics": true,
+    "contextualHelpMayNotBecomePrimaryNextAction": true,
+    "accessibility": [
+      "type-button",
+      "aria-expanded",
+      "aria-controls",
+      "keyboard-accessible",
+      "mobile-responsive"
+    ],
+    "hubPilot": {
+      "implementationPaths": [
+        "apps/web/app/projects/[projectId]/_components/project-action-guidance.tsx",
+        "apps/web/app/projects/[projectId]/_components/readiness-overview.tsx"
+      ],
+      "status": "implemented-in-review-branch-not-live-accepted"
+    },
+    "adoptionProofs": [
+      "rendered-controls-exact-head",
+      "interactive-help-toggle",
+      "server-scoped-navigation",
+      "no-fake-executor",
+      "real-role-ux-evidence"
+    ],
+    "unverifiedHostModeBehavior": "neutral-guidance-no-invented-Chat-Work-inbox"
   }
 }
