@@ -143,5 +143,28 @@
       "russianExpertEngine": "not-adopted-by-this-candidate",
       "noConstitutionCopy": true
     }
+  },
+  "executionContinuation": {
+    "status": "candidate-not-integrated",
+    "law": "R34",
+    "proposedPolicy": "1.4.0",
+    "contractPath": "control/execution-continuation-R34.candidate.json",
+    "reviewOnlyGatePath": "packages/application/src/r34-continuation-receipt.candidate.mjs",
+    "testPath": "tests/application/r34-continuation-receipt.candidate.test.mjs",
+    "nextActionSemantics": "one-scoped-eligible-step",
+    "endToEndSemantics": "bounded-continuation-through-verified-completion-or-real-stop",
+    "mustContinueSafeTasksAfterBlockedBranch": true,
+    "mustReuseKnownAnswersAndUnchangedPassEvidence": true,
+    "forbidPrematureUserHandoff": true,
+    "requiresIndependentSourceBoundEvidence": true,
+    "exactlyOneFinalNextAction": true,
+    "runExistingWorkWithoutApproval": false,
+    "automaticWorkLaunch": false,
+    "implicitWorkflowDispatch": false,
+    "implicitConstitutionalAuthority": false,
+    "implicitProductionAuthority": false,
+    "currentRuntimeWiring": "NOT_INTEGRATED",
+    "candidateMayClaimQaPass": false,
+    "notAnAuthorityGrant": true
   }
 }
