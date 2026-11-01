@@ -165,6 +165,21 @@
     "implicitProductionAuthority": false,
     "currentRuntimeWiring": "NOT_INTEGRATED",
     "candidateMayClaimQaPass": false,
-    "notAnAuthorityGrant": true
+    "notAnAuthorityGrant": true,
+    "finalNextActionGate": "packages/application/src/r34-next-action-gate.candidate.mjs",
+    "requiredNextActionProof": [
+      "actionId",
+      "kind",
+      "projectId",
+      "sourceRevision",
+      "targetTaskId",
+      "ownerType",
+      "selectionReason",
+      "expectedEvidence",
+      "blockedByIfPartial",
+      "previousActionIdAndNewEvidenceIfRepeated"
+    ],
+    "legacyUnstructuredFinalNextActionRejected": true,
+    "runtimeEnforced": false
   }
 }
