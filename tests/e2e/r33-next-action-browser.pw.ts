@@ -50,6 +50,6 @@ test("synthetic Viewer: can inspect but cannot gain execution approval",async({p
 test("synthetic no-access principal: canonical project and NEXT ACTION are forbidden",async({page})=>{
   await signIn(page,"p7-e2e-no-access");
   await page.goto(route);
-  await expect(page.getByRole("heading",{name:"You do not have access to this project."})).toBeVisible();
+  await expect(page.getByRole("heading",{name:"Bạn không có quyền truy cập dự án này."})).toBeVisible();
   await expect(page.getByRole("button",{name:/NEXT ACTION —/})).toHaveCount(0);
 });
