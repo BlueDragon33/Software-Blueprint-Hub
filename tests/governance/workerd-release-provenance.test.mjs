@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {gzipSync} from "node:zlib";
+import {randomBytes} from "node:crypto";
 import {fixedRelease,compareWorkerdReleaseBytes} from "../../scripts/verify-workerd-release-provenance.mjs";
 test("Exact github release name, tag and sha256 are pinned without execution",()=>{
  assert.equal(fixedRelease.repository,"cloudflare/workerd");
@@ -11,6 +12,6 @@ test("Exact github release name, tag and sha256 are pinned without execution",()
 test("Wrong archive digest cannot inherit native binary trust",()=>{
  assert.throws(()=>compareWorkerdReleaseBytes(Buffer.alloc(2000),"a".repeat(64)),/WORKERD_RELEASE_GZIP_DIGEST_MISMATCH/);
  assert.throws(()=>compareWorkerdReleaseBytes(Buffer.from("not gzip"),"a".repeat(64)),/WORKERD_RELEASE_GZIP_SIZE_INVALID/);
- const fabricated=gzipSync(Buffer.alloc(2000));
+ const fabricated=gzipSync(randomBytes(4096));
  assert.throws(()=>compareWorkerdReleaseBytes(fabricated,"a".repeat(64)),/WORKERD_RELEASE_GZIP_DIGEST_MISMATCH/);
 });
