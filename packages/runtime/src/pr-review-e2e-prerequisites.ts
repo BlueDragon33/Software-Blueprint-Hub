@@ -4,7 +4,7 @@
  * All reads are through the existing authenticated WorkQuality application
  * services / canonical issuer and adoption repositories.
  */
-import type { AuthenticatedActor } from "@blueprint-os/core";
+import type { AuthenticatedActor, AuthorityService } from "@blueprint-os/core";
 import type { WorkQualityApplicationService, ProjectProfileApplicationService } from "@blueprint-os/application";
 import type { PostgresWorkflowExecutionAuthorityRepository } from "@blueprint-os/persistence";
 
@@ -14,6 +14,7 @@ const PROJECT=/^project:[a-z0-9-]+$/;
 type WorkReader = Pick<WorkQualityApplicationService,"listWorkPackages"|"listQualityGates">;
 type ProfileReader = Pick<ProjectProfileApplicationService,"read">;
 type AuthorityReader = Pick<PostgresWorkflowExecutionAuthorityRepository,"latestAdoption"|"latestIssuer">;
+type SessionAuthority = Pick<AuthorityService,"require">;
 function deny(reason:string):never{throw new Error("AUTHENTICATED_PR_E2E_BLOCKED: "+reason);}
 
 export async function inspectCanonicalPrReviewPrerequisites(
@@ -23,7 +24,7 @@ export async function inspectCanonicalPrReviewPrerequisites(
   readonly workflowId:string;readonly workflowDigest:string;
   readonly issuerId:string;readonly policyVersion:string;
  },
- sources:{readonly profile:ProfileReader;readonly work:WorkReader;readonly decisions:AuthorityReader}
+ sources:{readonly sessionAuthority:SessionAuthority;readonly profile:ProfileReader;readonly work:WorkReader;readonly decisions:AuthorityReader}
 ):Promise<{
  readonly status:"CANONICAL_PREREQUISITES_OBSERVED_ONLY";
  readonly projectId:string;readonly workPackageId:string;readonly workflowDigest:string;
@@ -38,6 +39,11 @@ export async function inspectCanonicalPrReviewPrerequisites(
     !input.actor?.principalId){
   deny("invalid trusted canonical request or missing authenticated actor");
  }
+ // A GitHub connector login or an authenticated PROJECT_READ actor is NOT
+ // sufficient. Enforce Hub's existing canonical owner/project mutation policy
+ // before any profile, Work Package, gate or issuer metadata can be inspected.
+ // "require" is a permission check; it never creates/updates canonical records.
+ await sources.sessionAuthority.require(input.actor,input.projectId,"PROJECT_MUTATE");
  // Never infer authority from a GitHub PR body or a generated prompt.
  const p=await sources.profile.read(input.actor,input.projectId);
  if(!p || p.profile.projectId!==input.projectId ||
