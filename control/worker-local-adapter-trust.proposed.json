@@ -6,7 +6,7 @@
   "approvedForExecution": false,
   "cloudDeploymentAllowed": false,
   "canonicalDatabaseAccessAllowed": false,
-  "networkEgressPolicy": "NPM_REGISTRY_METADATA_AND_TARBALL_FETCH_ONLY_IN_DISPOSABLE_AUDIT",
+  "networkEgressPolicy": "READ_ONLY_NPM_REGISTRY_AND_FIXED_PUBLIC_GITHUB_RELEASE_FETCH_IN_DISPOSABLE_AUDIT_ONLY",
   "selectedAdapter": "NONE",
   "packageSources": [
     {
@@ -75,7 +75,11 @@
     "registryDeclaredSha512AndDownloadedBytesRequired": true,
     "tarballManifestNameVersionRequired": true,
     "packagePostinstallIsNotApproval": true,
-    "nativeBinaryProvenanceRequiresSeparateReview": true
+    "nativeBinaryProvenanceRequiresSeparateReview": true,
+    "githubReleaseExactTagAndAssetRequired": true,
+    "githubReleaseGzipSha256AndNpmELFByteParityRequired": true,
+    "publisherSigstoreAttestationIndependentlyVerified": false,
+    "scriptSourceReproducibleBuildVerified": false
   },
   "localRuntimeSandbox": {
     "decision": "BLOCKED_AWAITING_INDEPENDENT_TOOLCHAIN_REVIEW",
@@ -85,6 +89,8 @@
     "noRemoteServiceBindings": true,
     "loopbackOnly": true,
     "readOnlyFixtures": true,
-    "deniedProduction": true
+    "deniedProduction": true,
+    "noNetworkEgressDuringScriptExecution": true,
+    "postinstallPermissionGranted": false
   }
 }
