@@ -64,6 +64,7 @@ jobs:
       - name: OpenNext adapter version and CLI availability check (no local config)
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           timeout 90s npm view @opennextjs/cloudflare@latest version peerDependencies engines --json > artifacts/opennext-metadata.json 2> artifacts/opennext-metadata-error.log
           meta=$?
