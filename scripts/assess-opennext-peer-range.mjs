@@ -3,9 +3,6 @@
  * adapter binaries; build-script trust review is independent from peer support.
  */
 import {readFileSync,writeFileSync} from "node:fs";
-import {fileURLToPath} from "node:url";
-const root=fileURLToPath(new URL("../",import.meta.url));
-const pathFromRoot=p=>new URL(p, "file://"+root);
 const app=JSON.parse(readFileSync(new URL("../apps/web/package.json",import.meta.url),"utf8"));
 const metadata=JSON.parse(readFileSync(process.argv[2]||"artifacts/opennext-metadata.json","utf8"));
 const nextVersion=app.dependencies?.next;
