@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { validateProposal,verifyRegistryTarball } from "../../scripts/audit-worker-package-integrity.mjs";
+import { validateProposal,verifyRegistryTarball,normalizeNpmView } from "../../scripts/audit-worker-package-integrity.mjs";
 
 const proposal=JSON.parse(readFileSync(new URL("../../control/worker-local-adapter-trust.proposed.json",import.meta.url),"utf8"));
 const name="esbuild",version="0.28.2";
@@ -30,6 +30,16 @@ test("Matching official-registry SHA512/SHA1 and tarball manifest are evidence o
  assert.equal(a.lifecycleScriptsExecuted,false);
  assert.equal(a.lifecycleApproval,"DENIED_PENDING_INDEPENDENT_REVIEW");
  assert.equal(a.nativeBinaryIndependentlyVerified,false);
+});
+test("npm view multi-field dotted dist path normalizes only explicit registry hashes",()=>{
+ const dotted={name,version,"dist.integrity":sha512,"dist.shasum":sha1,scripts:{postinstall:script}};
+ const normalized=normalizeNpmView(dotted);
+ assert.equal(normalized.dist.integrity,sha512);
+ assert.equal(normalized.dist.shasum,sha1);
+ assert.equal(verifyRegistryTarball(pin,normalized,archive,manifest,bytes).registryArchiveIntegrityVerified,true);
+ const empty=normalizeNpmView({name,version});
+ assert.throws(()=>verifyRegistryTarball(pin,empty,archive,manifest,bytes),/TRUST_NO_REGISTRY_SHA512/);
+ assert.throws(()=>normalizeNpmView(null),/TRUST_METADATA_SHAPE_INVALID/);
 });
 test("Tampering or false registry SRI is fail-closed",()=>{
  assert.throws(()=>verifyRegistryTarball(pin,metadata,archive,manifest,Buffer.concat([bytes,Buffer.from("evil")])),/TRUST_SRI_MISMATCH/);
