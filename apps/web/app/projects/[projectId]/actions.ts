@@ -181,7 +181,10 @@ export async function receiveGuidedCmdResult(
   commandId: string,
   output: string
 ): Promise<{state:"REJECTED"|"UNVERIFIED_MANUAL_OUTPUT"; detail:string}> {
-  if (typeof output!=="string" || output.length>24000) {
+  if (!/^project:[a-z0-9][a-z0-9-]{0,158}$/.test(projectId) ||
+      !Number.isSafeInteger(profileVersion) || profileVersion < 1 ||
+      typeof commandId!=="string" || commandId.length>50 ||
+      typeof output!=="string" || output.length>24000) {
     return {state:"REJECTED",detail:"Đầu ra quá dài hoặc sai định dạng. Không lưu hoặc thực thi dữ liệu."};
   }
   const workspace = await loadProjectWorkspace(encodeURIComponent(projectId));
