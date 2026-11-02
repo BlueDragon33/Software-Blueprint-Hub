@@ -7,6 +7,8 @@ on:
       - "scripts/assess-cloudflare-worker-compat.mjs"
       - "scripts/assess-opennext-peer-range.mjs"
       - "scripts/audit-worker-package-integrity.mjs"
+      - "scripts/audit-worker-postinstall-provenance.mjs"
+      - "tests/governance/workers-postinstall-provenance.test.mjs"
       - "tests/governance/workers-toolchain-trust.test.mjs"
       - "control/worker-local-adapter-trust.proposed.json"
       - "apps/web/**"
@@ -76,6 +78,13 @@ jobs:
           set -euo pipefail
           node scripts/audit-worker-package-integrity.mjs artifacts/workers-toolchain-integrity.json
           node -e 'const p=JSON.parse(require("node:fs").readFileSync("artifacts/workers-toolchain-integrity.json"));if(p.executableBuildScriptsApproved!==false||p.workerdRuntimeVerified!==false||p.packageCount!==7||p.approvedBuildScripts.length!==0)process.exit(1);console.log("TRUST_BOUNDARY_PRESERVED — integrity compared to registry; no scripts approved")'
+      - name: Read exact postinstall source and native ELF without executing either
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/governance/workers-postinstall-provenance.test.mjs
+          node scripts/audit-worker-postinstall-provenance.mjs artifacts/workers-native-provenance.json
+          node -e 'const p=require("./artifacts/workers-native-provenance.json");if(p.scriptsExecuted||p.scriptsApproved||p.workerdExecuted||p.allNativeBinariesIndependentlyVerified||p.findings.length!==4||!p.findings.find(x=>x.spec==="@esbuild/linux-x64@0.28.2").upstreamSourceHashMatch)process.exit(1); console.log("SOURCE_READ_AND_ESBUILD_UPSTREAM_HASH_MATCH; WORKERD_RELEASE_BINARY_PARITY_STILL_UNVERIFIED")'
       - name: Pinned OpenNext peer-range check (NO unapproved build scripts)
         shell: bash
         run: |
@@ -116,5 +125,6 @@ jobs:
             artifacts/opennext-metadata.json
             artifacts/opennext-peer-evidence.json
             artifacts/workers-toolchain-integrity.json
+            artifacts/workers-native-provenance.json
           retention-days: 7
           if-no-files-found: warn
