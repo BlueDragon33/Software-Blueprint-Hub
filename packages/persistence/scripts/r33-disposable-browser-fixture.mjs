@@ -37,9 +37,9 @@ try {
         meta:{schemaVersion:"1.0.0",recordVersion:1,createdAt:now,updatedAt:now}
       };
       await client.query(`INSERT INTO "QualityGate"
-        ("id","projectId","schemaVersion","recordVersion","status","document")
-        VALUES ($1,$2,'1.0.0',1,'pass',$3::jsonb)
-        ON CONFLICT ("id") DO UPDATE SET "status"='pass',"document"=$3::jsonb`,
+        ("id","projectId","schemaVersion","recordVersion","status","document","createdAt","updatedAt")
+        VALUES ($1,$2,'1.0.0',1,'pass',$3::jsonb,NOW(),NOW())
+        ON CONFLICT ("id") DO UPDATE SET "status"='pass',"document"=$3::jsonb,"updatedAt"=NOW()`,
         [id,projectId,JSON.stringify(document)]);
       const ev={
         id:evidenceId,gateId:id,kind:"test",
