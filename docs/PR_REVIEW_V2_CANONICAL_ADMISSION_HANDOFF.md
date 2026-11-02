@@ -30,10 +30,11 @@ The connected Neon `software-blueprint-hub` production/default branch was inspec
 
 Source inspection at this candidate revision confirms:
 
-- The GitHub repository metadata lists `https://software-blueprint-hub.vercel.app` as the
-  homepage; **external runtime availability is not verified**. Confirm this is the
-  actually deployed **Blueprint Hub** connected to the intended canonical branch,
-  not Application Management or a stale preview.
+- A legacy homepage deployment was observed in the external repository metadata;
+  it is **not** an approved 1.3.0 Preview or a candidate runtime endpoint.
+  Confirm any future separately authorized runtime is the actual Blueprint Hub,
+  bound to the expected source revision and canonical project. Do not reuse the
+  legacy hosting URL as an execution prerequisite.
 - `apps/web/app/page.tsx` links unsigned users to `/api/auth/signin`; the
   Auth.js handler lives at `apps/web/app/api/auth/[...auth]/route.ts`.
 - `apps/web/src/auth/server-actor.ts` resolves a **server-side** Auth.js session
@@ -75,7 +76,7 @@ unauthenticated API, no draft-PR auto-create action.
 
 Read-only connected Browser inspection on 2026-11-02:
 
-- Actual tab `https://software-blueprint-hub.vercel.app/constitution` displayed
+- Previously observed legacy `/constitution` tab displayed
   `System Owner authority` and `Canonical amendment workspace`. The homepage
   `/` displayed the canonical Blueprint OS project with `System Owner`.
   This is genuine in-app **Constitutional Owner UI verification**, not merely
@@ -110,6 +111,9 @@ error details appear in the response.
   of Owner authority: the new route is only present in the Draft source.
   **Do not deploy it to Production, merge Draft PRs or change the main-only
   E2E workflow just to run this probe.** Never copy tokens/cookies into chat.
+- Current hosting direction: `docs/ADR-PROVIDER-NEUTRAL-EXECUTION-VALIDATION.proposed.md`.
+  No hosting-provider account connection is a prerequisite for GitHub CI or
+  isolated protocol verification; Cloudflare compatibility remains UNVERIFIED.
 - WorkPackage remains missing and live authority/journal schemas not applied:
   capability verification, if later successful, is only ONE precondition,
   not a replacement for those gates.
