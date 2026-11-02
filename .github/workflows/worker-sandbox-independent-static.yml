@@ -30,6 +30,12 @@ jobs:
         uses: actions/checkout@v5
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Assert workspace is the exact unmerged PR HEAD
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          echo "EXACT_PR_HEAD_CHECKOUT_VERIFIED=$(git rev-parse HEAD)"
       - name: Use Node built-ins only without package install
         uses: actions/setup-node@v5
         with:
