@@ -1,0 +1,50 @@
+name: Worker Sandbox Independent Static Isolation Review (NO EXECUTION)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/worker-sandbox-independent-static.yml"
+      - "scripts/audit-worker-independent-isolation.mjs"
+      - "tests/governance/worker-independent-isolation-review.test.mjs"
+      - "control/worker-local-sandbox-preflight.proposed.json"
+      - "control/worker-local-adapter-trust.proposed.json"
+      - "docs/WORKER-LOCAL-SANDBOX-PREFLIGHT-GATE-2026-11-02.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: independent-isolation-static-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  independent-static-review:
+    name: Static isolation contract + denied authority (not runtime validation)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    env:
+      CI: "true"
+      DO_NOT_DEPLOY: "true"
+    steps:
+      - name: Checkout exact PR source with no persistent GitHub token
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Use Node built-ins only without package install
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Adversarial static policy review (no container or package execution)
+        run: node --test tests/governance/worker-independent-isolation-review.test.mjs
+      - name: Emit blocked state with missing independent isolation evidence
+        run: |
+          node scripts/audit-worker-independent-isolation.mjs artifacts/worker-isolation-independent-review.json
+          node -e 'const x=require("./artifacts/worker-isolation-independent-review.json");if(x.decision!=="BLOCKED_MISSING_INDEPENDENT_ISOLATION_EVIDENCE"||x.gaps.length!==12||x.humanReviewerVerified||x.hostIsolationVerified||x.postinstallAllowed||x.nativeBinaryExecuted||x.productionAuthorized)process.exit(1);console.log("STATIC_DENY_POLICY_ACCEPTED; INDEPENDENT_HOST_AND_REVIEWER_EVIDENCE_BLOCKED")'
+      - name: Preserve exact-source blocked evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-isolation-review-${{ github.sha }}
+          path: artifacts/worker-isolation-independent-review.json
+          retention-days: 7
+          if-no-files-found: warn
