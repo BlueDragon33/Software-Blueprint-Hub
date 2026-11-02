@@ -15,8 +15,8 @@ export interface VerifiedCommandTask {
   readonly profileVersion: number;
   readonly workPackageId: string;
   readonly commandId: SafeCommandId;
-  readonly approvedPlanSource: "trusted-canonical-task-registry";
-  readonly taskPlanRevision: string;
+  readonly approvedPlanSource: "canonical-work-package-readonly-marker";
+  readonly taskPlanRecordVersion: number;
 }
 export interface CommandEvidencePrompt {
   readonly workPackageId: string;
@@ -34,6 +34,19 @@ export const registeredReadOnlyCommands: Readonly<Record<SafeCommandId,string>> 
 });
 const SHA=/^[a-f0-9]{40}$/;
 const WORK=/^[a-zA-Z][a-zA-Z0-9:._/-]{1,159}$/;
+
+
+/**
+ * Read-only CMD task opt-in is stored as an EXACT acceptance criterion in the
+ * existing canonical WorkPackage, not inferred from free-text prompts/titles.
+ * Only allowlisted read-only commands may appear. This grants no execution.
+ */
+export function recognizedCanonicalCommandId(criteria: readonly string[]): SafeCommandId | null {
+  const matches=criteria.filter(x=>x.startsWith("BLUEPRINT_CMD_READONLY:"));
+  if (matches.length!==1) return null;
+  const id=matches[0]!.slice("BLUEPRINT_CMD_READONLY:".length);
+  return Object.hasOwn(registeredReadOnlyCommands,id)?id as SafeCommandId:null;
+}
 
 export interface ClickPlanCandidate {
   readonly mode: "auto-read-only" | "requires-granted-runner" | "needs-cmd-result";
@@ -61,9 +74,10 @@ export function createClickPlanCandidate(
     if (verifiedCommandTask.projectId!==input.projectId ||
         verifiedCommandTask.profileVersion!==input.profileVersion ||
         verifiedCommandTask.workPackageId!==input.workPackageId ||
-        verifiedCommandTask.approvedPlanSource!=="trusted-canonical-task-registry" ||
+        verifiedCommandTask.approvedPlanSource!=="canonical-work-package-readonly-marker" ||
         !WORK.test(verifiedCommandTask.workPackageId) ||
-        !SHA.test(verifiedCommandTask.taskPlanRevision) ||
+        !Number.isSafeInteger(verifiedCommandTask.taskPlanRecordVersion) ||
+        verifiedCommandTask.taskPlanRecordVersion < 1 ||
         !(verifiedCommandTask.commandId in registeredReadOnlyCommands)) {
       throw new TypeError("CMD plan is not trusted, current and canonically bound");
     }
