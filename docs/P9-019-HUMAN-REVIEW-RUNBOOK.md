@@ -124,8 +124,16 @@ P9-019 approval:
 - cannot override Constitution or exact-revision evidence requirements.
 
 
-### Vercel monorepo build
+### Provider-neutral monorepo build
 
-When the Vercel project root is `apps/web`, the web package must generate the Prisma client before `next build`. The package-level `prebuild` script delegates to the repository-root `prisma:generate` command so generated Prisma sources are recreated in ephemeral build environments instead of being committed.
+The Next.js application lives at `apps/web`. Build from the existing monorepo
+with the checked-in lockfile; preserve the package-level `prebuild` hook,
+which invokes repository-root `prisma:generate` before `next build`.
+This applies to local testing and any separately approved runtime adapter.
+A build alone never proves Cloudflare Workers compatibility or deployment
+authority.
 
 Do not commit `packages/persistence/src/generated/prisma/`; it remains a generated artifact.
+For any new origin, bind the GitHub OAuth callback to that exact origin, keep
+secure session cookies and verify the same existing canonical PostgreSQL
+connection without exporting secrets or reinitializing the System Owner.
