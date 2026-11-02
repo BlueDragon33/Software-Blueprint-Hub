@@ -16,6 +16,9 @@ export interface NextActionBlueprintInput {
   readonly readinessState: "blocked" | "attention" | "in-progress" | "gate-ready";
   readonly sourceRevision?: string | null;
   readonly workPackageId?: string | null;
+  readonly workPackageRecordVersion?: number | null;
+  readonly workPackagePurpose?: string | null;
+  readonly workPackageAcceptanceCriteria?: readonly string[] | null;
   readonly evidenceFreshness: "none" | "incomplete" | "recorded-unverified";
   readonly protectedDirtyState?: string | null;
 }
@@ -94,6 +97,12 @@ export function buildNextActionBlueprintCandidate(
     "ProjectProfile.recordVersion=" + input.profileVersion,
     "sourceRevision=" + data(sourceRevision),
     "workPackageId=" + data(input.workPackageId || "UNVERIFIED"),
+    "workPackageRecordVersion=" + (
+      input.workPackageRecordVersion && Number.isSafeInteger(input.workPackageRecordVersion)
+        ? input.workPackageRecordVersion : "UNVERIFIED"),
+    "workPackagePurpose=" + data(input.workPackagePurpose || "UNVERIFIED"),
+    "acceptanceCriteria=" + JSON.stringify(
+      (input.workPackageAcceptanceCriteria ?? []).slice(0, 16).map(item => item.slice(0, 800))),
     "readinessState=" + data(input.readinessState),
     "evidenceFreshness=" + data(input.evidenceFreshness),
     "actionKind=" + data(input.actionKind),
