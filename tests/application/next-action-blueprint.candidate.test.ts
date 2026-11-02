@@ -24,7 +24,7 @@ describe("R33 Universal Next Action Blueprint candidate", () => {
     expect(out.nextPrompt).toContain("ProjectProfile.recordVersion=7");
     expect(out.endToEndPrompt).toContain(base.reason);
     expect(out.nextActionAuthority).toBe("read-only-revalidated-navigation");
-    expect(out.promptAuthority).toBe("copy-only-never-execute");
+    expect(out.promptAuthority).toBe("internal-plan-not-execution-grant");
   });
 
   it("does not fabricate current source SHA from a linked evidence revision", () => {
