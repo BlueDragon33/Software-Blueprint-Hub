@@ -9,7 +9,7 @@ export function hubSsoApprovedOrigin(): string | null {
   if(!candidate) return null;
   try {
     const parsed=new URL(candidate);
-    if(parsed.protocol!=="https:" || !parsed.hostname || parsed.username || parsed.password ||
+    if(parsed.protocol!=="https:" || !parsed.hostname || parsed.hostname.includes("*") || parsed.username || parsed.password ||
        parsed.pathname!=="/" || parsed.search || parsed.hash || candidate!==parsed.origin) return null;
     return parsed.origin;
   } catch { return null; }
