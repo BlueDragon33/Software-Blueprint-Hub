@@ -23,7 +23,7 @@ describe("R33 Universal Next Action Blueprint candidate", () => {
     expect(out.nextPrompt).toContain(base.projectId);
     expect(out.nextPrompt).toContain("ProjectProfile.recordVersion=7");
     expect(out.endToEndPrompt).toContain(base.reason);
-    expect(out.nextActionAuthority).toBe("read-only-revalidated-navigation");
+    expect(out.nextActionAuthority).toBe("revalidated-bounded-readonly-stage");
     expect(out.promptAuthority).toBe("internal-plan-not-execution-grant");
   });
 
