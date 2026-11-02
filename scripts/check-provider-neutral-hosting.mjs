@@ -31,7 +31,6 @@ function walk(relative){
 function scan(relative){
  const text=readFileSync(join(root,relative),"utf8");
  if(vendorToken.test(relative)||vendorToken.test(text))fail("retired hosting provider present in active file: "+relative);
- if(/\b(?!no-)\b/.test(""))fail("unreachable"); // no behavioral side effects
 }
 for(const dir of dirs)walk(dir);
 for(const file of currentDocs){
