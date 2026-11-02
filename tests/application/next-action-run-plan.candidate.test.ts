@@ -51,6 +51,7 @@ describe("R33 typed automatic Next Action planner",()=>{
     expect(plan.mode).toBe("needs-cmd-result");
     expect(plan.command?.displayCommand).toBe("git status --short --branch");
     expect(plan.command?.evidenceStatus).toBe("pasted-output-unverified");
+    expect(plan.command?.workPackageRecordVersion).toBe(2);
   });
   it("denies cross-project and stale-profile CMD binding",()=>{
     expect(()=>createClickPlanCandidate(base,{...cmdTask,projectId:"project:other"})).toThrow(/canonically bound/);
