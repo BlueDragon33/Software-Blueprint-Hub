@@ -1,5 +1,4 @@
 import { CONSTITUTION_POLICY_VERSION } from "@blueprint-os/application";
-import { AuthorizationDeniedError } from "@blueprint-os/core";
 
 import { resolveWebIdentity } from "../../../../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../../../../src/server/runtime";
@@ -51,8 +50,9 @@ export async function GET(): Promise<Response> {
       diagnosticOnly: true
     }), { status: 200, headers });
   } catch (error) {
-    if (error instanceof AuthorizationDeniedError ||
-        error instanceof P2SessionCapabilityDenied) {
+    if (error instanceof P2SessionCapabilityDenied ||
+        (error !== null && typeof error === "object" &&
+         "code" in error && error.code === "AUTHORIZATION_DENIED")) {
       return new Response(JSON.stringify({ status: "PROJECT_MUTATE_DENIED" }), {
         status: 403, headers
       });
