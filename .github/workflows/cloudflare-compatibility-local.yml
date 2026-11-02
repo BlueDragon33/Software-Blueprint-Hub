@@ -9,6 +9,7 @@ on:
       - "packages/persistence/**"
       - "packages/runtime/**"
       - "docs/ADR-PROVIDER-NEUTRAL-EXECUTION-VALIDATION.proposed.md"
+      - "docs/CLOUDFLARE-LOCAL-COMPATIBILITY-EVIDENCE-2026-11-02.md"
 
 permissions:
   contents: read
