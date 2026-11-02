@@ -11,11 +11,12 @@ import styles from "./project-action-guidance.module.css";
 type NextKind = Parameters<typeof startGuidedNextAction>[2];
 
 export function ProjectNextActionRunner({
-  projectId, profileVersion, actionKind
+  projectId, profileVersion, actionKind, actionLabel
 }: {
   readonly projectId: string;
   readonly profileVersion: number;
   readonly actionKind: NextKind;
+  readonly actionLabel: string;
 }) {
   const [busy,setBusy]=useState(false);
   const [result,setResult]=useState<GuidedNextActionResult|null>(null);
@@ -30,7 +31,7 @@ export function ProjectNextActionRunner({
     try {
       // One click: server creates prompt/plan internally, reauthorizes and
       // executes every available read-only stage. No clipboard needed.
-      setResult(await startGuidedNextAction(projectId,profileVersion,actionKind,mode));
+      setResult(await startGuidedNextAction(projectId,profileVersion,actionKind,actionLabel,mode));
     } catch {
       setCmdStatus("Không thể đọc nguồn chuẩn. Không có tác vụ nào được xác nhận hoàn thành.");
     } finally { setBusy(false); }
@@ -41,7 +42,7 @@ export function ProjectNextActionRunner({
     setBusy(true);
     try {
       const response=await receiveGuidedCmdResult(
-        projectId,profileVersion,actionKind,result.command.commandId,
+        projectId,profileVersion,actionKind,actionLabel,result.command.commandId,
         result.command.workPackageId,result.command.workPackageRecordVersion,commandOutput
       );
       setCmdStatus(response.detail);
