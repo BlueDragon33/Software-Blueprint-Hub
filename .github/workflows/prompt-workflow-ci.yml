@@ -21,6 +21,8 @@ on:
       - "packages/application/src/index.ts"
       - "packages/application/src/pr-review-identity.ts"
       - "tests/application/pr-review-identity.test.ts"
+      - "packages/runtime/src/pr-review-e2e-prerequisites.ts"
+      - "tests/application/pr-review-e2e-prerequisites.test.ts"
       - "scripts/prompt-workflow-*.mjs"
       - "tests/application/prompt-workflow-*.test.ts"
       - "tests/prompt-workflows/**"
@@ -88,5 +90,7 @@ jobs:
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
       - name: Signed PR review identity v2 adversarial checks
         run: pnpm exec vitest run tests/application/pr-review-identity.test.ts
+      - name: Authenticated canonical E2E prerequisites fail-closed regression
+        run: pnpm exec vitest run tests/application/pr-review-e2e-prerequisites.test.ts
       - name: Vietnamese launcher, app grouping and no-invented-deployment tests
         run: pnpm exec vitest run tests/application/hub-app-directory.test.ts tests/application/appmanage-sso.test.ts
