@@ -19,6 +19,11 @@ const cmdTask={
   taskPlanRecordVersion:2
 };
 
+const task=(id:string,status:string)=>({
+  id,title:"Pilot QA",status,purpose:"QA review",
+  acceptanceCriteria:["Inspect safe evidence"],meta:{recordVersion:1}
+});
+
 describe("R33 typed automatic Next Action planner",()=>{
   it("generates bounded plan without clipboard or mutation grant",()=>{
     const plan=createClickPlanCandidate({...base,actionKind:"review-candidate"});
@@ -31,8 +36,8 @@ describe("R33 typed automatic Next Action planner",()=>{
   });
   it("selects the canonical lowest-ID continue-work even with duplicate titles",()=>{
     const works=[
-      {id:"work:z",title:"Pilot QA",status:"ready"},
-      {id:"work:a",title:"Pilot QA",status:"planned"}
+      task("work:z","ready"),
+      task("work:a","planned")
     ];
     expect(resolveCanonicalNextWork({
       kind:"continue-work",label:"Continue: Pilot QA",blockedWorkId:null
@@ -40,8 +45,8 @@ describe("R33 typed automatic Next Action planner",()=>{
   });
   it("resolves blocked tasks by exact ID, never an ambiguous title",()=>{
     const works=[
-      {id:"work:z",title:"Pilot QA",status:"ready"},
-      {id:"work:a",title:"Pilot QA",status:"blocked"}
+      task("work:z","ready"),
+      task("work:a","blocked")
     ];
     expect(resolveCanonicalNextWork({
       kind:"unblock-work",label:"Unblock: Pilot QA",blockedWorkId:"work:z"
