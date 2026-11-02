@@ -66,9 +66,17 @@ suite("signed PR v2 uses real disposable PostgreSQL authority and atomic workflo
    publicKeyPem:pem,policyVersion,decision:"allow",actorPrincipalId:ownerId});
  }
  beforeAll(async()=>{
-  const owner=await system.bootstrapOwner({provider:"github",
-   providerSubject:"pr-v2-postgres-owner"});
-  ownerId=owner.id;
+  // Never write to a configured Preview/Production or remote database.
+  const target=new URL(databaseUrl!);
+  expect(target.hostname).toBe("localhost");
+  expect(target.pathname).toBe("/blueprint_qa_test");
+  const existing=await prisma.systemBootstrap.findUnique({where:{id:"system"}});
+  if(existing) ownerId=existing.ownerPrincipalId;
+  else {
+   const owner=await system.bootstrapOwner({provider:"github",
+    providerSubject:"pr-v2-postgres-owner"});
+   ownerId=owner.id;
+  }
   await prisma.project.create({data:{id:projectId}});
  });
  afterAll(async()=>{await prismaOther.$disconnect();await prisma.$disconnect();});
