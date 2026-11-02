@@ -40,7 +40,7 @@ describe("R33 centrally-sourced contextual actions — review-only", () => {
   });
 
   it("guidance toggles and explains the automatic plan without a clipboard prerequisite", () => {
-    expect(guideSource).toContain("onClick={() => setOpen((current) => !current)}");
+    expect(guideSource).toContain("onClick={() => setOpen(value => !value)}");
     expect(guideSource).toContain("KẾ HOẠCH & ĐỊNH HƯỚNG");
     expect(guideSource).toContain("NEXT ACTION");
     expect(guideSource).not.toContain("navigator.clipboard.writeText");
