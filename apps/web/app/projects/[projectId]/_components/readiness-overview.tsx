@@ -1,4 +1,4 @@
-import { unifiedNextActionPresentation } from "@blueprint-os/application";
+import { buildNextActionBlueprintCandidate, unifiedNextActionPresentation } from "@blueprint-os/application";
 import { continueCanonicalNextAction } from "../actions";
 import { ProjectActionGuidance } from "./project-action-guidance";
 import type { BlueprintServerRuntime } from "@blueprint-os/runtime";
@@ -57,6 +57,19 @@ export function ReadinessOverview({
   readonly actionChanged?: boolean;
 }) {
   const nextAction = unifiedNextActionPresentation(readiness);
+  const blueprint = buildNextActionBlueprintCandidate({
+    projectId: readiness.projectId,
+    profileVersion,
+    actionKind: nextAction.actionKind,
+    actionLabel: nextAction.description,
+    reason: readiness.nextAction.reason,
+    readinessState: readiness.state,
+    evidenceFreshness: readiness.evidenceSummary.freshness,
+    // Evidence revision is NOT necessarily the current source HEAD. Fail closed.
+    sourceRevision: null,
+    workPackageId: nextAction.actionKind === "unblock-work"
+      ? readiness.blockedWork[0]?.id : null
+  });
 
   return (
     <>
@@ -171,12 +184,7 @@ export function ReadinessOverview({
             <p className="section-kicker">Công việc tiếp theo</p>
             <h2>{nextAction.description}</h2>
             <p>{readiness.nextAction.reason}</p>
-            <ProjectActionGuidance
-              projectId={readiness.projectId}
-              profileVersion={profileVersion}
-              actionTitle={nextAction.description}
-              reason={readiness.nextAction.reason}
-            />
+            <ProjectActionGuidance blueprint={blueprint} />
             {actionChanged ? (
               <p role="status">
                 Trạng thái hoặc phiên quyền của dự án đã thay đổi. Vui lòng
