@@ -39,6 +39,15 @@ export function validateProposal(policy) {
   }
   return true;
 }
+// npm view with multiple selected fields may return dotted field keys
+// rather than nested dist objects. Normalize only these two known paths.
+// Never provide a default integrity or synthesize a digest.
+export function normalizeNpmView(raw) {
+  if(!raw || typeof raw!=="object" || Array.isArray(raw))throw new Error("TRUST_METADATA_SHAPE_INVALID");
+  const sha512=raw.dist?.integrity ?? raw["dist.integrity"];
+  const sha1=raw.dist?.shasum ?? raw["dist.shasum"];
+  return {...raw,dist:{integrity:sha512,shasum:sha1}};
+}
 export function verifyRegistryTarball(pin, registry, archive, manifest, bytes) {
   if (registry?.name !== pin.name || registry?.version !== pin.version ||
       manifest?.name !== pin.name || manifest?.version !== pin.version) {
@@ -91,8 +100,8 @@ async function main(){
   try {
     for(const pin of policy.packageSources){
       const spec=pin.name+"@"+pin.version;
-      const registry=JSON.parse(npm(["view",spec,"name","version","dist.integrity",
-        "dist.shasum","scripts","engines","peerDependencies","--json"]));
+      const registry=normalizeNpmView(JSON.parse(npm(["view",spec,"name","version","dist.integrity",
+        "dist.shasum","scripts","engines","peerDependencies","--json"])));
       const packed=JSON.parse(npm(["pack",spec,"--ignore-scripts","--json","--pack-destination",dir],120000));
       if(!Array.isArray(packed)||packed.length!==1 || !/\.tgz$/.test(packed[0].filename)) {
         throw new Error("TRUST_UNEXPECTED_ARCHIVE_RESPONSE: "+spec);
