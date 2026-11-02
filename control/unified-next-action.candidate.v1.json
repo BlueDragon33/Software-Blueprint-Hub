@@ -196,7 +196,10 @@
         "exact-next-action",
         "evidence-reason",
         "verified-click-behavior",
-        "authority-limit"
+        "authority-limit",
+        "directional-priority",
+        "copyable-next-step-prompt",
+        "copyable-end-to-end-prompt"
       ],
       "mustNotRequireExtraPermissionToReadExistingScope": true
     },
@@ -226,9 +229,10 @@
     "hubPilot": {
       "implementationPaths": [
         "apps/web/app/projects/[projectId]/_components/project-action-guidance.tsx",
-        "apps/web/app/projects/[projectId]/_components/readiness-overview.tsx"
+        "apps/web/app/projects/[projectId]/_components/readiness-overview.tsx",
+        "packages/application/src/next-action-blueprint.candidate.ts"
       ],
-      "status": "implemented-in-review-branch-not-live-accepted"
+      "status": "hub-implemented-review-only-not-runtime-accepted"
     },
     "adoptionProofs": [
       "rendered-controls-exact-head",
@@ -238,5 +242,111 @@
       "real-role-ux-evidence"
     ],
     "unverifiedHostModeBehavior": "neutral-guidance-no-invented-Chat-Work-inbox"
+  },
+  "nextActionBlueprint": {
+    "status": "candidate-not-ratified",
+    "schema": "blueprint-os:universal-next-action-blueprint/v1",
+    "constitutionalOwner": "BlueDragon33/Software-Blueprint-Hub",
+    "codeOwner": "packages/application/src/next-action-blueprint.candidate.ts",
+    "consumer": "existing-authenticated-project-readiness",
+    "scope": "all-18-governed-apps-and-future-apps-after-approved-adoption",
+    "inheritance": "consume-centrally-versioned-contract-adapt-UX-do-not-copy-constitution-or-prompt-library",
+    "mandatorySections": [
+      {
+        "id": "guide",
+        "title": "HƯỚNG DẪN",
+        "kind": "working-contextual-disclosure",
+        "required": [
+          "project",
+          "profile-version",
+          "exact-task",
+          "reason",
+          "priority",
+          "limits",
+          "completion-evidence"
+        ]
+      },
+      {
+        "id": "direction",
+        "title": "ĐỊNH HƯỚNG",
+        "kind": "priority-from-canonical-readiness",
+        "required": [
+          "blocker-first",
+          "dependencies",
+          "gate-aware-strategy",
+          "user-authority-boundaries"
+        ]
+      },
+      {
+        "id": "next-prompt",
+        "title": "PROMPT NEXT ACTION",
+        "kind": "copyable-one-step",
+        "required": [
+          "action-kind",
+          "project",
+          "source-evidence",
+          "permission-recheck",
+          "actual-step",
+          "scoped-qa",
+          "one-next-action"
+        ]
+      },
+      {
+        "id": "end-to-end-prompt",
+        "title": "PROMPT TRIỂN KHAI TỪ ĐẦU TỚI CUỐI",
+        "kind": "copyable-bounded-continuation",
+        "required": [
+          "reuse-known-state",
+          "perform-all-permitted-steps",
+          "safe-recovery",
+          "independent-readback",
+          "truthful-outcome"
+        ]
+      }
+    ],
+    "safeInputFields": [
+      "projectId",
+      "ProjectProfile.recordVersion",
+      "canonical-readiness-state",
+      "canonical-action-kind",
+      "canonical-action-label",
+      "canonical-reason",
+      "evidence-freshness",
+      "scoped-WorkPackage-id-when-known",
+      "trusted-source-HEAD-or-UNVERIFIED"
+    ],
+    "prohibit": [
+      "hardcoded-app-specific-prompts",
+      "new-central-project-registry",
+      "duplicate-constitutions",
+      "invented-HEAD",
+      "inferred-Work-host-session",
+      "auto-dispatch-on-copy",
+      "prompt-as-authority",
+      "preflight-as-product-completion",
+      "generic-self-restarting-next-action"
+    ],
+    "display": {
+      "realHelpToggle": true,
+      "oneAuthorizedNextActionPrimary": true,
+      "promptCopiesAreNotExecutionButtons": true,
+      "unknownSHAExplicit": true,
+      "chatAndWorkInboundDirectionsSeparated": true
+    },
+    "requiredPerAppEvidence": [
+      "real-current-source-HEAD",
+      "authorized-actor-and-ProjectProfile",
+      "versioned-template-adapter",
+      "contextual-guidance-and-copy-UX",
+      "real-next-action-navigation",
+      "safe-denial-on-stale-roles-versions",
+      "mobile-and-keyboard-acceptance",
+      "no-fake-executor-or-premature-completion"
+    ],
+    "hubPilot": {
+      "pullRequest": 153,
+      "status": "implementation-review-only-real-acceptance-not-verified"
+    },
+    "adoptionDefault": "NOT_ADOPTED"
   }
 }
