@@ -11,7 +11,8 @@ const base={
   projectId,profileVersion:3,actionKind:"continue-work" as const,
   actionLabel:"Continue: Pilot QA",reason:"Unfinished authorized work",
   readinessState:"in-progress" as const,evidenceFreshness:"recorded-unverified" as const,
-  sourceRevision:null,workPackageId,workPackageRecordVersion:2
+  sourceRevision:null,workPackageId,workPackageRecordVersion:2,
+  workPackageAcceptanceCriteria:["BLUEPRINT_CMD_READONLY:git-status"]
 };
 const cmdTask={
   projectId,profileVersion:3,workPackageId,commandId:"git-status" as const,
@@ -74,6 +75,23 @@ describe("R33 typed automatic Next Action planner",()=>{
   it("does not offer CMD without canonical marker",()=>{
     expect(recognizedCanonicalCommandId(["run git status yourself"])).toBeNull();
   });
+  it("refuses command IDs inherited from Object.prototype",()=>{
+    expect(()=>createClickPlanCandidate(base,{
+      ...cmdTask,commandId:"constructor" as typeof cmdTask.commandId
+    })).toThrow(/canonically bound/);
+  });
+  it("requires a single matching CMD marker in canonical WorkPackage acceptance",()=>{
+    expect(()=>createClickPlanCandidate({...base,workPackageAcceptanceCriteria:[]},cmdTask))
+      .toThrow(/canonically bound/);
+    expect(()=>createClickPlanCandidate({
+      ...base,workPackageAcceptanceCriteria:[
+        "BLUEPRINT_CMD_READONLY:git-status","BLUEPRINT_CMD_READONLY:git-head"
+      ]
+    },cmdTask)).toThrow(/canonically bound/);
+    expect(()=>createClickPlanCandidate({
+      ...base,workPackageAcceptanceCriteria:["BLUEPRINT_CMD_READONLY:git-head"]
+    },cmdTask)).toThrow(/canonically bound/);
+  });
   it("emits CMD step and paste-feedback from trusted canonical task",()=>{
     const plan=createClickPlanCandidate(base,cmdTask);
     expect(plan.mode).toBe("needs-cmd-result");
@@ -93,7 +111,7 @@ describe("R33 typed automatic Next Action planner",()=>{
     expect(()=>createClickPlanCandidate({...base,workPackageRecordVersion:3},cmdTask)).toThrow(/canonically bound/);
   });
   it("rejects malformed Git HEAD as untrusted CMD result",()=>{
-    const cmd=createClickPlanCandidate(base,{...cmdTask,commandId:"git-head"}).command!;
+    const cmd=createClickPlanCandidate({...base,workPackageAcceptanceCriteria:["BLUEPRINT_CMD_READONLY:git-head"]},{...cmdTask,commandId:"git-head"}).command!;
     expect(analyzePastedCommandResult(cmd,"fatal: not a git repository").status).toBe("REJECTED");
   });
   it("rejects failed Git status command output",()=>{
@@ -101,7 +119,7 @@ describe("R33 typed automatic Next Action planner",()=>{
     expect(analyzePastedCommandResult(cmd,"fatal: not a git repository").accepted).toBe(false);
   });
   it("rejects malformed Node version",()=>{
-    const cmd=createClickPlanCandidate(base,{...cmdTask,commandId:"node-version"}).command!;
+    const cmd=createClickPlanCandidate({...base,workPackageAcceptanceCriteria:["BLUEPRINT_CMD_READONLY:node-version"]},{...cmdTask,commandId:"node-version"}).command!;
     expect(analyzePastedCommandResult(cmd,"v22.x").status).toBe("REJECTED");
   });
   it("denies invalid task record version",()=>{
@@ -130,7 +148,7 @@ describe("R33 typed automatic Next Action planner",()=>{
     expect(analyzePastedCommandResult({...cmd,displayCommand:"del /s /q *"},"test").accepted).toBe(false);
   });
   it("recognizes shape of Git HEAD without claiming actual source verification",()=>{
-    const plan=createClickPlanCandidate({...base,sourceRevision:head}, {...cmdTask,commandId:"git-head"});
+    const plan=createClickPlanCandidate({...base,sourceRevision:head,workPackageAcceptanceCriteria:["BLUEPRINT_CMD_READONLY:git-head"]}, {...cmdTask,commandId:"git-head"});
     const r=analyzePastedCommandResult(plan.command!,head);
     expect(r.accepted).toBe(true);
     expect(r.status).toBe("UNVERIFIED_MANUAL_OUTPUT");
