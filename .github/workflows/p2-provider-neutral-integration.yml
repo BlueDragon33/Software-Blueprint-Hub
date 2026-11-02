@@ -5,6 +5,9 @@ on:
     paths:
       - ".github/workflows/p2-provider-neutral-integration.yml"
       - "scripts/ci-p2-cross-service-smoke.mjs"
+      - "packages/application/src/pr-review-identity.ts"
+      - "packages/runtime/src/pr-review-identity-authority.ts"
+      - "tests/application/pr-review-identity-pg-integration.test.ts"
       - "tests/governance/p2-provider-neutral-ci.test.mjs"
       - "control/execution-service-protocol.v1.json"
       - "control/private-execution-service-onboarding.v1.json"
@@ -84,6 +87,8 @@ jobs:
           pnpm db:migrate:status
       - name: Real PostgreSQL immutable journal, roles and independent QA negatives
         run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts tests/application/prompt-workflow-authority-pg-integration.test.ts
+      - name: Signed PR v2 current issuer and atomic replay on same disposable PostgreSQL
+        run: pnpm exec vitest run tests/application/pr-review-identity-pg-integration.test.ts
 
   cross-component-isolated:
     name: Private 3-service source + isolated PostgreSQL (CI smoke, NOT release)
