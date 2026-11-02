@@ -1,5 +1,5 @@
 import { buildNextActionBlueprintCandidate, unifiedNextActionPresentation } from "@blueprint-os/application";
-import { continueCanonicalNextAction } from "../actions";
+import { ProjectNextActionRunner } from "./project-next-action-runner";
 import { ProjectActionGuidance } from "./project-action-guidance";
 import type { BlueprintServerRuntime } from "@blueprint-os/runtime";
 import {
@@ -191,13 +191,11 @@ export function ReadinessOverview({
                 đọc lại công việc tiếp theo trước khi bấm.
               </p>
             ) : null}
-            <form action={continueCanonicalNextAction.bind(
-              null, readiness.projectId, profileVersion, nextAction.actionKind
-            )}>
-              <button className="primary-button" type="submit">
-                NEXT ACTION — {nextAction.label} →
-              </button>
-            </form>
+            <ProjectNextActionRunner
+              projectId={readiness.projectId}
+              profileVersion={profileVersion}
+              actionKind={nextAction.actionKind}
+            />
           </article>
 
           <article className="readiness-panel">
