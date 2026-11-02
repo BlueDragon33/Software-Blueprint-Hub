@@ -27,6 +27,7 @@ on:
       - "tests/web/r33-one-click-server-integration.candidate.test.ts"
       - "tests/e2e/r33-next-action-browser.pw.ts"
       - "scripts/e2e-r33-viewer-fixture.sql"
+      - "packages/persistence/scripts/r33-disposable-browser-fixture.mjs"
       - "tests/application/unified-next-action.test.ts"
       - "docs/UNIFIED-NEXT-ACTION-WORK-HANDOFF.candidate.md"
       - ".github/workflows/unified-next-action-candidate.yml"
