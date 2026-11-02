@@ -61,9 +61,9 @@ describe("authenticated read-only preflight protects missing canonical grant",()
    {packages:[{...wp,projectId:"project:another"}]},
    {packages:[{...wp,dependencies:["work:missing"]}]},
    {packages:[{...wp,dependencies:[wp.id]}]},
-   {packages:[{...wp,dependencies:["work:blocked"]]},
+   {packages:[{...wp,dependencies:["work:blocked"]},
     {id:"work:blocked",projectId:input.projectId,status:"in-progress"}]},
-   {packages:[{...wp,dependencies:["work:foreign"]]},
+   {packages:[{...wp,dependencies:["work:foreign"]},
     {id:"work:foreign",projectId:"project:other",status:"completed"}]},
    {gates:[]},{gates:[{gate:{...gate,status:"fail"},evidence:[]}]},
    {gates:[{gate:{...gate,projectId:"project:other"},evidence:[]}]}
