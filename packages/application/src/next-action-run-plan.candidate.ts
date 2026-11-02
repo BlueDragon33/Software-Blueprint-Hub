@@ -49,6 +49,32 @@ export function recognizedCanonicalCommandId(criteria: readonly string[]): SafeC
   return Object.hasOwn(registeredReadOnlyCommands,id)?id as SafeCommandId:null;
 }
 
+/**
+ * Resolve the SAME canonical task that the readiness projection selected.
+ * A duplicate title must never switch the selected WorkPackage.
+ * continue-work is selected by lowest canonical ID among non-completed tasks;
+ * unblock-work uses the exact blocked WorkPackage ID from the snapshot.
+ */
+export function resolveCanonicalNextWork<T extends {
+  readonly id: string; readonly title: string; readonly status: string;
+}>(
+  next: Readonly<{
+    kind: string; label: string; blockedWorkId: string | null;
+  }>,
+  works: readonly T[]
+): T | null {
+  if (next.kind==="continue-work") {
+    const target=works.filter(work=>work.status!=="completed")
+      .sort((a,b)=>a.id.localeCompare(b.id))[0];
+    return target && next.label==="Continue: "+target.title ? target : null;
+  }
+  if (next.kind==="unblock-work" && next.blockedWorkId) {
+    const target=works.find(work=>work.id===next.blockedWorkId);
+    return target && next.label==="Unblock: "+target.title ? target : null;
+  }
+  return null;
+}
+
 export interface ClickPlanCandidate {
   readonly mode: "auto-read-only" | "requires-granted-runner" | "needs-cmd-result";
   readonly prompt: string;
