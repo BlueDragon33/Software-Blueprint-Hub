@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import {
-  appSearchKey, groupLabels, groupOrder, matchesApp,
+  appSearchKey, groupLabels, groupOrder, matchesApp, presentationForAuthorizedProject,
   type HubAppPresentation, type HubGroup
 } from "../../src/lib/hub-app-directory";
 import { useHubPreferences } from "./hub-preferences";
@@ -179,7 +179,11 @@ export function HubLauncher({ projects, governedApps, canManageEcosystem }: HubL
               {extraProjects.map((item) => (
                 <Link key={item.projectId} className={styles.appTile}
                   href={"/projects/" + encodeURIComponent(item.projectId)}>
-                  <span className={styles.appIcon} aria-hidden="true">📁</span>
+                  <span className={styles.appIcon}
+                    data-group={presentationForAuthorizedProject(item.projectId)?.group}
+                    aria-hidden="true">
+                    {presentationForAuthorizedProject(item.projectId)?.icon ?? "📁"}
+                  </span>
                   <strong>{item.name}</strong>
                   <small>{item.blueprintLevel} · {en ? "Canonical" : "Hồ sơ chuẩn"}</small>
                 </Link>
