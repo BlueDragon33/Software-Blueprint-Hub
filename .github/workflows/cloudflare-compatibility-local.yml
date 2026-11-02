@@ -109,7 +109,6 @@ jobs:
           node scripts/verify-workerd-release-provenance.mjs \
             artifacts/workerd-linux-64-release.gz artifacts/workers-native-provenance.json \
             artifacts/workerd-release-parity.json
-            artifacts/worker-sandbox-static-preflight.json
           rm -f artifacts/workerd-linux-64-release.gz
       - name: Pinned OpenNext peer-range check (NO unapproved build scripts)
         shell: bash
@@ -155,5 +154,6 @@ jobs:
             artifacts/workers-toolchain-integrity.json
             artifacts/workers-native-provenance.json
             artifacts/workerd-release-parity.json
+            artifacts/worker-sandbox-static-preflight.json
           retention-days: 7
           if-no-files-found: warn
