@@ -87,6 +87,7 @@ export async function startGuidedNextAction(
   projectId: string,
   displayedProfileVersion: number,
   displayedActionKind: NextActionKind,
+  displayedActionLabel: string,
   requestedMode: "next" | "end-to-end"
 ): Promise<GuidedNextActionResult> {
   const empty = (
@@ -98,7 +99,8 @@ export async function startGuidedNextAction(
   });
   if (!/^project:[a-z0-9][a-z0-9-]{0,158}$/.test(projectId) ||
       !Number.isSafeInteger(displayedProfileVersion) || displayedProfileVersion < 1 ||
-      !["next","end-to-end"].includes(requestedMode)) {
+      typeof displayedActionLabel!=="string" || displayedActionLabel.length>500 ||
+      !displayedActionLabel.trim() || !["next","end-to-end"].includes(requestedMode)) {
     return empty("BLOCKED", "Yêu cầu hoặc phiên bản hồ sơ không hợp lệ.");
   }
   const workspace = await loadProjectWorkspace(encodeURIComponent(projectId));
@@ -115,7 +117,8 @@ export async function startGuidedNextAction(
     }, {
       projectId:latest.projectId,profileVersion,nextAction:latest.nextAction
     });
-    if (checked.state !== "current") {
+    if (checked.state !== "current" ||
+        latest.nextAction.label !== displayedActionLabel) {
       return empty("STALE", "Nguồn dữ liệu, quyền hoặc NEXT ACTION đã đổi. Tải lại checkpoint; không chạy kế hoạch cũ.");
     }
     // Load canonical task inventory to build the exact bounded plan.
@@ -181,6 +184,7 @@ export async function receiveGuidedCmdResult(
   projectId: string,
   profileVersion: number,
   actionKind: NextActionKind,
+  displayedActionLabel: string,
   commandId: string,
   workPackageId: string,
   displayedWorkVersion: number,
@@ -188,6 +192,8 @@ export async function receiveGuidedCmdResult(
 ): Promise<{state:"REJECTED"|"UNVERIFIED_MANUAL_OUTPUT"; detail:string}> {
   if (!/^project:[a-z0-9][a-z0-9-]{0,158}$/.test(projectId) ||
       !Number.isSafeInteger(profileVersion) || profileVersion < 1 ||
+      typeof displayedActionLabel!=="string" ||
+      !displayedActionLabel.trim() || displayedActionLabel.length>500 ||
       typeof commandId!=="string" || commandId.length>50 ||
       typeof workPackageId!=="string" ||
       !Number.isSafeInteger(displayedWorkVersion) || displayedWorkVersion<1 ||
@@ -206,7 +212,8 @@ export async function receiveGuidedCmdResult(
     profileVersion:workspace.project.profile.meta.recordVersion,
     nextAction:latest.nextAction
   });
-  if (checked.state!=="current") return {state:"REJECTED",detail:"NEXT ACTION đã thay đổi."};
+  if (checked.state!=="current" || latest.nextAction.label!==displayedActionLabel)
+    return {state:"REJECTED",detail:"NEXT ACTION hoặc nhiệm vụ đã thay đổi."};
   const works=await workspace.runtime.workQuality.listWorkPackages(workspace.actor,projectId);
   const work=works.find(item =>
     (latest.nextAction.kind==="continue-work" || latest.nextAction.kind==="unblock-work") &&
