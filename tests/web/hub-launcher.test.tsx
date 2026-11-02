@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { HubLauncher } from "../../apps/web/app/_components/hub-launcher";
 import { HubSettings } from "../../apps/web/app/settings/hub-settings";
-import { presentGovernedApps } from "../../apps/web/src/lib/hub-app-directory";
+import { presentGovernedApps, presentTrackedApps } from "../../apps/web/src/lib/hub-app-directory";
 
 const fromWeb = createRequire(new URL("../../apps/web/package.json", import.meta.url));
 const { renderToStaticMarkup } = fromWeb("react-dom/server") as {
@@ -14,6 +14,13 @@ const { createElement } = fromWeb("react") as { createElement: (...args: unknown
 const governed = JSON.parse(readFileSync(
   new URL("../../control/constitution-governed-repositories.json", import.meta.url), "utf8"
 )) as { repositories: { projectId: string; repository: string; branch: string; blueprintLevel: string }[] };
+
+const tracked = JSON.parse(readFileSync(
+  new URL("../../control/governance-current-view.v1.json", import.meta.url), "utf8"
+)) as { repositories: {
+  projectId: string; repository: string; branch: string; blueprintLevel: string;
+  registrationState: string; sourceRevision: string | null; observedAt: string | null
+}[] };
 
 describe("Vietnamese App Home semantic render and safety", () => {
   const apps = presentGovernedApps(governed.repositories);
@@ -36,6 +43,28 @@ describe("Vietnamese App Home semantic render and safety", () => {
     expect(markup).toContain("Xem thông tin");
     expect(markup).toContain("Mở dự án");
     expect(markup).not.toContain("PASS verified");
+  });
+  it("Owner homepage receives all 18 tracked projects without minting profiles or release authority", () => {
+    const apps18=presentTrackedApps(tracked.repositories);
+    expect(apps18).toHaveLength(18);
+    expect(new Set(apps18.map(app=>app.projectId)).size).toBe(18);
+    expect(apps18.filter(app=>app.registrationState==="pending-onboarding")).toHaveLength(1);
+    const markup=renderToStaticMarkup(createElement(HubLauncher,{
+      projects:[homeProject],governedApps:apps18,canManageEcosystem:true
+    }));
+    expect(markup).toContain("Chuyên gia tiếng Nga");
+    expect(markup).toContain("Thiết kế ECAD");
+    expect(markup).toContain("Mô phỏng CAE");
+    expect(markup).toContain('href="/projects/project%3Ablueprint-os"');
+    expect(markup).toContain("Xem thông tin");
+    expect(markup).not.toContain("18/18 PASS");
+  });
+  it("server page uses the tracked 18 view but only behind an Owner authority check", () => {
+    const page=readFileSync(new URL("../../apps/web/app/page.tsx",import.meta.url),"utf8");
+    expect(page).toContain("control/governance-current-view.v1.json");
+    expect(page).toContain("canManageEcosystem ? presentTrackedApps");
+    expect(page).toContain("runtime.authority.canExerciseConstitutionalAuthority(actor)");
+    expect(page).toContain("runtime.registry.list(actor)");
   });
   it("never leaks unprovisioned governed repository names when owner status is false", () => {
     const markup = renderToStaticMarkup(createElement(HubLauncher, {
