@@ -16,6 +16,16 @@ describe("R33 one-click flow and conditional CMD support",()=>{
     expect(ui).toContain('run("end-to-end")');
     expect(ui).toContain("TRONG QUYỀN HIỆN CÓ");
   });
+  it("never advertises a read-only inspection as completed implementation",()=>{
+    expect(ui).toContain("NEXT ACTION — TỰ LẬP KẾ HOẠCH & KIỂM TRA");
+    expect(ui).toContain("KIỂM TRA TOÀN BỘ KẾ HOẠCH");
+    expect(ui).toContain("Chưa chạy sửa mã");
+    expect(ui).toContain("Đã thực hiện");
+    expect(ui).toContain("Chưa thực hiện / chờ điều kiện");
+    expect(ui).toContain('result.state==="STALE"');
+    expect(ui).toContain('if (response.state==="UNVERIFIED_MANUAL_OUTPUT") setCommandOutput("")');
+    expect(ui).toContain("inFlight.current");
+  });
   it("server rechecks current project and action",()=>{
     expect(actions).toContain("loadProjectWorkspace(encodeURIComponent(projectId))");
     expect(actions).toContain("preflightUnifiedNextAction");
