@@ -20,6 +20,7 @@ export interface VerifiedCommandTask {
 }
 export interface CommandEvidencePrompt {
   readonly workPackageId: string;
+  readonly workPackageRecordVersion: number;
   readonly commandId: SafeCommandId;
   readonly displayCommand: string;
   readonly shell: "cmd";
@@ -84,6 +85,7 @@ export function createClickPlanCandidate(
     mode="needs-cmd-result";
     command=Object.freeze({
       workPackageId:verifiedCommandTask.workPackageId,
+      workPackageRecordVersion:verifiedCommandTask.taskPlanRecordVersion,
       commandId:verifiedCommandTask.commandId,
       displayCommand:registeredReadOnlyCommands[verifiedCommandTask.commandId],
       shell:"cmd",
