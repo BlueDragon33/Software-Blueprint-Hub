@@ -1,27 +1,42 @@
 "use client";
 
 import { useId, useState } from "react";
+import type { NextActionBlueprintCandidate } from "@blueprint-os/application";
 import styles from "./project-action-guidance.module.css";
 
+type Panel = "guidance" | "next" | "end-to-end";
+
 /**
- * R33 candidate: contextual instructions accompany the real canonical CTA.
- * Guidance has no authority, dispatch, Work launch or state mutation.
+ * R33/R34 candidate. One Hub-owned blueprint powers all governed Project
+ * Readiness screens. Prompt copy never runs a command or launches Work.
  */
 export function ProjectActionGuidance({
-  projectId,
-  profileVersion,
-  actionTitle,
-  reason
+  blueprint
 }: {
-  readonly projectId: string;
-  readonly profileVersion: number;
-  readonly actionTitle: string;
-  readonly reason: string;
+  readonly blueprint: NextActionBlueprintCandidate;
 }) {
   const [open, setOpen] = useState(false);
+  const [panel, setPanel] = useState<Panel>("guidance");
+  const [copyStatus, setCopyStatus] = useState("");
   const detailId = useId();
+  const source = panel === "next" ? blueprint.nextPrompt : blueprint.endToEndPrompt;
+
+  async function copyPrompt() {
+    setCopyStatus("");
+    if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
+      setCopyStatus("Không thể tự sao chép. Hãy chọn nội dung trong ô để sao chép thủ công.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(source);
+      setCopyStatus("Đã sao chép prompt. Chưa khởi chạy hay cấp quyền thực thi.");
+    } catch {
+      setCopyStatus("Trình duyệt chặn clipboard. Có thể chọn nội dung để sao chép thủ công.");
+    }
+  }
+
   return (
-    <div className={styles.wrap}>
+    <section className={styles.wrap} aria-label="Blueprint OS hướng dẫn và prompt thống nhất">
       <button
         type="button"
         className={styles.helpButton}
@@ -29,30 +44,57 @@ export function ProjectActionGuidance({
         aria-controls={detailId}
         onClick={() => setOpen((current) => !current)}
       >
-        HƯỚNG DẪN {open ? "−" : "+"}
+        HƯỚNG DẪN · ĐỊNH HƯỚNG & PROMPT {open ? "−" : "+"}
       </button>
       {open ? (
-        <div id={detailId} role="region" aria-label="Hướng dẫn công việc tiếp theo" className={styles.helpPanel}>
-          <p><strong>Dự án:</strong> {projectId} · <strong>Hồ sơ:</strong> v{profileVersion}</p>
-          <ol>
-            <li><strong>Việc cần xử lý:</strong> {actionTitle}</li>
-            <li><strong>Căn cứ:</strong> {reason}</li>
-            <li>
-              Bấm nút <strong>NEXT ACTION — Tiếp tục nhiệm vụ</strong> bên dưới để kiểm tra lại
-              quyền đọc dự án, phiên bản hồ sơ và loại hành động, rồi mở đúng trang làm việc.
-              Nút này <strong>không tự chạy Work, sửa nguồn, phê duyệt hay xuất bản</strong>.
-            </li>
-            <li>
-              Nếu thông tin đã thay đổi, đọc trạng thái mới trước khi thao tác.
-              Chỉ yêu cầu con người khi có cổng quyền thực tế.
-            </li>
-          </ol>
+        <div id={detailId} role="region" aria-label="Hướng dẫn Next Action" className={styles.helpPanel}>
+          <p><strong>Ưu tiên:</strong> {blueprint.direction}</p>
+          <p><strong>Dự án:</strong> {blueprint.projectId} · <strong>Hồ sơ:</strong> v{blueprint.profileVersion}</p>
+          <p><strong>SHA nguồn:</strong> {blueprint.sourceRevision}</p>
+          <div className={styles.tabs} role="group" aria-label="Chọn tài liệu hướng dẫn">
+            <button type="button" aria-pressed={panel === "guidance"} onClick={() => { setPanel("guidance"); setCopyStatus(""); }}>
+              Hướng dẫn
+            </button>
+            <button type="button" aria-pressed={panel === "next"} onClick={() => { setPanel("next"); setCopyStatus(""); }}>
+              Prompt NEXT ACTION
+            </button>
+            <button type="button" aria-pressed={panel === "end-to-end"} onClick={() => { setPanel("end-to-end"); setCopyStatus(""); }}>
+              Prompt từ đầu tới cuối
+            </button>
+          </div>
+          {panel === "guidance" ? (
+            <ol>
+              {blueprint.guidance.map((instruction, index) => (
+                <li key={index}>{instruction}</li>
+              ))}
+            </ol>
+          ) : (
+            <div className={styles.prompt}>
+              <p className={styles.boundary}>
+                {panel === "next"
+                  ? "Prompt này mô tả MỘT bước ưu tiên, có ràng buộc quyền và bằng chứng."
+                  : "Prompt này chỉ đề xuất chuỗi thực hiện liên tục trong phạm vi quyền đã cấp. Không tự mở Work/Codex."}
+              </p>
+              <textarea
+                className={styles.promptText}
+                aria-label={panel === "next" ? "Prompt bước tiếp theo" : "Prompt triển khai từ đầu tới cuối"}
+                readOnly
+                rows={10}
+                value={source}
+              />
+              <button type="button" className={styles.copyButton} onClick={() => void copyPrompt()}>
+                SAO CHÉP PROMPT {panel === "next" ? "NEXT ACTION" : "TỪ ĐẦU TỚI CUỐI"}
+              </button>
+              <p role="status" aria-live="polite">{copyStatus}</p>
+            </div>
+          )}
           <p className={styles.boundary}>
-            TRIỂN KHAI TỪ ĐẦU TỚI CUỐI chỉ khả dụng sau khi bộ thực thi được cấp quyền
-            và tích hợp thật. Không có quyền đó thì không được tạo nút chạy giả.
+            NEXT ACTION bên ngoài chỉ điều hướng sau kiểm tra quyền/phiên bản trên máy chủ.
+            Sao chép prompt không tạo quyền Work, điều khiển agent, phê duyệt hay xuất bản.
+            R33/R34 hiện vẫn là dự thảo chờ phê chuẩn.
           </p>
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }
