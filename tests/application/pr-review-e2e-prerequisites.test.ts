@@ -29,6 +29,7 @@ function harness(change:{
  const issuer=change.issuer===undefined?{decision:"allow",policyVersion:"1.3.0",
   publicKeyPem:"-----BEGIN PUBLIC KEY-----"}:change.issuer;
  const readers={
+  sessionAuthority:{require:vi.fn(async()=>undefined)},
   profile:{read:vi.fn(async()=>profile)},
   work:{
    listWorkPackages:vi.fn(async()=>packages),
@@ -39,11 +40,18 @@ function harness(change:{
    latestIssuer:vi.fn(async()=>issuer)
   }
  };
- return readers as unknown as Sources & {profile:{read:ReturnType<typeof vi.fn>}};
+ return readers as unknown as Sources & {
+  profile:{read:ReturnType<typeof vi.fn>};
+  sessionAuthority:{require:ReturnType<typeof vi.fn>};
+  work:{listWorkPackages:ReturnType<typeof vi.fn>;listQualityGates:ReturnType<typeof vi.fn>};
+  decisions:{latestIssuer:ReturnType<typeof vi.fn>;latestAdoption:ReturnType<typeof vi.fn>};
+ };
 }
 describe("authenticated read-only preflight protects missing canonical grant",()=>{
  it("valid canonical fixture is only OBSERVED and never accepted as E2E or gate PASS",async()=>{
-  const result=await inspectCanonicalPrReviewPrerequisites(input,harness());
+  const readers=harness();
+  const result=await inspectCanonicalPrReviewPrerequisites(input,readers);
+  expect(readers.sessionAuthority.require).toHaveBeenCalledWith(actor,input.projectId,"PROJECT_MUTATE");
   expect(result).toMatchObject({status:"CANONICAL_PREREQUISITES_OBSERVED_ONLY",
    gateCount:1,recordVersion:1,authenticatedE2EVerified:false,
    humanApproved:false,qualityGatePassed:false,productionAuthorized:false});
@@ -52,6 +60,24 @@ describe("authenticated read-only preflight protects missing canonical grant",()
   const readers=harness();
   await expect(inspectCanonicalPrReviewPrerequisites({...input,actor:null},readers))
    .rejects.toThrow(/authenticated actor/);
+  expect(readers.profile.read).not.toHaveBeenCalled();
+ });
+ it("rejected PROJECT_MUTATE blocks all canonical metadata reads and never claims authorization",async()=>{
+  const readers=harness();
+  readers.sessionAuthority.require.mockRejectedValueOnce(Error("AUTHORIZATION_DENIED: PROJECT_MUTATE"));
+  await expect(inspectCanonicalPrReviewPrerequisites(input,readers))
+   .rejects.toThrow(/AUTHORIZATION_DENIED/);
+  expect(readers.profile.read).not.toHaveBeenCalled();
+  expect(readers.work.listWorkPackages).not.toHaveBeenCalled();
+  expect(readers.work.listQualityGates).not.toHaveBeenCalled();
+  expect(readers.decisions.latestIssuer).not.toHaveBeenCalled();
+  expect(readers.decisions.latestAdoption).not.toHaveBeenCalled();
+ });
+ it("Hub session authority outage fails closed without reading canonical evidence",async()=>{
+  const readers=harness();
+  readers.sessionAuthority.require.mockRejectedValueOnce(Error("SESSION_AUTHORITY_UNAVAILABLE"));
+  await expect(inspectCanonicalPrReviewPrerequisites(input,readers))
+   .rejects.toThrow(/SESSION_AUTHORITY_UNAVAILABLE/);
   expect(readers.profile.read).not.toHaveBeenCalled();
  });
  it("no Work Package, blocked package, missing gate or failed gate blocks",async()=>{
