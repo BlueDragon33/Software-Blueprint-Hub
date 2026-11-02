@@ -11,7 +11,7 @@ const base={
   projectId,profileVersion:3,actionKind:"continue-work" as const,
   actionLabel:"Continue: Pilot QA",reason:"Unfinished authorized work",
   readinessState:"in-progress" as const,evidenceFreshness:"recorded-unverified" as const,
-  sourceRevision:null,workPackageId
+  sourceRevision:null,workPackageId,workPackageRecordVersion:2
 };
 const cmdTask={
   projectId,profileVersion:3,workPackageId,commandId:"git-status" as const,
@@ -60,6 +60,21 @@ describe("R33 typed automatic Next Action planner",()=>{
   it("denies mismatched WorkPackage and missing canonical read-only marker",()=>{
     expect(()=>createClickPlanCandidate(base,{...cmdTask,workPackageId:"work:other"})).toThrow(/canonically bound/);
     expect(()=>createClickPlanCandidate(base,{...cmdTask,approvedPlanSource:"not-verified" as typeof cmdTask.approvedPlanSource})).toThrow(/canonically bound/);
+  });
+  it("denies mismatched canonical WorkPackage record version from plan input",()=>{
+    expect(()=>createClickPlanCandidate({...base,workPackageRecordVersion:3},cmdTask)).toThrow(/canonically bound/);
+  });
+  it("rejects malformed Git HEAD as untrusted CMD result",()=>{
+    const cmd=createClickPlanCandidate(base,{...cmdTask,commandId:"git-head"}).command!;
+    expect(analyzePastedCommandResult(cmd,"fatal: not a git repository").status).toBe("REJECTED");
+  });
+  it("rejects failed Git status command output",()=>{
+    const cmd=createClickPlanCandidate(base,cmdTask).command!;
+    expect(analyzePastedCommandResult(cmd,"fatal: not a git repository").accepted).toBe(false);
+  });
+  it("rejects malformed Node version",()=>{
+    const cmd=createClickPlanCandidate(base,{...cmdTask,commandId:"node-version"}).command!;
+    expect(analyzePastedCommandResult(cmd,"v22.x").status).toBe("REJECTED");
   });
   it("denies invalid task record version",()=>{
     expect(()=>createClickPlanCandidate(base,{...cmdTask,taskPlanRecordVersion:0})).toThrow(/canonically bound/);
