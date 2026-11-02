@@ -18,3 +18,26 @@
 .helpPanel li + li { margin-top: 0.45rem; }
 .boundary { margin-bottom: 0; }
 @media (max-width: 600px) { .helpButton { width: 100%; } }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.9rem 0; }
+.tabs button, .copyButton {
+  min-height: 2.75rem; padding: 0.55rem 0.8rem; border: 1px solid rgba(255,255,255,0.78);
+  border-radius: 0.65rem; background: rgba(16,32,89,0.35); color: #fff;
+  font: inherit; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+}
+.tabs button[aria-pressed="true"] { background: #fff; color: #22377c; }
+.tabs button:focus-visible, .copyButton:focus-visible {
+  outline: 3px solid #fff; outline-offset: 3px;
+}
+.prompt { display: grid; gap: 0.55rem; min-width: 0; }
+.promptText {
+  display: block; box-sizing: border-box; width: 100%; min-height: 12rem;
+  padding: 0.85rem; background: #fff; color: #17203e; border: 1px solid #c4cbe2;
+  border-radius: 0.65rem; resize: vertical; overflow-wrap: anywhere;
+  font: 0.85rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.copyButton { justify-self: start; }
+@media (max-width: 600px) {
+  .tabs { display: grid; grid-template-columns: minmax(0,1fr); }
+  .tabs button, .copyButton { width: 100%; }
+}
