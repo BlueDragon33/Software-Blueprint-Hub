@@ -57,6 +57,8 @@ export function recognizedCanonicalCommandId(criteria: readonly string[]): SafeC
  */
 export function resolveCanonicalNextWork<T extends {
   readonly id: string; readonly title: string; readonly status: string;
+  readonly purpose: string; readonly acceptanceCriteria: readonly string[];
+  readonly meta: Readonly<{recordVersion: number}>;
 }>(
   next: Readonly<{
     kind: string; label: string; blockedWorkId: string | null;
