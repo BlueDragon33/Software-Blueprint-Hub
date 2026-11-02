@@ -34,7 +34,7 @@ export interface NextActionBlueprintCandidate {
   readonly guidance: readonly string[];
   readonly nextPrompt: string;
   readonly endToEndPrompt: string;
-  readonly nextActionAuthority: "read-only-revalidated-navigation";
+  readonly nextActionAuthority: "revalidated-bounded-readonly-stage";
   readonly promptAuthority: "internal-plan-not-execution-grant";
 }
 
