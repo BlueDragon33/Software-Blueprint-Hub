@@ -13,6 +13,10 @@ on:
       - "tests/governance/workers-postinstall-provenance.test.mjs"
       - "tests/governance/workers-toolchain-trust.test.mjs"
       - "control/worker-local-adapter-trust.proposed.json"
+      - "control/worker-local-sandbox-preflight.proposed.json"
+      - "scripts/validate-worker-local-sandbox-preflight.mjs"
+      - "tests/governance/worker-local-sandbox-preflight.test.mjs"
+      - "docs/WORKER-LOCAL-SANDBOX-PREFLIGHT-GATE-2026-11-02.md"
       - "apps/web/**"
       - "packages/persistence/**"
       - "packages/runtime/**"
@@ -50,6 +54,12 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      - name: Static sandbox contract preflight (never launch container or binaries)
+        run: |
+          node --test tests/governance/worker-local-sandbox-preflight.test.mjs
+          mkdir -p artifacts
+          node scripts/validate-worker-local-sandbox-preflight.mjs artifacts/worker-sandbox-static-preflight.json
+          node -e 'const p=require("./artifacts/worker-sandbox-static-preflight.json");if(p.status!=="STATIC_CONTRACT_PASS_RUNTIME_BLOCKED"||p.runtimeExecutionAuthorized||p.hostIsolationTested||p.productionAuthorized||p.currentExecutionShaApproved)process.exit(1);console.log("STATIC_POLICY_PASS; HOST_ISOLATION_AND_RUNTIME_BLOCKED")'
       - name: Install pinned monorepo dependencies (no production secrets)
         run: pnpm install --frozen-lockfile
       - name: Generate Prisma client from checked-in schema
@@ -99,6 +109,7 @@ jobs:
           node scripts/verify-workerd-release-provenance.mjs \
             artifacts/workerd-linux-64-release.gz artifacts/workers-native-provenance.json \
             artifacts/workerd-release-parity.json
+            artifacts/worker-sandbox-static-preflight.json
           rm -f artifacts/workerd-linux-64-release.gz
       - name: Pinned OpenNext peer-range check (NO unapproved build scripts)
         shell: bash
@@ -125,6 +136,7 @@ jobs:
             echo '- OpenNext 1.20.15: review peer-range evidence; CLI not re-run because dependency/build-script gates block.'
             echo '- Seven pinned tarballs: SHA512 vs npm registry; postinstall bytes inspected only, binary ELF cross-check with upstream/release, never executed.'
             echo '- Release checksum parity is not a reproducible source build, signature attestation or postinstall approval.'
+            echo '- Sandbox contract is validated STATICALLY; no container, network isolation or host security profile was created or exercised.'
             echo '- Workers runtime, real Auth.js callback, SSO, Prisma/PostgreSQL TCP, signed E2E and Production: **UNVERIFIED / NOT AUTHORIZED**.'
             echo '- No site, Worker, domain, OAuth callback or canonical database was created or changed.'
           } >> "$GITHUB_STEP_SUMMARY"
