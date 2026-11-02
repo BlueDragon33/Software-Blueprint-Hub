@@ -25,6 +25,8 @@ on:
       - "tests/application/next-action-run-plan.candidate.test.ts"
       - "tests/web/r33-one-click-cmd-feedback.candidate.test.ts"
       - "tests/web/r33-one-click-server-integration.candidate.test.ts"
+      - "tests/e2e/r33-next-action-browser.pw.ts"
+      - "scripts/e2e-r33-viewer-fixture.sql"
       - "tests/application/unified-next-action.test.ts"
       - "docs/UNIFIED-NEXT-ACTION-WORK-HANDOFF.candidate.md"
       - ".github/workflows/unified-next-action-candidate.yml"
@@ -37,7 +39,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+      - name: Verify exact PR source HEAD
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
       - uses: pnpm/action-setup@v6
         with:
           version: 12.4.0
@@ -98,7 +103,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+      - name: Verify exact PR source HEAD
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
       - uses: pnpm/action-setup@v6
         with:
           version: 12.4.0
@@ -118,3 +126,76 @@ jobs:
         run: pnpm exec vitest run tests/application/unified-next-action-binding-pg-integration.test.ts
       - name: Explicit non-acceptance of runtime executor
         run: echo "Disposable PostgreSQL binding decision tests, NOT authenticated Work runner E2E or owner approval."
+
+  isolated-browser-r33:
+    name: Disposable local Browser QA — synthetic sessions, NOT human login
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_r33_browser_qa
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_r33_browser_qa"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_r33_browser_qa
+      AUTH_SECRET: r33-disposable-browser-test-only-secret-not-for-live
+      BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER: github
+      BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT: p6-e2e-owner
+      BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH: "true"
+      BLUEPRINT_QA_EXACT_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Pin source and prove isolated test scope
+        run: |
+          test "$(git rev-parse HEAD)" = "$BLUEPRINT_QA_EXACT_SHA"
+          echo "QA_SOURCE_SHA=$BLUEPRINT_QA_EXACT_SHA"
+          echo "SYNTHETIC_QA_ACTORS_ONLY=true"
+          echo "PRODUCTION_RELEASE_AUTHORITY=false"
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install source-pinned dependencies and migrate disposable DB
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma:generate
+          pnpm db:migrate:deploy
+          pnpm exec prisma db execute --config prisma7.config.ts --file scripts/e2e-project-registry.sql
+          pnpm exec prisma db execute --config prisma7.config.ts --file scripts/e2e-r33-viewer-fixture.sql
+      - name: Build actual Next application at this source SHA
+        run: pnpm build
+      - name: Install ephemeral Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Browser E2E (actual Next and PostgreSQL, synthetic signed QA principals)
+        run: |
+          mkdir -p artifacts
+          pnpm exec playwright test tests/e2e/r33-next-action-browser.pw.ts --project=desktop-chromium
+      - name: Capture non-production browser evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: r33-isolated-browser-${{ github.event.pull_request.head.sha }}
+          path: |
+            artifacts/
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 7
