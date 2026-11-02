@@ -118,12 +118,8 @@ export async function startGuidedNextAction(
     if (checked.state !== "current") {
       return empty("STALE", "Nguồn dữ liệu, quyền hoặc NEXT ACTION đã đổi. Tải lại checkpoint; không chạy kế hoạch cũ.");
     }
-    // Both calls independently recheck PROJECT_READ. This is real bounded
-    // source inspection, rather than a prompt that claims to have run.
-    const [works, gates] = await Promise.all([
-      workspace.runtime.workQuality.listWorkPackages(workspace.actor, projectId),
-      workspace.runtime.workQuality.listQualityGates(workspace.actor, projectId)
-    ]);
+    // Load canonical task inventory to build the exact bounded plan.
+    const works = await workspace.runtime.workQuality.listWorkPackages(workspace.actor, projectId);
     // Exact WorkPackage marker is the only source for CMD mode.
     // An arbitrary label, pasted prompt or query param cannot enable it.
     const candidateWork = works.find(work =>
@@ -148,8 +144,10 @@ export async function startGuidedNextAction(
       workPackageId:cmdTask?.workPackageId ?? (
         latest.nextAction.kind==="unblock-work"?latest.blockedWork[0]?.id:null)
     },cmdTask);
-    // Do not take CMD tasks from the client, model prompt or arbitrary
-    // repository text. No trusted canonical command registry is bound here yet.
+    // The prompt and plan have now been generated from the fresh canonical
+    // checkpoint. Execute its bounded READ stage immediately in this request.
+    // Server source validates PROJECT_READ independently on each read.
+    const gates = await workspace.runtime.workQuality.listQualityGates(workspace.actor, projectId);
     const needsRunner = step.mode==="requires-granted-runner";
     const detail = step.mode==="needs-cmd-result"
       ? "Đã tự tạo kế hoạch, kiểm tra WorkPackage và tìm thấy CMD chẩn đoán chỉ đọc được khai báo trong tiêu chí nghiệm thu. Chạy lệnh trên đúng máy/checkout rồi dán kết quả; đây chưa phải QA PASS."
