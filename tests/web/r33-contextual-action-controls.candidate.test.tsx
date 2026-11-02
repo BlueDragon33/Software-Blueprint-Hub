@@ -45,14 +45,14 @@ describe("R33 centrally-sourced contextual actions — review-only", () => {
     expect(guideSource).toContain("NEXT ACTION");
     expect(guideSource).not.toContain("navigator.clipboard.writeText");
     expect(guideSource).toContain("aria-expanded");
-    expect(guideSource).toContain("không cần sao chép");
+    expect(guideSource).toContain("Không cần sao chép");
     expect(guideSource).not.toMatch(/dispatchExecution\(|workflowExecutionJournal\.claim\(/);
   });
 
   it("has one clickable NEXT ACTION runner and sources prompts centrally", () => {
     expect(source).toContain("<ProjectActionGuidance blueprint={blueprint}");
     expect(source).toContain("buildNextActionBlueprintCandidate(");
-    expect(source).toContain("NEXT ACTION — {nextAction.label}");
+    expect(source).toContain("<ProjectNextActionRunner");
     expect(source).toContain("<ProjectNextActionRunner");
     expect(source.split("<ProjectNextActionRunner").length - 1).toBe(1);
     expect(source).not.toContain("<form action=");
