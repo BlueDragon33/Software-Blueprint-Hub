@@ -267,6 +267,8 @@ export * from "./prompt-workflow-execution";
 
 export * from "./pr-review-identity";
 
+export * from "./pr-review-admission-proposal";
+
 export type { WorkflowNode } from "./prompt-workflow-core.mjs";
 
 export * from "./foundation-templates";
