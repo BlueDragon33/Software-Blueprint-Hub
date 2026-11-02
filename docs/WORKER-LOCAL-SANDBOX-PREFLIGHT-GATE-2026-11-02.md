@@ -67,3 +67,32 @@ External technical references reviewed:
 **Disposition:** `STATIC_DENY_CONTRACT=VERIFIED` only where exact-head CI actually passed; `INDEPENDENT_HUMAN_REVIEW=BLOCKED`; `RUNTIME_HOST_ISOLATION=UNVERIFIED`; `BUILD_SCRIPTS=DENIED`; `WORKER_RUNTIME=NOT_RUN`. Passing independent static checks does **not** change the authorization state.
 
 **One subsequent bounded task: `ISOLATION-REVIEWER-AUTHORITY-EVIDENCE`** — verify the actual reviewer/branch-protection authority through authorized read-only repository access and evaluate independently attested image/seccomp/AppArmor provenance *only when supplied*. No execution, deployment, review impersonation or automatic change of gates.
+
+
+## Read-only reviewer and signed isolation evidence — 2026-11-02
+
+**Observation source:** live GitHub REST metadata, with `Hub PR #154` source HEAD `b92c9a203d91d5a16992e473983e1bea9393283e`, `QA Worker PR #5` source HEAD `b7a25d600dc649d4486643cc205436af69540942`. This is a dated observation only, **not** an authorization. A later commit changes the candidate HEAD and requires another exact-head read.
+
+| Read-only check | Hub #154 | QA Worker #5 | Security verdict |
+| --- | --- | --- | --- |
+| Draft/open/unmerged | Yes | Yes | No review/merge implied |
+| PR author | `BlueDragon33` | `BlueDragon33` | Same principal cannot provide independent approval for own PR |
+| Review submissions | **0** | **0** | `REVIEW_BLOCKED` |
+| Requested reviewers and requested review teams | **0 / 0** | **0 / 0** | No assigned independent reviewer |
+| `CODEOWNERS` at Draft and `main` source trees | **not present**, both complete trees (not truncated) | **not present**, both complete trees (not truncated) | No code-owner source of independent review |
+| Branch protection API (`main`) | HTTP **403**, integration cannot read | HTTP **403**, integration cannot read | **UNKNOWN**, never equate inaccessible with disabled |
+| Repository rulesets collection | Readable, **0 returned** | HTTP **403** (GitHub private-repository feature/plan restriction) | Hub list 0 does not prove absence of legacy branch protection; QA rulesets UNKNOWN |
+| Connected GitHub principal | `BlueDragon33`, repo `admin` | `BlueDragon33`, repo `admin` | Administration access is **not** a review submission, separate identity or ratification |
+| Other collaborators/authorized reviewer list | Not exposed by current connected read-only API | Not exposed by current connected read-only API | **UNKNOWN**, do not guess a reviewer |
+| Image digest | `containerContract.imageDigest=null` | No signed image manifest in inspected tree | **NOT SUPPLIED** |
+| Seccomp SHA256 | `seccompProfileSha256=null` | No pinned profile in inspected tree | **NOT SUPPLIED** |
+| AppArmor enforcement/source | Placeholder `RESTRICTIVE_PROFILE_REQUIRED` only | No enforceable profile/evidence file | **NOT SUPPLIED** |
+| Signed image/profile provenance | No attestation/signature/source proof in examined tracked trees | No attestation/signature/source proof in examined tracked trees | **UNVERIFIED**, cannot validate absent artifact |
+
+The current Hub constitution 1.3.0 source explicitly distinguishes **Project Authority**, **Constitutional Authority** and **Production Authority**. The connected owner's repository-admin permission is not evidence of authority to substitute for an independent protected reviewer or to ratify this security/Production gate. QA Worker `expert-reviewer` is permitted to produce advisory technical findings; it cannot impersonate a human, create GitHub review submissions or grant protected approval. Do not appoint a guessed collaborator, auto-approve with the same PR author, forge an identity, or weaken rules to get PASS.
+
+**Required evidence before reconsideration:** a real distinct, consenting GitHub reviewer with readably verified repository role and exact-head `APPROVED` review (plus project security/constitutional scope if separately required); readable branch protection/ruleset requirements from a genuinely authorized source; a selected content-addressed container image and separately published verifiable signature/attestation; actual seccomp profile bytes and pinned SHA256; a documented, loaded and enforcing AppArmor profile; and separately authorized host-isolation evidence for rootless/userns, egress, environment secrets, mounts and cgroups. A supplied digest alone is not proof of signature validity or kernel enforcement.
+
+**Fail-closed state at this observation:** `REVIEW_BLOCKED`; `BRANCH_PROTECTION_UNKNOWN`; `IMAGE_SIGNATURE_UNVERIFIED`; `SECCOMP_PROFILE_NOT_SUPPLIED`; `APPARMOR_ENFORCEMENT_UNVERIFIED`; `POSTINSTALL_DENIED`; `WORKER_RUNTIME_NOT_RUN`; `PRODUCTION_NOT_AUTHORIZED`.
+
+**Exactly one follow-on action — `REVIEWER-AND-HOST-EVIDENCE-ACCESS-GATE`:** obtain **read-only** GitHub branch-protection/approved reviewer metadata and actual signed image/seccomp/AppArmor evidence from authorized existing sources if available, then re-run verification against a new exact HEAD. If permissions or artifacts remain absent, stop at `REVIEW_BLOCKED`, with no container execution, fake approval, merge, cloud/Production or database mutation.
