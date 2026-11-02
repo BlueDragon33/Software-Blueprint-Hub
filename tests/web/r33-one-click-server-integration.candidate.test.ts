@@ -34,6 +34,7 @@ function fixture({
       reason:"Canonical WorkPackage requires next review"
     },
     blockedWork:[],
+    activeGates:[{id:"gate:required-missing",status:"missing"}],
     evidenceSummary:{freshness:"recorded-unverified",linked:1}
   }))};
   const workQuality={
@@ -78,6 +79,7 @@ describe("R33 server-bound one-click / CMD integration candidate",()=>{
     expect(single.pendingSteps).toEqual(["Continue: Pilot"]);
     expect(full.scope).toBe("end-to-end");
     expect(full.pendingSteps).toContain("WorkPackage work:pilot: ready — chưa tự thực thi.");
+    expect(full.pendingSteps).toContain("Quality Gate gate:required-missing: missing — chưa tự phê duyệt.");
     expect(full.title).toContain("phạm vi chỉ đọc");
     expect(full.qaPassed).toBe(false);
     expect(full.autoMutation).toBe(false);
