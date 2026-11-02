@@ -8,6 +8,8 @@ on:
       - "scripts/assess-opennext-peer-range.mjs"
       - "scripts/audit-worker-package-integrity.mjs"
       - "scripts/audit-worker-postinstall-provenance.mjs"
+      - "scripts/verify-workerd-release-provenance.mjs"
+      - "tests/governance/workerd-release-provenance.test.mjs"
       - "tests/governance/workers-postinstall-provenance.test.mjs"
       - "tests/governance/workers-toolchain-trust.test.mjs"
       - "control/worker-local-adapter-trust.proposed.json"
@@ -85,6 +87,19 @@ jobs:
           node --test tests/governance/workers-postinstall-provenance.test.mjs
           node scripts/audit-worker-postinstall-provenance.mjs artifacts/workers-native-provenance.json
           node -e 'const p=require("./artifacts/workers-native-provenance.json");if(p.scriptsExecuted||p.scriptsApproved||p.workerdExecuted||p.allNativeBinariesIndependentlyVerified||p.findings.length!==4||!p.findings.find(x=>x.spec==="@esbuild/linux-x64@0.28.2").upstreamSourceHashMatch)process.exit(1); console.log("SOURCE_READ_AND_ESBUILD_UPSTREAM_HASH_MATCH; WORKERD_RELEASE_BINARY_PARITY_STILL_UNVERIFIED")'
+      - name: Compare workerd npm ELF with fixed public GitHub Release (bytes only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/governance/workerd-release-provenance.test.mjs
+          curl --fail --silent --show-error --location --max-redirs 5 --max-time 120 --retry 2 \
+            --proto '=https' --proto-redir '=https' \
+            --output artifacts/workerd-linux-64-release.gz \
+            'https://github.com/cloudflare/workerd/releases/download/v1.20261023.1/workerd-linux-64.gz'
+          node scripts/verify-workerd-release-provenance.mjs \
+            artifacts/workerd-linux-64-release.gz artifacts/workers-native-provenance.json \
+            artifacts/workerd-release-parity.json
+          rm -f artifacts/workerd-linux-64-release.gz
       - name: Pinned OpenNext peer-range check (NO unapproved build scripts)
         shell: bash
         run: |
@@ -108,7 +123,8 @@ jobs:
             echo '- Source audit and current Next.js typecheck: see job steps.'
             echo '- vinext CLI: check the attached exit/status and full compatibility log.'
             echo '- OpenNext 1.20.15: review peer-range evidence; CLI not re-run because dependency/build-script gates block.'
-            echo '- Seven pinned package tarballs: SHA512 must match registry-reported integrity; matching SRI is not publisher attestation or permission to execute build scripts.'
+            echo '- Seven pinned tarballs: SHA512 vs npm registry; postinstall bytes inspected only, binary ELF cross-check with upstream/release, never executed.'
+            echo '- Release checksum parity is not a reproducible source build, signature attestation or postinstall approval.'
             echo '- Workers runtime, real Auth.js callback, SSO, Prisma/PostgreSQL TCP, signed E2E and Production: **UNVERIFIED / NOT AUTHORIZED**.'
             echo '- No site, Worker, domain, OAuth callback or canonical database was created or changed.'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -126,5 +142,6 @@ jobs:
             artifacts/opennext-peer-evidence.json
             artifacts/workers-toolchain-integrity.json
             artifacts/workers-native-provenance.json
+            artifacts/workerd-release-parity.json
           retention-days: 7
           if-no-files-found: warn
