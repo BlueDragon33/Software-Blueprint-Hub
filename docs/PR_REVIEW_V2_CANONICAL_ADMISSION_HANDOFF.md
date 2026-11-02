@@ -71,6 +71,49 @@ must also review current record IDs and `recordVersion` to prevent duplicate
 admission and honor optimistic concurrency. No direct Neon writes, no
 unauthenticated API, no draft-PR auto-create action.
 
+## Live browser observation and server-side capability probe (NOT a grant)
+
+Read-only connected Browser inspection on 2026-11-02:
+
+- Actual tab `https://software-blueprint-hub.vercel.app/constitution` displayed
+  `System Owner authority` and `Canonical amendment workspace`. The homepage
+  `/` displayed the canonical Blueprint OS project with `System Owner`.
+  This is genuine in-app **Constitutional Owner UI verification**, not merely
+  a GitHub provider account check. No cookie, JWT, OAuth token, session secret,
+  form submission or mutation was accessed.
+- **DEPLOYMENT DRIFT BLOCKER**: that live page showed active policy **1.1.0**;
+  this PR's Constitution source is **1.3.0**. Do not claim that PR v2 is
+  deployed/ratified solely because the older Owner UI is visible.
+- The live Owner UI uses `resolveWebActor()` and
+  `runtime.authority.canExerciseConstitutionalAuthority(actor)` to determine
+  whether to show the canonical amendment workspace. This validates Owner UI,
+  **not** an explicit `PROJECT_MUTATE` call for P2.
+
+The Draft PR adds `GET /api/authority/p2-session` for a *future, separately
+authorized* same-origin PREVIEW verification (not currently deployed).
+The new GET calls `resolveWebIdentity()` (validated existing GitHub Auth.js
+JWT only), **read-only Prisma** `principal.findUnique` for the existing
+`provider/providerSubject`, `AuthorityService.require({principalId},
+"project:blueprint-os", "PROJECT_MUTATE")`, then
+`project.findUnique` (existence only). It intentionally **does not call
+`resolveWebActor()`**, which may upsert a principal on first resolution.
+No writes, credentials, raw principal IDs, identity subjects or authorization
+error details appear in the response.
+
+- HTTP 200: `PROJECT_MUTATE_SESSION_VERIFIED` plus the exact
+  `activeCodePolicyVersion` of the *deployed preview build*, all grant,
+  QA, gate, Production and admission flags permanently false. **Still not
+  a signed request, issuer authorization or authenticated 3-service E2E.**
+- HTTP 401: no valid GitHub session; 403: existing principal or capability
+  denied; 503: backend cannot verify. All responses `Cache-Control: no-store`.
+- HTTP 404 on the currently deployed older version does not establish failure
+  of Owner authority: the new route is only present in the Draft source.
+  **Do not deploy it to Production, merge Draft PRs or change the main-only
+  E2E workflow just to run this probe.** Never copy tokens/cookies into chat.
+- WorkPackage remains missing and live authority/journal schemas not applied:
+  capability verification, if later successful, is only ONE precondition,
+  not a replacement for those gates.
+
 ## Owner-controlled admission sequence (requires separate explicit authorization)
 
 1. **Re-read state before any action.** Verify current project, main and PR SHA, database
