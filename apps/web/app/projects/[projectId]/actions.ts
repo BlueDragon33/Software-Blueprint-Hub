@@ -170,8 +170,8 @@ export async function startGuidedNextAction(
     ];
     const pendingSteps = requestedMode==="end-to-end"
       ? [
-          ...gates.filter(bundle=>bundle.gate.status!=="pass").slice(0,6).map(bundle=>
-            `Quality Gate ${bundle.gate.id}: ${bundle.gate.status} — chưa tự phê duyệt.`),
+          ...latest.activeGates.slice(0,8).map(gate=>
+            `Quality Gate ${gate.id}: ${gate.status} — chưa tự phê duyệt.`),
           ...works.filter(work=>work.status!=="completed").slice(0,6).map(work=>
             `WorkPackage ${work.id}: ${work.status} — chưa tự thực thi.`),
           ...(needsRunner?["Cần runner/grant thật để tiếp tục thao tác sửa đổi."]:[])
