@@ -13,6 +13,7 @@ const wp={
  id:input.workPackageId,projectId:input.projectId,status:"ready",
  meta:{schemaVersion:"1.0.0",recordVersion:1,createdAt:"2026-11-02T00:00:00Z",
  updatedAt:"2026-11-02T00:00:00Z"},
+ dependencies:[],
  acceptanceCriteria:["Independent QA verified at exact HEAD"],
  qualityGateIds:["gate:review:qa"]
 };
@@ -58,6 +59,12 @@ describe("authenticated read-only preflight protects missing canonical grant",()
    {packages:[]},{packages:[{...wp,status:"blocked"}]},
    {packages:[{...wp,qualityGateIds:[]}]},
    {packages:[{...wp,projectId:"project:another"}]},
+   {packages:[{...wp,dependencies:["work:missing"]}]},
+   {packages:[{...wp,dependencies:[wp.id]}]},
+   {packages:[{...wp,dependencies:["work:blocked"]]},
+    {id:"work:blocked",projectId:input.projectId,status:"in-progress"}]},
+   {packages:[{...wp,dependencies:["work:foreign"]]},
+    {id:"work:foreign",projectId:"project:other",status:"completed"}]},
    {gates:[]},{gates:[{gate:{...gate,status:"fail"},evidence:[]}]},
    {gates:[{gate:{...gate,projectId:"project:other"},evidence:[]}]}
   ];
