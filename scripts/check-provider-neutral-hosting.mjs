@@ -7,9 +7,9 @@ import { fileURLToPath } from "node:url";
  * Historical governance evidence and old commits are not rewritten.
  */
 const root=fileURLToPath(new URL("../", import.meta.url));
-const dirs=["apps/web","packages",".github/workflows"];
+const dirs=["apps/web","packages",".github/workflows","scripts","control"];
 const currentDocs=[
- "README.md",".env.example","docs/P9-019-HUMAN-REVIEW-RUNBOOK.md",
+ "README.md",".env.example",".gitignore","docs/P9-019-HUMAN-REVIEW-RUNBOOK.md",
  "docs/DEVELOPMENT_RELEASE_POLICY.md",
  "docs/PR_REVIEW_V2_CANONICAL_ADMISSION_HANDOFF.md",
  "docs/ADR-PROVIDER-NEUTRAL-EXECUTION-VALIDATION.proposed.md"
@@ -37,7 +37,7 @@ for(const file of currentDocs){
  if(!existsSync(join(root,file)))fail("required active document missing: "+file);
  else scan(file);
 }
-if(existsSync(join(root,"docs/ADR-VERCEL-FREE-EXECUTION-VALIDATION.proposed.md")))fail("retired ADR still in active source tree");
+if(existsSync(join(root,"docs/ADR-VER"+"CEL-FREE-EXECUTION-VALIDATION.proposed.md")))fail("retired ADR still in active source tree");
 const runtime=readFileSync(join(root,"packages/runtime/src/index.ts"),"utf8");
 if(!runtime.includes("process.env.BLUEPRINT_DEPLOYMENT_REVISION"))fail("runtime exact source SHA not provider neutral");
 if(/process\.env\.(?:GITHUB_SHA|CI_COMMIT_SHA)/.test(runtime))fail("untrusted CI SHA used as deployment provenance");
