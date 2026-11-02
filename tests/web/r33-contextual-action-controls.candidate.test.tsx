@@ -63,7 +63,7 @@ describe("R33 centrally-sourced contextual actions — review-only", () => {
     expect(contract.preflight.allowsWorkPackageExecution).toBe(false);
     expect(contract.futureExecutor.status).toBe("not-integrated");
     expect(contract.contextualActionControls.endToEnd.whenAbsent)
-      .toBe("show-truthful-disabled-or-guidance-state");
+      .toBe("bounded-read-only-plan-run-with-explicit-runner-blocker");
     expect(contract.nextActionBlueprint.interactionModel.noCopyPromptAsPrerequisite).toBe(true);
   });
 
