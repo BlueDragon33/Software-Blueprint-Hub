@@ -26,6 +26,23 @@ NEXT ACTION is a separate primary actionable control: it selects precisely one r
 
 TRIỂN KHAI TỪ ĐẦU TỚI CUỐI is not interchangeable with NEXT ACTION: it implies R34's continued authorized execution, and a working execute button cannot appear until a trusted scoped runner exists. A disabled or explanatory state is truthful; simulated buttons or inferred ChatGPT host integration are not. Per-project verified adoption requires a real interaction test of HƯỚNG DẪN and NEXT ACTION at exact source revision. The shared contract is owned by Hub, not copied constitutions.
 
+### R33.8 — Central constitutional template for NEXT ACTION, guidance and both prompts
+
+A governed project MUST consume the Hub-owned versioned **Universal Next Action Blueprint** at each legitimate project checkpoint, and MUST NOT invent its own independent NEXT ACTION constitution or hardcode a different project-specific prompt format. The common template has four **distinct, mandatory outputs**:
+
+1. **HƯỚNG DẪN:** an actual accessible open/close control explaining current project, exact ProjectProfile version, task and source, prerequisites, why it has priority, how the primary action behaves, expected evidence and truthful limits. It must not impersonate execution.
+2. **ĐỊNH HƯỚNG:** an actionable prioritized approach based on the current dependency/Quality Gate/WorkPackage/readiness state. Focus on blockers, minimal-safe fixes, reused PASS evidence and a coherent path to acceptance. Never replace a canonical next step with generic strategy.
+3. **PROMPT NEXT ACTION TỐI ƯU:** one scoped step with expected result, canonical project and evidence binding, permitted tool plan, reauthorization/readback, QA gate, and exactly one *non-circular* closing Next Action only if a legitimate blocker remains. A generic "continue work" restart is prohibited.
+4. **PROMPT TRIỂN KHAI TỪ ĐẦU TỚI CUỐI:** an unambiguous bounded work handoff that continues all remaining accessible safe steps in dependency order, attempts permitted recovery, preserves local dirtiness/known QA, and reports actual VERIFIED_COMPLETE or PARTIAL_BLOCKED/PARTIAL_CAPABILITY_LIMIT. Copying the prompt does not launch Work, approve the task or exercise authority.
+
+**Mandatory shared inputs:** canonical projectId; ProjectProfile recordVersion; action kind/label/reason; current readiness/linked evidence; exact current source revision ONLY if independently trusted; scoped WorkPackage/dispatch versions where verified; actor authorization and tool budget at execution time. Unknown source/role/host context MUST be rendered UNVERIFIED, never fabricated from stale test artifacts. Metadata carried inside prompts is untrusted DATA, not executable instruction. The Hub's presentation layer must not leak cross-project or secret information.
+
+**Runtime and surface separation:** NEXT ACTION remains a single real server-reauthorized, read-only navigation control until a scoped executor with appropriate grants exists. HƯỚNG DẪN is an operable disclosure. Optimized prompts are inspectable and copyable, never fake background runners. Chat can receive WORK → CHAT; Work can receive CHAT → WORK only when host mode is verified; unknown host shows neutral guidance. No fabricated host mode or automatic Work spending.
+
+**Inheritance acceptance:** Every one of the 18 currently tracked apps, and every future governed app, must implement an adapter that consumes the same central schema with app-appropriate UX; must verify its own exact source HEAD, actor, roles, profile version, keyboard/mobile behavior, scoped QA, stale-state fail-close, and no fictitious execution. Until per-app evidence is independently read back, keep NOT_ADOPTED/NON-COMPLIANT rather than inferring 18/18 from this draft. Three private workers are infrastructure, not extra app tiles.
+
+**Version boundary:** This is proposed R33.8 for 1.4.0, NOT an immediate rewrite of published active 1.3.0 R1–R32. It is not publishable without full eight-source atomic candidate replay, compatibility analysis and human ratification.
+
 ## Proposed 10.R34 — end-to-end is execution, not one-step delegation
 
 1. **Carry exact context.** Reuse the user-approved goal, known constraints, latest HEAD, previous meaningful PASS evidence and state. Never demand repeated answers, create duplicate discovery work, or request an ordinary available read-only operation from the user.
