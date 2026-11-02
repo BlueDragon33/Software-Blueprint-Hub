@@ -182,11 +182,15 @@ export async function receiveGuidedCmdResult(
   profileVersion: number,
   actionKind: NextActionKind,
   commandId: string,
+  workPackageId: string,
+  displayedWorkVersion: number,
   output: string
 ): Promise<{state:"REJECTED"|"UNVERIFIED_MANUAL_OUTPUT"; detail:string}> {
   if (!/^project:[a-z0-9][a-z0-9-]{0,158}$/.test(projectId) ||
       !Number.isSafeInteger(profileVersion) || profileVersion < 1 ||
       typeof commandId!=="string" || commandId.length>50 ||
+      typeof workPackageId!=="string" ||
+      !Number.isSafeInteger(displayedWorkVersion) || displayedWorkVersion<1 ||
       typeof output!=="string" || output.length>24000) {
     return {state:"REJECTED",detail:"Đầu ra quá dài hoặc sai định dạng. Không lưu hoặc thực thi dữ liệu."};
   }
@@ -209,7 +213,9 @@ export async function receiveGuidedCmdResult(
     latest.nextAction.label === (latest.nextAction.kind==="continue-work" ? "Continue: " : "Unblock: ") + item.title &&
     (item.status==="ready" || item.status==="in-progress" || item.status==="blocked")
   );
-  if (!work) return {state:"REJECTED",detail:"Không còn WorkPackage liên kết."};
+  if (!work || work.id!==workPackageId ||
+      work.meta.recordVersion!==displayedWorkVersion)
+    return {state:"REJECTED",detail:"WorkPackage hoặc phiên bản không còn khớp; kết quả cũ bị từ chối."};
   const canonicalCommand=recognizedCanonicalCommandId(work.acceptanceCriteria);
   if (!canonicalCommand || canonicalCommand!==commandId)
     return {state:"REJECTED",detail:"Lệnh CMD không được khai báo trong nhiệm vụ chuẩn hoặc đã thay đổi."};
