@@ -28,7 +28,8 @@ const input:AuthorizedNextActionInspectionInput={
 function harness(overrides: {
   deny?: boolean; stale?: boolean; changedAction?: boolean;
   missingWork?: boolean; blockedWork?: boolean; missingGate?: boolean;
-  revokedAfter?: number; bindingDenied?: boolean
+  revokedAfter?: number; bindingDenied?: boolean;
+  wrongSelectedLabel?: boolean; duplicateTitleEarlier?: boolean
 }={}) {
   let checks=0;
   const authorize=vi.fn(async (_actor:unknown,_project:string,action:string)=>{
@@ -47,14 +48,22 @@ function harness(overrides: {
     readiness:{read:vi.fn(async()=>({
       projectId,nextAction:{
         kind:overrides.changedAction?"define-gate":"continue-work",
-        label:"Continue: Inspect",reason:"Available"
+        label:overrides.wrongSelectedLabel?"Continue: Other task":"Continue: Inspect",reason:"Available"
       }
     }))},
     workQuality:{
-      listWorkPackages:vi.fn(async()=>overrides.missingWork?[]:[{
-        id:"work:inspect",projectId,status:overrides.blockedWork?"blocked":"ready",
-        meta:{recordVersion:1},dependencies:[],qualityGateIds:["gate:inspect"]
-      }]),
+      listWorkPackages:vi.fn(async()=>overrides.missingWork?[]:[
+        ...(overrides.duplicateTitleEarlier?[{
+          id:"work:a-earlier",title:"Inspect",purpose:"Earlier task",projectId,status:"ready",
+          acceptanceCriteria:[],meta:{recordVersion:1},dependencies:[],qualityGateIds:["gate:inspect"]
+        }]:[]),
+        {
+          id:"work:inspect",title:"Inspect",purpose:"Signed task",projectId,
+          status:overrides.blockedWork?"blocked":"ready",
+          acceptanceCriteria:[],meta:{recordVersion:1},
+          dependencies:[],qualityGateIds:["gate:inspect"]
+        }
+      ]),
       listQualityGates:vi.fn(async()=>[{
         gate:{id:"gate:inspect",projectId,status:overrides.missingGate?"not-ready":"pass"},
         evidence:overrides.missingGate?[]:[{id:"evidence:inspect"}]
@@ -134,6 +143,21 @@ describe("One-button internal execution adapter: no fake authority or dispatch",
       expect(h.runner).not.toHaveBeenCalled();
       expect(h.qa).not.toHaveBeenCalled();
     }
+  });
+  it("rejects a signed task that is no longer the selected canonical Next Action",async()=>{
+    const h=harness({wrongSelectedLabel:true});
+    await expect(inspectAuthorizedNextAction(h.runtime,input,h.services))
+      .rejects.toThrow(/differs from current canonical Next Action/);
+    expect(h.runtime.workflowExecutionJournal.claim).not.toHaveBeenCalled();
+    expect(h.runner).not.toHaveBeenCalled();
+    expect(h.qa).not.toHaveBeenCalled();
+  });
+  it("rejects same-title tasks when another lower-ID WorkPackage is selected",async()=>{
+    const h=harness({duplicateTitleEarlier:true});
+    await expect(inspectAuthorizedNextAction(h.runtime,input,h.services))
+      .rejects.toThrow(/differs from current canonical Next Action/);
+    expect(h.runtime.workflowExecutionJournal.claim).not.toHaveBeenCalled();
+    expect(h.runner).not.toHaveBeenCalled();
   });
   it("refuses non-inspection modes at adapter boundary",async()=>{
     const h=harness();
