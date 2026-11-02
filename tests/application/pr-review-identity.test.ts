@@ -36,6 +36,8 @@ describe("bounded PR identity v2 (distinct from v1 grants and release)",()=>{
   expect(r.identity.baseSha).toBe("e".repeat(40));
   expect(r.bindingId).toMatch(/^sha256:[a-f0-9]{64}$/);
   await expect(verifyPrReviewIdentity(x,grant,pem,db,now)).rejects.toThrow(/replay/);
+  const rotated=issued({nonce:"1".repeat(32)});
+  await expect(verifyPrReviewIdentity(rotated,grant,pem,db,now)).rejects.toThrow(/replay/);
  });
  it("blocks PR number, base/head revisions, signed path, workflow, canonical and policy tampering",async()=>{
   const valid=issued();
