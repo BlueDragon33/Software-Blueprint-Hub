@@ -108,7 +108,8 @@ export function createClickPlanCandidate(
         !WORK.test(verifiedCommandTask.workPackageId) ||
         !Number.isSafeInteger(verifiedCommandTask.taskPlanRecordVersion) ||
         verifiedCommandTask.taskPlanRecordVersion < 1 ||
-        !(verifiedCommandTask.commandId in registeredReadOnlyCommands)) {
+        !Object.hasOwn(registeredReadOnlyCommands,verifiedCommandTask.commandId) ||
+        recognizedCanonicalCommandId(input.workPackageAcceptanceCriteria ?? []) !== verifiedCommandTask.commandId) {
       throw new TypeError("CMD plan is not trusted, current and canonically bound");
     }
     mode="needs-cmd-result";
