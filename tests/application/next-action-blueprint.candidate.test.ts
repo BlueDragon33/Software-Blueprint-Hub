@@ -24,6 +24,9 @@ describe("R33 Universal Next Action Blueprint candidate", () => {
     expect(out.nextPrompt).toContain("ProjectProfile.recordVersion=7");
     expect(out.endToEndPrompt).toContain(base.reason);
     expect(out.nextActionAuthority).toBe("revalidated-bounded-readonly-stage");
+    expect(out.guidance.some(line => line.includes("kiểm tra quyền") && line.includes("không cần sao chép"))).toBe(true);
+    expect(out.guidance.some(line => line.includes("runner/grant") && line.includes("BLOCKED"))).toBe(true);
+    expect(out.guidance.some(line => line.includes("chỉ để xác thực lại trạng thái"))).toBe(false);
     expect(out.promptAuthority).toBe("internal-plan-not-execution-grant");
   });
 
