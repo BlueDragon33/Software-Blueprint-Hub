@@ -61,6 +61,9 @@ export async function continueCanonicalNextAction(
 export interface GuidedNextActionResult {
   readonly state: "READ_ONLY_INSPECTED" | "BLOCKED" | "STALE";
   readonly generatedPlan: boolean;
+  readonly scope: "next" | "end-to-end";
+  readonly inspectedSteps: readonly string[];
+  readonly pendingSteps: readonly string[];
   readonly mode: "auto-read-only" | "requires-granted-runner" | "needs-cmd-result" | "unavailable";
   readonly title: string;
   readonly detail: string;
@@ -93,7 +96,8 @@ export async function startGuidedNextAction(
   const empty = (
     state: GuidedNextActionResult["state"], detail: string
   ): GuidedNextActionResult => ({
-    state, generatedPlan: false, mode:"unavailable",
+    state, generatedPlan: false, scope:requestedMode,
+    inspectedSteps:[],pendingSteps:[],mode:"unavailable",
     title:"NEXT ACTION chưa thể thực hiện", detail, nextHref:null,
     readback:null, command:null, qaPassed:false, autoMutation:false
   });
@@ -158,10 +162,26 @@ export async function startGuidedNextAction(
       : needsRunner
       ? "Đã tự sinh kế hoạch và đọc kiểm tra trạng thái, WorkPackage và Quality Gate thật. Bước sửa/chạy tiếp cần runner và grant đúng phạm vi; nút này không tự cấp quyền."
       : "Đã tự sinh kế hoạch và thực hiện kiểm tra dữ liệu chuẩn, WorkPackage, Quality Gate trong phạm vi quyền đọc. Đây chưa phải thực thi sửa mã hay nghiệm thu sản phẩm.";
+    const inspectedSteps = [
+      "Xác thực lại phiên truy cập và quyền đọc ProjectProfile.",
+      "Đối chiếu phiên bản hồ sơ và nhãn NEXT ACTION hiện hành.",
+      `Đọc ${works.length} WorkPackage từ nguồn chuẩn.`,
+      `Đọc ${gates.length} Quality Gate từ nguồn chuẩn.`
+    ];
+    const pendingSteps = requestedMode==="end-to-end"
+      ? [
+          ...gates.filter(gate=>gate.status!=="pass").slice(0,6).map(gate=>
+            `Quality Gate ${gate.id}: ${gate.status} — chưa tự phê duyệt.`),
+          ...works.filter(work=>work.status!=="completed").slice(0,6).map(work=>
+            `WorkPackage ${work.id}: ${work.status} — chưa tự thực thi.`),
+          ...(needsRunner?["Cần runner/grant thật để tiếp tục thao tác sửa đổi."]:[])
+        ]
+      : [latest.nextAction.label];
     return {
       state:needsRunner?"BLOCKED":"READ_ONLY_INSPECTED",
-      generatedPlan:true,mode:step.mode,
-      title:requestedMode==="next"?"NEXT ACTION — đã thực hiện kiểm tra an toàn":"TỪ ĐẦU TỚI CUỐI — đã thực hiện các bước an toàn khả dụng",
+      generatedPlan:true,scope:requestedMode,
+      inspectedSteps,pendingSteps,mode:step.mode,
+      title:requestedMode==="next"?"NEXT ACTION — đã kiểm tra bước hiện hành":"TOÀN BỘ KẾ HOẠCH — đã kiểm tra phạm vi chỉ đọc",
       detail,nextHref:checked.href,
       readback:{
         projectId,projectProfileVersion:profileVersion,canonicalActionKind:latest.nextAction.kind,
