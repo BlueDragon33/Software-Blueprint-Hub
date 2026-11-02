@@ -1,0 +1,96 @@
+name: Cloudflare Workers Local Compatibility Audit (NO DEPLOY)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/cloudflare-compatibility-local.yml"
+      - "scripts/assess-cloudflare-worker-compat.mjs"
+      - "apps/web/**"
+      - "packages/persistence/**"
+      - "packages/runtime/**"
+      - "docs/ADR-PROVIDER-NEUTRAL-EXECUTION-VALIDATION.proposed.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workers-compat-readonly-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-local-checks:
+    name: Source + vinext check + OpenNext CLI metadata (UNVERIFIED runtime)
+    # Does not use environments, deployments, cloud tokens, or remote bindings.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CI: "true"
+      DO_NOT_DEPLOY: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      NPM_CONFIG_UPDATE_NOTIFIER: "false"
+    steps:
+      - name: Checkout current source without persistent credential
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install pinned monorepo dependencies (no production secrets)
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client from checked-in schema
+        run: pnpm prisma:generate
+      - name: Record reproducible source-only runtime and API inventory
+        run: node scripts/assess-cloudflare-worker-compat.mjs artifacts/cloudflare-compatibility-source.json
+      - name: Typecheck current Next.js + Prisma + Auth.js baseline without deploy
+        run: pnpm --filter @blueprint-os/web typecheck
+      - name: vinext CLI compatibility check on existing Next.js directory
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p ../../artifacts
+          timeout 240s pnpm dlx vinext@latest check > ../../artifacts/vinext-check.log 2>&1
+          code=$?
+          printf 'exit_code=%s\nstatus=%s\n' "$code" "$([ "$code" -eq 0 ] && echo CLI_CHECK_PASSED_RUNTIME_UNVERIFIED || echo CLI_CHECK_BLOCKED_OR_UNVERIFIED)" > ../../artifacts/vinext-check.status
+          tail -n 75 ../../artifacts/vinext-check.log
+          echo "vinext check exit: $code; Workers runtime remains UNVERIFIED"
+          exit 0
+      - name: OpenNext adapter version and CLI availability check (no local config)
+        shell: bash
+        run: |
+          set -uo pipefail
+          timeout 90s npm view @opennextjs/cloudflare@latest version peerDependencies engines --json > artifacts/opennext-metadata.json 2> artifacts/opennext-metadata-error.log
+          meta=$?
+          timeout 120s pnpm dlx @opennextjs/cloudflare@latest --help > artifacts/opennext-help.log 2>&1
+          cli=$?
+          printf 'metadata_exit=%s\ncli_help_exit=%s\nstatus=METADATA_ONLY_RUNTIME_UNVERIFIED\n' "$meta" "$cli" > artifacts/opennext-check.status
+          echo "OpenNext metadata exit: $meta; CLI help exit: $cli; workerd runtime UNVERIFIED"
+          tail -n 35 artifacts/opennext-help.log
+          exit 0
+      - name: Assert no real runtime acceptance or deployment provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e 'const fs=require("node:fs"); const p=JSON.parse(fs.readFileSync("artifacts/cloudflare-compatibility-source.json")); if(p.providerRuntimeVerified!==false||p.productionAuthorized!==false||p.cloudflareProjectCreated!==false||p.status!=="ADAPTER_RUNTIME_NOT_VERIFIED")process.exit(1); console.log("SAFE_EVIDENCE_ONLY — no authenticated Worker E2E, provider deploy, or Production PASS")'
+          git diff --exit-code -- apps/web/package.json pnpm-lock.yaml apps/web/next.config.ts
+      - name: Preserve bounded untrusted tool observations for independent review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workers-compatibility-audit-${{ github.sha }}
+          path: |
+            artifacts/cloudflare-compatibility-source.json
+            artifacts/vinext-check.status
+            artifacts/vinext-check.log
+            artifacts/opennext-check.status
+            artifacts/opennext-metadata.json
+            artifacts/opennext-metadata-error.log
+            artifacts/opennext-help.log
+          retention-days: 7
+          if-no-files-found: warn
