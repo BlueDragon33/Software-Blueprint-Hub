@@ -41,7 +41,8 @@ export function ProjectNextActionRunner({
     setBusy(true);
     try {
       const response=await receiveGuidedCmdResult(
-        projectId,profileVersion,actionKind,result.command.commandId,commandOutput
+        projectId,profileVersion,actionKind,result.command.commandId,
+        result.command.workPackageId,result.command.workPackageRecordVersion,commandOutput
       );
       setCmdStatus(response.detail);
       // Never store command output, elevate grants or auto mark QA PASS.
