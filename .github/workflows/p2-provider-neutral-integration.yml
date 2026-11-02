@@ -1,4 +1,4 @@
-name: P2 Provider-Neutral Scoped Integration (No Vercel)
+name: P2 Provider-Neutral Scoped Integration (No Hosting Vendor)
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ on:
       - "tests/governance/p2-provider-neutral-ci.test.mjs"
       - "control/execution-service-protocol.v1.json"
       - "control/private-execution-service-onboarding.v1.json"
-      - "docs/ADR-VERCEL-FREE-EXECUTION-VALIDATION.proposed.md"
+      - "docs/ADR-PROVIDER-NEUTRAL-EXECUTION-VALIDATION.proposed.md"
   workflow_dispatch:
 
 permissions:
