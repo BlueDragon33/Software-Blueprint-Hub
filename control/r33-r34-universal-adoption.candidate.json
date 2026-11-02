@@ -234,5 +234,30 @@
       "r33R34Adoption": "NOT_ADOPTED",
       "infrastructureNotAppTile": true
     }
-  ]
+  ],
+  "sharedNextActionBlueprint": {
+    "schema": "blueprint-os:universal-next-action-blueprint/v1",
+    "centralTemplate": "packages/application/src/next-action-blueprint.candidate.ts",
+    "centralContract": "control/unified-next-action.candidate.v1.json#nextActionBlueprint",
+    "requiredOutputs": [
+      "guidance",
+      "prioritized-direction",
+      "one-step-optimized-prompt",
+      "end-to-end-bounded-prompt"
+    ],
+    "mandatoryAdapters": "per-device-per-role-no-child-constitution",
+    "requiredRealEvidence": [
+      "current-repository-HEAD",
+      "source-bound-canonical-readiness",
+      "ProjectProfile-version",
+      "interactive-guidance-toggle",
+      "prompt-copy-fallback",
+      "server-next-action-preflight",
+      "mobile-keyboard-a11y",
+      "safe-negative-auth",
+      "real-work-or-missing-runner-truth"
+    ],
+    "inheritanceAfterHumanRatificationOnly": true,
+    "adoptionDefault": "NOT_ADOPTED"
+  }
 }
