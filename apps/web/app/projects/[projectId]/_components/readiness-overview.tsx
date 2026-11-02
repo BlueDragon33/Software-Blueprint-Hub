@@ -68,7 +68,7 @@ export function ReadinessOverview({
     // Evidence revision is NOT necessarily the current source HEAD. Fail closed.
     sourceRevision: null,
     workPackageId: nextAction.actionKind === "unblock-work"
-      ? readiness.blockedWork[0]?.id : null
+      ? (readiness.blockedWork[0]?.id ?? null) : null
   });
 
   return (
