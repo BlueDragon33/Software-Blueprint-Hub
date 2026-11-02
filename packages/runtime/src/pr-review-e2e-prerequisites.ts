@@ -52,6 +52,17 @@ export async function inspectCanonicalPrReviewPrerequisites(
     new Set(wp.qualityGateIds).size!==wp.qualityGateIds.length){
   deny("current canonical Work Package missing, blocked, or incomplete");
  }
+ // A Work Package may be marked ready while an upstream dependency is not.
+ // Observe the actual package graph; never infer readiness from status alone.
+ const byId=new Map(packages.map(item=>[item.id,item]));
+ if(!Array.isArray(wp.dependencies) ||
+    wp.dependencies.some(id=>{
+      const dependency=byId.get(id);
+      return id===wp.id || !dependency ||
+        dependency.projectId!==input.projectId || dependency.status!=="completed";
+    })){
+  deny("canonical Work Package dependencies missing, foreign, cyclic, or incomplete");
+ }
  const gates=await sources.work.listQualityGates(input.actor,input.projectId);
  for(const id of wp.qualityGateIds){
   const bundle=gates.find(x=>x.gate.id===id);
