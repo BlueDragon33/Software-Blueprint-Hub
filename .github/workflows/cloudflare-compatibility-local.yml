@@ -6,6 +6,9 @@ on:
       - ".github/workflows/cloudflare-compatibility-local.yml"
       - "scripts/assess-cloudflare-worker-compat.mjs"
       - "scripts/assess-opennext-peer-range.mjs"
+      - "scripts/audit-worker-package-integrity.mjs"
+      - "tests/governance/workers-toolchain-trust.test.mjs"
+      - "control/worker-local-adapter-trust.proposed.json"
       - "apps/web/**"
       - "packages/persistence/**"
       - "packages/runtime/**"
@@ -65,6 +68,14 @@ jobs:
           tail -n 75 ../../artifacts/vinext-check.log
           echo "vinext check exit: $code; Workers runtime remains UNVERIFIED"
           exit 0
+      - name: Verify trust model and adversarial tamper cases without network
+        run: node --test tests/governance/workers-toolchain-trust.test.mjs
+      - name: Check pinned package tarball integrity (npm pack --ignore-scripts ONLY)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/audit-worker-package-integrity.mjs artifacts/workers-toolchain-integrity.json
+          node -e 'const p=JSON.parse(require("node:fs").readFileSync("artifacts/workers-toolchain-integrity.json"));if(p.executableBuildScriptsApproved!==false||p.workerdRuntimeVerified!==false||p.packageCount!==7||p.approvedBuildScripts.length!==0)process.exit(1);console.log("TRUST_BOUNDARY_PRESERVED — integrity compared to registry; no scripts approved")'
       - name: Pinned OpenNext peer-range check (NO unapproved build scripts)
         shell: bash
         run: |
@@ -88,6 +99,7 @@ jobs:
             echo '- Source audit and current Next.js typecheck: see job steps.'
             echo '- vinext CLI: check the attached exit/status and full compatibility log.'
             echo '- OpenNext 1.20.15: review peer-range evidence; CLI not re-run because dependency/build-script gates block.'
+            echo '- Seven pinned package tarballs: SHA512 must match registry-reported integrity; matching SRI is not publisher attestation or permission to execute build scripts.'
             echo '- Workers runtime, real Auth.js callback, SSO, Prisma/PostgreSQL TCP, signed E2E and Production: **UNVERIFIED / NOT AUTHORIZED**.'
             echo '- No site, Worker, domain, OAuth callback or canonical database was created or changed.'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -103,5 +115,6 @@ jobs:
             artifacts/opennext-check.status
             artifacts/opennext-metadata.json
             artifacts/opennext-peer-evidence.json
+            artifacts/workers-toolchain-integrity.json
           retention-days: 7
           if-no-files-found: warn
