@@ -29,6 +29,7 @@ describe("R33 one-click flow and conditional CMD support",()=>{
     expect(ui).toContain("{result.command ? (");
     expect(ui).toContain('id="next-action-cmd-output"');
     expect(actions).toContain("recognizedCanonicalCommandId(work.acceptanceCriteria)");
+    expect(actions).toContain("work.meta.recordVersion!==displayedWorkVersion");
   });
   it("CMD result never becomes a Quality Gate PASS",()=>{
     expect(ui).toContain("Không tự nâng QA PASS");
