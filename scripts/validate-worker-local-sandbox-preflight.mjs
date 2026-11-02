@@ -116,6 +116,12 @@ export function validateAuditWorkflow(source) {
    assert(!forbidden.test(source),"WORKFLOW_DISALLOWED_SIDE_EFFECT");
  }
  assert(source.includes("node scripts/validate-worker-local-sandbox-preflight.mjs"),"WORKFLOW_STATIC_GATE_MISSING");
+ // A reporting JSON path must never become an executable shell line.
+ const releaseStep=source.split("      - name: Compare workerd npm ELF with fixed public GitHub Release (bytes only)")[1]?.split("      - name: Pinned OpenNext")[0];
+ const uploadStep=source.split("      - name: Preserve bounded untrusted tool observations for independent review")[1];
+ assert(releaseStep?.includes("artifacts/workerd-release-parity.json\\n          rm -f artifacts/workerd-linux-64-release.gz"),"WORKFLOW_RELEASE_COMMAND_UNEXPECTED");
+ assert(!releaseStep?.includes("artifacts/worker-sandbox-static-preflight.json"),"WORKFLOW_ATTEMPTED_REPORT_EXECUTION");
+ assert(uploadStep?.includes("artifacts/worker-sandbox-static-preflight.json"),"WORKFLOW_SANDBOX_REPORT_NOT_UPLOADED");
  return true;
 }
 function main(){
