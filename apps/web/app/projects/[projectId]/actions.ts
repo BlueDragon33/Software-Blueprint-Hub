@@ -143,7 +143,7 @@ export async function startGuidedNextAction(
       evidenceFreshness:latest.evidenceSummary.freshness,
       sourceRevision:null,
       workPackageId:candidateWork?.id ?? (
-        latest.nextAction.kind==="unblock-work"?latest.blockedWork[0]?.id:null),
+        latest.nextAction.kind==="unblock-work"?(latest.blockedWork[0]?.id ?? null):null),
       workPackageRecordVersion:candidateWork?.meta.recordVersion ?? null,
       workPackagePurpose:candidateWork?.purpose ?? null,
       workPackageAcceptanceCriteria:candidateWork?.acceptanceCriteria ?? null
