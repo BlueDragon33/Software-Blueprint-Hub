@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   analyzePastedCommandResult,createClickPlanCandidate,registeredReadOnlyCommands,
-  recognizedCanonicalCommandId
+  recognizedCanonicalCommandId,resolveCanonicalNextWork
 } from "../../packages/application/src/next-action-run-plan.candidate";
 
 const projectId="project:blueprint-os";
@@ -28,6 +28,29 @@ describe("R33 typed automatic Next Action planner",()=>{
     expect(plan.mayExecuteMutation).toBe(false);
     expect(plan.mayLaunchWork).toBe(false);
     expect(plan.resultIsQaPass).toBe(false);
+  });
+  it("selects the canonical lowest-ID continue-work even with duplicate titles",()=>{
+    const works=[
+      {id:"work:z",title:"Pilot QA",status:"ready"},
+      {id:"work:a",title:"Pilot QA",status:"planned"}
+    ];
+    expect(resolveCanonicalNextWork({
+      kind:"continue-work",label:"Continue: Pilot QA",blockedWorkId:null
+    },works)?.id).toBe("work:a");
+  });
+  it("resolves blocked tasks by exact ID, never an ambiguous title",()=>{
+    const works=[
+      {id:"work:z",title:"Pilot QA",status:"ready"},
+      {id:"work:a",title:"Pilot QA",status:"blocked"}
+    ];
+    expect(resolveCanonicalNextWork({
+      kind:"unblock-work",label:"Unblock: Pilot QA",blockedWorkId:"work:z"
+    },works)?.id).toBe("work:z");
+  });
+  it("refuses to invent a CMD target when label or blocked ID drift",()=>{
+    const works=[{id:"work:a",title:"Pilot QA",status:"ready"}];
+    expect(resolveCanonicalNextWork({kind:"continue-work",label:"Continue: Different",blockedWorkId:null},works)).toBeNull();
+    expect(resolveCanonicalNextWork({kind:"unblock-work",label:"Unblock: Pilot QA",blockedWorkId:"work:missing"},works)).toBeNull();
   });
   it("does not synthesize a signed runner for canonical work",()=>{
     const plan=createClickPlanCandidate(base);
