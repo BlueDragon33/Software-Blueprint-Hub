@@ -158,13 +158,13 @@ export function buildNextActionBlueprintCandidate(
       "Việc ưu tiên: " + input.actionLabel,
       "Lý do: " + input.reason,
       "Định hướng: " + direction,
-      "Bấm NEXT ACTION chỉ để xác thực lại trạng thái và mở trang làm việc đúng quyền; không tự thực thi.",
-      "Bấm NEXT ACTION để hệ thống tự dựng kế hoạch và xử lý bước an toàn trong phiên; không cần sao chép prompt.",
+      "Bấm NEXT ACTION để tự sinh kế hoạch, kiểm tra quyền và xử lý các bước chỉ đọc được phép ngay trong phiên; không cần sao chép prompt.",
+      "Bước sửa mã hoặc chạy workflow phải có runner/grant được xác minh; khi thiếu quyền, báo BLOCKED và chỉ mở workspace theo đúng dự án.",
       "Điều kiện hoàn tất: kết quả thực và QA/source readback độc lập; nếu thiếu bằng chứng, giữ UNVERIFIED."
     ]),
     nextPrompt,
     endToEndPrompt,
-    nextActionAuthority: "read-only-revalidated-navigation",
+    nextActionAuthority: "revalidated-bounded-readonly-stage",
     promptAuthority: "internal-plan-not-execution-grant"
   });
 }
