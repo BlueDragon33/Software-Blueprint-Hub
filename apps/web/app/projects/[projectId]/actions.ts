@@ -1,6 +1,6 @@
 "use server";
 
-import { createClickPlanCandidate, preflightUnifiedNextAction, analyzePastedCommandResult, recognizedCanonicalCommandId, type CommandEvidencePrompt, type VerifiedCommandTask } from "@blueprint-os/application";
+import { createClickPlanCandidate, preflightUnifiedNextAction, analyzePastedCommandResult, recognizedCanonicalCommandId, resolveCanonicalNextWork, type CommandEvidencePrompt, type VerifiedCommandTask } from "@blueprint-os/application";
 import { redirect } from "next/navigation";
 import { loadProjectWorkspace } from "../../../src/server/project-workspace";
 
@@ -125,12 +125,10 @@ export async function startGuidedNextAction(
     const works = await workspace.runtime.workQuality.listWorkPackages(workspace.actor, projectId);
     // Exact WorkPackage marker is the only source for CMD mode.
     // An arbitrary label, pasted prompt or query param cannot enable it.
-    const candidateWork = works.find(work =>
-      (latest.nextAction.kind==="continue-work" || latest.nextAction.kind==="unblock-work") &&
-      latest.nextAction.label === (latest.nextAction.kind==="continue-work"
-        ? "Continue: " : "Unblock: ") + work.title &&
-      (work.status==="ready" || work.status==="in-progress" || work.status==="blocked")
-    );
+    const candidateWork = resolveCanonicalNextWork({
+      kind:latest.nextAction.kind,label:latest.nextAction.label,
+      blockedWorkId:latest.blockedWork[0]?.id ?? null
+    },works);
     const commandId = candidateWork
       ? recognizedCanonicalCommandId(candidateWork.acceptanceCriteria) : null;
     const cmdTask: VerifiedCommandTask|null = candidateWork && commandId ? {
@@ -215,11 +213,10 @@ export async function receiveGuidedCmdResult(
   if (checked.state!=="current" || latest.nextAction.label!==displayedActionLabel)
     return {state:"REJECTED",detail:"NEXT ACTION hoặc nhiệm vụ đã thay đổi."};
   const works=await workspace.runtime.workQuality.listWorkPackages(workspace.actor,projectId);
-  const work=works.find(item =>
-    (latest.nextAction.kind==="continue-work" || latest.nextAction.kind==="unblock-work") &&
-    latest.nextAction.label === (latest.nextAction.kind==="continue-work" ? "Continue: " : "Unblock: ") + item.title &&
-    (item.status==="ready" || item.status==="in-progress" || item.status==="blocked")
-  );
+  const work=resolveCanonicalNextWork({
+    kind:latest.nextAction.kind,label:latest.nextAction.label,
+    blockedWorkId:latest.blockedWork[0]?.id ?? null
+  },works);
   if (!work || work.id!==workPackageId ||
       work.meta.recordVersion!==displayedWorkVersion)
     return {state:"REJECTED",detail:"WorkPackage hoặc phiên bản không còn khớp; kết quả cũ bị từ chối."};
