@@ -141,8 +141,11 @@ export async function startGuidedNextAction(
       readinessState:latest.state,
       evidenceFreshness:latest.evidenceSummary.freshness,
       sourceRevision:null,
-      workPackageId:cmdTask?.workPackageId ?? (
-        latest.nextAction.kind==="unblock-work"?latest.blockedWork[0]?.id:null)
+      workPackageId:candidateWork?.id ?? (
+        latest.nextAction.kind==="unblock-work"?latest.blockedWork[0]?.id:null),
+      workPackageRecordVersion:candidateWork?.meta.recordVersion ?? null,
+      workPackagePurpose:candidateWork?.purpose ?? null,
+      workPackageAcceptanceCriteria:candidateWork?.acceptanceCriteria ?? null
     },cmdTask);
     // The prompt and plan have now been generated from the fresh canonical
     // checkpoint. Execute its bounded READ stage immediately in this request.
@@ -214,7 +217,10 @@ export async function receiveGuidedCmdResult(
     projectId,profileVersion,actionKind:latest.nextAction.kind,
     actionLabel:latest.nextAction.label,reason:latest.nextAction.reason,
     readinessState:latest.state,evidenceFreshness:latest.evidenceSummary.freshness,
-    sourceRevision:null,workPackageId:work.id
+    sourceRevision:null,workPackageId:work.id,
+    workPackageRecordVersion:work.meta.recordVersion,
+    workPackagePurpose:work.purpose,
+    workPackageAcceptanceCriteria:work.acceptanceCriteria
   },{
     projectId,profileVersion,workPackageId:work.id,
     commandId:canonicalCommand,approvedPlanSource:"canonical-work-package-readonly-marker",
