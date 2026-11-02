@@ -76,4 +76,7 @@ test("GitHub CI preflight must remain PR-scoped and least-privileged",()=>{
   "\nrun: pnpm approve-builds\n","\nrun: echo ${{ secrets.CLOUDFLARE_API_TOKEN }}\n"])
    assert.throws(()=>validateAuditWorkflow(workflow+addition),/SANDBOX_PREFLIGHT_BLOCKED_/);
  assert.throws(()=>validateAuditWorkflow(workflow.replace("persist-credentials: false","persist-credentials: true")),/WORKFLOW_GITHUB_CREDENTIAL/);
+ const bad=workflow.replace("artifacts/workerd-release-parity.json\\n          rm -f",
+  "artifacts/workerd-release-parity.json\\n            artifacts/worker-sandbox-static-preflight.json\\n          rm -f");
+ assert.throws(()=>validateAuditWorkflow(bad),/WORKFLOW_RELEASE_COMMAND_UNEXPECTED|WORKFLOW_ATTEMPTED_REPORT_EXECUTION/);
 });
