@@ -37,7 +37,7 @@ The GH Action has `contents:read`, checks out without persisted credentials, run
 
 ## Independent static isolation and reviewer authority review (2026-11-02)
 
-A second, separate **static** reviewer implementation is `scripts/audit-worker-independent-isolation.mjs`, tested by `tests/governance/worker-independent-isolation-review.test.mjs`. Its [dedicated workflow](https://github.com/BlueDragon33/Software-Blueprint-Hub/blob/main/.github/workflows/worker-sandbox-independent-static.yml) uses only Node built-ins with `contents:read`; it does not install packages, execute binaries or create a container. A passing test means the **denial contract remains intact**; its report always returns `BLOCKED_MISSING_INDEPENDENT_ISOLATION_EVIDENCE`. This reviewer is technical **advisory-only**, not a human approval.
+A second, separate **static** reviewer implementation is `scripts/audit-worker-independent-isolation.mjs`, tested by `tests/governance/worker-independent-isolation-review.test.mjs`. Its [dedicated workflow](../.github/workflows/worker-sandbox-independent-static.yml) checks out the exact PR HEAD SHA (not GitHub's synthetic merge commit), uses only Node built-ins with `contents:read`; it does not install packages, execute binaries or create a container. A passing test means the **denial contract remains intact**; its report always returns `BLOCKED_MISSING_INDEPENDENT_ISOLATION_EVIDENCE`. This reviewer is technical **advisory-only**, not a human approval.
 
 **Required but absent external evidence:**
 
