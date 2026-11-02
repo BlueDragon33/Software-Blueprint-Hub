@@ -327,3 +327,4 @@ export * from "./constitution-compliance-matrix";
 
 export * from "./constitution-publication-sources";
 export * from "./unified-next-action";
+export * from "./next-action-blueprint.candidate";
