@@ -75,6 +75,7 @@ export function createClickPlanCandidate(
     if (verifiedCommandTask.projectId!==input.projectId ||
         verifiedCommandTask.profileVersion!==input.profileVersion ||
         verifiedCommandTask.workPackageId!==input.workPackageId ||
+        verifiedCommandTask.taskPlanRecordVersion!==input.workPackageRecordVersion ||
         verifiedCommandTask.approvedPlanSource!=="canonical-work-package-readonly-marker" ||
         !WORK.test(verifiedCommandTask.workPackageId) ||
         !Number.isSafeInteger(verifiedCommandTask.taskPlanRecordVersion) ||
@@ -125,11 +126,16 @@ export function analyzePastedCommandResult(
   const observations:string[]=[];
   if (command.commandId==="git-head") {
     const sha=output.trim();
-    observations.push(SHA.test(sha)?"Chuỗi có hình thức Git SHA-40; chưa xác thực nguồn chạy.":"Kết quả không có hình thức Git SHA-40.");
+    if (!SHA.test(sha)) return {accepted:false,status:"REJECTED",observations:["Git HEAD không phải SHA-40 hợp lệ."],mayCloseQualityGate:false};
+    observations.push("Chuỗi có hình thức Git SHA-40; chưa xác thực nguồn chạy.");
   } else if (command.commandId==="git-status") {
-    observations.push(output.trim()? "Có dòng trạng thái Git được cung cấp; chưa xác minh máy nguồn.":"Không có thay đổi được báo cáo.");
+    if (!/^##(?:\s|$)/.test(output.trimStart()))
+      return {accepted:false,status:"REJECTED",observations:["Đầu ra không giống git status --short --branch."],mayCloseQualityGate:false};
+    observations.push("Có dòng trạng thái Git được cung cấp; chưa xác minh máy nguồn.");
   } else {
-    observations.push(/^v\d+\.\d+\.\d+/.test(output.trim())?"Có phiên bản Node trong kết quả; chưa xác minh máy nguồn.":"Không nhận diện được phiên bản Node.");
+    if (!/^v\d+\.\d+\.\d+$/.test(output.trim()))
+      return {accepted:false,status:"REJECTED",observations:["Kết quả Node không đúng phiên bản semver."],mayCloseQualityGate:false};
+    observations.push("Có phiên bản Node trong kết quả; chưa xác minh máy nguồn.");
   }
   return {accepted:true,status:"UNVERIFIED_MANUAL_OUTPUT",observations,mayCloseQualityGate:false};
 }
