@@ -58,6 +58,9 @@ describe("R33 server-bound one-click / CMD integration candidate",()=>{
     const {readiness,workQuality}=fixture();
     const out=await startGuidedNextAction(projectId,3,"continue-work","Continue: Pilot","next");
     expect(out.generatedPlan).toBe(true);
+    expect(out.scope).toBe("next");
+    expect(out.inspectedSteps).toHaveLength(4);
+    expect(out.pendingSteps).toEqual(["Continue: Pilot"]);
     expect(out.mode).toBe("needs-cmd-result");
     expect(out.command?.displayCommand).toBe("git status --short --branch");
     expect(out.command?.workPackageRecordVersion).toBe(2);
@@ -66,6 +69,18 @@ describe("R33 server-bound one-click / CMD integration candidate",()=>{
     expect(readiness.read).toHaveBeenCalledTimes(1);
     expect(workQuality.listWorkPackages).toHaveBeenCalledTimes(1);
     expect(workQuality.listQualityGates).toHaveBeenCalledTimes(1);
+  });
+  it("end-to-end inspection enumerates real pending work rather than claiming execution",async()=>{
+    fixture();
+    const single=await startGuidedNextAction(projectId,3,"continue-work","Continue: Pilot","next");
+    const full=await startGuidedNextAction(projectId,3,"continue-work","Continue: Pilot","end-to-end");
+    expect(single.scope).toBe("next");
+    expect(single.pendingSteps).toEqual(["Continue: Pilot"]);
+    expect(full.scope).toBe("end-to-end");
+    expect(full.pendingSteps).toContain("WorkPackage work:pilot: ready — chưa tự thực thi.");
+    expect(full.title).toContain("phạm vi chỉ đọc");
+    expect(full.qaPassed).toBe(false);
+    expect(full.autoMutation).toBe(false);
   });
   it("does not show CMD when canonical task lacks marker",async()=>{
     fixture({hasCmd:false});
