@@ -75,6 +75,15 @@ describe("Vietnamese App Home semantic render and safety", () => {
     expect(markup).not.toContain("BOIECH");
     expect(markup).not.toContain('href="/ecosystem"');
   });
+  it("renders an individual icon for a permitted non-Owner project without exposing other repo tiles", () => {
+    const markup=renderToStaticMarkup(createElement(HubLauncher,{
+      projects:[homeProject],governedApps:[],canManageEcosystem:false
+    }));
+    expect(markup).toContain("🧭");
+    expect(markup).toContain('href="/projects/project%3Ablueprint-os"');
+    expect(markup).not.toContain("Chuyên gia tiếng Nga");
+    expect(markup).not.toContain("Mô phỏng CAE");
+  });
   it("renders real settings controls, preserving Vietnamese-first default", () => {
     const markup = renderToStaticMarkup(createElement(HubSettings));
     expect(markup).toContain("Tiếng Việt");
