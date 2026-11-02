@@ -26,6 +26,51 @@ The connected Neon `software-blueprint-hub` production/default branch was inspec
   `refs/heads/main`, correct GitHub repository, and Preview environment. Do not
   alter that guard or use a PR to claim real three-service success.
 
+## Owner-session verification — concrete application path (read-only)
+
+Source inspection at this candidate revision confirms:
+
+- The GitHub repository metadata lists `https://software-blueprint-hub.vercel.app` as the
+  homepage; **external runtime availability is not verified**. Confirm this is the
+  actually deployed **Blueprint Hub** connected to the intended canonical branch,
+  not Application Management or a stale preview.
+- `apps/web/app/page.tsx` links unsigned users to `/api/auth/signin`; the
+  Auth.js handler lives at `apps/web/app/api/auth/[...auth]/route.ts`.
+- `apps/web/src/auth/server-actor.ts` resolves a **server-side** Auth.js session
+  (or independently validated App-Management SSO mapping) to the persisted
+  `principalId`; do not copy or display session cookies or OAuth tokens.
+- `/constitution` uses `resolveWebActor()` and
+  `runtime.authority.canExerciseConstitutionalAuthority(actor)`.
+  **System Owner authority** is a useful read-only UI sign; seeing it is
+  **not** equivalent to an executed `PROJECT_MUTATE` assertion for P2.
+- The P2 read-only guard `inspectCanonicalPrReviewPrerequisites` now calls
+  `runtime.authority.require(actor, "project:blueprint-os", "PROJECT_MUTATE")`
+  through its `sessionAuthority` dependency *before* accessing profile,
+  Work Package, gate or issuer records. A denied/expired actor and authority
+  read errors must fail closed. The guard itself does not save records.
+- Existing `WorkQualityApplicationService.createQualityGate` and
+  `createWorkPackage` enforce `PROJECT_MUTATE` internally.
+  Existing quality workspace `/projects/<encoded-project-id>/quality`
+  displays the Quality Gate register, but a complete P2 admission creation
+  UI/action has **not** been verified; don't claim a UI button exists.
+
+### Safe, nonpersistent proposal
+
+`prepareP2PrReviewAdmissionProposal(new Date())`, exported from
+`@blueprint-os/application`, creates *in-memory* schema-validated candidates:
+
+- `work:p2-signed-pr-review-v2`: **blocked**, no inherited approvals.
+- `gate:p2-signed-pr-review-v2`: **not-ready**, empty evidence references.
+- `proposalOnly:true`, `admitted:false`, `qualityGatePassed:false`,
+  `humanApproved:false`, `productionAuthorized:false`.
+
+After separately authenticated and approved Owner admission (not before),
+the existing application service is the *only* intended write entrypoint:
+the gate must be persisted before the referencing Work Package. The app
+must also review current record IDs and `recordVersion` to prevent duplicate
+admission and honor optimistic concurrency. No direct Neon writes, no
+unauthenticated API, no draft-PR auto-create action.
+
 ## Owner-controlled admission sequence (requires separate explicit authorization)
 
 1. **Re-read state before any action.** Verify current project, main and PR SHA, database
