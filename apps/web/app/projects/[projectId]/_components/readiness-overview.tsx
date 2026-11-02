@@ -195,6 +195,7 @@ export function ReadinessOverview({
               projectId={readiness.projectId}
               profileVersion={profileVersion}
               actionKind={nextAction.actionKind}
+              actionLabel={readiness.nextAction.label}
             />
           </article>
 
