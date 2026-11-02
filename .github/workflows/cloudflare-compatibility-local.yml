@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/cloudflare-compatibility-local.yml"
       - "scripts/assess-cloudflare-worker-compat.mjs"
+      - "scripts/assess-opennext-peer-range.mjs"
       - "apps/web/**"
       - "packages/persistence/**"
       - "packages/runtime/**"
@@ -58,30 +59,20 @@ jobs:
         run: |
           set -uo pipefail
           mkdir -p ../../artifacts
-          timeout 240s pnpm dlx vinext@latest check > ../../artifacts/vinext-check.log 2>&1
+          timeout 240s pnpm dlx vinext@1.4.0 check > ../../artifacts/vinext-check.log 2>&1
           code=$?
           printf 'exit_code=%s\nstatus=%s\n' "$code" "$([ "$code" -eq 0 ] && echo CLI_CHECK_PASSED_RUNTIME_UNVERIFIED || echo CLI_CHECK_BLOCKED_OR_UNVERIFIED)" > ../../artifacts/vinext-check.status
           tail -n 75 ../../artifacts/vinext-check.log
           echo "vinext check exit: $code; Workers runtime remains UNVERIFIED"
           exit 0
-      - name: OpenNext adapter version and CLI availability check (no local config)
+      - name: Pinned OpenNext peer-range check (NO unapproved build scripts)
         shell: bash
         run: |
-          set +e
-          set -uo pipefail
-          timeout 90s npm view @opennextjs/cloudflare@latest version peerDependencies engines --json > artifacts/opennext-metadata.json 2> artifacts/opennext-metadata-error.log
-          meta=$?
-          timeout 120s pnpm dlx @opennextjs/cloudflare@latest --help > artifacts/opennext-help.log 2>&1
-          cli=$?
-          if grep -q 'ERR_PNPM_IGNORED_BUILDS' artifacts/opennext-help.log; then
-            outcome="SUPPLY_CHAIN_BUILD_SCRIPTS_BLOCKED_RUNTIME_UNVERIFIED"
-          else
-            outcome="CLI_METADATA_ONLY_RUNTIME_UNVERIFIED"
-          fi
-          printf 'metadata_exit=%s\ncli_help_exit=%s\nstatus=%s\n' "$meta" "$cli" "$outcome" > artifacts/opennext-check.status
-          echo "OpenNext metadata exit: $meta; CLI help exit: $cli; workerd runtime UNVERIFIED"
-          tail -n 35 artifacts/opennext-help.log
-          exit 0
+          set -euo pipefail
+          npm view @opennextjs/cloudflare@1.20.15 version peerDependencies engines --json > artifacts/opennext-metadata.json
+          node scripts/assess-opennext-peer-range.mjs artifacts/opennext-metadata.json artifacts/opennext-peer-evidence.json
+          echo "OpenNext CLI deliberately NOT EXECUTED: Next peer compatibility and pnpm build-script trust must be reviewed separately."
+          echo 'CLI_NOT_EXECUTED_BUILD_SCRIPTS_NOT_APPROVED' > artifacts/opennext-check.status
       - name: Assert no real runtime acceptance or deployment provenance
         shell: bash
         run: |
@@ -96,7 +87,7 @@ jobs:
             echo '### Local Cloudflare compatibility probes — not a deployed runtime'
             echo '- Source audit and current Next.js typecheck: see job steps.'
             echo '- vinext CLI: check the attached exit/status and full compatibility log.'
-            echo '- OpenNext: check metadata and CLI status (build-script policy may block).'
+            echo '- OpenNext 1.20.15: review peer-range evidence; CLI not re-run because dependency/build-script gates block.'
             echo '- Workers runtime, real Auth.js callback, SSO, Prisma/PostgreSQL TCP, signed E2E and Production: **UNVERIFIED / NOT AUTHORIZED**.'
             echo '- No site, Worker, domain, OAuth callback or canonical database was created or changed.'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -111,7 +102,6 @@ jobs:
             artifacts/vinext-check.log
             artifacts/opennext-check.status
             artifacts/opennext-metadata.json
-            artifacts/opennext-metadata-error.log
-            artifacts/opennext-help.log
+            artifacts/opennext-peer-evidence.json
           retention-days: 7
           if-no-files-found: warn
