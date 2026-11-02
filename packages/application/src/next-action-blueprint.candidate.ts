@@ -32,7 +32,7 @@ export interface NextActionBlueprintCandidate {
   readonly nextPrompt: string;
   readonly endToEndPrompt: string;
   readonly nextActionAuthority: "read-only-revalidated-navigation";
-  readonly promptAuthority: "copy-only-never-execute";
+  readonly promptAuthority: "internal-plan-not-execution-grant";
 }
 
 const canonicalProject = /^project:[a-z0-9][a-z0-9-]{0,158}$/;
@@ -150,12 +150,12 @@ export function buildNextActionBlueprintCandidate(
       "Lý do: " + input.reason,
       "Định hướng: " + direction,
       "Bấm NEXT ACTION chỉ để xác thực lại trạng thái và mở trang làm việc đúng quyền; không tự thực thi.",
-      "Prompt bước tiếp theo và prompt triển khai liên tục có thể sao chép; chỉ là nội dung đề xuất, không tự khởi chạy.",
+      "Bấm NEXT ACTION để hệ thống tự dựng kế hoạch và xử lý bước an toàn trong phiên; không cần sao chép prompt.",
       "Điều kiện hoàn tất: kết quả thực và QA/source readback độc lập; nếu thiếu bằng chứng, giữ UNVERIFIED."
     ]),
     nextPrompt,
     endToEndPrompt,
     nextActionAuthority: "read-only-revalidated-navigation",
-    promptAuthority: "copy-only-never-execute"
+    promptAuthority: "internal-plan-not-execution-grant"
   });
 }
