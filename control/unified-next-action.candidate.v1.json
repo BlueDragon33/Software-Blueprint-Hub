@@ -347,6 +347,8 @@
       "pullRequest": 153,
       "status": "implementation-review-only-real-acceptance-not-verified"
     },
-    "adoptionDefault": "NOT_ADOPTED"
+    "adoptionDefault": "NOT_ADOPTED",
+    "centralTemplate": "packages/application/src/next-action-blueprint.candidate.ts",
+    "unifiedSchemaPath": "control/unified-next-action.candidate.v1.json#nextActionBlueprint"
   }
 }
