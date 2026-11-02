@@ -9,7 +9,7 @@ const law=read("docs/amendments/CONSTITUTION-R33-R34-1.4.0-REVIEW.md");
 
 describe("R33 one-click flow and conditional CMD support",()=>{
   it("click runs server workflow instead of copying prompt",()=>{
-    expect(ui).toContain("startGuidedNextAction(projectId,profileVersion,actionKind,mode)");
+    expect(ui).toContain("startGuidedNextAction(projectId,profileVersion,actionKind,actionLabel,mode)");
     expect(guide).toContain("Không cần sao chép");
   });
   it("bounded end-to-end stays within actual authorization",()=>{
