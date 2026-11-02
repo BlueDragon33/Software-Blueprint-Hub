@@ -123,7 +123,12 @@ export async function verifyPrReviewIdentity(
   const bindingId = "sha256:" + createHash("sha256")
     .update("blueprint-os:pr-review-identity:v2\0")
     .update(prReviewIdentitySigningPayload(payload)).digest("hex");
-  if (await durableReplay.claim(bindingId, identity.expiresAt) !== true) {
+  // Atomic claim is anchored to the original v1 request, not the v2 nonce.
+  // Re-signing the same request with a different nonce must not bypass replay.
+  const replayKey = "sha256:" + createHash("sha256")
+    .update("blueprint-os:pr-review-request:v2\0")
+    .update(identity.requestId).digest("hex");
+  if (await durableReplay.claim(replayKey, identity.expiresAt) !== true) {
     deny("replay or unverified durable claim");
   }
   return Object.freeze({bindingId, identity});
