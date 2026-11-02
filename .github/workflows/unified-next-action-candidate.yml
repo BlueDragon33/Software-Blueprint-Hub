@@ -10,6 +10,10 @@ on:
       - "control/unified-next-action.candidate.v1.json"
       - "packages/runtime/src/next-action-inspection-adapter.ts"
       - "packages/runtime/src/index.ts"
+      - "packages/runtime/src/next-action-inspection-adapter.ts"
+      - "packages/runtime/src/workflow-inspection-pipeline.ts"
+      - "tests/application/prompt-workflow-inspection-pipeline.test.ts"
+      - "tests/application/prompt-workflow-operational-e2e.test.ts"
       - "tests/application/unified-next-action-execution.test.ts"
       - "tests/application/unified-next-action-binding-pg-integration.test.ts"
       - "packages/persistence/src/next-action-work-binding-repository.ts"
@@ -61,6 +65,8 @@ jobs:
           pnpm exec vitest run \
             tests/application/unified-next-action.test.ts \
             tests/application/unified-next-action-execution.test.ts \
+            tests/application/prompt-workflow-inspection-pipeline.test.ts \
+            tests/application/prompt-workflow-operational-e2e.test.ts \
             tests/application/next-action-blueprint.candidate.test.ts \
             tests/application/next-action-run-plan.candidate.test.ts \
             tests/web/r33-one-click-cmd-feedback.candidate.test.ts \
@@ -68,6 +74,7 @@ jobs:
       - name: Lint R33 scoped candidate source and regression suites
         run: |
           pnpm exec eslint packages/application/src/next-action-blueprint.candidate.ts packages/application/src/next-action-run-plan.candidate.ts \
+            packages/runtime/src/next-action-inspection-adapter.ts \
             'apps/web/app/projects/[projectId]/_components/project-next-action-runner.tsx' \
             tests/application/next-action-blueprint.candidate.test.ts tests/application/next-action-run-plan.candidate.test.ts \
             tests/web/r33-one-click-cmd-feedback.candidate.test.ts tests/web/r33-one-click-server-integration.candidate.test.ts
