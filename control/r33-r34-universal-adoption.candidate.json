@@ -258,6 +258,32 @@
       "real-work-or-missing-runner-truth"
     ],
     "inheritanceAfterHumanRatificationOnly": true,
-    "adoptionDefault": "NOT_ADOPTED"
+    "adoptionDefault": "NOT_ADOPTED",
+    "executionInteraction": {
+      "state": "review-only-not-adopted",
+      "onClick": "auto-generate-current-step-plan-and-run-scoped-available-operations",
+      "notClipboardWorkflow": true,
+      "taskAdaptation": [
+        "read-only-inspection",
+        "signed-executor-required",
+        "allowlisted-canonical-cmd-evidence",
+        "human-review-authorization"
+      ],
+      "cmdEvidence": {
+        "marker": "BLUEPRINT_CMD_READONLY:<id>",
+        "from": "canonical-WorkPackage.acceptanceCriteria",
+        "pasteBoxOnlyForCmdTasks": true,
+        "untrustedInputCannotCloseGate": true
+      },
+      "runtimeProofRequired": [
+        "authenticated-one-click-run",
+        "canonical-work-and-gate-readback",
+        "stale-role-version-fail-close",
+        "safe-CMD-input-conditional",
+        "same-session-result",
+        "no-invented-mutation-or-publish"
+      ],
+      "appStatusBeforeIndependentEvidence": "NOT_ADOPTED"
+    }
   }
 }
