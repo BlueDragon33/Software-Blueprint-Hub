@@ -207,9 +207,11 @@
       "visibleLabel": "NEXT ACTION — Tiếp tục nhiệm vụ",
       "mustBeOperableControl": true,
       "onePrimaryExecutionIntent": true,
-      "actualBehavior": "server-reauthorize-and-navigate",
+      "actualBehavior": "server-reauthorize-generate-plan-and-execute-permitted-read-stages",
       "mustNotPretendToExecuteWork": true,
-      "mustNotBeReplacedByGuideText": true
+      "mustNotBeReplacedByGuideText": true,
+      "hasConditionalCmdFeedback": true,
+      "promptsGeneratedAndConsumedInternally": true
     },
     "endToEnd": {
       "visibleLabel": "TRIỂN KHAI TỪ ĐẦU TỚI CUỐI",
@@ -232,7 +234,7 @@
         "apps/web/app/projects/[projectId]/_components/readiness-overview.tsx",
         "packages/application/src/next-action-blueprint.candidate.ts"
       ],
-      "status": "hub-implemented-review-only-not-runtime-accepted"
+      "status": "Hub-implementation-review-only-runtime-QA-unverified"
     },
     "adoptionProofs": [
       "rendered-controls-exact-head",
@@ -280,7 +282,7 @@
       {
         "id": "next-prompt",
         "title": "PROMPT NEXT ACTION",
-        "kind": "copyable-one-step",
+        "kind": "auto-generated-and-consumed-on-next-action-click",
         "required": [
           "action-kind",
           "project",
@@ -288,19 +290,24 @@
           "permission-recheck",
           "actual-step",
           "scoped-qa",
-          "one-next-action"
+          "one-next-action",
+          "no-manual-copy",
+          "one-request-bounded-execution"
         ]
       },
       {
         "id": "end-to-end-prompt",
         "title": "PROMPT TRIỂN KHAI TỪ ĐẦU TỚI CUỐI",
-        "kind": "copyable-bounded-continuation",
+        "kind": "auto-generated-continuous-scoped-plan",
         "required": [
           "reuse-known-state",
           "perform-all-permitted-steps",
           "safe-recovery",
           "independent-readback",
-          "truthful-outcome"
+          "truthful-outcome",
+          "no-manual-copy",
+          "safe-work-first",
+          "real-signed-runner-required-for-mutation"
         ]
       }
     ],
@@ -331,7 +338,9 @@
       "oneAuthorizedNextActionPrimary": true,
       "promptCopiesAreNotExecutionButtons": true,
       "unknownSHAExplicit": true,
-      "chatAndWorkInboundDirectionsSeparated": true
+      "chatAndWorkInboundDirectionsSeparated": true,
+      "promptCopiesRequired": false,
+      "clickAutomaticallyStartsPermittedStages": true
     },
     "requiredPerAppEvidence": [
       "real-current-source-HEAD",
@@ -349,6 +358,52 @@
     },
     "adoptionDefault": "NOT_ADOPTED",
     "centralTemplate": "packages/application/src/next-action-blueprint.candidate.ts",
-    "unifiedSchemaPath": "control/unified-next-action.candidate.v1.json#nextActionBlueprint"
+    "unifiedSchemaPath": "control/unified-next-action.candidate.v1.json#nextActionBlueprint",
+    "interactionModel": {
+      "status": "hub-implemented-review-only-not-live-accepted",
+      "clickBehavior": "generate-bound-plan-and-run-authorized-stages-in-same-server-request",
+      "noCopyPromptAsPrerequisite": true,
+      "noGenericChatSelfRestart": true,
+      "preplannedSources": [
+        "canonical-ProjectProfile",
+        "fresh-ProjectReadiness",
+        "canonical-WorkPackage-and-QualityGate",
+        "optional-exact-allowlisted-cmd-marker-in-WorkPackage-acceptanceCriteria"
+      ],
+      "modes": [
+        "auto-read-only",
+        "requires-granted-runner",
+        "needs-cmd-result"
+      ],
+      "cmd": {
+        "displayOnlyWhenCanonicalTaskHasExactMarker": "BLUEPRINT_CMD_READONLY:<allowlisted-id>",
+        "shell": "cmd",
+        "allowedReadOnlyIds": [
+          "git-head",
+          "git-status",
+          "node-version"
+        ],
+        "showPastedStdoutStderrInput": true,
+        "serverMustReauthorizeBeforeAcceptingOutput": true,
+        "maxOutputCharacters": 24000,
+        "neverExecutePastedText": true,
+        "neverAcceptAsIndependentQAEvidence": true,
+        "doNotStorePastedOutput": true
+      },
+      "permissions": {
+        "readOnlyStageExecutesImmediately": true,
+        "signedMutationRunnerAvailableFromThisFeature": false,
+        "unverifiedHostCannotLaunchWork": true,
+        "cannotPromoteQAOrProduction": true
+      },
+      "uiProofs": [
+        "click-triggers-server-action",
+        "plan-generated-before-scoped-check",
+        "CMD-area-only-if-registered",
+        "output-paste-is-rechecked",
+        "blocked-stays-truthful"
+      ],
+      "otherApps": "consume-Hub-owned-schema-and-implement-equivalent-contextual-UX-after-ratification"
+    }
   }
 }
