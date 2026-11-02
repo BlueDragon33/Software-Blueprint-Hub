@@ -39,23 +39,23 @@ describe("R33 centrally-sourced contextual actions — review-only", () => {
     expect(markup).not.toContain("WORK → CHAT");
   });
 
-  it("guidance toggles sections and provides inspectable two copy-only prompts", () => {
+  it("guidance toggles and explains the automatic plan without a clipboard prerequisite", () => {
     expect(guideSource).toContain("onClick={() => setOpen((current) => !current)}");
-    expect(guideSource).toContain('setPanel("next")');
-    expect(guideSource).toContain('setPanel("end-to-end")');
-    expect(guideSource).toContain('navigator.clipboard.writeText(source)');
-    expect(guideSource).toContain('readOnly');
-    expect(guideSource).toContain('aria-live="polite"');
+    expect(guideSource).toContain("KẾ HOẠCH & ĐỊNH HƯỚNG");
+    expect(guideSource).toContain("NEXT ACTION");
+    expect(guideSource).not.toContain("navigator.clipboard.writeText");
+    expect(guideSource).toContain("aria-expanded");
+    expect(guideSource).toContain("không cần sao chép");
     expect(guideSource).not.toMatch(/dispatchExecution\(|workflowExecutionJournal\.claim\(/);
   });
 
-  it("has one real NEXT ACTION revalidation form and sources prompts centrally", () => {
+  it("has one clickable NEXT ACTION runner and sources prompts centrally", () => {
     expect(source).toContain("<ProjectActionGuidance blueprint={blueprint}");
     expect(source).toContain("buildNextActionBlueprintCandidate(");
     expect(source).toContain("NEXT ACTION — {nextAction.label}");
-    expect(source).toContain("action={continueCanonicalNextAction.bind(");
-    expect(source.split("<form").length - 1).toBe(1);
-    expect(source).toContain('type="submit"');
+    expect(source).toContain("<ProjectNextActionRunner");
+    expect(source.split("<ProjectNextActionRunner").length - 1).toBe(1);
+    expect(source).not.toContain("<form action=");
   });
 
   it("never treats prompt copy as execution or invents a source HEAD", () => {
@@ -64,7 +64,7 @@ describe("R33 centrally-sourced contextual actions — review-only", () => {
     expect(contract.futureExecutor.status).toBe("not-integrated");
     expect(contract.contextualActionControls.endToEnd.whenAbsent)
       .toBe("show-truthful-disabled-or-guidance-state");
-    expect(contract.nextActionBlueprint.display.promptCopiesAreNotExecutionButtons).toBe(true);
+    expect(contract.nextActionBlueprint.interactionModel.noCopyPromptAsPrerequisite).toBe(true);
   });
 
   it("prohibits app-specific prompt constitutions and keeps adoption unverified", () => {
