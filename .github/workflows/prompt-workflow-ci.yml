@@ -23,6 +23,8 @@ on:
       - "tests/application/pr-review-identity.test.ts"
       - "packages/runtime/src/pr-review-e2e-prerequisites.ts"
       - "tests/application/pr-review-e2e-prerequisites.test.ts"
+      - "packages/application/src/pr-review-admission-proposal.ts"
+      - "tests/application/pr-review-admission-proposal.test.ts"
       - "scripts/prompt-workflow-*.mjs"
       - "tests/application/prompt-workflow-*.test.ts"
       - "tests/prompt-workflows/**"
@@ -92,5 +94,7 @@ jobs:
         run: pnpm exec vitest run tests/application/pr-review-identity.test.ts
       - name: Authenticated canonical E2E prerequisites fail-closed regression
         run: pnpm exec vitest run tests/application/pr-review-e2e-prerequisites.test.ts
+      - name: P2 admission proposal conforms to canonical Work Package and Quality Gate contracts
+        run: pnpm exec vitest run tests/application/pr-review-admission-proposal.test.ts
       - name: Vietnamese launcher, app grouping and no-invented-deployment tests
         run: pnpm exec vitest run tests/application/hub-app-directory.test.ts tests/application/appmanage-sso.test.ts
