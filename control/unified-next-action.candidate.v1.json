@@ -204,7 +204,7 @@
       "mustNotRequireExtraPermissionToReadExistingScope": true
     },
     "nextAction": {
-      "visibleLabel": "NEXT ACTION — Tiếp tục nhiệm vụ",
+      "visibleLabel": "NEXT ACTION — TỰ LẬP KẾ HOẠCH & XỬ LÝ",
       "mustBeOperableControl": true,
       "onePrimaryExecutionIntent": true,
       "actualBehavior": "server-reauthorize-generate-plan-and-execute-permitted-read-stages",
@@ -214,9 +214,9 @@
       "promptsGeneratedAndConsumedInternally": true
     },
     "endToEnd": {
-      "visibleLabel": "TRIỂN KHAI TỪ ĐẦU TỚI CUỐI",
+      "visibleLabel": "TRIỂN KHAI TỪ ĐẦU TỚI CUỐI (TRONG QUYỀN HIỆN CÓ)",
       "onlyOfferWorkingActionWhen": "authorized-scoped-runtime-bound",
-      "whenAbsent": "show-truthful-disabled-or-guidance-state",
+      "whenAbsent": "bounded-read-only-plan-run-with-explicit-runner-blocker",
       "neverSynthesizeWorkLauncher": true
     },
     "distinctSemantics": true,
@@ -403,7 +403,14 @@
         "output-paste-is-rechecked",
         "blocked-stays-truthful"
       ],
-      "otherApps": "consume-Hub-owned-schema-and-implement-equivalent-contextual-UX-after-ratification"
+      "otherApps": "consume-Hub-owned-schema-and-implement-equivalent-contextual-UX-after-ratification",
+      "expectedResultKinds": [
+        "READ_ONLY_INSPECTED",
+        "BLOCKED",
+        "STALE",
+        "UNVERIFIED_MANUAL_OUTPUT"
+      ],
+      "note": "An R34 plan is generated and inspected; mutation still needs exact-scope trusted executor, not simulated by the button."
     }
   }
 }
