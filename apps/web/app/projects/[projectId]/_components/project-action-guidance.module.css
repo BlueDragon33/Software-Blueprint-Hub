@@ -41,3 +41,17 @@
   .tabs { display: grid; grid-template-columns: minmax(0,1fr); }
   .tabs button, .copyButton { width: 100%; }
 }
+
+
+/* R33 automatic Next Action and CMD feedback, kept inside the project card. */
+.runWrap { display: grid; gap: 0.7rem; margin-top: 0.75rem; min-width: 0; }
+.runWrap > button { width: 100%; min-height: 2.8rem; white-space: normal; text-align: center; }
+.runResult { display: grid; gap: 0.45rem; padding: 0.75rem; border-radius: 0.7rem; border: 1px solid rgba(255,255,255,0.7); background: rgba(16,31,94,0.30); overflow-wrap: anywhere; }
+.runResult p, .feedback, .cmdPanel p { color: #fff; line-height: 1.6; font-size: 0.9rem; margin: 0; }
+.runResult strong, .cmdPanel label { color: #fff; }
+.cmdPanel { display: grid; gap: 0.65rem; min-width: 0; padding: 0.7rem; border: 1px solid rgba(255,255,255,0.5); border-radius: 0.7rem; }
+.cmdPanel code { display: block; overflow-x: auto; background: #fff; color: #17203e; border-radius: 0.5rem; padding: 0.7rem; }
+.cmdPanel textarea { box-sizing: border-box; width: 100%; background: #fff; color: #17203e; border-radius: 0.6rem; border: 1px solid #aeb9d3; padding: 0.75rem; resize: vertical; }
+.workflowLink { display: block; padding: 0.65rem; border: 1px solid #fff; border-radius: 0.5rem; color: #fff; overflow-wrap: anywhere; text-align: center; }
+.runWrap button:focus-visible, .workflowLink:focus-visible, .cmdPanel textarea:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.runWrap button:disabled { opacity: 0.6; cursor: not-allowed; }
