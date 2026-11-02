@@ -29,7 +29,7 @@ export interface CommandEvidencePrompt {
 /** Fixed diagnostic commands; never compile arbitrary strings from prompt/chat. */
 export const registeredReadOnlyCommands: Readonly<Record<SafeCommandId,string>> = Object.freeze({
   "git-head": "git rev-parse HEAD",
-  "git-status": "git status --porcelain=v1",
+  "git-status": "git status --short --branch",
   "node-version": "node --version"
 });
 const SHA=/^[a-f0-9]{40}$/;
