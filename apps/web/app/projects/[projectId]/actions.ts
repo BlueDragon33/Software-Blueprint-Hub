@@ -1,6 +1,6 @@
 "use server";
 
-import { createClickPlanCandidate, preflightUnifiedNextAction, analyzePastedCommandResult, type CommandEvidencePrompt } from "@blueprint-os/application";
+import { createClickPlanCandidate, preflightUnifiedNextAction, analyzePastedCommandResult, recognizedCanonicalCommandId, type CommandEvidencePrompt, type VerifiedCommandTask } from "@blueprint-os/application";
 import { redirect } from "next/navigation";
 import { loadProjectWorkspace } from "../../../src/server/project-workspace";
 
@@ -124,18 +124,36 @@ export async function startGuidedNextAction(
       workspace.runtime.workQuality.listWorkPackages(workspace.actor, projectId),
       workspace.runtime.workQuality.listQualityGates(workspace.actor, projectId)
     ]);
+    // Exact WorkPackage marker is the only source for CMD mode.
+    // An arbitrary label, pasted prompt or query param cannot enable it.
+    const candidateWork = works.find(work =>
+      (latest.nextAction.kind==="continue-work" || latest.nextAction.kind==="unblock-work") &&
+      latest.nextAction.label === (latest.nextAction.kind==="continue-work"
+        ? "Continue: " : "Unblock: ") + work.title &&
+      (work.status==="ready" || work.status==="in-progress" || work.status==="blocked")
+    );
+    const commandId = candidateWork
+      ? recognizedCanonicalCommandId(candidateWork.acceptanceCriteria) : null;
+    const cmdTask: VerifiedCommandTask|null = candidateWork && commandId ? {
+      projectId, profileVersion,workPackageId:candidateWork.id,
+      commandId,approvedPlanSource:"canonical-work-package-readonly-marker",
+      taskPlanRecordVersion:candidateWork.meta.recordVersion
+    } : null;
     const step = createClickPlanCandidate({
       projectId, profileVersion, actionKind:latest.nextAction.kind,
       actionLabel:latest.nextAction.label,reason:latest.nextAction.reason,
       readinessState:latest.state,
       evidenceFreshness:latest.evidenceSummary.freshness,
       sourceRevision:null,
-      workPackageId:latest.nextAction.kind==="unblock-work"?latest.blockedWork[0]?.id:null
-    });
+      workPackageId:cmdTask?.workPackageId ?? (
+        latest.nextAction.kind==="unblock-work"?latest.blockedWork[0]?.id:null)
+    },cmdTask);
     // Do not take CMD tasks from the client, model prompt or arbitrary
     // repository text. No trusted canonical command registry is bound here yet.
     const needsRunner = step.mode==="requires-granted-runner";
-    const detail = needsRunner
+    const detail = step.mode==="needs-cmd-result"
+      ? "Đã tự tạo kế hoạch, kiểm tra WorkPackage và tìm thấy CMD chẩn đoán chỉ đọc được khai báo trong tiêu chí nghiệm thu. Chạy lệnh trên đúng máy/checkout rồi dán kết quả; đây chưa phải QA PASS."
+      : needsRunner
       ? "Đã tự sinh kế hoạch và đọc kiểm tra trạng thái, WorkPackage và Quality Gate thật. Bước sửa/chạy tiếp cần runner và grant đúng phạm vi; nút này không tự cấp quyền."
       : "Đã tự sinh kế hoạch và thực hiện kiểm tra dữ liệu chuẩn, WorkPackage, Quality Gate trong phạm vi quyền đọc. Đây chưa phải thực thi sửa mã hay nghiệm thu sản phẩm.";
     return {
@@ -181,10 +199,30 @@ export async function receiveGuidedCmdResult(
     nextAction:latest.nextAction
   });
   if (checked.state!=="current") return {state:"REJECTED",detail:"NEXT ACTION đã thay đổi."};
-  // A trusted registry must bind the exact command to the canonical task.
-  // It is not connected yet; fail closed rather than accept user-provided
-  // command IDs as authority. The UI shows a CMD box only with such a plan.
-  void commandId;
-  void analyzePastedCommandResult;
-  return {state:"REJECTED",detail:"Chưa có CMD task được registry chuẩn phê duyệt cho checkpoint này; không nhận kết quả như bằng chứng QA."};
+  const works=await workspace.runtime.workQuality.listWorkPackages(workspace.actor,projectId);
+  const work=works.find(item =>
+    (latest.nextAction.kind==="continue-work" || latest.nextAction.kind==="unblock-work") &&
+    latest.nextAction.label === (latest.nextAction.kind==="continue-work" ? "Continue: " : "Unblock: ") + item.title &&
+    (item.status==="ready" || item.status==="in-progress" || item.status==="blocked")
+  );
+  if (!work) return {state:"REJECTED",detail:"Không còn WorkPackage liên kết."};
+  const canonicalCommand=recognizedCanonicalCommandId(work.acceptanceCriteria);
+  if (!canonicalCommand || canonicalCommand!==commandId)
+    return {state:"REJECTED",detail:"Lệnh CMD không được khai báo trong nhiệm vụ chuẩn hoặc đã thay đổi."};
+  const step=createClickPlanCandidate({
+    projectId,profileVersion,actionKind:latest.nextAction.kind,
+    actionLabel:latest.nextAction.label,reason:latest.nextAction.reason,
+    readinessState:latest.state,evidenceFreshness:latest.evidenceSummary.freshness,
+    sourceRevision:null,workPackageId:work.id
+  },{
+    projectId,profileVersion,workPackageId:work.id,
+    commandId:canonicalCommand,approvedPlanSource:"canonical-work-package-readonly-marker",
+    taskPlanRecordVersion:work.meta.recordVersion
+  });
+  if (!step.command) return {state:"REJECTED",detail:"Không có lệnh được xác minh."};
+  const analyzed=analyzePastedCommandResult(step.command,output);
+  return {
+    state:analyzed.status,
+    detail:analyzed.observations.join(" ")+" Đây là đầu ra dán thủ công, không đủ xác nhận kiểm thử hay đóng Quality Gate."
+  };
 }
