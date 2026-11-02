@@ -34,3 +34,36 @@ The GH Action has `contents:read`, checks out without persisted credentials, run
 ## Bounded future gate
 
 **LOCAL-SANDBOX-INDEPENDENT-ISOLATION-REVIEW**: inspect the proposed sandbox profile and independent reviewer authority, then *separately* decide how to prove no-egress/no-secret/CPU/memory limits without using any native Worker/adapters. If a truthful host-isolation test cannot be designed or authorized, remain BLOCKED. No host, cloud, domain, callback, canonical database, production, merge or human-approval mutation in this work.
+
+## Independent static isolation and reviewer authority review (2026-11-02)
+
+A second, separate **static** reviewer implementation is `scripts/audit-worker-independent-isolation.mjs`, tested by `tests/governance/worker-independent-isolation-review.test.mjs`. Its [dedicated workflow](https://github.com/BlueDragon33/Software-Blueprint-Hub/blob/main/.github/workflows/worker-sandbox-independent-static.yml) uses only Node built-ins with `contents:read`; it does not install packages, execute binaries or create a container. A passing test means the **denial contract remains intact**; its report always returns `BLOCKED_MISSING_INDEPENDENT_ISOLATION_EVIDENCE`. This reviewer is technical **advisory-only**, not a human approval.
+
+**Required but absent external evidence:**
+
+| Control | External proof still required | Why static policy cannot grant PASS |
+| --- | --- | --- |
+| Image | Immutable `image@sha256:...` actually pulled from authenticated source; inspected image config, root user and digest; current `imageDigest=null` | No image has been selected or independently verified |
+| Seccomp | Reviewed seccomp JSON SHA256 + default action and syscall rule review, demonstrated installed/enforced profile; current `seccompProfileSha256=null` | A string `RESTRICTIVE_PINNED_PROFILE_REQUIRED` is not a loaded kernel filter |
+| AppArmor | Named, loaded and enforcing non-`unconfined` profile + exact content provenance; currently only placeholder string | AppArmor enforcement depends on the Linux host/daemon |
+| Userns | Host rootless-daemon or mapped-user evidence, actual `uid_map` / `gid_map`, no-new-privs and capabilities after launch | Container UID 65532 is **not** proof that the daemon is rootless or the host UID is remapped |
+| Network | Actual independent no-egress/no-DNS probe, no inherited proxy or service binding, only loopback | `network: none` is a design assertion until the runtime enforces it |
+| Secrets | Process environment and /proc/mount inspection in a separately approved safe sandbox; no token/cookie/.env/SSH/Docker socket | `envAllowlist` does not prove the host did not inject secrets |
+| Storage | Actual rootfs read-only, ephemeral noexec tmpfs, no host mounts, cleanup proof | Config alone cannot prove mount enforcement or artifact removal |
+| Resources | cgroup v2 cpu.max, memory.max, pids.max + observed kill/timeout; separate disk quota evidence | JSON CPU/RAM/disk/time limits do not automatically enforce themselves |
+| Source/provenance | Actual execution HEAD and independent image/profile signature or reproducible source validation | Recorded baseline is historical review evidence, never execution authorization |
+| Reviewer | Real GitHub identity/permission, exact-head submitted review and constitutional scope of authority | Advisory QA, bot comments and static test success cannot approve a security/Production gate |
+
+**Read-only repository observation at original review HEAD `2a0af7a9077a463764cb8b27b08ff70bfd568284`:** Hub PR #154 had zero submitted reviews, zero requested reviewers and remained Draft. No CODEOWNERS file was found in the inspected Hub tree. GitHub branch-protection inspection was rejected with HTTP 403 by integration; hence whether `main` has required-review protection is **UNKNOWN**, not disabled or satisfied. GitHub Docs explain that Draft PRs do not automatically request Code Owner reviews, required review rules apply to authorized reviewers and PR authors cannot approve their own PRs. Do not fabricate reviewer accounts or mutate protection settings to satisfy the gate.
+
+External technical references reviewed:
+- https://docs.docker.com/engine/security/rootless/ — rootless daemon and rootless container vs userns-remap are different
+- https://docs.docker.com/engine/security/userns-remap/
+- https://docs.docker.com/engine/network/drivers/none/ — loopback with no external network
+- https://docs.docker.com/engine/security/seccomp/ and https://docs.docker.com/engine/security/apparmor/
+- https://docs.github.com/en/pull-requests/reference/pull-requests — Draft reviewers
+- https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches
+
+**Disposition:** `STATIC_DENY_CONTRACT=VERIFIED` only where exact-head CI actually passed; `INDEPENDENT_HUMAN_REVIEW=BLOCKED`; `RUNTIME_HOST_ISOLATION=UNVERIFIED`; `BUILD_SCRIPTS=DENIED`; `WORKER_RUNTIME=NOT_RUN`. Passing independent static checks does **not** change the authorization state.
+
+**One subsequent bounded task: `ISOLATION-REVIEWER-AUTHORITY-EVIDENCE`** — verify the actual reviewer/branch-protection authority through authorized read-only repository access and evaluate independently attested image/seccomp/AppArmor provenance *only when supplied*. No execution, deployment, review impersonation or automatic change of gates.
