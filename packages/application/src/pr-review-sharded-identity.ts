@@ -8,7 +8,8 @@ import {createHash, createPublicKey, verify} from "node:crypto";
 const DIGEST=/^sha256:[a-f0-9]{64}$/;
 const SHA=/^[a-f0-9]{40}$/;
 const REPO=/^BlueDragon33\/[A-Za-z0-9_.-]+$/;
-const PATH=/^[A-Za-z0-9_./-]{2,240}$/;
+const PATH=/^[A-Za-z0-9_[\]./-]{2,240}$/;
+const SEGMENT=/^(?:[A-Za-z0-9_.-]+|\[[A-Za-z][A-Za-z0-9]*\])$/;
 const record=(x:unknown): x is Record<string,unknown> =>
  x!==null&&typeof x==="object"&&!Array.isArray(x);
 const fail=(reason:string):never=>{throw new Error("PR_REVIEW_V3_BLOCKED: "+reason);};
@@ -16,7 +17,7 @@ const need=(ok:unknown,reason:string):void=>{if(!ok)fail(reason);};
 const digest=(domain:string,value:string):string=>"sha256:"+createHash("sha256")
  .update(domain+"\0").update(value).digest("hex");
 const pathOk=(p:unknown):p is string=>typeof p==="string"&&PATH.test(p)&&
- p.split("/").every(x=>x!==""&&x!=="."&&x!=="..");
+ p.split("/").every(x=>x!==""&&x!=="."&&x!==".."&&SEGMENT.test(x));
 const compare=(a:string,b:string)=>a<b?-1:a>b?1:0;
 function canonical(x:unknown):unknown{
  if(Array.isArray(x))return x.map(canonical);
