@@ -55,3 +55,13 @@
 .workflowLink { display: block; padding: 0.65rem; border: 1px solid #fff; border-radius: 0.5rem; color: #fff; overflow-wrap: anywhere; text-align: center; }
 .runWrap button:focus-visible, .workflowLink:focus-visible, .cmdPanel textarea:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .runWrap button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Context-specific one-click Action support, no fake execution UI. */
+.assistPanel { display: grid; gap: 0.45rem; min-width: 0; margin-top: 0.35rem;
+  padding: 0.8rem; border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 0.7rem; background: rgba(16,31,94,0.27);
+  overflow-wrap: anywhere; }
+.assistPanel strong, .assistPanel p, .assistPanel li { color: #fff; }
+.assistPanel p { margin: 0; line-height: 1.55; }
+.assistPanel ul { margin: 0; padding-left: 1.25rem; }
+.assistPanel li + li { margin-top: 0.35rem; }
