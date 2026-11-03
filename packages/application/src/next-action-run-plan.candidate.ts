@@ -168,3 +168,88 @@ export function analyzePastedCommandResult(
   }
   return {accepted:true,status:"UNVERIFIED_MANUAL_OUTPUT",observations,mayCloseQualityGate:false};
 }
+
+
+/**
+ * R33.10 proposal: context-adaptive Action assistant. Only an authenticated
+ * server reader may supply its canonical WorkPackage/Gate input. This is a
+ * bounded recommendation over that read, never an execution command/grant.
+ * Untrusted acceptance criteria stay display DATA, not interpreted as shell.
+ */
+export type ContextualActionFocus="quality-gate"|"work-package"|"release";
+export interface ContextualActionAssistance {
+  readonly actionId:string;
+  readonly focus:ContextualActionFocus;
+  readonly currentTask:string;
+  readonly whySelected:string;
+  readonly targetId:string|null;
+  readonly targetRecordVersion:number|null;
+  readonly workStatus:string|null;
+  readonly evidenceChecklist:readonly string[];
+  readonly stopRule:string;
+  readonly mayApprove:false;
+  readonly mayExecuteMutation:false;
+}
+export function buildContextualActionAssistance(input:Readonly<{
+  projectId:string;
+  profileVersion:number;
+  actionKind:NextActionBlueprintInput["actionKind"];
+  actionLabel:string;
+  reason:string;
+  work:Readonly<{
+    id:string;title:string;status:string;
+    purpose:string;acceptanceCriteria:readonly string[];
+    meta:Readonly<{recordVersion:number}>;
+  }>|null;
+  gate:Readonly<{id:string;name:string;status:string;evidenceCount:number}>|null;
+}>):ContextualActionAssistance {
+  if(!/^project:[a-z0-9][a-z0-9-]{0,158}$/.test(input.projectId)||
+     !Number.isSafeInteger(input.profileVersion)||input.profileVersion<1||
+     typeof input.reason!=="string"||!input.reason.trim()||
+     typeof input.actionLabel!=="string"||!input.actionLabel.trim()) {
+    throw new TypeError("Canonical context required for contextual Action assistance");
+  }
+  const action=input.actionKind;
+  const isWork=action==="continue-work"||action==="unblock-work";
+  const isRelease=action==="verify-release";
+  if(isWork&&(!input.work||(
+    input.actionLabel!==(action==="continue-work"?"Continue: ":"Unblock: ")+input.work.title
+  )))throw new TypeError("Selected WorkPackage mismatch");
+  if(!isWork&&!isRelease&&!input.gate) {
+    // Missing gate record is itself the canonical blocker in define-gate.
+    if(action!=="define-gate")throw new TypeError("Selected Quality Gate mismatch");
+  }
+  const focus:ContextualActionFocus=isRelease?"release":isWork?"work-package":"quality-gate";
+  const task=input.work;
+  const gate=input.gate;
+  const evidenceChecklist=isWork
+    ? (task!.acceptanceCriteria.length
+      ? task!.acceptanceCriteria.slice(0,4).map(x=>"Tiêu chí WorkPackage: "+x.slice(0,320))
+      : ["WorkPackage chưa ghi tiêu chí nghiệm thu; phải bổ sung qua quyền hợp lệ."])
+    : isRelease
+      ? ["SHA nguồn do kênh tin cậy xác minh; chứng cứ QA độc lập và quyết định release phù hợp."]
+      : action==="define-gate"
+        ? ["Tạo Quality Gate chuẩn đúng ID trước khi nghiệm thu; chưa tự tạo hoặc PASS."]
+        : ["Bằng chứng gắn với Quality Gate, SHA tin cậy và kết luận reviewer có thẩm quyền."];
+  const targetId=isWork?(task?.id??null):isRelease?null:(gate?.id??null);
+  const targetRecordVersion=isWork?(task?.meta.recordVersion??null):null;
+  const steps=Object.freeze([
+    ...evidenceChecklist,
+    "Đọc lại checkpoint và kiểm tra quyền trước mọi hành động thay đổi trạng thái."
+  ]);
+  return Object.freeze({
+    actionId:action,
+    focus,
+    currentTask:input.actionLabel.slice(0,500),
+    whySelected:input.reason.slice(0,500),
+    targetId,targetRecordVersion,
+    workStatus:isWork?(task?.status??null):isRelease?null:(gate?.status??"missing"),
+    evidenceChecklist:steps,
+    stopRule:isWork
+      ? "Nếu thiếu scoped runner, grant đã ký, phiên bản nguồn hoặc quyền PROJECT_MUTATE: giữ BLOCKED."
+      : isRelease
+        ? "Chưa phê chuẩn release hoặc Production chỉ từ dữ liệu đọc/CI; cần human authority."
+        : "Không tự tạo/chỉnh Quality Gate, ghi PASS hoặc giả mạo review bằng nút Action.",
+    mayApprove:false,mayExecuteMutation:false
+  });
+}
