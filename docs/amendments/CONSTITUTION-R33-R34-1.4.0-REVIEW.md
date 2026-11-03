@@ -4,7 +4,7 @@ Repository: BlueDragon33/Software-Blueprint-Hub
 Base dependency: PR #152, head b06d93704b088319e1cc8b26161f0b4dc217858e
 Sealed active constitutional baseline: cd01fb3c2178393628ce968af209db082227d2c4
 Effective policy: 1.3.0 R1–R32. Proposed: 1.4.0 R33–R34.
-Disposition: CHANGES_REQUIRED; NOT_RATIFICATION_READY; NOT_PUBLISHED.
+Disposition: TECHNICAL_PATCH_REPLAY_PASS; REVIEW_BLOCKED; NOT_RATIFICATION_READY; NOT_PUBLISHED.
 This is a review proposal, never a self-approved constitutional amendment or execution grant.
 
 ## Proposed 10.R33 — universal controls, directional handoff and inheritance
@@ -119,4 +119,11 @@ Maintain a single 18-app adoption matrix; start with the Hub pilot and validate 
 
 ## ONE next engineering action
 
-Create and execute a version-aware 1.4.0 eight-source candidate verifier on a clean, isolated exact commit, with sealed blob indexes, native strict replay/rollback, digest and historical record preservation. Then request a genuine human impact/compatibility review. Do not ratify or publish in this PR.
+Obtain a substantive, separately authorized reviewer decision on the exact pinned 1.4.0 eight-source candidate patch, the Action pilot, compatibility/semantic-version classification and rollout gates. Authorize a canonical human ratification only after genuine reviewer evidence and an authenticated Owner session; until then never publish or propagate.
+
+## Technical preparation checkpoint — November 3, 2026 (not ratification)
+
+- Draft Hub PR #153: Next Action now includes typed, canonical Quality Gate/WorkPackage/release assistance, task-specific evidence checklist, explicit stop rules and the existing guarded CMD feedback; **not** an arbitrary code executor. Latest isolated candidate CI at source `1cdf9a1d776f4a7867f1e645cc556744bd748fb8`: focused Vitest **113/113 PASS**, disposable PostgreSQL binding PASS, Chromium **5/5 PASS with synthetic QA sessions**, Development Fast CI PASS and Central Prompt Workflow CI PASS. These are not real OAuth Owner/Viewer acceptance or signed mutation.
+- New `scripts/prepare-constitution-1.4-candidate.mjs` computes all eight authority-source changes on a scratch copy of active 1.3.0; preserves three historical snapshot records byte-for-byte except the top-level version, emits a full source patch with verified Git blob indexes and tests native apply/reverse. The strict `applyConstitutionPublicationPatch` parser and synthetic authority-set attestation also pass. [CI #41676334206](https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/41676334206): **6/6 PASS**, patch artifact retained for independent review. No active source, Production state or constitutional publication was written.
+- Explicit next gate: independent semantic and compatibility reviewer verifies v1.4.0 versus possible MAJOR classification and requirement mapping, genuine app/Owner browser acceptance, signed exact-source reviewer authority and protected main/approval enforcement. Until every gate is evidenced, **DRAFT / REVIEW_BLOCKED / NOT_RATIFIED / NOT_PUBLISHED**.
+- Adoption registry contains 18 app entries with R33/R34 adoption state **NOT_ADOPTED** (18/18). Hub is the only technical pilot; do not represent proposal generation or candidate QA as ecosystem-wide propagation. Three private execution services remain infrastructure.
