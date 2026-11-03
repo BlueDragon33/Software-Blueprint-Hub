@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {createHash} from "node:crypto";
+import {stripTypeScriptTypes} from "node:module";
 import {
  buildConstitution14Candidate,buildConstitution14Patch,
  testConstitution14Patch,CONSTITUTION_14_PATHS
@@ -74,4 +75,20 @@ test("truncated patch or changed original bytes fail closed without touching rea
  assert.throws(()=>testConstitution14Patch(altered,patch),/BLOCKED/);
  assert.equal(readFileSync(CONSTITUTION_14_PATHS[0],"utf8"),
   candidate.current.get(CONSTITUTION_14_PATHS[0]));
+});
+
+test("canonical 1.3 eight-source strict publication replay accepts proposed 1.4 only as a synthetic attestation",async()=>{
+ const source=readFileSync("packages/application/src/constitution-publication-sources.ts","utf8");
+ const js=stripTypeScriptTypes(source,{mode:"strip"});
+ const canonical=await import("data:text/javascript;base64,"+Buffer.from(js).toString("base64"));
+ assert.deepEqual([...canonical.constitutionPublicationPaths],CONSTITUTION_14_PATHS);
+ const before=Object.fromEntries(candidate.current);
+ const output=canonical.applyConstitutionPublicationPatch(before,patch);
+ assert.deepEqual(output,Object.fromEntries(candidate.proposed));
+ const attestation=canonical.attestConstitutionAuthoritySources(output,
+  "a".repeat(40),"DISPOSABLE_SYNTHETIC_QA_ONLY");
+ assert.equal(attestation.policyVersion,"1.4.0");
+ assert.equal(attestation.productionReleaseAuthority,false);
+ assert.equal(attestation.components.length,4);
+ assert.match(attestation.authoritySetDigest,/^sha256:[a-f0-9]{64}$/);
 });
