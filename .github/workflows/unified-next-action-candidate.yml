@@ -27,6 +27,7 @@ on:
       - "apps/web/app/projects/[projectId]/_components/project-action-guidance.tsx"
       - "tests/application/next-action-blueprint.candidate.test.ts"
       - "tests/application/next-action-run-plan.candidate.test.ts"
+      - "tests/application/next-action-assistance.candidate.test.ts"
       - "tests/web/r33-one-click-cmd-feedback.candidate.test.ts"
       - "tests/web/r33-one-click-server-integration.candidate.test.ts"
       - "tests/e2e/r33-next-action-browser.pw.ts"
@@ -69,6 +70,7 @@ jobs:
             tests/application/prompt-workflow-operational-e2e.test.ts \
             tests/application/next-action-blueprint.candidate.test.ts \
             tests/application/next-action-run-plan.candidate.test.ts \
+            tests/application/next-action-assistance.candidate.test.ts \
             tests/web/r33-one-click-cmd-feedback.candidate.test.ts \
             tests/web/r33-one-click-server-integration.candidate.test.ts
       - name: Lint R33 scoped candidate source and regression suites
@@ -77,6 +79,7 @@ jobs:
             packages/runtime/src/next-action-inspection-adapter.ts \
             'apps/web/app/projects/[projectId]/_components/project-next-action-runner.tsx' \
             tests/application/next-action-blueprint.candidate.test.ts tests/application/next-action-run-plan.candidate.test.ts \
+            tests/application/next-action-assistance.candidate.test.ts \
             tests/web/r33-one-click-cmd-feedback.candidate.test.ts tests/web/r33-one-click-server-integration.candidate.test.ts
       - name: Read-only local E2E authority provenance preflight regression (no credentials)
         run: node --test tests/tooling/local-e2e-authority-preflight.test.mjs
