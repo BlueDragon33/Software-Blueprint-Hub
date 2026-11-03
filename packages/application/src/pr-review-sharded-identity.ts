@@ -94,6 +94,7 @@ export interface SignedPrReviewV3Manifest extends PrReviewV3ManifestPayload{
 export interface PrReviewV3ShardPayload extends PrReviewV3Shard {
  readonly schemaVersion:"3.0.0";readonly kind:"signed-pr-review-shard";
  readonly manifestDigest:string;readonly requestId:string;
+ readonly inspectionRequestId:string;
  readonly repository:string;readonly pullRequestNumber:number;
  readonly baseSha:string;readonly headSha:string;
 }
@@ -103,12 +104,14 @@ export interface SignedPrReviewV3Shard extends PrReviewV3ShardPayload{
 export const prReviewV3ManifestDigest=(payload:PrReviewV3ManifestPayload):string=>
  digest("blueprint-os:pr-review-manifest:v3",prReviewV3SigningBytes(payload).toString("utf8"));
 export function prReviewV3ShardPayload(
- payload:PrReviewV3ManifestPayload,shard:PrReviewV3Shard
+ payload:PrReviewV3ManifestPayload,shard:PrReviewV3Shard,
+ inspectionRequestId:string
 ):PrReviewV3ShardPayload{
  return {
   schemaVersion:"3.0.0",kind:"signed-pr-review-shard",
   manifestDigest:prReviewV3ManifestDigest(payload),
-  requestId:payload.requestId,repository:payload.repository,
+  requestId:payload.requestId,inspectionRequestId,
+  repository:payload.repository,
   pullRequestNumber:payload.pullRequestNumber,
   baseSha:payload.baseSha,headSha:payload.headSha,
   index:shard.index,paths:[...shard.paths],
@@ -126,7 +129,7 @@ export interface PrReviewV3Expectation{
 const rootKeys=["schemaVersion","kind","requestId","projectId","repository",
  "pullRequestNumber","baseSha","headSha","workflowDigest","canonicalDigest",
  "policyVersion","nonce","issuedAt","expiresAt","files","shards","signature"];
-const shardKeys=["schemaVersion","kind","manifestDigest","requestId","repository",
+const shardKeys=["schemaVersion","kind","manifestDigest","requestId","inspectionRequestId","repository",
  "pullRequestNumber","baseSha","headSha","index","paths","patchBytes","diffDigest","signature"];
 function exact(x:unknown,keys:readonly string[]):x is Record<string,unknown>{
  return record(x)&&Object.keys(x).length===keys.length&&keys.every(k=>Object.hasOwn(x,k));
@@ -195,12 +198,17 @@ export async function verifySignedPrReviewV3(
  const {signature,...payload}=r;
  need(signatureOk(payload,signature,key),"invalid root signature");
  const proof=prReviewV3ManifestDigest(payload);
+ const inspectionRequests=new Set<string>();
  for(let i=0;i<scope.shards.length;i++){
   const child=children[i];
   need(exact(child,shardKeys),"missing or malformed signed shard");
   const actual=child as unknown as SignedPrReviewV3Shard;
   const {signature:sig,...childPayload}=actual;
-  const expectedPayload=prReviewV3ShardPayload(payload,scope.shards[i]!);
+  need(DIGEST.test(actual.inspectionRequestId)&&
+   !inspectionRequests.has(actual.inspectionRequestId),
+   "missing/duplicated signed v1 inspection request ID");
+  inspectionRequests.add(actual.inspectionRequestId);
+  const expectedPayload=prReviewV3ShardPayload(payload,scope.shards[i]!,actual.inspectionRequestId);
   need(JSON.stringify(canonical(childPayload))===
    JSON.stringify(canonical(expectedPayload)),"shard scope/index/root mismatch");
   need(actual.manifestDigest===proof&&signatureOk(childPayload,sig,key),
