@@ -118,6 +118,7 @@
     "fallback"
   ],
   "nextActionFields": [
+    "kind",
     "actionId",
     "targetTaskId",
     "projectId",
@@ -125,8 +126,10 @@
     "ownerType",
     "selectionReason",
     "expectedEvidence",
-    "blockedByIfPartial",
-    "previousActionIdAndNewEvidenceIfRepeated"
+    "blockedBy",
+    "requiresHuman",
+    "previousActionId",
+    "newEvidenceIds"
   ],
   "deployment": {
     "sourceOnlyDraft": true,
@@ -155,6 +158,34 @@
     "proposalMustReconcileBeforeRatification": true,
     "terminalOutcomeEnumAlignedWithR34": true,
     "r34NextActionRequiredProofsAligned": true,
-    "noDuplicateConstitutionalAuthority": true
-  }
+    "noDuplicateConstitutionalAuthority": true,
+    "verifiedAgainstR34GatePath": "packages/application/src/r34-next-action-gate.candidate.mjs",
+    "packetFieldNamesAreR34GateCompatible": true
+  },
+  "nextActionRequiredFields": [
+    "kind",
+    "actionId",
+    "targetTaskId",
+    "projectId",
+    "sourceRevision",
+    "ownerType",
+    "selectionReason",
+    "expectedEvidence"
+  ],
+  "nextActionConditionalFields": {
+    "onPartial": [
+      "blockedBy"
+    ],
+    "onHumanAuthorization": [
+      "requiresHuman"
+    ],
+    "onRepeatedSameAction": [
+      "previousActionId",
+      "newEvidenceIds"
+    ]
+  },
+  "r34SemanticProofObligations": [
+    "blockedByIfPartial",
+    "previousActionIdAndNewEvidenceIfRepeated"
+  ]
 }
