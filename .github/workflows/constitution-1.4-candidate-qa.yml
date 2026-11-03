@@ -5,9 +5,12 @@ on:
       - "docs/amendments/CONSTITUTION-R33-R34-1.4.0-REVIEW.md"
       - "scripts/prepare-constitution-1.4-candidate.mjs"
       - "tests/tooling/constitution-1.4-proposal.test.mjs"
+      - "scripts/constitution-1.4-publication-readiness.mjs"
+      - "tests/tooling/constitution-1.4-publication-readiness.test.mjs"
       - ".github/workflows/constitution-1.4-candidate-qa.yml"
 permissions:
   contents: read
+  pull-requests: read
 jobs:
   isolated-authority-source-replay:
     runs-on: ubuntu-24.04
@@ -27,11 +30,19 @@ jobs:
         run: node --test tests/tooling/constitution-1.4-proposal.test.mjs
       - name: Generate inspectable eight-source v1.4.0 proposal patch in artifacts only
         run: node scripts/prepare-constitution-1.4-candidate.mjs --write-candidate artifacts/constitution-1.4-CANDIDATE.patch
-      - name: Preserve proposed patch for independent reviewer (not publication)
+      - name: Publication fail-closed governance tests (never a grant)
+        run: node --test tests/tooling/constitution-1.4-publication-readiness.test.mjs
+      - name: Record live GitHub publication blockers for exact PR source
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/constitution-1.4-publication-readiness.mjs --json artifacts/constitution-1.4-publication-readiness.json
+      - name: Preserve proposed patch and blocker receipt for independent reviewer (not publication)
         uses: actions/upload-artifact@v7
         with:
           name: constitution-1.4-proposal-${{ github.event.pull_request.head.sha }}
-          path: artifacts/constitution-1.4-CANDIDATE.patch
+          path: |
+            artifacts/constitution-1.4-CANDIDATE.patch
+            artifacts/constitution-1.4-publication-readiness.json
           if-no-files-found: error
           retention-days: 7
       - name: Block all authority transitions
