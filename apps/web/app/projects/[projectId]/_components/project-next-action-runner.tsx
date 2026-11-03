@@ -50,8 +50,23 @@ export function ProjectNextActionRunner({
         result.command.workPackageId,result.command.workPackageRecordVersion,commandOutput
       );
       setCmdStatus(response.detail);
-      // Keep rejected text for correction; accepted text is not durable QA evidence.
-      if (response.state==="UNVERIFIED_MANUAL_OUTPUT") setCommandOutput("");
+      // Keep rejected text for correction. Accepted output is still untrusted:
+      // discard it, then independently re-read the canonical checkpoint.
+      // Never interpret pasted text as an issuer grant or Quality Gate PASS.
+      if (response.state==="UNVERIFIED_MANUAL_OUTPUT") {
+        setCommandOutput("");
+        const refreshed = await startGuidedNextAction(
+          projectId,profileVersion,actionKind,actionLabel,"next"
+        );
+        setResult(refreshed);
+        setCmdStatus(response.detail + (
+          refreshed.state==="STALE"
+            ? " Checkpoint đã thay đổi; cần tải lại trước khi tiếp tục."
+            : refreshed.state==="BLOCKED"
+              ? " Đã kiểm tra lại: bước tiếp theo vẫn bị chặn bởi điều kiện/quyền hiện hành."
+              : " Đã đọc lại checkpoint từ nguồn chuẩn. Kết quả CMD thủ công không đóng Quality Gate."
+        ));
+      }
     } catch {
       setCmdStatus("Không thể xác minh đầu ra. Không đóng Quality Gate.");
     } finally { inFlight.current=false; setBusy(false); }
