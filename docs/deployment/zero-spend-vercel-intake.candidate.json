@@ -205,7 +205,8 @@
     "Do not claim CI PASS, independent review, a deployed URL or active Vercel integration.",
     "Only the requested Bauman-Russian-iOS web companion is prioritized, not the native iOS target. The previous three Hobby candidates are now dormant until a real continuous browser-test need exists.",
     "Hobby private-repo Git collaboration limitations and bot-authored commits must be checked before import; do not claim deployment success.",
-    "2026-11-03: Verified Vercel Hobby account/team and GitHub namespace; created isolated Bauman source guard branch with git.deploymentEnabled=false and 2/2 byte-identical local Node tests. Does not authorize import/deploy."
+    "2026-11-03: Verified Vercel Hobby account/team and GitHub namespace; created isolated Bauman source guard branch with git.deploymentEnabled=false and 2/2 byte-identical local Node tests. Does not authorize import/deploy.",
+    "2026-11-03: source-only reviewer admission now at Bauman HEAD a7893c8e; formal PR reviews absent, private repo Rulesets 403, reviewer not nominated, offline packet prepared without granting collaborator WRITE."
   ],
   "goal": "Use Vercel only when an eligible web/PWA feature requires repeated browser/device Preview testing; never automatically use Vercel for all repositories.",
   "continuousPreviewCriteria": {
@@ -256,11 +257,15 @@
       "Vercel account/team Hobby readback VERIFIED. Bauman Vercel import/Preview URL/deployed runtime still NOT VERIFIED."
     ],
     "mode": "GUARDED_SOURCE_ONLY_PREVIEW_NOT_AUTHORIZED",
-    "nextAction": "Independent reviewer checks the isolated guarded source, unresolved private-repo rights/media and manual-only protected Preview admission before any Vercel import or deployment.",
+    "nextAction": "Owner nominates a real independent reviewer to inspect bounded offline source packet; never grant WRITE access without informed approval; review remains advisory unless authorized formal verification exists.",
     "zeroSpendGuardBranch": "candidate/bauman-web-vercel-zero-spend-preflight-20261103",
-    "guardBranchHeadSha": "90cadef8dbb130e6dc112668be97fa1341ddb153",
+    "guardBranchHeadSha": "a7893c8eacd49b63ef14febd4261670c794cb65c",
     "guardConfig": "web/russian-daily-standalone/vercel.json",
-    "sourcePolicyTests": "2/2 local Node policy tests PASS on byte-identical blobs; full web/iPhone runtime NOT TESTED"
+    "sourcePolicyTests": "2/2 local Node policy tests PASS on byte-identical blobs; full web/iPhone runtime NOT TESTED",
+    "reviewerStatus": "NO_REAL_INDEPENDENT_REVIEWER_ASSIGNED_OR_APPROVED",
+    "sourceReviewStatus": "SOURCE_STATIC_TEST_2_OF_2_PASS_FORMAL_REVIEW_BLOCKED",
+    "privatePersonalRepoCollaboratorCaveat": "GitHub private personal-account repository collaborators have WRITE, not READ-only access; do not invite automatically.",
+    "rightsStatus": "MILK_DEMO_ITEM_RIGHTS_UNVERIFIED_RU03_DEMO_ONLY"
   },
   "vercelReadback": {
     "date": "2026-11-03",
