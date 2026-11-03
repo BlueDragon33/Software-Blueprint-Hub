@@ -23,8 +23,19 @@ describe("R33 one-click flow and conditional CMD support",()=>{
     expect(ui).toContain("Đã thực hiện");
     expect(ui).toContain("Chưa thực hiện / chờ điều kiện");
     expect(ui).toContain('result.state==="STALE"');
-    expect(ui).toContain('if (response.state==="UNVERIFIED_MANUAL_OUTPUT") setCommandOutput("")');
+    expect(ui).toContain('if (response.state==="UNVERIFIED_MANUAL_OUTPUT") {');
+    expect(ui).toContain('setCommandOutput("")');
     expect(ui).toContain("inFlight.current");
+  });
+  it("CMD analysis auto-rechecks canonical checkpoint without granting QA PASS",()=>{
+    expect(ui).toContain('const refreshed = await startGuidedNextAction(');
+    expect(ui).toContain('projectId,profileVersion,actionKind,actionLabel,"next"');
+    expect(ui).toContain("setResult(refreshed)");
+    expect(ui).toContain('refreshed.state==="STALE"');
+    expect(ui).toContain('refreshed.state==="BLOCKED"');
+    expect(ui).toContain("Kết quả CMD thủ công không đóng Quality Gate");
+    expect(ui).toContain('if (response.state==="UNVERIFIED_MANUAL_OUTPUT") {');
+    expect(actions).toContain("state:analyzed.status");
   });
   it("server rechecks current project and action",()=>{
     expect(actions).toContain("loadProjectWorkspace(encodeURIComponent(projectId))");
