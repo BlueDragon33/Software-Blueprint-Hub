@@ -1,46 +1,57 @@
-# ZERO-SPEND Vercel intake — Blueprint OS 1.3.0
+# ZERO-SPEND Vercel on-demand browser Preview — Blueprint OS 1.3.0
 
 **Status:** SOURCE-ONLY CANDIDATE · Vercel account NOT CONNECTED · NO BUILD · NO PREVIEW · NO PRODUCTION · NO BILLING AUTHORITY.
-Date: 2026-11-03. Hub main inspected SHA `cd01fb3c2178393628ce968af209db082227d2c4`.
+Date: 2026-11-03. Hub baseline inspected SHA `cd01fb3c2178393628ce968af209db082227d2c4`.
 
-## Objective
+## Owner decision (2026-11-03)
 
-Keep ChatGPT + GitHub Free as the editing path. Consider Vercel **Hobby only** as an optional Preview host for eligible personal, non-commercial web projects. Preserve all existing Cloudflare and offline/local-native services. Never make Vercel a required dependency of Blueprint OS.
+Vercel is **NOT a default hosting provider for the ecosystem**. Use **Vercel Hobby only on demand** for a real task that requires repeated browser/device UI testing and cannot reasonably be completed with current free/local/Cloudflare preview. This is a proposal/eligibility policy, not a release authorization.
 
-Structured 22-repository inventory: [`zero-spend-vercel-intake.candidate.json`](zero-spend-vercel-intake.candidate.json). Decisions reflect read-only default-branch source inspection, not end-to-end hosting tests.
+- Only web/PWA surfaces are candidates; native iOS, WidgetKit, Windows desktop, server workers and D1/R2 systems remain in their existing environments.
+- All existing Cloudflare URLs/slugs, data owners, Workers/D1/R2, Production and manual release policies remain unchanged.
+- Github branch/PR/commit do not imply permission to deploy. The current policy is **zero Vercel imports, zero deployments, zero spend** until eligibility is independently verified.
+- Billing: **no card, no Pro, no trial, no upgrade, no paid add-on, no paid domain**; any paid requirement means STOP/SKIP. Hobby is for **personal, non-commercial** use only.
+- Git auto deploy is **disabled by default** for any future experiment, including Preview. Vercel's default Git integration can automatically deploy Production from main. A `git.deploymentEnabled: false` config, or independently verified equivalent, must be in place **before importing or enabling Git integration**. Do not rely on an unreviewed setting or a claim in this document.
+- Prefer a single **manual, exact-SHA Preview** when separately authorized, then stop. This is not continuously-running cloud CI.
 
-## Routing results
+## Prioritized trial — Bauman-Russian-iOS, web/PWA only
 
-- **HOBBY_CANDIDATE (3):** `Math_Bauman` (static educational site), `MPC_PID_System` (Vite), `CAD_CAM_3D` (Vite/OCCT WASM; verify size and browser features). All require verified Hobby account, non-commercial eligibility, a clean static Preview, and no new service dependencies.
-- **PRESERVE_EXISTING (5):** `Bauman-master-ai-system`, `BOIECH_AI`, `Application-Management`, `RU_LIFE`, `Health_Care`. Keep Cloudflare/Workers/D1/R2 workflows, URLs, database ownership and release gates.
-- **NEEDS_REVIEW (3):** `Software-Blueprint-Hub` (auth + Prisma + backend), `GrowUP_MyChildren` (child data/control services), `PriceReport_Tunggiabao` (commercial-use eligibility). Default is no Vercel.
-- **NOT_APPLICABLE (11):** other native/local/private services/docs-only repositories listed in the JSON inventory.
+**Repo:** `BlueDragon33/Bauman-Russian-iOS` (private).
 
-## Hard zero-spend guard
+**Candidate branch:** `candidate/russian-daily-standalone-sites-pwa-20261103-v2`
 
-1. No Vercel Pro/trial-to-paid, no card, no paid add-ons, no paid domain, no API token/paid service purchase, no payment authorization. If Vercel displays a charge, billing requirement or eligibility doubt, **SKIP**.
-2. Vercel Hobby usage is restricted to personal, non-commercial applications. A commercial app is **NOT_ELIGIBLE**, regardless of free quota.
-3. Before any GitHub import, verify the account is actually Hobby, owner controls the selected repository, the app can run without paid backend/DB, and necessary secrets/data are not exposed.
-4. **No Vercel Git import or deploy from this candidate.** Vercel automatically deploys on Git pushes and may publish `main` as Production by default. To enable future integration, a separately reviewed app change must explicitly disable Git auto deployments (see Vercel `git.deploymentEnabled: false`) and be verified **before** connection; only manual scoped Preview may then be tested.
-5. Any future Preview must be explicitly authorized against exact SHA/Work Package and must not use live production data. A Preview build or green CI is not Quality Gate PASS.
-6. Keep Cloudflare Worker/D1/R2 URLs, slugs, release channels and production databases untouched. No parallel canonical authority, no silent migration.
-7. NO GitHub-hosted Actions, merge, deploy, Neon's canonical state mutation, reviewer impersonation, authorization grant or automatic Production publication in this phase.
-8. On free-tier exhaustion or provider unavailability: STOP / RETAIN EXISTING. Do not convert to a paid plan.
+**Observed branch HEAD:** `0e5775d465ea13d674304adbbc02a1de468ba8f7`
 
-## Evidence gates for a first free Preview
+**Static subdirectory:** `web/russian-daily-standalone/`, entry `index.html`.
 
-- Human confirms ownership, non-commercial use and a verified Vercel Hobby account with zero billing requirements.
-- Project-specific source compatibility and build/root directory are checked (and monorepo/project specific paths pinned).
-- A deny-by-default branch deployment configuration is reviewed; no auto-production path remains.
-- Non-secret env/asset configuration is approved; auth, databases, personal data and live Cloudflare state are excluded.
-- Preview only, exact commit identifier, output URL and tested UX recorded as evidence; revert/stop on failure.
+The source contains HTML, CSS, ES modules, PWA manifest, Service Worker, local device storage and a demo vocabulary interface. No framework build step is documented. It is a candidate for checking iPhone/iPad responsive layout, on-device IndexedDB behavior, navigation, offline cache over HTTPS, and fail-closed demo audio behavior.
 
-## External references (not activation)
+**Not covered:** SwiftUI build, Xcode, iPhone Simulator, native WidgetKit/Lock Screen, signing, RU03 release approval or any real device iOS native test. Claiming a successful Vercel Preview as native QA PASS is forbidden.
 
-- Vercel Hobby: https://vercel.com/docs/plans/hobby
-- Automatic Git deployments: https://vercel.com/docs/git
-- Disable Git deployments: https://vercel.com/docs/project-configuration/git-configuration
-- Universal Constitution: `docs/UNIVERSAL-CONSTITUTION.md`
-- Existing offline-first policy: `control/development-runtime-policy.v1.json`
+**Risk holds:** Demo linguistic materials and imagery are not all rights-cleared. Protect Preview using Vercel Authentication if eligible; ensure no unapproved materials become public. Vercel Hobby's collaboration rules for private Git repositories can block bot-authored commits if the commit author is not the team owner. Confirm Git author/identity restrictions and who can actually trigger a manual Preview.
 
-**Current result:** policy inventory prepared in an isolated experiment branch. No Vercel account has been authenticated through ChatGPT, no provider plan checked on the user's account, no app imported, no deployment performed and no money spent.
+## Alternative Vercel candidates now dormant
+
+`Math_Bauman`, `MPC_PID_System`, and `CAD_CAM_3D` had basic web/static compatibility but **no confirmed need for continuous Preview testing**. Do not import or deploy them merely to increase Vercel coverage.
+
+Other projects retain their previous status: five Cloudflare-based systems preserved, three requiring review before hosting choices, ten not applicable to Vercel. The exact twenty-two-repository decision set is in [zero-spend-vercel-intake.candidate.json](zero-spend-vercel-intake.candidate.json).
+
+## Exact procedure for a future eligible web Preview
+
+1. Verify the **actual account** is Vercel Hobby with zero billing requirement, allowed region, personal/non-commercial use and private repository access. No account verification has happened yet.
+2. Verify a real device/browser test is blocked without a web Preview; capture the Work Package, acceptance criteria, branch/commit SHA and scope.
+3. Review app assets, privacy and all externally fetched sources; deny unsafe public disclosure. Check Vercel Hobby private-repo collaboration restrictions.
+4. Before Git import, prove **Git automatic deployments are disabled**, including `main` Production; do not create a parallel Production deployment, new canonical site or persistent service.
+5. With explicit user authorization for the exact web surface, run **one bounded manual Preview**, no paid resources or extra cloud services. Record actual URL, exact SHA, usage and device test results as evidence.
+6. Preserve `REVIEW_BLOCKED` if reviewer/gates are absent; a successful Preview is not CI PASS or Production authority.
+7. On quota/region/billing/permissions error, stop and keep local/Cloudflare; no fallback to a chargeable plan.
+
+## Source references
+
+- [Vercel Hobby plan](https://vercel.com/docs/plans/hobby)
+- [Vercel Git deployments](https://vercel.com/docs/git)
+- [Disable auto Git deployments](https://vercel.com/docs/project-configuration/git-configuration)
+- [Vercel private-repository collaboration](https://vercel.com/docs/deployments/troubleshoot-project-collaboration)
+- `docs/UNIVERSAL-CONSTITUTION.md` and `control/development-runtime-policy.v1.json`
+
+**Outcome:** The intake policy was updated in a private experiment branch. No Vercel connection, account readback, import, live preview, test run, change to the Bauman repository, merge or production deployment has taken place.
