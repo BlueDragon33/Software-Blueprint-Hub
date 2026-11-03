@@ -34,9 +34,20 @@ The source contains HTML, CSS, ES modules, PWA manifest, Service Worker, local d
 
 Connected Vercel reads: authenticated user `dinhnam3391-4708` is active on **Hobby**; team `dinhnam3391-4708` (`team_0WsY0YBA9BhSUVBuN8ZsYZNP`) is **Hobby** and readable after owner consent. Vercel Git namespace `BlueDragon33` has an admin viewer; this does not prove Vercel can deploy every individual private repository. Only `software-blueprint-hub` is listed as an existing team project, **not** Bauman. Charge API returned `404 costs_not_found`, not a proof of no historical charges.
 
-The PWA HEAD remains `0e5775d465ea13d674304adbbc02a1de468ba8f7`. A separate source-only branch `candidate/bauman-web-vercel-zero-spend-preflight-20261103` at `90cadef8dbb130e6dc112668be97fa1341ddb153` adds `web/russian-daily-standalone/vercel.json` with `git.deploymentEnabled=false`, plus 2 Node policy tests and an admission evidence document. Both tests ran locally on byte-identical GitHub blobs and passed; **not** web runtime/iPhone QA.
+The PWA HEAD remains `0e5775d465ea13d674304adbbc02a1de468ba8f7`. A separate source-only branch `candidate/bauman-web-vercel-zero-spend-preflight-20261103` at `a7893c8eacd49b63ef14febd4261670c794cb65c` adds `web/russian-daily-standalone/vercel.json` with `git.deploymentEnabled=false`, plus 2 Node policy tests and an admission evidence document. Both tests ran locally on byte-identical GitHub blobs and passed; **not** web runtime/iPhone QA.
 
 This guard **does not exist on `main`** and has not been verified in a created Vercel project. It does not authorize Git import: an import may trigger a Production deployment from `main` before the candidate config applies. Unreviewed demo photograph, real private-repo permissions, protected Preview configuration, personal/non-commercial eligibility and independent Blueprint review are still blocking.
+
+## Independent review gate — 2026-11-03
+
+Bauman source-only handoff now at `a7893c8eacd49b63ef14febd4261670c794cb65c` with no PR created or GitHub Actions run. The review packet documents:
+- PR #1/#2/#3 and QA Worker PR #5 Draft, zero reviews found; a pinned QA Worker advisory on other source files is **not** reviewer authority for this Vercel change
+- GitHub private repository Rulesets endpoint 403; **not** evidence that branch protections are enforced
+- Personal-account private GitHub repo collaborators receive **WRITE** access; do not give an external reviewer repository access solely to view source (per [GitHub permission levels](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/permission-levels-for-a-personal-account-repository))
+- Bounded offline review can be shared by the owner, but remains **ADVISORY** without authenticated source readback or formal reviewer authorization
+- Source demo asset rights not item-cleared; no public demo or RU03 content release
+- `main` currently contains only README, not the PWA or its Git-disable config. No Git import.
+- Vercel's [2026-09-09 changelog](https://vercel.com/changelog/protect-production-deployments-for-free-on-every-plan) makes All Deployments Authentication available at no extra cost on Hobby, but it has not been configured/read back for a nonexistent Bauman project.
 
 ## Alternative Vercel candidates now dormant
 
