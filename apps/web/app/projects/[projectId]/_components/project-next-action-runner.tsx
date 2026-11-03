@@ -92,6 +92,23 @@ export function ProjectNextActionRunner({
           </p>
           <p>Trạng thái: {result.state}. Không tự nâng QA PASS hoặc cấp quyền.</p>
           <p>Phạm vi: {result.scope==="next"?"Bước hiện hành":"Toàn bộ công việc có thể kiểm tra"}. Chưa chạy sửa mã.</p>
+          {result.assistance ? (
+            <section className={styles.assistPanel} aria-label="Hỗ trợ Action theo nhiệm vụ hiện hành">
+              <strong>HỖ TRỢ ACTION — {result.assistance.focus==="quality-gate"
+                ? "QUALITY GATE" : result.assistance.focus==="work-package"
+                  ? "WORKPACKAGE" : "RELEASE"}</strong>
+              <p><strong>Nhiệm vụ:</strong> {result.assistance.currentTask}</p>
+              <p><strong>Vì sao ưu tiên:</strong> {result.assistance.whySelected}</p>
+              <p><strong>Đối tượng:</strong> {result.assistance.targetId ?? "Chưa có ID mục tiêu"} ·
+                {result.assistance.workStatus ?? "Chưa xác minh trạng thái"}
+              </p>
+              <strong>Bằng chứng cần chuẩn bị / đối chiếu</strong>
+              <ul>{result.assistance.evidenceChecklist.map((item,index) =>
+                <li key={index}>{item}</li>)}</ul>
+              <p><strong>Điểm dừng bắt buộc:</strong> {result.assistance.stopRule}</p>
+              <p>Đây là hướng dẫn từ checkpoint đã kiểm tra; không phải quyền ký, phê duyệt hoặc thực thi.</p>
+            </section>
+          ) : null}
           {result.inspectedSteps.length > 0 ? (
             <div>
               <strong>Đã thực hiện</strong>
