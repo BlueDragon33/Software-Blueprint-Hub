@@ -29,8 +29,9 @@ test("CMD instructions are conditional and require redaction", () => {
   assert.match(runner,/Loại bỏ token, mật khẩu và dữ liệu cá nhân/);
   assert.match(runner,/CHƯA XÁC MINH/);
 });
-test("accessible responsive button and panel are functional", () => {
-  assert.match(runner,/aria-pressed=\{showAssistance\}/);
+test("accessible responsive help command and panel are present", () => {
+  assert.match(runner,/disabled=\{busy\}/);
+  assert.doesNotMatch(runner,/aria-pressed=\{showAssistance\}/);
   assert.match(runner,/aria-label="Hỗ trợ NEXT ACTION theo Blueprint OS 1\.3\.0"/);
   assert.match(css,/\.assistPanel\s*\{/);
   assert.match(css,/\.runWrap > button \{ width: 100%/);
