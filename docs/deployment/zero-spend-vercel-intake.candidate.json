@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "status": "SOURCE_ONLY_CANDIDATE",
+  "status": "SOURCE_ONLY_CANDIDATE_ON_DEMAND_ONLY",
   "policy": "blueprint-os:universal-century-grade",
   "policyVersion": "1.3.0",
   "date": "2026-11-03",
@@ -26,7 +26,12 @@
     "requiresVerifiedProviderAccount": true,
     "exceedFreeAllowance": "SKIP_OR_STOP",
     "providerUnavailable": "KEEP_EXISTING_HOST",
-    "githubHostedActionsAllowed": false
+    "githubHostedActionsAllowed": false,
+    "defaultDeploymentPolicy": "DISABLED",
+    "defaultProvider": "EXISTING_HOST_OR_LOCAL",
+    "vercelMode": "MANUAL_PREVIEW_ONLY_AFTER_EXPLICIT_APPROVAL",
+    "continuousPreviewRequiredForAllProjects": false,
+    "consumptionPolicy": "ZERO_ADDITIONAL_SPEND_STOP_ON_PAID_REQUIREMENT"
   },
   "integrations": {
     "chatGPT": "GitHub source edits and PR proposals only",
@@ -51,8 +56,8 @@
     },
     {
       "repository": "BlueDragon33/Math_Bauman",
-      "classification": "HOBBY_CANDIDATE",
-      "reason": "Static educational site; verify personal/non-commercial use and Preview isolation",
+      "classification": "INACTIVE_UNLESS_CONTINUOUS_WEB_TEST_REQUIRED",
+      "reason": "Static educational site; verify personal/non-commercial use and Preview isolation; no ongoing web test requirement proven, so no Vercel import/deploy.",
       "hostingEnabled": false,
       "requiresHumanReviewBeforePreview": true
     },
@@ -100,15 +105,15 @@
     },
     {
       "repository": "BlueDragon33/MPC_PID_System",
-      "classification": "HOBBY_CANDIDATE",
-      "reason": "Vite web application; validate free build and non-commercial use",
+      "classification": "INACTIVE_UNLESS_CONTINUOUS_WEB_TEST_REQUIRED",
+      "reason": "Vite web application; validate free build and non-commercial use; no ongoing web test requirement proven, so no Vercel import/deploy.",
       "hostingEnabled": false,
       "requiresHumanReviewBeforePreview": true
     },
     {
       "repository": "BlueDragon33/CAD_CAM_3D",
-      "classification": "HOBBY_CANDIDATE",
-      "reason": "Vite web application with WebAssembly; verify output-size/compatibility",
+      "classification": "INACTIVE_UNLESS_CONTINUOUS_WEB_TEST_REQUIRED",
+      "reason": "Vite web application with WebAssembly; verify output-size/compatibility; no ongoing web test requirement proven, so no Vercel import/deploy.",
       "hostingEnabled": false,
       "requiresHumanReviewBeforePreview": true
     },
@@ -184,10 +189,12 @@
     },
     {
       "repository": "BlueDragon33/Bauman-Russian-iOS",
-      "classification": "NOT_APPLICABLE",
-      "reason": "Native iOS project; source root currently README only",
+      "classification": "ON_DEMAND_WEB_PREVIEW_CANDIDATE",
+      "reason": "Native SwiftUI/WidgetKit cannot run on Vercel; separate static web/russian-daily-standalone PWA on pinned candidate branch is a potential browser/device Preview only, pending Hobby eligibility, owner/commit rules and rights/permissions review.",
       "hostingEnabled": false,
-      "requiresHumanReviewBeforePreview": true
+      "requiresHumanReviewBeforePreview": true,
+      "previewOnlyWebPath": "web/russian-daily-standalone",
+      "nativeAcceptanceStillBlocked": true
     }
   ],
   "notes": [
@@ -195,6 +202,59 @@
     "Hobby usage is restricted to personal, non-commercial use; business apps must not be deployed there without eligibility.",
     "No new deployment configuration written to individual repositories; candidate is not canonical project state.",
     "GitHub integration defaults can auto-deploy Preview and Production; explicit production prevention must be proven before connection.",
-    "Do not claim CI PASS, independent review, a deployed URL or active Vercel integration."
-  ]
+    "Do not claim CI PASS, independent review, a deployed URL or active Vercel integration.",
+    "Only the requested Bauman-Russian-iOS web companion is prioritized, not the native iOS target. The previous three Hobby candidates are now dormant until a real continuous browser-test need exists.",
+    "Hobby private-repo Git collaboration limitations and bot-authored commits must be checked before import; do not claim deployment success."
+  ],
+  "goal": "Use Vercel only when an eligible web/PWA feature requires repeated browser/device Preview testing; never automatically use Vercel for all repositories.",
+  "continuousPreviewCriteria": {
+    "requiredAll": [
+      "A real web/PWA UI needs repeated iPhone/iPad/desktop browser tests",
+      "Existing free/local/Cloudflare preview is insufficient or slower for the explicit task",
+      "Personal non-commercial Hobby use verified",
+      "Private Preview protection and no production auto-deploy verified",
+      "Exact source SHA, branch, root path, and release gates pinned",
+      "Zero spend and Vercel account permissions read back"
+    ],
+    "defaultDecision": "SKIP",
+    "requestsWithoutRealBrowserNeed": "DO_NOT_HOST",
+    "paidRequirement": "SKIP",
+    "stopOnQuota": "STOP_NO_UPGRADE",
+    "readOnlyProjectStatusOnly": true
+  },
+  "pilot": {
+    "repository": "BlueDragon33/Bauman-Russian-iOS",
+    "specificSurface": "WEB_PWA_ONLY_NOT_NATIVE_IOS",
+    "branch": "candidate/russian-daily-standalone-sites-pwa-20261103-v2",
+    "pinnedSha": "0e5775d465ea13d674304adbbc02a1de468ba8f7",
+    "rootDirectory": "web/russian-daily-standalone",
+    "artifactKind": "static HTML/CSS/ES modules/PWA",
+    "staticEntry": "index.html",
+    "buildRequired": false,
+    "webScope": [
+      "responsive iPhone/iPad browser UX",
+      "local IndexedDB settings and storage",
+      "service worker/PWA HTTPS behavior",
+      "demo navigation and pronunciation failure behavior"
+    ],
+    "excluded": [
+      "SwiftUI",
+      "WidgetKit",
+      "Lock Screen widgets",
+      "Xcode/Simulator signing",
+      "native audio and OS API acceptance",
+      "canonical RU03 approval",
+      "personal data migration"
+    ],
+    "gitVisibility": "private",
+    "caveats": [
+      "Vercel Hobby private repository may require deployment commits to be associated with Hobby owner; bot-authored commits can fail.",
+      "Some demo assets are not rights-cleared, so Preview must be access-protected and not marketed as approved lessons.",
+      "Confirm Hobby non-commercial eligibility and Preview authentication before importing.",
+      "Do not import until automated Production on main has been disabled and independently verified.",
+      "No actual Vercel account, import, preview URL or deployed runtime verified."
+    ],
+    "mode": "PENDING_ELIGIBILITY_NO_DEPLOY",
+    "nextAction": "Inspect Vercel Hobby account and verify private Git eligibility and disabled automatic deployments, then request a single exact-SHA Preview if approved."
+  }
 }
