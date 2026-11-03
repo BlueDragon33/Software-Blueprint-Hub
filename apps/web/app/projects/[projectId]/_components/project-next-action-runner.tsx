@@ -95,7 +95,6 @@ export function ProjectNextActionRunner({
         {busy ? "Đang xử lý…" : "NEXT ACTION — TỰ LẬP KẾ HOẠCH & KIỂM TRA"}
       </button>
       <button type="button" className={styles.helpButton} disabled={busy}
-        aria-pressed={showAssistance}
         onClick={() => void run("next", true)}>
         HỖ TRỢ NEXT ACTION — HƯỚNG DẪN TỪNG BƯỚC
       </button>
