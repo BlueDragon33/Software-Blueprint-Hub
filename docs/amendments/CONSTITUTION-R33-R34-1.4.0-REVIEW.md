@@ -55,6 +55,18 @@ The default NEXT ACTION must have a real, contextual interactive action, not a c
 
 **Verification:** Test single-click trigger → server-side canonical read → plan construction → permitted operation → source-bound result, plus stale version/role denial, repeat prevention, no automatic Work spending, CMD allowlist, mismatched output handling, size limits, privacy and keyboard/mobile inputs. Unit/render tests do not replace real authenticated browser QA or independent evidence.
 
+### R33.10 — task-specific Action assistance and evidence-grounded support (proposed)
+
+**Applicability:** Hub-owned Action contract after the one-click canonical preflight. The button must display a task-specific assistance card based on the **actual selected** WorkPackage, Quality Gate or release checkpoint; generic repeated "continue" advice does not satisfy R33.10.
+
+- **Exact target:** The authenticated server resolves the canonical ProjectProfile recordVersion, readiness action kind/label, selected WorkPackage ID/version or Quality Gate ID/status, and the current reason. A similarly named item, stale browser label or copied prompt is never an authority source.
+- **Useful assistance:** Show one explicit task, why it has priority, relevant bounded WorkPackage acceptance criteria or Quality Gate evidence requirements, expected trusted readback and the smallest authorized next operation. Existing evidence should be reused; do not invent an SHA when the current source is UNVERIFIED.
+- **Context-adaptive controls:** A real one-click READ stage can inspect the current task and display its evidence checklist inline. A safe CMD output field exists only when the canonical WorkPackage contains an exact allowlisted command ID. Human approval, privileged execution, reviewer decisions and release operations must have distinct verified authority gates. A link to an actual project workspace is navigation, never execution.
+- **No false completion:** The interface must distinguish READ_ONLY_INSPECTED, STALE, BLOCKED, UNVERIFIED_MANUAL_OUTPUT and future VERIFIED execution receipts. No generated plan, pasted output, AI advisory, success-looking button or fixture upgrades a Quality Gate or ratifies the Constitution.
+- **Acceptance:** Source-bound browser tests for Owner/Viewer, stale task, gate/work/release branches, non-command tasks, CMD rejection, keyboard/mobile layout, lost permission and independently verified execution evidence before any claimed mutation. The Hub pilot must PASS before controlled rollout; every governed application must prove its own adoption under the *one central contract*. Do not globally flip compliance flags.
+
+**Activation boundary:** This R33.10 wording is a **1.4.0 proposal**, not active 1.3.0 law. The working assistance panel currently operates only on the unmerged Hub PR #153 candidate and does not enable signed edits.
+
 ## Proposed 10.R34 — end-to-end is execution, not one-step delegation
 
 1. **Carry exact context.** Reuse the user-approved goal, known constraints, latest HEAD, previous meaningful PASS evidence and state. Never demand repeated answers, create duplicate discovery work, or request an ordinary available read-only operation from the user.
