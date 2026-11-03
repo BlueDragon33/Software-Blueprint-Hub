@@ -1,6 +1,6 @@
 "use server";
 
-import { createClickPlanCandidate, preflightUnifiedNextAction, analyzePastedCommandResult, recognizedCanonicalCommandId, resolveCanonicalNextWork, type CommandEvidencePrompt, type VerifiedCommandTask } from "@blueprint-os/application";
+import { createClickPlanCandidate, preflightUnifiedNextAction, analyzePastedCommandResult, buildContextualActionAssistance, recognizedCanonicalCommandId, resolveCanonicalNextWork, type ContextualActionAssistance, type CommandEvidencePrompt, type VerifiedCommandTask } from "@blueprint-os/application";
 import { redirect } from "next/navigation";
 import { loadProjectWorkspace } from "../../../src/server/project-workspace";
 
@@ -78,6 +78,7 @@ export interface GuidedNextActionResult {
     readonly linkedEvidenceCount: number;
   } | null;
   readonly command: CommandEvidencePrompt | null;
+  readonly assistance: ContextualActionAssistance | null;
   readonly qaPassed: false;
   readonly autoMutation: false;
 }
@@ -99,7 +100,7 @@ export async function startGuidedNextAction(
     state, generatedPlan: false, scope:requestedMode,
     inspectedSteps:[],pendingSteps:[],mode:"unavailable",
     title:"NEXT ACTION chưa thể thực hiện", detail, nextHref:null,
-    readback:null, command:null, qaPassed:false, autoMutation:false
+    readback:null, command:null, assistance:null, qaPassed:false, autoMutation:false
   });
   if (!/^project:[a-z0-9][a-z0-9-]{0,158}$/.test(projectId) ||
       !Number.isSafeInteger(displayedProfileVersion) || displayedProfileVersion < 1 ||
@@ -156,6 +157,26 @@ export async function startGuidedNextAction(
     // checkpoint. Execute its bounded READ stage immediately in this request.
     // Server source validates PROJECT_READ independently on each read.
     const gates = await workspace.runtime.workQuality.listQualityGates(workspace.actor, projectId);
+    // Only select the exact canonical target. No guessed gate from a
+    // similarly named record or a stale client-provided label.
+    const gate = latest.activeGates.find(item => {
+      if(latest.nextAction.kind==="define-gate")
+        return latest.nextAction.label==="Define required gate "+item.id && item.status==="missing";
+      if(latest.nextAction.kind==="resolve-failed-gate")
+        return latest.nextAction.label==="Resolve failed gate: "+item.name && item.status==="fail";
+      if(latest.nextAction.kind==="review-candidate")
+        return latest.nextAction.label==="Review candidate gate: "+item.name && item.status==="candidate";
+      if(latest.nextAction.kind==="prepare-gate")
+        return latest.nextAction.label==="Prepare gate: "+item.name && item.status==="not-ready";
+      return false;
+    }) ?? null;
+    const assistance=buildContextualActionAssistance({
+      projectId,profileVersion,actionKind:latest.nextAction.kind,
+      actionLabel:latest.nextAction.label,reason:latest.nextAction.reason,
+      work:candidateWork,gate:gate ? {
+        id:gate.id,name:gate.name,status:gate.status,evidenceCount:gate.evidenceCount
+      }:null
+    });
     const needsRunner = step.mode==="requires-granted-runner";
     const detail = step.mode==="needs-cmd-result"
       ? "Đã tự tạo kế hoạch, kiểm tra WorkPackage và tìm thấy CMD chẩn đoán chỉ đọc được khai báo trong tiêu chí nghiệm thu. Chạy lệnh trên đúng máy/checkout rồi dán kết quả; đây chưa phải QA PASS."
@@ -189,7 +210,7 @@ export async function startGuidedNextAction(
         workPackagesRead:works.length,gatesRead:gates.length,
         linkedEvidenceCount:latest.evidenceSummary.linked
       },
-      command:step.command,
+      command:step.command,assistance,
       qaPassed:false,autoMutation:false
     };
   } catch {
