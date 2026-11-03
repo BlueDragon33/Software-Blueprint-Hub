@@ -6,6 +6,7 @@
 import {writeFileSync,mkdirSync} from "node:fs";
 import {dirname,resolve} from "node:path";
 import {pathToFileURL} from "node:url";
+import {buildConstitution14Candidate,buildConstitution14Patch,testConstitution14Patch} from "./prepare-constitution-1.4-candidate.mjs";
 const SHA=/^[a-f0-9]{40}$/;
 const ROOT="BlueDragon33/Software-Blueprint-Hub";
 const QA="BlueDragon33/Software-Blueprint-QA-Worker";
@@ -130,6 +131,20 @@ export async function readGitHubPublicationCheckpoint(token){
 }
 if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.url){
  const checkpoint=await readGitHubPublicationCheckpoint(process.env.GITHUB_TOKEN);
+ // An actual isolated replay is observed again inside THIS invocation.
+ // An environment variable, issue comment, self-report or test fixture is
+ // never eligible to mark this authority-set proof OBSERVED.
+ let localDigest="UNVERIFIED";
+ try {
+  const c=buildConstitution14Candidate();
+  const patch=buildConstitution14Patch(c);
+  const proof=testConstitution14Patch(c,patch);
+  if(proof.status==="ISOLATED_EIGHT_SOURCE_REPLAY_ROLLBACK_PASS"&&
+     proof.paths===8&&proof.activePolicyUnchanged===true) {
+    checkpoint.proofs.eightSourceReplay=true;
+    localDigest="sha256:"+ (await import("node:crypto")).createHash("sha256").update(patch).digest("hex");
+  }
+ } catch {}
  const result=evaluateConstitution14PublicationReadiness(checkpoint);
  const path=process.argv[process.argv.indexOf("--json")+1];
  if(process.argv.includes("--json")&&path?.startsWith("artifacts/")){
@@ -137,7 +152,7 @@ if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.u
   writeFileSync(resolve(path),JSON.stringify(result,null,2)+"\n");
  }
  console.log(JSON.stringify({
-  ...result,reviewStatus:"REVIEW_BLOCKED",
+  ...result,localEightSourcePatchDigest:localDigest,reviewStatus:"REVIEW_BLOCKED",
   ratified:false,published:false,ecosystemPropagated:false
  }));
  if(result.canPublish||result.blockers.length===0)throw Error(
