@@ -1,0 +1,200 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "SOURCE_ONLY_CANDIDATE",
+  "policy": "blueprint-os:universal-century-grade",
+  "policyVersion": "1.3.0",
+  "date": "2026-11-03",
+  "observedBase": {
+    "repository": "BlueDragon33/Software-Blueprint-Hub",
+    "defaultBranch": "main",
+    "sha": "cd01fb3c2178393628ce968af209db082227d2c4"
+  },
+  "scope": "BlueDragon33 accessible repositories (22), reviewed by source-only GitHub inspection",
+  "hosting": {
+    "provider": "vercel",
+    "allowedPlan": "Hobby",
+    "maxExtraSpendUSD": 0,
+    "paidAccountUpgradeAllowed": false,
+    "addPaymentMethodAllowed": false,
+    "addPaidMarketplaceServicesAllowed": false,
+    "productionDeployAuthorized": false,
+    "previewDeployAuthorized": false,
+    "githubAutoDeploymentAllowed": false,
+    "cloudflareMigrationAllowed": false,
+    "cloudflareLiveSitesPreserved": true,
+    "requiresConfirmedNonCommercialUse": true,
+    "requiresVerifiedProviderAccount": true,
+    "exceedFreeAllowance": "SKIP_OR_STOP",
+    "providerUnavailable": "KEEP_EXISTING_HOST",
+    "githubHostedActionsAllowed": false
+  },
+  "integrations": {
+    "chatGPT": "GitHub source edits and PR proposals only",
+    "vercel": "NO_ACCOUNT_CONNECTION_VERIFIED",
+    "cloudflare": "PRESERVE_EXISTING",
+    "applicationManagement": "METADATA_ONLY_NO_CANONICAL_OR_RELEASE_AUTHORITY"
+  },
+  "decisions": [
+    {
+      "repository": "BlueDragon33/Bauman-master-ai-system",
+      "classification": "PRESERVE_EXISTING",
+      "reason": "Cloudflare-related runtime and static assets; avoid duplicating existing site",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/ROS-1-2",
+      "classification": "NOT_APPLICABLE",
+      "reason": "ROS/CMake native package, not a Vercel web app",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Math_Bauman",
+      "classification": "HOBBY_CANDIDATE",
+      "reason": "Static educational site; verify personal/non-commercial use and Preview isolation",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/BOIECH_AI",
+      "classification": "PRESERVE_EXISTING",
+      "reason": "Cloudflare Workers/D1/R2, payment and device state; production is manual-only",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Application-Management",
+      "classification": "PRESERVE_EXISTING",
+      "reason": "Cloudflare Worker/Vinext/D1 control-plane; cannot migrate backend as static Preview",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/GrowUP_MyChildren",
+      "classification": "NEEDS_REVIEW",
+      "reason": "Static/PWA plus control-service; data/privacy and backend behavior must be assessed",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/RU_LIFE",
+      "classification": "PRESERVE_EXISTING",
+      "reason": "Vinext and Cloudflare-specific preview/production artifacts",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Health_Care",
+      "classification": "PRESERVE_EXISTING",
+      "reason": "Cloudflare Worker/D1 health-data runtime; privacy and provider-bound integrations",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Hardware_Simulation",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Tools/docs and hardware simulation, no verified deployable web root",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/MPC_PID_System",
+      "classification": "HOBBY_CANDIDATE",
+      "reason": "Vite web application; validate free build and non-commercial use",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/CAD_CAM_3D",
+      "classification": "HOBBY_CANDIDATE",
+      "reason": "Vite web application with WebAssembly; verify output-size/compatibility",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/PriceReport_Tunggiabao",
+      "classification": "NEEDS_REVIEW",
+      "reason": "Quotations/business-oriented PWA; commercial eligibility and runtime not verified",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/NC03_Modem",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Local modem control; cloud Preview could expose or break local-only access",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Software-Blueprint-Hub",
+      "classification": "NEEDS_REVIEW",
+      "reason": "Next.js monorepo with Prisma/auth and canonical state; requires scoped backend/authority assessment",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/pc-manager-desktop",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Windows native desktop client, not a Vercel-hosted app",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/ECAD_Design",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Current repository contains docs/README only",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/CAE_Simulation",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Current repository contains docs/README only",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Software-Blueprint-Execution-Gateway",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Private execution service with separate authority and scope",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Software-Blueprint-Execution-Worker",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Private execution worker; not approved for Vercel hosting",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Software-Blueprint-QA-Worker",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Private QA worker; independent review/authorization unresolved",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Blueprint-Russian-Expert-Engine",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Private expert engine/backend, not a verified web Preview target",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    },
+    {
+      "repository": "BlueDragon33/Bauman-Russian-iOS",
+      "classification": "NOT_APPLICABLE",
+      "reason": "Native iOS project; source root currently README only",
+      "hostingEnabled": false,
+      "requiresHumanReviewBeforePreview": true
+    }
+  ],
+  "notes": [
+    "Eligibility and billing must be verified inside the actual Vercel account before enabling even a Preview.",
+    "Hobby usage is restricted to personal, non-commercial use; business apps must not be deployed there without eligibility.",
+    "No new deployment configuration written to individual repositories; candidate is not canonical project state.",
+    "GitHub integration defaults can auto-deploy Preview and Production; explicit production prevention must be proven before connection.",
+    "Do not claim CI PASS, independent review, a deployed URL or active Vercel integration."
+  ]
+}
