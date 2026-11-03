@@ -181,14 +181,16 @@ export async function verifySignedPrReviewV3(
  const scope=buildPrReviewV3Scope(expected.files);
  need(JSON.stringify(r.files)===JSON.stringify(scope.files)&&
   JSON.stringify(r.shards)===JSON.stringify(scope.shards),"incomplete/overlapping/stale PR scope");
- if(!Array.isArray(children)||children.length!==scope.shards.length)
-  fail("missing or excess signed shard");
+ if(!Array.isArray(children)||children.length!==scope.shards.length) {
+  throw new Error("PR_REVIEW_V3_BLOCKED: missing or excess signed shard");
+ }
  need(authority&&typeof authority.gatewayPublicKey==="function"&&
   typeof authority.assertIssuerAuthorized==="function"&&
   typeof authority.claim==="function","missing issuer/replay authority");
  const key=await authority.gatewayPublicKey();
- if(typeof key!=="string"||!key.startsWith("-----BEGIN PUBLIC KEY-----"))
-  fail("missing pinned public key");
+ if(typeof key!=="string"||!key.startsWith("-----BEGIN PUBLIC KEY-----")) {
+  throw new Error("PR_REVIEW_V3_BLOCKED: missing pinned public key");
+ }
  const {signature,...payload}=r;
  need(signatureOk(payload,signature,key),"invalid root signature");
  const proof=prReviewV3ManifestDigest(payload);
