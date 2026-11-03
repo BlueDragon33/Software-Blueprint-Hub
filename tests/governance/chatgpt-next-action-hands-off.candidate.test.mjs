@@ -35,9 +35,11 @@ test("hands-off contract continues eligible work and stops only at a legitimate 
   assert.equal(contract.continuation.requireHumanOnlyForNonDelegableDecisions, true);
   assert.equal(contract.continuation.noGenericSelfRestart, true);
   assert.deepEqual(contract.terminalStates, [
-    "VERIFIED_COMPLETE", "PARTIAL_BLOCKED",
-    "PARTIAL_CAPABILITY_LIMIT", "PARTIAL_QA_UNVERIFIED"
+    "VERIFIED_COMPLETE", "PARTIAL_BLOCKED", "PARTIAL_CAPABILITY_LIMIT"
   ]);
+  assert.ok(contract.blockerReasonCodes.includes("QA_EVIDENCE_MISSING"));
+  assert.equal(contract.continuation.capabilityLimitIsNotHumanRatification, true);
+  assert.equal(contract.continuation.userQuestionOnlyWhenDecisionIsNonDelegable, true);
 });
 
 test("all governed projects inherit policy only after real ratification and adoption evidence", () => {
@@ -57,4 +59,28 @@ test("CTA never manufactures privileged authority", () => {
   }
   assert.equal(contract.deployment.independentHumanReview, "MISSING");
   assert.equal(contract.receiptFields.filter(x => x === "oneConcreteNextAction").length, 1);
+});
+
+test("R34.8 complete evidence binding and no circular repeat", () => {
+  const required = [
+    "actionId", "targetTaskId", "projectId", "sourceRevision",
+    "ownerType", "selectionReason", "expectedEvidence",
+    "blockedByIfPartial", "previousActionIdAndNewEvidenceIfRepeated"
+  ];
+  for (const field of required) assert.ok(contract.nextActionFields.includes(field), field);
+  assert.equal(contract.repeatActionPolicy.rejectSameUnresolvedActionWithoutNewEvidence, true);
+  assert.equal(contract.repeatActionPolicy.priorActionReferenceRequired, true);
+  assert.equal(contract.compatibility.r34NextActionRequiredProofsAligned, true);
+  assert.equal(contract.compatibility.terminalOutcomeEnumAlignedWithR34, true);
+  assert.match(amendment, /R34\.8 evidence fields/);
+});
+
+test("active R7 and R15–R22 are not superseded by a host-surface proposal", () => {
+  for (const rule of ["R7", "R15", "R16", "R17", "R18", "R19", "R20", "R21", "R22"]) {
+    assert.match(active, new RegExp("\\*\\*" + rule + " —"), rule);
+  }
+  assert.equal(contract.compatibility.proposalMustReconcileBeforeRatification, true);
+  assert.equal(contract.compatibility.noDuplicateConstitutionalAuthority, true);
+  assert.match(amendment, /A standalone merge of #155 does not implement or ratify #153/);
+  assert.match(amendment, /capability boundary.*not a human approval gate/);
 });
