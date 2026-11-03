@@ -66,7 +66,8 @@ describe("PR review v3 additive full-coverage signed shards",()=>{
   expect(proof.status).toBe("SIGNED_SCOPE_VERIFIED_ONLY");
   expect(proof.coveredFiles).toBe(32);
   expect(proof.coveredShards).toBe(scope.shards.length);
-  expect(proof.manifestDigest).toBe(prReviewV3ManifestDigest(x.root));
+  const {signature: _signature, ...payload} = x.root;
+  expect(proof.manifestDigest).toBe(prReviewV3ManifestDigest(payload));
   expect(proof.humanApproved).toBe(false);
   expect(proof.qualityGatePassed).toBe(false);
   expect(proof.productionAuthorized).toBe(false);
