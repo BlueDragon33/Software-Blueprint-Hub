@@ -35,7 +35,7 @@
   },
   "integrations": {
     "chatGPT": "GitHub source edits and PR proposals only",
-    "vercel": "NO_ACCOUNT_CONNECTION_VERIFIED",
+    "vercel": "ACCOUNT_AND_TEAM_HOBBY_READ_VERIFIED_NO_BAUMAN_PROJECT",
     "cloudflare": "PRESERVE_EXISTING",
     "applicationManagement": "METADATA_ONLY_NO_CANONICAL_OR_RELEASE_AUTHORITY"
   },
@@ -204,7 +204,8 @@
     "GitHub integration defaults can auto-deploy Preview and Production; explicit production prevention must be proven before connection.",
     "Do not claim CI PASS, independent review, a deployed URL or active Vercel integration.",
     "Only the requested Bauman-Russian-iOS web companion is prioritized, not the native iOS target. The previous three Hobby candidates are now dormant until a real continuous browser-test need exists.",
-    "Hobby private-repo Git collaboration limitations and bot-authored commits must be checked before import; do not claim deployment success."
+    "Hobby private-repo Git collaboration limitations and bot-authored commits must be checked before import; do not claim deployment success.",
+    "2026-11-03: Verified Vercel Hobby account/team and GitHub namespace; created isolated Bauman source guard branch with git.deploymentEnabled=false and 2/2 byte-identical local Node tests. Does not authorize import/deploy."
   ],
   "goal": "Use Vercel only when an eligible web/PWA feature requires repeated browser/device Preview testing; never automatically use Vercel for all repositories.",
   "continuousPreviewCriteria": {
@@ -250,11 +251,59 @@
     "caveats": [
       "Vercel Hobby private repository may require deployment commits to be associated with Hobby owner; bot-authored commits can fail.",
       "Some demo assets are not rights-cleared, so Preview must be access-protected and not marketed as approved lessons.",
-      "Confirm Hobby non-commercial eligibility and Preview authentication before importing.",
+      "Account and team Hobby readback verified, but personal noncommercial use, protected Preview and cost eligibility remain unverified; no import.",
       "Do not import until automated Production on main has been disabled and independently verified.",
-      "No actual Vercel account, import, preview URL or deployed runtime verified."
+      "Vercel account/team Hobby readback VERIFIED. Bauman Vercel import/Preview URL/deployed runtime still NOT VERIFIED."
     ],
-    "mode": "PENDING_ELIGIBILITY_NO_DEPLOY",
-    "nextAction": "Inspect Vercel Hobby account and verify private Git eligibility and disabled automatic deployments, then request a single exact-SHA Preview if approved."
+    "mode": "GUARDED_SOURCE_ONLY_PREVIEW_NOT_AUTHORIZED",
+    "nextAction": "Independent reviewer checks the isolated guarded source, unresolved private-repo rights/media and manual-only protected Preview admission before any Vercel import or deployment.",
+    "zeroSpendGuardBranch": "candidate/bauman-web-vercel-zero-spend-preflight-20261103",
+    "guardBranchHeadSha": "90cadef8dbb130e6dc112668be97fa1341ddb153",
+    "guardConfig": "web/russian-daily-standalone/vercel.json",
+    "sourcePolicyTests": "2/2 local Node policy tests PASS on byte-identical blobs; full web/iPhone runtime NOT TESTED"
+  },
+  "vercelReadback": {
+    "date": "2026-11-03",
+    "evidenceType": "VERCEL_AND_GITHUB_CONNECTED_API_READ_ONLY",
+    "account": {
+      "username": "dinhnam3391-4708",
+      "plan": "hobby",
+      "status": "active"
+    },
+    "team": {
+      "id": "team_0WsY0YBA9BhSUVBuN8ZsYZNP",
+      "slug": "dinhnam3391-4708",
+      "plan": "hobby",
+      "readAccess": "VERIFIED"
+    },
+    "github": {
+      "namespace": "BlueDragon33",
+      "viewerRole": "admin",
+      "namespaceRestricted": false,
+      "baumanRepoVisibility": "private",
+      "privateRepoVercelGrant": "UNVERIFIED"
+    },
+    "projects": {
+      "existing": [
+        "software-blueprint-hub"
+      ],
+      "baumanProject": "NOT_FOUND"
+    },
+    "chargesReadback": "UNAVAILABLE_404_COSTS_NOT_FOUND_NO_ZERO_SPEND_CLAIM",
+    "deploymentProtectionForBauman": "NOT_CONFIGURED_NO_PROJECT",
+    "gitAutoDeploymentForBauman": "NOT_VERIFIED_NO_PROJECT",
+    "actionsPerformed": [
+      "READ_ONLY_VERCEL_AND_GITHUB_INSPECTION",
+      "ISOLATED_GITHUB_SOURCE_PREVIEW_GUARD_AND_POLICY_TEST"
+    ],
+    "didNotPerform": [
+      "VERCEL_PROJECT_IMPORT",
+      "PREVIEW_DEPLOY",
+      "PRODUCTION_DEPLOY",
+      "CLOUDFLARE_MIGRATION",
+      "MERGE",
+      "RATIFY",
+      "PAYMENT"
+    ]
   }
 }
