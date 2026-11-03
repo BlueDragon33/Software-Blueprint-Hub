@@ -29,7 +29,8 @@ function signed(changes:Partial<PrReviewV3ManifestPayload>={}){
  };
  const root={...payload,signature:sign(null,prReviewV3SigningBytes(payload),kp.privateKey).toString("base64")};
  const children=payload.shards.map(shard=>{
-  const body=prReviewV3ShardPayload(payload,shard);
+  const inspectionRequestId="sha256:"+shard.index.toString(16).padStart(64,"0");
+  const body=prReviewV3ShardPayload(payload,shard,inspectionRequestId);
   return {...body,signature:sign(null,prReviewV3SigningBytes(body),kp.privateKey).toString("base64")};
  });
  const expected={
@@ -79,7 +80,8 @@ describe("PR review v3 additive full-coverage signed shards",()=>{
    x.children.slice(1),[...x.children,...x.children.slice(0,1)],
    [x.children[1],x.children[0],...x.children.slice(2)],
    x.children.map((c,i)=>i===0?{...c,paths:[...c.paths,c.paths[0]]}:c),
-   x.children.map((c,i)=>i===1?{...c,diffDigest:digest("f")}:c)
+   x.children.map((c,i)=>i===1?{...c,diffDigest:digest("f")}:c),
+   x.children.map((c,i)=>i===1?{...c,inspectionRequestId:x.children[0]!.inspectionRequestId}:c)
   ];
   for(const parts of cases){
    await expect(verifySignedPrReviewV3(x.root,parts,x.expected,authority(),now))
