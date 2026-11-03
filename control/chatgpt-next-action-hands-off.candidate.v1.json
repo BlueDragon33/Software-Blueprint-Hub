@@ -62,7 +62,9 @@
     "stopOnActualMandatoryBoundaryOnly": true,
     "requireHumanOnlyForNonDelegableDecisions": true,
     "noGenericSelfRestart": true,
-    "sessionLimitMustBeTruthfullyReported": true
+    "sessionLimitMustBeTruthfullyReported": true,
+    "capabilityLimitIsNotHumanRatification": true,
+    "userQuestionOnlyWhenDecisionIsNonDelegable": true
   },
   "forbiddenImpliedActions": [
     "human-approval",
@@ -99,8 +101,7 @@
   "terminalStates": [
     "VERIFIED_COMPLETE",
     "PARTIAL_BLOCKED",
-    "PARTIAL_CAPABILITY_LIMIT",
-    "PARTIAL_QA_UNVERIFIED"
+    "PARTIAL_CAPABILITY_LIMIT"
   ],
   "receiptFields": [
     "projectId",
@@ -119,10 +120,13 @@
   "nextActionFields": [
     "actionId",
     "targetTaskId",
+    "projectId",
+    "sourceRevision",
     "ownerType",
     "selectionReason",
     "expectedEvidence",
-    "blockedByIfPartial"
+    "blockedByIfPartial",
+    "previousActionIdAndNewEvidenceIfRepeated"
   ],
   "deployment": {
     "sourceOnlyDraft": true,
@@ -133,5 +137,24 @@
     "independentHumanReview": "MISSING",
     "reviewStatus": "REVIEW_BLOCKED",
     "existingAppRunnerChanges": "NONE"
+  },
+  "blockerReasonCodes": [
+    "QA_EVIDENCE_MISSING",
+    "HUMAN_AUTHORITY_MISSING",
+    "SCOPE_OR_PERMISSION_DENIED",
+    "EXTERNAL_SOURCE_UNAVAILABLE",
+    "SESSION_OR_TOOL_CAPABILITY_LIMIT"
+  ],
+  "repeatActionPolicy": {
+    "rejectSameUnresolvedActionWithoutNewEvidence": true,
+    "requires": "independent-new-evidence-or-changed-gate",
+    "priorActionReferenceRequired": true
+  },
+  "compatibility": {
+    "r34CandidateSource": "Hub Draft PR #153: docs/amendments/CONSTITUTION-R33-R34-1.4.0-REVIEW.md",
+    "proposalMustReconcileBeforeRatification": true,
+    "terminalOutcomeEnumAlignedWithR34": true,
+    "r34NextActionRequiredProofsAligned": true,
+    "noDuplicateConstitutionalAuthority": true
   }
 }
