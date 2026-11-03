@@ -55,3 +55,14 @@
 .workflowLink { display: block; padding: 0.65rem; border: 1px solid #fff; border-radius: 0.5rem; color: #fff; overflow-wrap: anywhere; text-align: center; }
 .runWrap button:focus-visible, .workflowLink:focus-visible, .cmdPanel textarea:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .runWrap button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* One-click contextual assistance reuses the authenticated Next Action result. */
+.assistPanel {
+  display: grid; gap: 0.5rem; padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(255,255,255,0.55); border-radius: 0.65rem;
+  background: rgba(9,25,80,0.22); min-width: 0;
+}
+.assistPanel ol { margin: 0; padding-left: 1.25rem; }
+.assistPanel li { color: #fff; font-size: 0.9rem; line-height: 1.6; }
+.assistPanel li + li { margin-top: 0.35rem; }
+.assistPanel p { color: #fff; margin: 0; }
