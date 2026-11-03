@@ -20,7 +20,7 @@ async function loadAcceptanceState(): Promise<{
   readonly revision: string | null;
   readonly acceptanceSource: string | null;
 }> {
-  const revision = process.env.VERCEL_GIT_COMMIT_SHA?.trim().toLowerCase() ?? null;
+  const revision = process.env.BLUEPRINT_DEPLOYMENT_REVISION?.trim().toLowerCase() ?? null;
   const actor = await resolveWebActor();
   if (!actor) {
     return Object.freeze({

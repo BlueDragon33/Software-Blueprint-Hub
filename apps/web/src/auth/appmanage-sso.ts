@@ -2,7 +2,23 @@ import {
   createHash, createHmac, randomBytes, timingSafeEqual
 } from "node:crypto";
 
-export const HUB_SSO_ORIGIN = "https://software-blueprint-hub-git-main-dinhnam3391-4708.vercel.app";
+// The SSO redirect origin is an explicitly registered, separately approved
+// exact HTTPS origin. No fallback to an unapproved legacy deployment host.
+export function hubSsoApprovedOrigin(): string | null {
+  const candidate=process.env.BLUEPRINT_SSO_APPROVED_ORIGIN?.trim();
+  if(!candidate) return null;
+  try {
+    const parsed=new URL(candidate);
+    if(parsed.protocol!=="https:" || !parsed.hostname || parsed.hostname.includes("*") || parsed.username || parsed.password ||
+       parsed.pathname!=="/" || parsed.search || parsed.hash || candidate!==parsed.origin) return null;
+    return parsed.origin;
+  } catch { return null; }
+}
+export function requireHubSsoOrigin(): string {
+  const origin=hubSsoApprovedOrigin();
+  if(!origin) throw new Error("Exact approved Hub HTTPS SSO origin is not configured");
+  return origin;
+}
 export const APP_MANAGE_ISSUER = "https://application-management.boiech-ai.workers.dev";
 export const HUB_SSO_CLIENT_ID = "software-blueprint-hub";
 export const SSO_FLOW_COOKIE = "__Host-blueprint-am-flow";
@@ -37,11 +53,13 @@ export function requireSsoServerConfiguration(): string {
   if (issuer !== APP_MANAGE_ISSUER) {
     throw new Error("Untrusted App-Manage issuer: only the pinned HTTPS production origin is supported");
   }
+  requireHubSsoOrigin();
   return issuer;
 }
 export function allowedSsoRequestOrigin(origin: string): boolean {
-  // Stable Preview host only until a separately reviewed production client is registered.
-  return origin === HUB_SSO_ORIGIN;
+  // No origin is admitted by request headers, wildcard matching or a default.
+  const approved=hubSsoApprovedOrigin();
+  return approved !== null && origin === approved;
 }
 export function ssoPkceChallenge(verifier: string): string {
   return createHash("sha256").update(verifier).digest("base64url");
@@ -100,7 +118,7 @@ export function ssoRequestUrl(flow: HubSsoFlow, origin = APP_MANAGE_ISSUER): str
   const url = new URL("/__sso/authorize", origin);
   url.searchParams.set("response_type", "code");
   url.searchParams.set("client_id", HUB_SSO_CLIENT_ID);
-  url.searchParams.set("redirect_uri", HUB_SSO_ORIGIN + "/api/sso/callback");
+  url.searchParams.set("redirect_uri", requireHubSsoOrigin() + "/api/sso/callback");
   url.searchParams.set("code_challenge_method", "S256");
   url.searchParams.set("code_challenge", ssoPkceChallenge(flow.verifier));
   url.searchParams.set("state", flow.state);

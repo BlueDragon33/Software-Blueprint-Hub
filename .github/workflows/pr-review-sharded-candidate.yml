@@ -1,0 +1,39 @@
+name: Draft Signed Sharded PR Reviewer V3 Contract (NO APPROVAL)
+on:
+  pull_request:
+    paths:
+      - "packages/application/src/pr-review-sharded-identity.ts"
+      - "packages/application/src/index.ts"
+      - "tests/application/pr-review-sharded-identity.test.ts"
+      - ".github/workflows/pr-review-sharded-candidate.yml"
+permissions:
+  contents: read
+jobs:
+  signed-scope-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Pin actual Draft PR source
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install exact checked-in dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify v2 backward compatibility and v3 shard tamper/replay
+        run: pnpm exec vitest run tests/application/pr-review-identity.test.ts tests/application/pr-review-sharded-identity.test.ts
+      - name: Focused TypeScript and lint
+        run: |
+          pnpm --filter @blueprint-os/application typecheck
+          pnpm exec eslint packages/application/src/pr-review-sharded-identity.ts tests/application/pr-review-sharded-identity.test.ts
+      - name: Preserve authority boundary
+        run: echo "CONTRACT_TEST_ONLY=true; no issuer, no signature for live PR, no human approval, no release"

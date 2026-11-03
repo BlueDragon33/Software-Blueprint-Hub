@@ -29,7 +29,7 @@ export async function loadCompassProjection(
     : null;
 
   return getBlueprintCompassProjection(decision, {
-    revision: process.env.VERCEL_GIT_COMMIT_SHA?.trim().toLowerCase() ?? null,
+    revision: process.env.BLUEPRINT_DEPLOYMENT_REVISION?.trim().toLowerCase() ?? null,
     gateBundles,
     constitutionAudit
   });

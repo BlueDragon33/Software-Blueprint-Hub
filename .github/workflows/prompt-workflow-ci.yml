@@ -19,6 +19,15 @@ on:
       - "packages/persistence/prisma/migrations/**"
       - "scripts/generate-prompt-workflow-imports.mjs"
       - "packages/application/src/index.ts"
+      - "packages/application/src/pr-review-identity.ts"
+      - "tests/application/pr-review-identity.test.ts"
+      - "packages/runtime/src/pr-review-e2e-prerequisites.ts"
+      - "tests/application/pr-review-e2e-prerequisites.test.ts"
+      - "packages/application/src/pr-review-admission-proposal.ts"
+      - "tests/application/pr-review-admission-proposal.test.ts"
+      - "apps/web/src/server/p2-owner-session-readiness.ts"
+      - "apps/web/app/api/authority/p2-session/route.ts"
+      - "tests/web/p2-owner-session-readiness.test.ts"
       - "scripts/prompt-workflow-*.mjs"
       - "tests/application/prompt-workflow-*.test.ts"
       - "tests/prompt-workflows/**"
@@ -84,5 +93,13 @@ jobs:
         run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-authority.test.ts tests/application/prompt-workflow-journal.test.ts tests/application/prompt-workflow-github-executor.test.ts tests/application/prompt-workflow-operational-e2e.test.ts tests/application/prompt-workflow-observation-qa.test.ts tests/application/prompt-workflow-inspection-pipeline.test.ts tests/application/prompt-workflow-qa-journal.test.ts tests/application/prompt-workflow-qa-journal.test.ts
       - name: Visual Workflow Studio semantic SSR tests
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
+      - name: Signed PR review identity v2 adversarial checks
+        run: pnpm exec vitest run tests/application/pr-review-identity.test.ts
+      - name: Authenticated canonical E2E prerequisites fail-closed regression
+        run: pnpm exec vitest run tests/application/pr-review-e2e-prerequisites.test.ts
+      - name: P2 admission proposal conforms to canonical Work Package and Quality Gate contracts
+        run: pnpm exec vitest run tests/application/pr-review-admission-proposal.test.ts
+      - name: Owner session read-only API proof and fail-closed authorization regression
+        run: pnpm exec vitest run tests/web/p2-owner-session-readiness.test.ts
       - name: Vietnamese launcher, app grouping and no-invented-deployment tests
         run: pnpm exec vitest run tests/application/hub-app-directory.test.ts tests/application/appmanage-sso.test.ts

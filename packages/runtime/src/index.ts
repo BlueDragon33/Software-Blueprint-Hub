@@ -76,7 +76,7 @@ export function createBlueprintServerRuntime(
     new GitHubConstitutionPublicationVerifier({
       runtimePolicyVersion: CONSTITUTION_POLICY_VERSION,
       ...(publicationTokenProvider ? { tokenProvider: publicationTokenProvider } : {}),
-      ...(process.env.VERCEL_GIT_COMMIT_SHA ? { runtimeRevision: process.env.VERCEL_GIT_COMMIT_SHA } : {}),
+      ...(process.env.BLUEPRINT_DEPLOYMENT_REVISION ? { runtimeRevision: process.env.BLUEPRINT_DEPLOYMENT_REVISION } : {}),
       ...(process.env.CONSTITUTION_GITHUB_READ_TOKEN ? { token: process.env.CONSTITUTION_GITHUB_READ_TOKEN } : {})
     })
   );

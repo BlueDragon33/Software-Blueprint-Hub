@@ -406,7 +406,7 @@ export function ProjectBootstrapFactory() {
                   setPlan(null);
                   setFeedback(null);
                 }}
-                placeholder={"GitHub\nVercel\nERP"}
+                placeholder={"GitHub\nCloudflare (optional)\nERP"}
               />
             </label>
 

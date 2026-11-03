@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   allowedSsoRequestOrigin, APP_MANAGE_ISSUER, HUB_SSO_CLIENT_ID,
-  HUB_SSO_ORIGIN, readSsoCookie, requireSsoServerConfiguration,
+  readSsoCookie, requireHubSsoOrigin, requireSsoServerConfiguration,
   sealSsoCookie, SESSION_TTL, SSO_FLOW_COOKIE,
   SSO_SESSION_COOKIE, validatedSsoRedemption
 } from "../../../../src/auth/appmanage-sso";
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     headers: { "content-type": "application/json", accept: "application/json" },
     body: JSON.stringify({
       code, code_verifier: flow.verifier, client_id: HUB_SSO_CLIENT_ID,
-      redirect_uri: HUB_SSO_ORIGIN + "/api/sso/callback"
+      redirect_uri: requireHubSsoOrigin() + "/api/sso/callback"
     }),
     cache: "no-store", redirect: "error", signal: AbortSignal.timeout(8000)
   }).catch(() => null);
