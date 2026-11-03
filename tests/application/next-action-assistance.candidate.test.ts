@@ -68,6 +68,12 @@ describe("R33.10 typed contextual Next Action assistance — candidate, not gran
       actionKind:"continue-work",actionLabel:"Continue: Different",work,gate:null
     }))).toThrow(/mismatch/);
     expect(()=>buildContextualActionAssistance(input({gate:null}))).toThrow(/mismatch/);
+    expect(()=>buildContextualActionAssistance(input({
+      gate:{...gate,name:"Another gate"}
+    }))).toThrow(/mismatch/);
+    expect(()=>buildContextualActionAssistance(input({
+      gate:{...gate,status:"pass"}
+    }))).toThrow(/mismatch/);
     expect(()=>buildContextualActionAssistance(input({projectId:"other-project"})))
       .toThrow(/Canonical context/);
   });
