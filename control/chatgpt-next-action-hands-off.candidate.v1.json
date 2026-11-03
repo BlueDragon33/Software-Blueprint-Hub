@@ -1,0 +1,137 @@
+{
+  "schema": "blueprint-os:chatgpt-next-action-hands-off-candidate/v1",
+  "status": "PROPOSED_REVIEW_ONLY",
+  "authority": {
+    "owner": "BlueDragon33/Software-Blueprint-Hub",
+    "activeConstitution": "1.3.0",
+    "proposedPolicy": "1.4.0-R34.C",
+    "ratified": false,
+    "published": false,
+    "productionAuthorized": false,
+    "requiresIndependentHumanRatification": true
+  },
+  "intent": {
+    "surface": "ChatGPT conversation/agent",
+    "distinctFrom": "Hub web-app Next Action CTA",
+    "cta": "NEXT ACTION — TIẾP TỤC ĐẾN KHI CẦN CAN THIỆP",
+    "behavior": "one-user-initiated-interactive-continuation",
+    "newTurnMayBeIssuedByHost": true,
+    "canGuaranteeBackgroundWork": false,
+    "canAutoChainChatTurns": false,
+    "canInstallNativePersistentChatGPTToolbar": false,
+    "mayClaimWorkHostOnlyWithVerifiedAdapter": true
+  },
+  "applicability": {
+    "scope": "all-existing-active-and-future-governed-projects",
+    "profiles": [
+      "COMPACT:B0-B2",
+      "STRUCTURED:B3-B5"
+    ],
+    "requiresRatifiedAdoption": true,
+    "projectRegistry": "existing-canonical-project-registry",
+    "noShadowConstitution": true,
+    "noDuplicateDashboard": true
+  },
+  "continuation": {
+    "initialReadback": [
+      "accepted-goal",
+      "effective-constitution",
+      "canonical-project-id",
+      "current-actor-and-permissions",
+      "exact-repo-and-head-or-unverified",
+      "project-profile-version",
+      "current-work-packages-and-dependencies",
+      "quality-gates",
+      "previously-verified-evidence",
+      "real-host-tool-capabilities"
+    ],
+    "queueStates": [
+      "READY",
+      "ACTIVE",
+      "BLOCKED",
+      "VERIFIED",
+      "DONE"
+    ],
+    "doAllEligibleWorkBeforeHandoff": true,
+    "blockedBranchDoesNotBlockIndependentReadyWork": true,
+    "permissionAndRevisionRevalidationPerOperation": true,
+    "readbackAfterMaterialOperation": true,
+    "reuseVerifiedEvidence": true,
+    "finiteEvidenceDirectedRecovery": true,
+    "doNotRepeatFailedHypothesisWithoutNewEvidence": true,
+    "stopOnActualMandatoryBoundaryOnly": true,
+    "requireHumanOnlyForNonDelegableDecisions": true,
+    "noGenericSelfRestart": true,
+    "sessionLimitMustBeTruthfullyReported": true
+  },
+  "forbiddenImpliedActions": [
+    "human-approval",
+    "constitutional-ratification",
+    "production-release",
+    "merge",
+    "deploy",
+    "publish",
+    "repository-visibility-change",
+    "branch-rules-change",
+    "protected-or-destructive-mutation",
+    "issue-privileged-grant",
+    "spend-paid-host-capacity",
+    "launch-unverified-work-session",
+    "execute-unverified-shell",
+    "write-neon-production",
+    "classify-ai-advisory-as-human-review"
+  ],
+  "humanStopCategories": [
+    "mandatory-human-review-or-ux-acceptance",
+    "authenticated-constitutional-ratification",
+    "explicit-protected-destructive-production-authority",
+    "lawfully-unobtainable-external-identity-or-consent",
+    "material-goal-conflict-without-safe-default",
+    "new-cost-or-public-disclosure-decision"
+  ],
+  "capabilityStopCategories": [
+    "no-authorized-tool",
+    "host-session-boundary",
+    "quota-exhaustion",
+    "unrecoverable-network-access",
+    "unavailable-scoped-runner"
+  ],
+  "terminalStates": [
+    "VERIFIED_COMPLETE",
+    "PARTIAL_BLOCKED",
+    "PARTIAL_CAPABILITY_LIMIT",
+    "PARTIAL_QA_UNVERIFIED"
+  ],
+  "receiptFields": [
+    "projectId",
+    "constitutionVersion",
+    "sourceHeadOrUNVERIFIED",
+    "workCompleted",
+    "workRemaining",
+    "actualOperations",
+    "verifiedQAAndReadback",
+    "protectedInvariants",
+    "realBlocker",
+    "recoveryAttempted",
+    "oneConcreteNextAction",
+    "fallback"
+  ],
+  "nextActionFields": [
+    "actionId",
+    "targetTaskId",
+    "ownerType",
+    "selectionReason",
+    "expectedEvidence",
+    "blockedByIfPartial"
+  ],
+  "deployment": {
+    "sourceOnlyDraft": true,
+    "chatgptHostAdapter": "NOT_INTEGRATED",
+    "realHostAcceptance": "UNVERIFIED",
+    "portfolioAppsAdopted": 0,
+    "portfolioAppsTracked": 18,
+    "independentHumanReview": "MISSING",
+    "reviewStatus": "REVIEW_BLOCKED",
+    "existingAppRunnerChanges": "NONE"
+  }
+}
