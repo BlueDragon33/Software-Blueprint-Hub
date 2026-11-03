@@ -36,11 +36,12 @@ On activation:
 
 ### R34.C.4 — Mandatory human-intervention gate, not routine approval
 
-Request human intervention **only** if no remaining independent eligible safe action can usefully proceed and the blocker is one of:
-- nondelegable constitutional ratification, independent mandatory human review/UX acceptance, or explicit Production/protected/destructive authorization;
-- missing or revoked identity, legitimate access, issuer signature or external consent that the agent cannot lawfully confer;
-- material goal/product conflict without a safe existing decision, or a required choice entailing new cost/paid tools/public disclosure;
-- a host/session/tool/quota/network/capability limit that genuinely prevents progress. Distinguish this from **human approval**: report `PARTIAL_CAPABILITY_LIMIT` and a minimal recovery/handoff, rather than pretending the user must ratify a technical outage.
+Request a **human decision** only after all independently eligible safe actions have been exhausted and one of these genuinely nondelegable decisions remains:
+- authenticated constitutional ratification, independent mandatory human review/UX acceptance, or explicit Production/protected/destructive authorization;
+- identity, legitimate access, issuer signature or external consent the agent cannot lawfully confer, where human action is genuinely required to obtain it;
+- material goal/product conflict without a safe existing decision, or a choice entailing new cost, paid tools or public disclosure.
+
+A host/session/tool/quota/network failure is instead a **capability boundary**, not a human approval gate: attempt any permitted recovery, continue other independently eligible work and, if still blocked, report `PARTIAL_CAPABILITY_LIMIT` with a precise fallback. Ask the user to act only if that action is indispensable to restore access/consent and name the exact decision or task; do not demand constitutional ratification for an ordinary technical outage.
 
 No implied permission to approve, merge, deploy, publish, grant, change repository visibility, enable branch rules, spend money, release, write sensitive stores, or ratify a constitution. A standing "finish everything" instruction is **not** any such approval. A human decision must identify exact action, object, scope and evidence; an AI reviewer remains advisory unless an independent authorized human actually approves.
 
@@ -49,10 +50,11 @@ No implied permission to approve, merge, deploy, publish, grant, change reposito
 Finish with one of:
 - `VERIFIED_COMPLETE`: all accepted scope completed with exact revision and applicable independently verified acceptance evidence (not just code/CI);
 - `PARTIAL_BLOCKED`: real human/authority/external gate with no eligible independent work remaining;
-- `PARTIAL_CAPABILITY_LIMIT`: session, tool, network, runtime or budget boundary genuinely prevented further work;
-- `PARTIAL_QA_UNVERIFIED`: material product acceptance requires still-missing real-world evidence despite completed bounded work.
+- `PARTIAL_CAPABILITY_LIMIT`: session, tool, network, runtime or budget boundary genuinely prevented further work.
 
-The receipt must contain projectId, effective Constitution, exact HEAD/UNVERIFIED, completed and pending WorkPackages, actions actually performed, directly observed QA and source readback, unchanged protections, blocked dependencies, attempted recovery, **one** concrete non-circular Next Action with targetTaskId/actionId/owner/expected evidence, and a fallback. Do not say "working in background", "already deployed" or "ready for use" absent direct support.
+**Compatibility with R34:** Missing QA or real-world acceptance evidence is a `PARTIAL_BLOCKED` receipt with explicit `QA_EVIDENCE_MISSING` blocker reason, **not** a fourth terminal outcome. These three terminal states follow the existing R34 review candidate; no evidence-free declaration of completion is allowed.
+
+The receipt must contain projectId, effective Constitution, exact HEAD/UNVERIFIED, completed and pending WorkPackages, actions actually performed, directly observed QA and source readback, unchanged protections, blocked dependencies, attempted recovery, **one** concrete non-circular Next Action with actionId, targetTaskId, projectId, sourceRevision (or UNVERIFIED), ownerType, selectionReason, expectedEvidence, blockedByIfPartial, and previousActionIdAndNewEvidenceIfRepeated, and a fallback. Repeating the same unresolved action without independently new relevant evidence or a changed gate must be rejected. Do not say "working in background", "already deployed" or "ready for use" absent direct support.
 
 ### R34.C.6 — Restart and multi-session continuity
 
@@ -81,7 +83,9 @@ The proposed ChatGPT `NEXT ACTION` control and existing **in-app** controls can 
 - **Security:** no expansion of standing authority; privilege rechecked per step, data redaction, no secret capture, idempotent mutations and independent attestation remain mandatory.
 - **UX:** ChatGPT-specific contextual CTA; does not change existing app CTA. Single useful final Next Action and fallback, no unnecessary user requests.
 - **Operations/cost:** work is bounded by tools, grants and host/session limits; paid services and cross-host execution remain explicit opt-in.
-- **Compatibility:** candidate 1.4.0 adds a mandatory host-facing operational obligation. Independent authority must decide MINOR vs MAJOR based on incompatibilities and real app/agent capability. Do not silently apply new requirements to active 1.3.0.
+- **Compatibility with active 1.3.0:** R7's three-remedy finite cap remains binding, R15's approved-scope/authority precedence is unchanged, R16's one active critical path and bounded work queue remain canonical, R17's evaluation exit applies to every permitted change, R18 prohibits unnecessary surfaces, R19 distinguishes nondelegable decisions from recoverable limits, R20 requires end-to-end acceptance, and R21–R22 require universal proportionate execution with truthful tool limits. R34.C adds **ChatGPT host-surface semantics**, not a new self-approving capability or a replacement for those rules.
+- **Compatibility with existing R33/R34 Draft:** Hub Draft PR #153 independently proposes R33/R34 and R34.8. R34.C is an *addendum to that same proposal*, not an alternate ratified R34 or competing source of constitutional truth. Before ratification, reconcile branch revisions and integrate into one reviewed normative set: exactly three terminal outcomes; R34.8 evidence fields (actionId, targetTaskId, projectId, sourceRevision, ownerType, selectionReason, expectedEvidence, blockedByIfPartial, previousActionIdAndNewEvidenceIfRepeated); no generic self-restart or implicit Work/runner authority. A standalone merge of #155 does not implement or ratify #153 and vice versa.
+- **Version decision:** candidate 1.4.0 may add a mandatory host-facing operational obligation. Independent authority must decide MINOR vs MAJOR from actual compatibility and host capability evidence. Do not silently impose new requirements on active 1.3.0.
 - **Migration:** review amendment and schema -> isolated host and negative tests -> authenticated independent review -> human constitutional ratification -> atomic eight-source publication with exact digest and rollback -> managed portfolio propagation, per-project acceptance and truthful adoption states. This draft completes **only the first candidate stage**.
 
 ## 5. Explicit stop and authority state
