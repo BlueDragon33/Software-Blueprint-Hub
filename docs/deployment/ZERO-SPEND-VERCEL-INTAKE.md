@@ -54,4 +54,4 @@ Other projects retain their previous status: five Cloudflare-based systems prese
 - [Vercel private-repository collaboration](https://vercel.com/docs/deployments/troubleshoot-project-collaboration)
 - `docs/UNIVERSAL-CONSTITUTION.md` and `control/development-runtime-policy.v1.json`
 
-**Outcome:** The intake policy was updated in a private experiment branch. No Vercel connection, account readback, import, live preview, test run, change to the Bauman repository, merge or production deployment has taken place.
+**Outcome:** The intake policy was updated in an isolated experiment branch in the public Hub repository. No Vercel connection, account readback, import, live preview, test run, change to the Bauman repository, merge or production deployment has taken place.
