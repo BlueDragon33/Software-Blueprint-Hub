@@ -1,6 +1,6 @@
 # ZERO-SPEND Vercel on-demand browser Preview — Blueprint OS 1.3.0
 
-**Status:** SOURCE-ONLY CANDIDATE · Vercel account NOT CONNECTED · NO BUILD · NO PREVIEW · NO PRODUCTION · NO BILLING AUTHORITY.
+**Status:** SOURCE-ONLY CANDIDATE · Vercel Hobby account/team VERIFIED by read-only API · Bauman Preview NOT AUTHORIZED · NO BUILD/DEPLOY · NO PRODUCTION · NO BILLING AUTHORITY.
 Date: 2026-11-03. Hub baseline inspected SHA `cd01fb3c2178393628ce968af209db082227d2c4`.
 
 ## Owner decision (2026-11-03)
@@ -30,6 +30,14 @@ The source contains HTML, CSS, ES modules, PWA manifest, Service Worker, local d
 
 **Risk holds:** Demo linguistic materials and imagery are not all rights-cleared. Protect Preview using Vercel Authentication if eligible; ensure no unapproved materials become public. Vercel Hobby's collaboration rules for private Git repositories can block bot-authored commits if the commit author is not the team owner. Confirm Git author/identity restrictions and who can actually trigger a manual Preview.
 
+## Verified account / isolated safety guard — 2026-11-03
+
+Connected Vercel reads: authenticated user `dinhnam3391-4708` is active on **Hobby**; team `dinhnam3391-4708` (`team_0WsY0YBA9BhSUVBuN8ZsYZNP`) is **Hobby** and readable after owner consent. Vercel Git namespace `BlueDragon33` has an admin viewer; this does not prove Vercel can deploy every individual private repository. Only `software-blueprint-hub` is listed as an existing team project, **not** Bauman. Charge API returned `404 costs_not_found`, not a proof of no historical charges.
+
+The PWA HEAD remains `0e5775d465ea13d674304adbbc02a1de468ba8f7`. A separate source-only branch `candidate/bauman-web-vercel-zero-spend-preflight-20261103` at `90cadef8dbb130e6dc112668be97fa1341ddb153` adds `web/russian-daily-standalone/vercel.json` with `git.deploymentEnabled=false`, plus 2 Node policy tests and an admission evidence document. Both tests ran locally on byte-identical GitHub blobs and passed; **not** web runtime/iPhone QA.
+
+This guard **does not exist on `main`** and has not been verified in a created Vercel project. It does not authorize Git import: an import may trigger a Production deployment from `main` before the candidate config applies. Unreviewed demo photograph, real private-repo permissions, protected Preview configuration, personal/non-commercial eligibility and independent Blueprint review are still blocking.
+
 ## Alternative Vercel candidates now dormant
 
 `Math_Bauman`, `MPC_PID_System`, and `CAD_CAM_3D` had basic web/static compatibility but **no confirmed need for continuous Preview testing**. Do not import or deploy them merely to increase Vercel coverage.
@@ -38,7 +46,7 @@ Other projects retain their previous status: five Cloudflare-based systems prese
 
 ## Exact procedure for a future eligible web Preview
 
-1. Verify the **actual account** is Vercel Hobby with zero billing requirement, allowed region, personal/non-commercial use and private repository access. No account verification has happened yet.
+1. Verify the **actual account** is Vercel Hobby with zero billing requirement, allowed region, personal/non-commercial use and private repository access. Account/team Hobby readback is verified; private-repo permission, cost and project-level protection/auto-deploy settings remain unverified.
 2. Verify a real device/browser test is blocked without a web Preview; capture the Work Package, acceptance criteria, branch/commit SHA and scope.
 3. Review app assets, privacy and all externally fetched sources; deny unsafe public disclosure. Check Vercel Hobby private-repo collaboration restrictions.
 4. Before Git import, prove **Git automatic deployments are disabled**, including `main` Production; do not create a parallel Production deployment, new canonical site or persistent service.
@@ -54,4 +62,4 @@ Other projects retain their previous status: five Cloudflare-based systems prese
 - [Vercel private-repository collaboration](https://vercel.com/docs/deployments/troubleshoot-project-collaboration)
 - `docs/UNIVERSAL-CONSTITUTION.md` and `control/development-runtime-policy.v1.json`
 
-**Outcome:** The intake policy was updated in an isolated experiment branch in the public Hub repository. No Vercel connection, account readback, import, live preview, test run, change to the Bauman repository, merge or production deployment has taken place.
+**Outcome:** The intake policy is updated on an isolated Hub experiment branch. Vercel Hobby account/team and GitHub namespace were read; an isolated Bauman source guard was committed and 2 exact-blob Node policy tests passed. **No Vercel import, live Bauman Preview, app runtime QA, merge, approval, GitHub Actions dispatch, Production or spending action occurred.**
