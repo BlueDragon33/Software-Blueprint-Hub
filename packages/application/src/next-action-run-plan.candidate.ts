@@ -215,9 +215,25 @@ export function buildContextualActionAssistance(input:Readonly<{
   if(isWork&&(!input.work||(
     input.actionLabel!==(action==="continue-work"?"Continue: ":"Unblock: ")+input.work.title
   )))throw new TypeError("Selected WorkPackage mismatch");
-  if(!isWork&&!isRelease&&!input.gate) {
-    // Missing gate record is itself the canonical blocker in define-gate.
-    if(action!=="define-gate")throw new TypeError("Selected Quality Gate mismatch");
+  if(!isWork&&!isRelease) {
+    const expected=action==="define-gate"
+      ? "Define required gate "+(input.gate?.id??"")
+      : action==="resolve-failed-gate"
+        ? "Resolve failed gate: "+(input.gate?.name??"")
+        : action==="review-candidate"
+          ? "Review candidate gate: "+(input.gate?.name??"")
+          : "Prepare gate: "+(input.gate?.name??"");
+    if(input.gate && (input.actionLabel!==expected ||
+      (action==="define-gate"&&input.gate.status!=="missing") ||
+      (action==="resolve-failed-gate"&&input.gate.status!=="fail") ||
+      (action==="review-candidate"&&input.gate.status!=="candidate") ||
+      (action==="prepare-gate"&&input.gate.status!=="not-ready"))) {
+      throw new TypeError("Selected Quality Gate mismatch");
+    }
+    if(!input.gate && (
+      action!=="define-gate" ||
+      !/^Define required gate [a-z][a-z0-9:._/-]{2,159}$/.test(input.actionLabel)
+    )) throw new TypeError("Selected Quality Gate mismatch");
   }
   const focus:ContextualActionFocus=isRelease?"release":isWork?"work-package":"quality-gate";
   const task=input.work;
