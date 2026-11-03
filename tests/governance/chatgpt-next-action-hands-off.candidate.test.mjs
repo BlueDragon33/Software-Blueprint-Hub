@@ -62,16 +62,23 @@ test("CTA never manufactures privileged authority", () => {
 });
 
 test("R34.8 complete evidence binding and no circular repeat", () => {
-  const required = [
-    "actionId", "targetTaskId", "projectId", "sourceRevision",
+  const actualGateFields = [
+    "kind", "actionId", "targetTaskId", "projectId", "sourceRevision",
     "ownerType", "selectionReason", "expectedEvidence",
-    "blockedByIfPartial", "previousActionIdAndNewEvidenceIfRepeated"
+    "blockedBy", "requiresHuman", "previousActionId", "newEvidenceIds"
   ];
-  for (const field of required) assert.ok(contract.nextActionFields.includes(field), field);
+  for (const field of actualGateFields) assert.ok(contract.nextActionFields.includes(field), field);
+  for (const field of ["blockedByIfPartial", "previousActionIdAndNewEvidenceIfRepeated"]) {
+    assert.ok(contract.r34SemanticProofObligations.includes(field), field);
+    assert.ok(!contract.nextActionFields.includes(field), "rubric-not-runtime-field:" + field);
+  }
+  assert.deepEqual(contract.nextActionConditionalFields.onRepeatedSameAction,
+    ["previousActionId", "newEvidenceIds"]);
   assert.equal(contract.repeatActionPolicy.rejectSameUnresolvedActionWithoutNewEvidence, true);
   assert.equal(contract.repeatActionPolicy.priorActionReferenceRequired, true);
   assert.equal(contract.compatibility.r34NextActionRequiredProofsAligned, true);
   assert.equal(contract.compatibility.terminalOutcomeEnumAlignedWithR34, true);
+  assert.equal(contract.compatibility.packetFieldNamesAreR34GateCompatible, true);
   assert.match(amendment, /R34\.8 evidence fields/);
 });
 
