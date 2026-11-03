@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "candidate-dual-agent-handoff",
+  "taskId": "bridge-smoke-20261103-001",
+  "policyId": "blueprint-os:universal-century-grade",
+  "policyVersion": "1.3.0",
+  "repository": "BlueDragon33/Software-Blueprint-Hub",
+  "baseSha": "cd01fb3c2178393628ce968af209db082227d2c4",
+  "handoffBranch": "experiment/dual-ai-github-bridge-20261103",
+  "from": "chatgpt",
+  "to": "claude",
+  "state": "HANDOFF_PENDING",
+  "mode": "READ_ONLY_HANDSHAKE",
+  "authorization": "NONE",
+  "reviewStatus": "REVIEW_BLOCKED",
+  "ciStatus": "NOT_RUN",
+  "productionStatus": "NOT_AUTHORIZED",
+  "challenge": "BLUEPRINT-BRIDGE-NOV03-7C42A9",
+  "request": "Read this record from the exact GitHub pilot branch. Return challenge, repository, baseSha, policyVersion, reviewStatus, and forbiddenActions. Do not write, claim execution, approve or deploy.",
+  "allowedPaths": [
+    "docs/agent-collaboration/handshake.v1.json"
+  ],
+  "forbiddenActions": [
+    "approve",
+    "merge",
+    "deploy",
+    "production",
+    "ratify",
+    "github-hosted-actions",
+    "neon-mutation",
+    "credential-sharing"
+  ],
+  "evidence": [],
+  "claims": {
+    "connected": false,
+    "claudeReadVerified": false,
+    "automated": false
+  }
+}
