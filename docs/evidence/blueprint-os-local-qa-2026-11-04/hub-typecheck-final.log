@@ -1,0 +1,18 @@
+$ pnpm -r --if-present typecheck
+Scope: 8 of 9 workspace projects
+packages/contracts typecheck$ tsc -p tsconfig.json --noEmit
+packages/ui typecheck$ tsc -p tsconfig.json --noEmit
+packages/contracts typecheck: Done
+packages/core typecheck$ tsc -p tsconfig.json --noEmit
+packages/ui typecheck: Done
+packages/core typecheck: Done
+packages/blueprint-engine typecheck$ tsc -p tsconfig.json --noEmit
+packages/persistence typecheck$ tsc -p tsconfig.json --noEmit
+packages/blueprint-engine typecheck: Done
+packages/application typecheck$ tsc -p tsconfig.json --noEmit
+packages/persistence typecheck: Done
+packages/application typecheck: Done
+packages/runtime typecheck$ tsc -p tsconfig.json --noEmit
+packages/runtime typecheck: Done
+apps/web typecheck$ tsc --noEmit
+apps/web typecheck: Done
