@@ -91,3 +91,43 @@ test("active R7 and R15–R22 are not superseded by a host-surface proposal", ()
   assert.match(amendment, /A standalone merge of #155 does not implement or ratify #153/);
   assert.match(amendment, /capability boundary.*not a human approval gate/);
 });
+
+test("Owner review is not offered before both technical reviewer lanes close", () => {
+  const gate = contract.ownerAssessmentHandoff;
+  assert.equal(gate.status, "NOT_READY");
+  assert.equal(gate.ownerRequestBeforeReady, "PROHIBITED");
+  assert.equal(gate.readyOnlyWhenAllRequiredGatesPass, true);
+  for (const required of [
+    "reviewer-A-technical-scope-closed",
+    "reviewer-B-independent-identity-and-provenance-verified",
+    "reviewer-B-exact-same-HEAD-source-readback",
+    "reviewer-B-independent-technical-findings-resolved",
+    "no-unresolved-blocking-findings",
+    "all-mandatory-QA-and-security-acceptance-evidenced",
+    "complete-owner-assessment-package"
+  ]) assert.ok(gate.requiredGates.includes(required), required);
+  assert.match(amendment, /R34\.C\.8 — Two technical reviewers finish before Owner assessment/);
+});
+
+test("Reviewer B is distinct and cannot impersonate human constitutional authority", () => {
+  const gate = contract.ownerAssessmentHandoff;
+  assert.equal(gate.roles.reviewerA.mayIssueIndependentApproval, false);
+  assert.equal(gate.roles.reviewerB.mustBeDistinctFromImplementer, true);
+  assert.equal(gate.roles.reviewerB.mayIssueConstitutionalRatification, false);
+  assert.equal(gate.roles.owner.noAutomaticRatification, true);
+  assert.equal(gate.lastVerifiedReviewers.reviewerB, "NOT_CONFIGURED_OR_NOT_PROVEN");
+  assert.equal(gate.revalidation.ifReviewerBUnconfigured.includes("REVIEW_BLOCKED"), true);
+  assert.equal(gate.revalidation.separateGitHubApprovalFromTechnicalReview, true);
+  assert.equal(gate.revalidation.separateConstitutionalRatificationFromGithubReview, true);
+});
+
+test("A repair invalidates B prior revision; Owner packet remains unsubmitted", () => {
+  const gate = contract.ownerAssessmentHandoff;
+  assert.match(gate.revalidation.onEveryCodeChange, /Invalidate prior exact-HEAD technical reviews/);
+  assert.equal(gate.noAutoSubmitToOwnerWithoutCurrentAuthority, true);
+  assert.ok(gate.handoffPacketFields.includes("reviewerAIdentityAndTechnicalEvidence"));
+  assert.ok(gate.handoffPacketFields.includes("reviewerBIdentityAndIndependentEvidence"));
+  assert.ok(gate.handoffPacketFields.includes("exactHead"));
+  assert.ok(gate.permittedOwnerDecision.includes("RETURN_FOR_CHANGES"));
+  assert.match(amendment, /do not request premature Owner ratification/);
+});
