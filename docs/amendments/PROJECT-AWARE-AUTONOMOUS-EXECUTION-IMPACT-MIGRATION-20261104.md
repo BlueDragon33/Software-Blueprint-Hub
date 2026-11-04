@@ -35,6 +35,26 @@ Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PRO
 - UX-09: Merely shortening the text does not satisfy UX-03.
 - UX-10: No hosted CI / paid calls without authority.
 
+
+## Protocol alignment and version decision
+- This document is an **author-authored assessment**, not an independent `IMPACT REVIEWED` decision or `MIGRATION READY` gate attestation.
+- Constitutional Authority, Project Authority and Production Authority remain distinct. The proposer and implementing assistant cannot impersonate independent reviewers or an authenticated Constitutional Owner.
+- The proposal is an additive strengthening of conversational execution governance, provisionally compatible with a **minor** constitutional amendment. Final version number/class requires impact-review decision; the currently planned 1.4.0 release must not be overwritten or assumed to include this PR.
+- Publication requires one exact ratified revision set: normative Constitution, machine-readable contract and canonical template, with compatibility checks and publication evidence. None is produced or authorized by this draft.
+- Project propagation requires per-repository adoption and evidence; policy approval alone cannot mark a project compliant.
+
+## Additional architecture and data impacts
+- **Architecture:** Project-scoped selection belongs in a provider-neutral orchestration/adapter boundary; canonical authority is not a chat prompt or UI widget. Avoid coupling to any single host's action component.
+- **Data:** Checkpoint owner, schema version, revision, provenance, retention and non-secret content must be defined per project. A stale or unavailable checkpoint must not silently replace authoritative repository evidence.
+- **Failure and recovery:** Action dispatch must be idempotent where possible; repeated taps or retried requests must not duplicate protected mutations. Record a correlation identifier and truthful failure state without storing credentials.
+- **Compatibility:** Projects without an action-capable host must provide a non-deceptive conversational fallback; do not claim that a constitutional update changes the ChatGPT application's native UI.
+
+## Gate evidence still needed
+- Independent assessment of UX/security/architecture/data and compatibility on exact proposal HEAD.
+- Authorized mobile and desktop rendered/tap tests, with screenshots plus actual action trace.
+- Project migration inventory and adoption blockers, not merely a generic checklist.
+- Constitutional Owner's authenticated ratification bound to the reviewed exact revision, followed by separate publication.
+
 ## Remaining blockers
 - No independent UX interaction evidence or authorized real-host mobile test.
 - No reviewer signoff.
