@@ -26,14 +26,23 @@ Users must repeatedly reconstruct project state and paste lengthy prompts to adv
 
 **PAE-08 — Usability and cost.** Favor concise status, minimal tokens/tool calls and ZERO-SPEND where requested, without compromising security or evidence. Do not invoke paid CI, hosted workflows or third-party spend without applicable authorization.
 
+
+**PAE-09 — Rendered action contract (mandatory).** Active Next Action is an executable interaction contract, not merely a sentence or a shortened paragraph. Separate `visible_label` (brief, human-readable action), `supporting_summary` (optional concise context), `execution_payload` (project-scoped instructions), `action_type`, `target_project`, `evidence_ref`, `gate_state` and `fallback`. Never display the raw execution payload as a heading, giant-font paragraph, copied prompt, inert badge or fake button. Use the host's genuine action affordance when available; if unavailable, clearly disclose the limitation and provide an honest supported alternative. This law does not purport to modify ChatGPT's native UI.
+
+**PAE-10 — Interaction acceptance gate.** A rendered action is PASS only when verified on supported clients, including mobile, for: (a) readable hierarchy, sensible wrapping and no giant-text overflow; (b) one primary action with an accessible name and touch target; (c) real activation dispatches exactly the intended current-project task, not a copy-only instruction; (d) no other project's task or state leaks; (e) disabled/blocked states are truthful and never pretend execution; (f) completion or error feedback and recovery are available. Screenshots alone are insufficient to prove click behavior; code checks alone are insufficient to prove visual UX.
+
+**PAE-11 — Failure classification and regression.** Classify separately: `PRESENTATION_FAIL`, `INTERACTION_FAIL`, `PROJECT_SCOPE_FAIL`, `EXECUTION_FAIL`, `AUTHORITY_BLOCKED`, `HOST_UNSUPPORTED`. A failure in any mandatory criterion blocks `ACTION_UX_PASS`; a repeated failure requires a root-cause record and regression case. Never close a defect by merely shortening labels or moving the full prompt into another visible text block.
+
+**PAE-12 — Host capability boundary.** ChatGPT Project membership and opening a chat do not grant control over host UI layout or automatic on-open execution. Product-owned UI cannot be promised or enforced by repository policy alone. The implementation must distinguish assistant-controlled response rendering, project-repository code, and host-controlled UI; report unsupported host features without fake compliance.
+
 ## Scope and impact review (pending)
 - Pillars: UX, Governance, Security, QA, Operations, Prompt Architecture.
 - Applicability: all governed projects with an AI conversational workflow; implementation depth depends on Blueprint Level, integration availability and risk.
 - Security: project isolation, least privilege, prompt injection resistance, exact SHA binding, no secret propagation.
 - Compatibility: additive process contract; no automatic UI or external agent capability implied.
 - Migration: each project identifies its canonical checkpoint location and a project-local next-action template; missing integrations remain explicitly BLOCKED.
-- Test plan: isolation between two projects; stale HEAD correction; one-click follow-up semantics; unavailable connector fallback; reviewer/production gate refusal; resume after checkpoint; ZERO-SPEND guard.
-- Acceptance evidence: exact repository revisions, trace of next-action selection, authorized tool execution logs, regression results and independent review as applicable.
+- Test plan: isolation between two projects; stale HEAD correction; real one-click dispatch; mobile rendered typography/wrapping; inert/copy-only action rejection; accessible touch target; blocked/unsupported host states; unavailable connector fallback; reviewer/production gate refusal; resume after checkpoint; ZERO-SPEND guard.
+- Acceptance evidence: exact repository revisions, trace of next-action selection, real interaction evidence on supported mobile/desktop hosts, authorized tool execution logs, visual review, regression results and independent review as applicable.
 
 ## Required constitutional lifecycle
 DRAFT → IMPACT REVIEWED → MIGRATION READY → RATIFICATION READY → HUMAN RATIFIED → PUBLISHED → PROPAGATING → VERIFIED.
