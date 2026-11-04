@@ -64,6 +64,16 @@ Chat state is not canonical. If a session ends, carry the minimal accepted-goal/
 
 The proposed ChatGPT `NEXT ACTION` control and existing **in-app** controls can share *policy semantics* but must not be equated. A source change to Hub PR #153 or an application deployment cannot install a native ChatGPT UI affordance. Host integration and any Work/browser automation require separately verified capabilities, interactive UX evidence and permission checks.
 
+### R34.C.8 — Two technical reviewers finish before Owner assessment
+
+**Owner's required sequence:** Reviewer A completes implementation, self-review, fixes and relevant verified testing; Reviewer B, genuinely distinct from the implementer, independently re-reads the **same exact HEAD** and reviews functionality, security, regressions and R34/Constitution compatibility. Reviewer B sends specific findings back to A for minimal repair. **Every source change invalidates prior same-HEAD review evidence**, so B must re-check the final updated HEAD. Do not forward half-complete work, a checklist of unresolved defects or an AI-only declaration of `PASS` to the Owner for ratification.
+
+**The Owner is the final assessor, not an outsourced debugging step.** Only after A's technical work is complete, B's independent review is genuinely evidenced, all blocking findings are closed and all required QA/host acceptance is documented may the canonical workflow mark the packet `OWNER_REVIEW_READY`. Then present one consolidated package: exact revision and target, scope/changed files, reviewer A and B identities and separately produced evidence, test matrix, negative tests, remaining nonblocking risks, compatibility/version decision, rollback implications and the exact human decision requested. A human may accept, reject or return it for changes; no AI substitutes for authenticated human constitutional ratification.
+
+**No fake second reviewer:** A second AI message, model label, self-generated signature or an advisory QA Worker fixture is not independent authority. Reviewer B must be separately authenticated/authorized where the governing policy requires it, with independently source-bound readback and an attributable review. The existing QA Worker is `NOT_DEPLOYED` and `NOT_CONSTITUTIONALLY_ATTESTED`; naming QA Worker or Claude as B does not prove a completed independent review or confer GitHub approval rights. If B or mandatory acceptance evidence is unavailable, keep `REVIEW_BLOCKED / OWNER_REVIEW_NOT_READY`, continue any independent safe tasks, record the missing gate and **do not request premature Owner ratification**.
+
+**Separation of authority:** Reviewers A and B may produce technical findings, execute pre-authorized scoped corrections and provide evidence, but they cannot self-ratify constitutional law, confer GitHub approval from advisory outputs, publish, merge or deploy by implication. Human ratification remains governed by the published Constitution Authority & Amendment Protocol. This is a candidate policy addition for 1.4.0, not an active 1.3.0 modification or an already running orchestration service.
+
 ## 3. Acceptance matrix (negative tests included)
 
 1. **Continue beyond one step:** given three independent authorized tasks, performs all accessible tasks and records distinct readbacks in one interactive execution, not three prompts.
