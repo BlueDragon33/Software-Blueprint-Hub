@@ -1,0 +1,87 @@
+{
+  "base": "cd01fb3c2178393628ce968af209db082227d2c4",
+  "status": "LOCAL_SOURCE_QA_PASS_PROTECTED_GATES_BLOCKED",
+  "tests": {
+    "command": "node node_modules/vitest/vitest.mjs run --passWithNoTests --fileParallelism=false",
+    "passed": 377,
+    "failed": 0,
+    "skipped": 60,
+    "filesPassed": 87,
+    "filesSkipped": 14
+  },
+  "typecheck": {
+    "command": "pnpm typecheck",
+    "workspacesPassed": 8
+  },
+  "build": {
+    "command": "NEXT_TELEMETRY_DISABLED=1 node node_modules/next/dist/bin/next build",
+    "cwd": "apps/web",
+    "result": "PASS",
+    "engine": "Next.js 16.3.6 Turbopack"
+  },
+  "inventory": {
+    "sealed": 15,
+    "admitted": 2,
+    "pending": 1,
+    "additionalPrivatePending": 3,
+    "russianExpertEngine": "pending-onboarding"
+  },
+  "constitutionVersion": "1.3.0",
+  "advisoryReview": {
+    "critical": 0,
+    "important": 0,
+    "humanApproval": false
+  },
+  "remainingBlockers": [
+    "60 PostgreSQL/integration tests skipped without isolated local database",
+    "canonical P2 admission, signed issuer and authenticated runtime unverified",
+    "independent human authority, ratification/release approval absent",
+    "9 downstream adoption manifests remain in the existing audit backlog; no adoption inferred"
+  ],
+  "sourceFiles": [
+    {
+      "path": "apps/web/src/lib/hub-app-directory.ts",
+      "sha256": "9eea0778c661de5d7ee09ec98dbd0eaaca183dc6d5fdc623a20efff1fb2aeaac",
+      "gitBlob": "cbf16350862c19499737d8feb0786d269c356efb"
+    },
+    {
+      "path": "tests/application/hub-app-directory.test.ts",
+      "sha256": "ec61a443b1855d3d29f17c450928da851109d5ea79c9dab2ab6e7c6b3cd98927",
+      "gitBlob": "668eae41bfb90fcf74f7c87bfc6c154cc59d8347"
+    }
+  ],
+  "notAuthorized": {
+    "humanApproval": false,
+    "ratification": false,
+    "merge": false,
+    "production": false
+  },
+  "evidenceDate": "2026-11-04",
+  "logs": [
+    {
+      "path": "docs/evidence/blueprint-os-local-qa-2026-11-04/hub-unit-final.log",
+      "sha256": "029750eee189885a802b4ea8a718e938c58fa39754b64fdba4be1ba8071244e7"
+    },
+    {
+      "path": "docs/evidence/blueprint-os-local-qa-2026-11-04/hub-typecheck-final.log",
+      "sha256": "546a72b1b7e9eba5ad3e1535bb23201bbe95030b0c4ce16b9a7844c02583c8fd"
+    },
+    {
+      "path": "docs/evidence/blueprint-os-local-qa-2026-11-04/hub-build-final.log",
+      "sha256": "dbb6361ca897b7156d2bf3ccaa0fded8c66fb7f20ef0c0820223702de8eded2e"
+    },
+    {
+      "path": "docs/evidence/blueprint-os-local-qa-2026-11-04/hub-launcher-final.log",
+      "sha256": "a089ca55a9d7982769d6db4c19d40421ee57a1b089b38997401394cc33cd194f"
+    }
+  ],
+  "zeroSpendPreflight": {
+    "newTechnicalBranchOnly": true,
+    "commitSkipAnnotation": "[skip ci]",
+    "nonSkippableWorkflowTriggerFound": false,
+    "hostingGitLinkedProjectsObserved": 0,
+    "deploymentsDispatched": 0,
+    "githubHostedActionsDispatched": 0
+  },
+  "logNormalization": "ANSI/carriage returns and trailing whitespace removed; assertion messages and counts preserved."
+}

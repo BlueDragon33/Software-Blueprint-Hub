@@ -30,11 +30,11 @@ describe("Vietnamese-first ecosystem launcher", () => {
     expect(apps.every((item) => groupOrder.includes(item.group) && !!item.icon && !!item.vi)).toBe(true);
     expect(apps.some((item) => "url" in item || "deployed" in item)).toBe(false);
   });
-  it("shows 15 sealed and 2 admitted repositories without inventing rights", () => {
+  it("shows 15 sealed, 2 admitted and 1 pending repository without inventing rights", () => {
     const tracked = presentTrackedApps(coverage.repositories);
-    expect(tracked).toHaveLength(17);
+    expect(tracked).toHaveLength(18);
     expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);
-    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(0);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(1);
     expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
     expect(tracked.some((app) => app.projectId === "project:ecad-design")).toBe(true);
     expect(tracked.some((app) => app.projectId === "project:cae-simulation")).toBe(true);
@@ -45,16 +45,29 @@ describe("Vietnamese-first ecosystem launcher", () => {
     ))).toThrow("observed exact SHA");
   });
 
-  it("stages all 20 identities: 15 sealed, 2 admitted and 3 private pending, without inventing deployments", () => {
+  it("stages all 21 identities: 15 sealed, 2 admitted and 4 pending, without inventing deployments", () => {
     const tracked = presentTrackedApps([...coverage.repositories,...privateServices.entries]);
-    expect(tracked).toHaveLength(20);
+    expect(tracked).toHaveLength(21);
     expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
     expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);
-    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(3);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(4);
     expect(tracked.filter((app) => app.visibility === "private")).toHaveLength(3);
     expect(tracked.filter((app) => app.visibility === "private").every((app) => app.liveCrossRepoVerified === false)).toBe(true);
     expect(tracked.every((app) => !("productionAuthorized" in app) && !("deploymentUrl" in app))).toBe(true);
     expect(() => presentTrackedApps([...coverage.repositories,...privateServices.entries,privateServices.entries[0]!])).toThrow("Duplicate");
+  });
+
+  it("presents the pending Russian expert engine without inventing enrollment or release authority", () => {
+    const identity = coverage.repositories.find((app) => app.projectId === "project:blueprint-russian-expert-engine")!;
+    expect(identity).toBeDefined();
+    const [app] = presentTrackedApps([identity]);
+    expect(app?.repository).toBe("BlueDragon33/Blueprint-Russian-Expert-Engine");
+    expect(app?.en).toBe("Russian Expert Engine");
+    expect(app?.registrationState).toBe("pending-onboarding");
+    expect(app?.sourceRevision).toBe(identity.sourceRevision);
+    expect(app).not.toHaveProperty("productionAuthorized");
+    expect(app).not.toHaveProperty("canonicalCompliance");
+    expect(() => presentTrackedApps([{ ...identity, projectId: "project:unknown" }])).toThrow("Unknown");
   });
 
   it("searches Vietnamese accents and plain text reliably", () => {

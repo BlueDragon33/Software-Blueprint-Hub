@@ -1,0 +1,8 @@
+
+ RUN  v5.0.0 /workspace/scratch/ea77d44dc383/hub-qa
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  03:14:13
+   Duration  389ms (transform 69%, import 17%, tests 11%, worker 3%)
