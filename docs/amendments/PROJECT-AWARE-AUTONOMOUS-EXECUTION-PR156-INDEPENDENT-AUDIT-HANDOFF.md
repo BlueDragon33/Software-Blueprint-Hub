@@ -55,6 +55,34 @@ These hashes are a **source inventory**, not evidence of semantic compliance or 
 - [ ] Provide independent findings, severity, exact evidence refs, and recommendation; no self-review by author.
 - [ ] Keep `REVIEW_BLOCKED` until reviewer authority and required evidence are independently verified.
 
+## Owner-side GitHub authority readback (2026-11-04; source-only)
+
+**Provenance:** authenticated GitHub connector GET responses; checked against PR #156 HEAD `2ce97ea4a87cd0135a8339e808f6431cce38d29f` immediately before this document update. This is author-side evidence collection, **not** independent review. This append changes the PR HEAD; any subsequent decision must independently read the resulting new HEAD.
+
+| Checked source | Observed result | Meaning / limitation |
+|---|---|---|
+| [Hub PR #156](https://github.com/BlueDragon33/Software-Blueprint-Hub/pull/156) | OPEN, DRAFT, unmerged; author `BlueDragon33`; zero requested users or teams | No actual reviewer assignment |
+| [PR #156 review API](https://api.github.com/repos/BlueDragon33/Software-Blueprint-Hub/pulls/156/reviews) | Empty review list | No recorded GitHub review decision |
+| [PR #156 requested-reviewers API](https://api.github.com/repos/BlueDragon33/Software-Blueprint-Hub/pulls/156/requested_reviewers) | `users=[]`, `teams=[]` | No review request on the PR |
+| PR #156 issue/review discussion | No comments returned by connector | No attributable review findings here |
+| [Hub rulesets API](https://api.github.com/repos/BlueDragon33/Software-Blueprint-Hub/rulesets) | Empty array | No repository ruleset found through available endpoint |
+| Hub branch protection API | HTTP 403 `Resource not accessible by integration` | Branch protection state is **UNKNOWN**, not proven absent |
+| [Reviewer A coordination issue #3](https://github.com/BlueDragon33/Software-Blueprint-Reviewer-A/issues/3) | Explicitly states same `BlueDragon33` actor across tabs, and claimed reviewer role is not independent identity/grant | Advisory A/B role labels cannot satisfy independent reviewer authority |
+| [Reviewer A PR #2](https://github.com/BlueDragon33/Software-Blueprint-Reviewer-A/pull/2) | Open Draft, author `BlueDragon33`; technical self-review only | Does not approve Hub PR #156 |
+| [QA Worker PR #5](https://github.com/BlueDragon33/Software-Blueprint-QA-Worker/pull/5) | Open Draft; no review entries returned | No release/reviewer authority established for Hub PR #156 |
+| [Hub PR #154](https://github.com/BlueDragon33/Software-Blueprint-Hub/pull/154) | Open Draft, no requested reviewers | Separate contract PR, no transitive authorization |
+
+### Determination
+- `INDEPENDENT_REVIEWER_AUTHORITY: NOT_VERIFIED`
+- `INDEPENDENT_REVIEW_DECISION: ABSENT`
+- `ACTION_UX_PASS: NOT_PROVEN`; UX-01..10 remain `NOT_RUN` in this dossier.
+- `IMPACT_REVIEWED: NOT_ATTESTED`; `MIGRATION_READY: NOT_ATTESTED`.
+- `HUMAN_RATIFIED: NO`; `PUBLICATION: BLOCKED`; `PROPAGATION: BLOCKED`.
+- PR must remain Draft; active Constitution 1.3.0 unchanged.
+- This finding does **not** claim the absence of all possible off-GitHub authority records, only that no valid reviewer grant + attributable exact-revision review has been evidenced by the checked sources.
+
+**Single unresolved gate:** An independently authenticated reviewer must receive a verifiable scope-specific grant and submit an attributable exact-HEAD assessment; project-specific runtime/host UX tests remain separate subsequent acceptance obligations.
+
 ## Gate state / handoff
 - Source inventory: **READBACK VERIFIED** on listed baseline.
 - Independent reviewer: **NOT PERFORMED**.
