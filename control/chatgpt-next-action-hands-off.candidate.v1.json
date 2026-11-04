@@ -187,5 +187,80 @@
   "r34SemanticProofObligations": [
     "blockedByIfPartial",
     "previousActionIdAndNewEvidenceIfRepeated"
-  ]
+  ],
+  "ownerAssessmentHandoff": {
+    "status": "NOT_READY",
+    "presentationRule": "Do not invite the Owner to assess until both technical lanes complete at the same exact source revision; do not fabricate either lane.",
+    "roles": {
+      "reviewerA": {
+        "role": "implementer-and-technical-self-review",
+        "example": "ChatGPT",
+        "mayDiagnoseRepairAndTest": true,
+        "mayIssueIndependentApproval": false
+      },
+      "reviewerB": {
+        "role": "independent-technical-evidence-reviewer",
+        "examples": [
+          "QA Worker",
+          "Claude via a separately authorized integration"
+        ],
+        "mustBeDistinctFromImplementer": true,
+        "mayProduceAdvisoryFinding": true,
+        "mayIssueConstitutionalRatification": false
+      },
+      "owner": {
+        "role": "authenticated-human-constitutional-authority",
+        "decision": "approve-or-reject-only-after-ready-evidence",
+        "noAutomaticRatification": true
+      }
+    },
+    "requiredGates": [
+      "reviewer-A-technical-scope-closed",
+      "reviewer-A-tests-and-regression-evidence-attached",
+      "reviewer-B-independent-identity-and-provenance-verified",
+      "reviewer-B-exact-same-HEAD-source-readback",
+      "reviewer-B-independent-technical-findings-resolved",
+      "reviewer-B-completion-attested-with-real-evidence",
+      "all-mandatory-QA-and-security-acceptance-evidenced",
+      "no-unresolved-blocking-findings",
+      "no-unfinished-eligible-safe-work",
+      "complete-owner-assessment-package"
+    ],
+    "revalidation": {
+      "onEveryCodeChange": "Invalidate prior exact-HEAD technical reviews and run a new Reviewer B verification.",
+      "ifReviewerBUnconfigured": "REVIEW_BLOCKED; never self-sign or route to Owner as READY",
+      "ifQaEvidenceMissing": "REVIEW_BLOCKED; no synthetic PASS",
+      "separateGitHubApprovalFromTechnicalReview": true,
+      "separateConstitutionalRatificationFromGithubReview": true
+    },
+    "readyOnlyWhenAllRequiredGatesPass": true,
+    "permittedOwnerDecision": [
+      "RATIFY",
+      "REJECT",
+      "RETURN_FOR_CHANGES"
+    ],
+    "handoffPacketFields": [
+      "projectId",
+      "exactHead",
+      "acceptedGoal",
+      "scopeAndChangedFiles",
+      "reviewerAIdentityAndTechnicalEvidence",
+      "reviewerBIdentityAndIndependentEvidence",
+      "testRegressionsAndSecurity",
+      "openFindings",
+      "gateMatrix",
+      "versionCompatibility",
+      "riskRollback",
+      "ownerDecisionNeeded"
+    ],
+    "ownerRequestBeforeReady": "PROHIBITED",
+    "noAutoSubmitToOwnerWithoutCurrentAuthority": true,
+    "lastVerifiedReviewers": {
+      "reviewerA": "SELF_REVIEW_ONLY",
+      "reviewerB": "NOT_CONFIGURED_OR_NOT_PROVEN",
+      "authenticatedOwnerRatification": "NOT_REQUESTED"
+    },
+    "scope": "proposed-universal-Constitution-workflow-only",
+    "adoption": "PROPOSED_NOT_ACTIVE"
+  }
 }
