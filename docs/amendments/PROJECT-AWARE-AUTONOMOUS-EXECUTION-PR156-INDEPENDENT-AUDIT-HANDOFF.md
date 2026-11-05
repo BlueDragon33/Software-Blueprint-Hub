@@ -8,7 +8,7 @@ Baseline reviewed: `d74ebcf23a80b8957d8bc4cb1bc21b916687c9e9`
 Base main at readback: `cd01fb3c2178393628ce968af209db082227d2c4`
 No reviewer signature, approval, ratification, merge, release or Production authorization is asserted.
 
-## Source inventory and reproducible readback
+## Historical source inventory and reproducible readback
 1. `docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PROPOSAL.md` — blob `9fd32961350bc6f335f587df12a12a759d79c7b8` — PAE-01..12 all present.
 2. `docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-IMPACT-MIGRATION-20261104.md` — blob `2e725c7d41ad53bcff874b85a0411c0bb6401403` — UX-01..10 all present.
 3. `docs/CONSTITUTION-AUTHORITY-PROTOCOL.v1.md` — main blob `775247bf2c3bf2b00dac1a3587eaf32883e404e6` — governing protocol.
@@ -31,11 +31,14 @@ These hashes are a **source inventory**, not evidence of semantic compliance or 
 | PAE-10 | mobile interaction acceptance, no fake PASS | text present; host QA not tested |
 | PAE-11 | failure taxonomy and regression | text present; regression not tested |
 | PAE-12 | host UI capability boundary | text present; platform behavior not tested |
+| PAE-13 | full draft editable before explicit Send, no execution on open/cancel | candidate text; real host NOT_RUN |
+| PAE-14 | scoped A-to-Z, independent READY work and unchanged authority gates | candidate text; native execution NOT_RUN |
 | UX-01..02 | long-prompt visual rejection and mobile wrapping | not run |
 | UX-03..04 | actual tap dispatch and project isolation | not run |
 | UX-05..06 | unsupported-host and authority gate handling | not run |
 | UX-07..08 | stale SHA resume and accessibility | not run |
 | UX-09..10 | label-only fix rejected; ZERO-SPEND | not run |
+| UX-11..15 | edited payload, cancel, duplicate dispatch, stale scope, bounded A-to-Z and honest host state | real host NOT_RUN |
 
 ## Constitution Authority Protocol consistency
 - DRAFT is not `IMPACT REVIEWED`; author-written impact analysis is not independent approval.
@@ -84,6 +87,9 @@ These hashes are a **source inventory**, not evidence of semantic compliance or 
 **Single unresolved gate:** An independently authenticated reviewer must receive a verifiable scope-specific grant and submit an attributable exact-HEAD assessment; project-specific runtime/host UX tests remain separate subsequent acceptance obligations.
 
 ## Gate state / handoff
+- **2026-11-05 Owner UX update:** PAE-03/09/10 now require an editable draft followed by explicit Send; PAE-13/14 and UX-11..15 add the complete-prompt and scoped A-to-Z requirements. This source change invalidates prior exact-HEAD review evidence. The historical inventory and prior GitHub metadata above must not be treated as the resulting current HEAD or an independent approval.
+- New policy consistency tests cover these requirements as source-only checks. Native-host UX, execution and independently authorized review remain unverified; `OWNER_REVIEW_NOT_READY` is retained. Re-read current PR HEAD and the exact pinned companion #155 contract before review.
+- Companion contract: PR #155 revision `fd4e1b55ed7557e74dc888c31dbf918b6341d97c`. Native Node 24 source consistency checks are reproducible with `node --test tests/governance/project-aware-autonomous-execution.candidate.test.mjs` (4 cases). Their results are recorded on the exact-revision PR; they are not interaction, mobile, execution or independent-review acceptance.
 - Source inventory: **READBACK VERIFIED** on listed baseline.
 - Independent reviewer: **NOT PERFORMED**.
 - Real mobile/desktop UX: **NOT_RUN**.

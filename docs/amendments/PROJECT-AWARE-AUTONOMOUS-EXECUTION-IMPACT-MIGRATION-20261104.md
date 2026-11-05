@@ -1,7 +1,7 @@
 # PAE Amendment — Impact and Migration Assessment (Draft)
 
 Status: DRAFT; no independent reviewer signoff; no human ratification; no publication.
-Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PROPOSAL.md (PAE-01..12).
+Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PROPOSAL.md (PAE-01..14).
 
 ## Impact matrix
 | Domain | Change | Risk / mitigation |
@@ -17,7 +17,7 @@ Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PRO
 ## Migration by project
 1. Inventory project ID, repository, canonical checkpoint path and current release gates; avoid cross-project task aggregation.
 2. Implement project-scoped action selection with a single primary action and exactly one safe fallback.
-3. Separate visible label/summary from execution payload and action authority; use only real supported interaction.
+3. Separate visible label/summary from the full editable execution payload and action authority; use the shared R34.C.9 candidate contract and template rather than a per-app duplicate. Opening a draft does not execute; final Send uses the edited text.
 4. Preserve exact HEAD and evidence in checkpoint; ensure stale HEAD causes refresh rather than unsafe execution.
 5. Verify mobile and desktop rendering, actual click dispatch, project isolation, blocked states and accessibility.
 6. Record regression results and independent review; only then mark project adoption evidence complete.
@@ -26,7 +26,7 @@ Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PRO
 ## Required acceptance scenarios
 - UX-01: Long internal prompt is not rendered as large heading or prose block.
 - UX-02: Mobile portrait renders readable short action and supporting context without clipping.
-- UX-03: Tapping action dispatches correct project task exactly once.
+- UX-03: Tapping opens the complete editable draft; explicit Send dispatches the correct project's actual edited text exactly once.
 - UX-04: Other project action cannot appear or dispatch.
 - UX-05: No connector/host action: explicit unsupported state, not fake interactive control.
 - UX-06: Reviewer/production block remains enforced after tapping.
@@ -34,6 +34,11 @@ Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PRO
 - UX-08: Accessibility name, focus/touch behavior and feedback checked on actual supported host.
 - UX-09: Merely shortening the text does not satisfy UX-03.
 - UX-10: No hosted CI / paid calls without authority.
+- UX-11: Editing the full prompt preserves the actual edited text sent; opening a draft alone sends nothing.
+- UX-12: Closing/cancel has no external side effect; duplicate clicks/sends cannot duplicate a dispatch or protected mutation.
+- UX-13: An edited/stale project, SHA, goal or claimed role is revalidated against trusted scope and permissions before execution.
+- UX-14: A-to-Z selected or inherited from explicit authorization continues independent READY work through bounded repair and checkpointing; a blocked branch does not halt the rest.
+- UX-15: Unsupported host, session/capability limits and protected review/release gates stay truthful; source/static tests and the Owner's screenshot cannot certify native-host ACTION_UX_PASS.
 
 
 ## Protocol alignment and version decision
