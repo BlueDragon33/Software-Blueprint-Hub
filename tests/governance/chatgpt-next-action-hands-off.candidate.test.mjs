@@ -131,3 +131,42 @@ test("A repair invalidates B prior revision; Owner packet remains unsubmitted", 
   assert.ok(gate.permittedOwnerDecision.includes("RETURN_FOR_CHANGES"));
   assert.match(amendment, /do not request premature Owner ratification/);
 });
+
+test("opening the action exposes a complete editable draft without execution", () => {
+  const e = contract.promptInteraction;
+  assert.ok(e, "editable prompt contract is required");
+  assert.equal(e.onActivate, "OPEN_EDITABLE_DRAFT");
+  assert.equal(e.primaryActionsPerProject, 1);
+  for (const key of ["fullPromptVisible", "editableBeforeSend", "sendRequiresExplicitUserAction", "submitEditedTextExactlyOnce"]) assert.equal(e[key], true, key);
+  for (const key of ["openingDraftTriggersExecution", "cancelledDraftHasSideEffects", "userEditsAreAuthorityGrants", "submissionMeansExecutionComplete"]) assert.equal(e[key], false, key);
+});
+test("Send revalidates identity, scope, revision and real host capability", () => {
+  const e = contract.promptInteraction;
+  assert.ok(e);
+  assert.deepEqual(e.revalidateOnSubmit, ["projectId", "repository", "sourceRevision", "acceptedGoal", "actorPermissions", "hostCapabilities"]);
+  assert.equal(e.unsupportedHost, "HOST_UNSUPPORTED_NO_FAKE_SEND");
+  assert.equal(contract.deployment.chatgptHostAdapter, "NOT_INTEGRATED");
+});
+test("A-Z is selected or inherited from an explicit bounded authorization", () => {
+  const m = contract.executionModes;
+  assert.ok(m, "scoped A-Z mode is required");
+  assert.deepEqual(m.available, ["NEXT_STEP", "SCOPED_A_TO_Z"]);
+  assert.equal(m.default, "INHERIT_EXPLICIT_PROJECT_AUTHORIZATION_ELSE_NEXT_STEP");
+  assert.equal(m.aToZ.requiresUserSelectionOrExistingAuthorization, true);
+  assert.equal(m.aToZ.maxScope, "accepted-goal-and-granted-operations");
+  assert.equal(m.aToZ.continueAllIndependentReadyWork, true);
+  assert.equal(m.aToZ.routineTechnicalConfirmations, false);
+  assert.equal(m.aToZ.hardRetryCapInheritedFromR7, 3);
+  assert.equal(m.aToZ.unattendedBackgroundByDefault, false);
+  assert.equal(m.aToZ.completionRequiresApplicableEvidence, true);
+  assert.equal(m.aToZ.protectedGatePolicy, "RETAIN_EXISTING_AUTHORITY_REQUIREMENTS");
+});
+test("shared A-Z template carries the current goal and evidence without claiming dispatch", () => {
+  assert.equal(typeof contract.aToZPromptTemplate, "string");
+  for (const f of ["projectName", "projectId", "repository", "sourceRevision", "acceptedGoal", "checkpoint", "grantedScope"]) assert.ok(contract.aToZPromptTemplate.includes(`{${f}}`), f);
+  assert.match(contract.aToZPromptTemplate, /DONE.*READY.*BLOCKED/);
+  assert.match(contract.aToZPromptTemplate, /ZERO-SPEND/);
+  assert.match(contract.aToZPromptTemplate, /không tự phê duyệt/);
+  assert.match(amendment, /R34\.C\.9 — Editable full prompt and scoped A-to-Z execution/);
+  assert.match(amendment, /opening.*draft.*must not submit/i);
+});

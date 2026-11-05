@@ -11,7 +11,7 @@
 
 A project assistant may create a `NEXT ACTION` button that merely starts a new generic chat turn, reopens a page, restates an existing goal or requests another routine approval; none performs the user's intended work. In parallel, Hub PR #153 proposes a **web-app** action runner. That implementation is a separate surface and does not supply a persistent native ChatGPT button, nor does it implement ChatGPT's host runtime.
 
-The desired ChatGPT NEXT ACTION is **one user-initiated, context-bound continuation**. After invocation, the agent shall autonomously execute the maximum feasible series of approved, authorized tasks within the **current** session and connected capabilities, verify each material result, recover safely and finish only upon verifiable completion or a real stop condition. No copy/paste prompt, repetitive "continue" turn, fictitious Work launch or invented background work.
+The desired ChatGPT NEXT ACTION is **one user-initiated, context-bound continuation**. Activation opens the full editable prompt; execution starts after the user sends it. The agent then autonomously executes the maximum feasible series of approved, authorized tasks within the **current** session and connected capabilities, verifies each material result, recovers safely and finishes only upon verifiable completion or a real stop condition. No mandatory manual copy/paste, repetitive "continue" turn, fictitious Work launch or invented background work.
 
 ## 2. Proposed normative surface contract — R34.C
 
@@ -21,7 +21,7 @@ The same semantic contract applies to all currently governed projects and all fu
 
 ### R34.C.2 — Honest ChatGPT CTA and host boundaries
 
-Where the conversation host supports inline user actions, show one contextual **NEXT ACTION — TIẾP TỤC ĐẾN KHI CẦN CAN THIỆP** control. It may submit an exact scoped user request to start a new interactive turn; it **does not itself** create a privileged worker, continuous background agent, automatic repeated chat turns, persistent global ChatGPT toolbar control or Work session. If the host lacks this action, provide an ordinary user-invocable equivalent, not a fake enabled button. This rule does not require a new web-app UI.
+Where the conversation host supports inline user actions, show one short, project-specific **NEXT ACTION** control. It opens the full editable scoped request in a supported draft/composer; only the user's explicit Send submits the current edited text and starts the interactive turn. Opening or cancelling the draft must not submit a message, invoke a tool or mutate project state. It **does not itself** create a privileged worker, continuous background agent, automatic repeated chat turns, persistent global ChatGPT toolbar control or Work session. If the host lacks this action, provide an ordinary user-invocable equivalent, not a fake enabled button. This rule does not require a new web-app UI.
 
 The control's label, accessible explanation and outcome must distinguish (a) a supported ChatGPT turn, (b) a host-verified Work/cloud-browser continuation, and (c) a separately authorized scoped execution service. Never claim (b) or (c) from (a) alone. A user click conveys intent to continue **within pre-existing permissions**, not a new grant.
 
@@ -74,6 +74,16 @@ The proposed ChatGPT `NEXT ACTION` control and existing **in-app** controls can 
 
 **Separation of authority:** Reviewers A and B may produce technical findings, execute pre-authorized scoped corrections and provide evidence, but they cannot self-ratify constitutional law, confer GitHub approval from advisory outputs, publish, merge or deploy by implication. Human ratification remains governed by the published Constitution Authority & Amendment Protocol. This is a candidate policy addition for 1.4.0, not an active 1.3.0 modification or an already running orchestration service.
 
+### R34.C.9 — Editable full prompt and scoped A-to-Z execution
+
+**Owner UX direction (2026-11-05):** retain the compact contextual action and expandable execution detail shown in the conversation; let the user inspect and edit the whole prompt before sending. Keep one primary recommendation for the current project. The full prompt belongs in the draft/composer or expanded detail, not a giant heading. Opening an editable draft must not submit it. Cancelling has no external side effect; Send must dispatch the actual edited text once, with honest delivery feedback and duplicate-submission protection.
+
+Offer `NEXT_STEP` and `SCOPED_A_TO_Z` within that same prepared request. Use A-to-Z when the user selects it or an existing explicit authorization for the accepted project/goal already requests it. Otherwise use the next-step scope. A-to-Z means continuing all independently eligible READY work through the accepted goal: inspect, plan, implement, test, diagnose, repair, retest, read back and checkpoint. It creates no new project scope, authority, paid capacity or unattended background task. Preserve the active R7 finite-repair cap and all independent review, exact-revision ratification, merge, publication and Production gates.
+
+At Send/execution time, resolve the trusted project, repository, current revision, accepted goal, actor permissions and host capability again. User edits are instructions, never authenticated role/issuer/approval records. Changed or unavailable context must be reconciled before privileged work; another project's task or an old SHA cannot silently replace the selected target. A blocked branch does not stop independent safe work, and ordinary technical decisions already delegated do not need another confirmation. Report meaningful milestones and one final truthful receipt; submitting a request does not prove its work has executed.
+
+The shared candidate interaction fields, mode rules and **single A-to-Z prompt template** live in `control/chatgpt-next-action-hands-off.candidate.v1.json`. Project adapters specialize the current goal/checkpoint/permissions rather than copying governance into app repositories. Applicability is universal after the established ratification and per-project evidence-backed adoption process; current adoption remains unverified. The screenshot is Owner UX preference evidence only: native host adapter/edited dispatch, desktop/mobile behavior and execution acceptance remain `NOT_RUN` until tested on the actual supported host.
+
 ## 3. Acceptance matrix (negative tests included)
 
 1. **Continue beyond one step:** given three independent authorized tasks, performs all accessible tasks and records distinct readbacks in one interactive execution, not three prompts.
@@ -86,12 +96,16 @@ The proposed ChatGPT `NEXT ACTION` control and existing **in-app** controls can 
 8. **Real host acceptance:** test that the *actual ChatGPT surface* supports the user interaction and the newly initiated conversation receives the scoped continuation. A Markdown/mock/candidate web-app button is not evidence.
 9. **Portfolio propagation:** each of the 18 currently tracked apps plus future enrolled projects proves its own adapter/process adoption; do not mark them adopted by manifest defaults. Non-app infrastructure applies the applicable same governance rules without fabricated app tiles.
 10. **Replay/checkpoint:** when the session ends, the next permitted turn resumes from source readback without losing the approved target or redoing previous verified work.
+11. **Editable draft:** opening sends no message and runs no work; the complete prompt is editable, cancellation changes no external state, and final Send uses the actual edited text exactly once.
+12. **Revalidation:** edits cannot turn an old SHA, another project's ID, pasted command or claimed role into trusted authority; revalidate scope and capabilities before execution.
+13. **Scoped A-to-Z:** explicit selection/standing authorization continues independent READY work until the accepted goal or a genuine boundary, with R7 bounds, ZERO-SPEND and no redundant routine confirmations.
+14. **Truthful host state:** distinguish draft, submitted request, verified operation and completed acceptance; unsupported dispatch stays disclosed without fake success. Static candidate tests do not prove native host UX.
 
 ## 4. Impact, compatibility and migration
 
 - **Architecture:** semantic contract only; reuses Hub canonical work and existing 1.3.0 R19/R21/R22. No independent ChatGPT host API, backend, app route, command runner or shadow DB.
 - **Security:** no expansion of standing authority; privilege rechecked per step, data redaction, no secret capture, idempotent mutations and independent attestation remain mandatory.
-- **UX:** ChatGPT-specific contextual CTA; does not change existing app CTA. Single useful final Next Action and fallback, no unnecessary user requests.
+- **UX:** ChatGPT-specific contextual CTA with an editable full draft and explicit Send; scoped A-to-Z is selected or inherited from existing authorization. Does not change existing app CTA. Single useful final Next Action and fallback, no unnecessary user requests.
 - **Operations/cost:** work is bounded by tools, grants and host/session limits; paid services and cross-host execution remain explicit opt-in.
 - **Compatibility with active 1.3.0:** R7's three-remedy finite cap remains binding, R15's approved-scope/authority precedence is unchanged, R16's one active critical path and bounded work queue remain canonical, R17's evaluation exit applies to every permitted change, R18 prohibits unnecessary surfaces, R19 distinguishes nondelegable decisions from recoverable limits, R20 requires end-to-end acceptance, and R21–R22 require universal proportionate execution with truthful tool limits. R34.C adds **ChatGPT host-surface semantics**, not a new self-approving capability or a replacement for those rules.
 - **Compatibility with existing R33/R34 Draft:** Hub Draft PR #153 independently proposes R33/R34 and R34.8. R34.C is an *addendum to that same proposal*, not an alternate ratified R34 or competing source of constitutional truth. Before ratification, reconcile branch revisions and integrate into one reviewed normative set: exactly three terminal outcomes; R34.8 evidence fields (actionId, targetTaskId, projectId, sourceRevision, ownerType, selectionReason, expectedEvidence) and conditional real gate fields (blockedBy, requiresHuman, previousActionId, newEvidenceIds); the R34.8 rubric retains semantic obligations blockedByIfPartial and previousActionIdAndNewEvidenceIfRepeated. No generic self-restart or implicit Work/runner authority. A standalone merge of #155 does not implement or ratify #153 and vice versa.
@@ -101,3 +115,7 @@ The proposed ChatGPT `NEXT ACTION` control and existing **in-app** controls can 
 ## 5. Explicit stop and authority state
 
 `REVIEW_BLOCKED` remains until an eligible independent reviewer and genuinely enforced review/branch controls exist. This draft grants no authority to self-approve, ratify, merge, deploy, change visibility, create users, run paid tools, execute arbitrary commands or write Neon/Production. Prior PR #153 / #154 and QA Worker PR #5 remain independent Draft workstreams and are not evidence that this ChatGPT-specific surface is deployed.
+
+## 6. Owner-requested editable prompt update — source QA, 2026-11-05
+
+The R34.C.9 update has 14 candidate consistency checks executable with `node --test tests/governance/chatgpt-next-action-hands-off.candidate.test.mjs` under Node 24. These check the policy/contract, authority boundaries and shared prompt, not a native host adapter. The screenshot records the Owner's preferred interaction; it does not certify edited-message dispatch or A-to-Z execution. Native-host desktop/mobile acceptance remains `NOT_RUN`, Reviewer B remains unverified and `OWNER_REVIEW_NOT_READY` remains in force. The exact candidate revision and native Node results are recorded on Draft PR #155; historical callback-only results there apply solely to their earlier revisions. Active Constitution 1.3.0 and all portfolio adoption records are unchanged.

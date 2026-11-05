@@ -13,8 +13,8 @@
   "intent": {
     "surface": "ChatGPT conversation/agent",
     "distinctFrom": "Hub web-app Next Action CTA",
-    "cta": "NEXT ACTION — TIẾP TỤC ĐẾN KHI CẦN CAN THIỆP",
-    "behavior": "one-user-initiated-interactive-continuation",
+    "cta": "{projectScopedVisibleLabel}",
+    "behavior": "editable-draft-then-explicit-user-submission",
     "newTurnMayBeIssuedByHost": true,
     "canGuaranteeBackgroundWork": false,
     "canAutoChainChatTurns": false,
@@ -262,5 +262,46 @@
     },
     "scope": "proposed-universal-Constitution-workflow-only",
     "adoption": "PROPOSED_NOT_ACTIVE"
-  }
+  },
+  "promptInteraction": {
+    "primaryActionsPerProject": 1,
+    "onActivate": "OPEN_EDITABLE_DRAFT",
+    "fullPromptVisible": true,
+    "editableBeforeSend": true,
+    "sendRequiresExplicitUserAction": true,
+    "openingDraftTriggersExecution": false,
+    "cancelledDraftHasSideEffects": false,
+    "submitEditedTextExactlyOnce": true,
+    "userEditsAreAuthorityGrants": false,
+    "submissionMeansExecutionComplete": false,
+    "revalidateOnSubmit": [
+      "projectId",
+      "repository",
+      "sourceRevision",
+      "acceptedGoal",
+      "actorPermissions",
+      "hostCapabilities"
+    ],
+    "unsupportedHost": "HOST_UNSUPPORTED_NO_FAKE_SEND",
+    "hostAcceptance": "NOT_RUN"
+  },
+  "executionModes": {
+    "available": [
+      "NEXT_STEP",
+      "SCOPED_A_TO_Z"
+    ],
+    "default": "INHERIT_EXPLICIT_PROJECT_AUTHORIZATION_ELSE_NEXT_STEP",
+    "aToZ": {
+      "requiresUserSelectionOrExistingAuthorization": true,
+      "maxScope": "accepted-goal-and-granted-operations",
+      "continueAllIndependentReadyWork": true,
+      "routineTechnicalConfirmations": false,
+      "hardRetryCapInheritedFromR7": 3,
+      "unattendedBackgroundByDefault": false,
+      "completionRequiresApplicableEvidence": true,
+      "protectedGatePolicy": "RETAIN_EXISTING_AUTHORITY_REQUIREMENTS",
+      "progressReporting": "MILESTONES_AND_FINAL_RECEIPT"
+    }
+  },
+  "aToZPromptTemplate": "THỰC HIỆN A–Z — {projectName}\nMục tiêu đã chốt: {acceptedGoal}\nDự án: {projectId}; repository: {repository}; SHA: {sourceRevision}.\nCheckpoint và bằng chứng: {checkpoint}. Phạm vi được cấp: {grantedScope}.\nĐối chiếu Hiến pháp có hiệu lực, quyền và HEAD thật; phân loại DONE / READY / BLOCKED theo phụ thuộc. Tự xử lý liên tục mọi nhánh READY trong phạm vi này: sửa → kiểm thử → đọc lại kết quả → sửa hồi quy → lưu checkpoint. Tái sử dụng PASS còn hợp lệ; không quét lại hoặc hỏi xác nhận kỹ thuật thông thường.\nTuân thủ ZERO-SPEND và vòng sửa hữu hạn R7. Khi một nhánh bị chặn, tiếp tục việc độc lập còn được phép. Giữ các cổng review, merge, ratification, publish và Production theo quyền/phê duyệt thật; không tự phê duyệt hay giả PASS. Giới hạn phiên/công cụ phải được báo đúng, không hứa chạy nền.\nChỉ kết thúc khi hoàn tất phạm vi đã được nghiệm thu hoặc hết việc độc lập có thể làm và còn cổng bảo vệ/giới hạn thực sự. Báo HEAD thực tế, DONE, PASS/FAIL/NOT_RUN, blocker còn lại và tối đa một Next Action."
 }
