@@ -27,7 +27,7 @@ The control's label, accessible explanation and outcome must distinguish (a) a s
 
 ### R34.C.3 — Reconcile once, continue automatically
 
-On activation:
+On explicit Send, after draft submission:
 1. Resolve the accepted goal, applicable policy version, canonical projectId, authorized actor/tool capability, repository/branch and real exact HEAD (or UNVERIFIED), active WorkPackage, dependencies, previous substantive PASS evidence and blockers.
 2. Build the minimal dependency-aware queue using existing `READY / ACTIVE / BLOCKED / VERIFIED / DONE` semantics. Select work in scope, rather than rediscovering the entire repository or creating redundant plans.
 3. For each eligible action: check actor, scope, source revision/record versions and granted operation at **execution time**; execute permitted work; obtain the strongest available independent readback; update only a canonical state the actor may legitimately write.

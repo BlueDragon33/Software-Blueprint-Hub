@@ -139,6 +139,9 @@ test("opening the action exposes a complete editable draft without execution", (
   assert.equal(e.primaryActionsPerProject, 1);
   for (const key of ["fullPromptVisible", "editableBeforeSend", "sendRequiresExplicitUserAction", "submitEditedTextExactlyOnce"]) assert.equal(e[key], true, key);
   for (const key of ["openingDraftTriggersExecution", "cancelledDraftHasSideEffects", "userEditsAreAuthorityGrants", "submissionMeansExecutionComplete"]) assert.equal(e[key], false, key);
+  const executionClause = amendment.split("### R34.C.3")[1].split("### R34.C.4")[0];
+  assert.match(executionClause, /On explicit Send, after draft submission:/);
+  assert.doesNotMatch(executionClause, /On activation:/);
 });
 test("Send revalidates identity, scope, revision and real host capability", () => {
   const e = contract.promptInteraction;
