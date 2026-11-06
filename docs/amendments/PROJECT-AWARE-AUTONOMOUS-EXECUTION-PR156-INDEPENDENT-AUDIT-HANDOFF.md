@@ -89,7 +89,7 @@ These hashes are a **source inventory**, not evidence of semantic compliance or 
 ## Gate state / handoff
 - **2026-11-05 Owner UX update:** PAE-03/09/10 now require an editable draft followed by explicit Send; PAE-13/14 and UX-11..15 add the complete-prompt and scoped A-to-Z requirements. This source change invalidates prior exact-HEAD review evidence. The historical inventory and prior GitHub metadata above must not be treated as the resulting current HEAD or an independent approval.
 - New policy consistency tests cover these requirements as source-only checks. Native-host UX, execution and independently authorized review remain unverified; `OWNER_REVIEW_NOT_READY` is retained. Re-read current PR HEAD and the exact pinned companion #155 contract before review.
-- Companion contract: PR #155 revision `fd4e1b55ed7557e74dc888c31dbf918b6341d97c`. Native Node 24 source consistency checks are reproducible with `node --test tests/governance/project-aware-autonomous-execution.candidate.test.mjs` (4 cases). Their results are recorded on the exact-revision PR; they are not interaction, mobile, execution or independent-review acceptance.
+- Companion contract: PR #155 revision `55f1873eb12f70c621575585da1d272e0a8c50ad`. Native Node 24 source consistency checks are reproducible with `node --test tests/governance/project-aware-autonomous-execution.candidate.test.mjs` (4 cases). Their results are recorded on the exact-revision PR; they are not interaction, mobile, execution or independent-review acceptance.
 - Source inventory: **READBACK VERIFIED** on listed baseline.
 - Independent reviewer: **NOT PERFORMED**.
 - Real mobile/desktop UX: **NOT_RUN**.
