@@ -1,0 +1,135 @@
+{
+  "schema": "blueprint-os:next-action-local-qa/v1",
+  "recordedAt": "2026-11-06T05:28:16.236686+00:00",
+  "scope": "SOURCE_LOCAL_QA_ONLY",
+  "baseline": {
+    "repository": "BlueDragon33/Software-Blueprint-Hub",
+    "pr": 153,
+    "sourceRevision": "e67a561190e95516919229789031bc38190f6a8f",
+    "sourceTree": "54a77bae962b47e3d6e6661ab5904e65b8c866c9",
+    "materializedExactSourceBlobs": 495
+  },
+  "verifiedSourceTreeBeforeEvidence": "2ab8d53df97b29bb6f2d78d3cafb61ba0cce103b",
+  "changedSourceFiles": [
+    {
+      "path": "apps/web/app/ecosystem/ecosystem-directory.tsx",
+      "sha256": "04135a6f14500ff81fe28c1dea3f94820924074268355dfb5ffd59c8fd79224f"
+    },
+    {
+      "path": "packages/persistence/src/next-action-work-binding-repository.ts",
+      "sha256": "6754c9256f1cc5a01cdf58e93b32ab59b8cd61655c6a71f22fb60b45a3ba5f55"
+    },
+    {
+      "path": "scripts/ci-p2-cross-service-smoke.mjs",
+      "sha256": "0c1b8a7cf5ade2533a5290ec37780cf02311f0a7e93eb49529b5fd0050d90d15"
+    },
+    {
+      "path": "tests/application/r34-continuation-receipt.candidate.test.mjs",
+      "sha256": "3158948ffe74107d3e9ff1b42ebe7027d0b54ad74e8da9409222c2c1611d4ba4"
+    },
+    {
+      "path": "tests/application/unified-next-action-binding-pg-integration.test.ts",
+      "sha256": "0b4c660fe507005f9d8b55b058a2296d32a4efb52f6ffbc8d5cc546f7385756c"
+    },
+    {
+      "path": "tests/application/unified-next-action-execution.test.ts",
+      "sha256": "116eacf71eb2162bb61037dbf9839546d1a105a89ffb629a6649541d326bf258"
+    },
+    {
+      "path": "tests/persistence/next-action-binding-precision.test.ts",
+      "sha256": "78b1bf286b1e0ff6b385a229aee62fe3b92764ab63fe3780db632ebc4a31655c"
+    }
+  ],
+  "environment": {
+    "node": "24.22.1",
+    "typescript": "6.0.3",
+    "vitest": "5.0.0",
+    "prisma": "7.10.0",
+    "eslint": "10.11.0",
+    "next": "16.3.6",
+    "dependencyMethod": "Existing materialized dependencies copied into isolated root; relative workspace links resolve inside this checkout. No dependency download or lifecycle install.",
+    "freshFrozenInstall": "BLOCKED_OFFLINE_METADATA_UNAVAILABLE",
+    "declaredPackageManager": "pnpm@12.4.0",
+    "availablePnpm": "11.25.0"
+  },
+  "verification": {
+    "baselineTypechecks": {
+      "passed": 8,
+      "failed": 0,
+      "projects": [
+        "contracts",
+        "core",
+        "blueprint-engine",
+        "application",
+        "persistence",
+        "runtime",
+        "ui",
+        "web"
+      ]
+    },
+    "precisionRegression": {
+      "beforeFix": {
+        "passed": 5,
+        "failed": 1
+      },
+      "afterFixFocused": {
+        "passed": 15,
+        "failed": 0
+      },
+      "fixtureScope": "Driver-shaped local unit fixture; not live PostgreSQL"
+    },
+    "finalVitest": {
+      "passed": 490,
+      "failed": 0,
+      "skipped": 72,
+      "total": 562,
+      "command": "env -u DATABASE_URL -u QA_DATABASE_URL BLUEPRINT_QA_DB_INTEGRATION=false node node_modules/vitest/vitest.mjs run --passWithNoTests --fileParallelism=false"
+    },
+    "finalLint": {
+      "exitCode": 0,
+      "fixedUnusedDeclarations": 3,
+      "command": "node node_modules/eslint/bin/eslint.js ."
+    },
+    "finalChangedWorkspaceTypechecks": {
+      "persistence": 0,
+      "runtime": 0
+    },
+    "finalBuild": {
+      "exitCode": 0,
+      "engine": "Next.js 16.3.6 default Turbopack",
+      "typecheckIncluded": true,
+      "compilerGeneratedNextEnv": "Restored to tracked source after build; no build/config bypass"
+    },
+    "logSha256": {
+      "qa-vitest.log": "14ef42c6abc84b0c171f82fccbca2c9fb9a6dffdfb0cc82b3b297651d2a80e67",
+      "qa-build.log": "a7866f78c296c9b104b05a7ae67ccb776e682267b0f97e6d45d6e5e3d3394f87",
+      "qa-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "fix": {
+    "cause": "TIMESTAMPTZ(6) loses microseconds in JavaScript Date; exact-equality count could reject a unique valid adoption.",
+    "change": "Reuse existing canonical latestAdoption single-snapshot/tie checks at both binding boundaries. Owner, scope, revocation and Production=false rules retained.",
+    "livePostgresRegression": "Authored deterministic .123456 fixture in existing gated PG suite; NOT_RUN"
+  },
+  "continuationObservation": {
+    "scopedUserPromptReceived": true,
+    "continuedIndependentReadyWorkWithoutRoutineConfirmation": true,
+    "hostClickOrDeviceProvenance": "UNVERIFIED",
+    "notHostUxAcceptance": true
+  },
+  "remainingGates": [
+    "REAL_POSTGRES_INTEGRATION_NOT_RUN",
+    "AUTHENTICATED_BROWSER_ROLE_CMD_ACCEPTANCE_NOT_RUN",
+    "AUTHENTICATED_PROJECT_REVIEW_NOT_PROVEN",
+    "R33_R34_RECONCILIATION_AND_HUMAN_RATIFICATION_NOT_COMPLETE"
+  ],
+  "authority": {
+    "aiReview": "ADVISORY_ONLY",
+    "canonicalGatePass": false,
+    "constitutionalRatification": false,
+    "mergeAuthorizedByThisEvidence": false,
+    "productionAuthority": false,
+    "databaseMutationPerformed": false,
+    "actionsDispatched": false
+  }
+}

@@ -1,5 +1,6 @@
-import { unifiedNextActionPresentation } from "@blueprint-os/application";
-import { continueCanonicalNextAction } from "../actions";
+import { buildNextActionBlueprintCandidate, unifiedNextActionPresentation } from "@blueprint-os/application";
+import { ProjectNextActionRunner } from "./project-next-action-runner";
+import { ProjectActionGuidance } from "./project-action-guidance";
 import type { BlueprintServerRuntime } from "@blueprint-os/runtime";
 import {
   EmptyState,
@@ -56,6 +57,19 @@ export function ReadinessOverview({
   readonly actionChanged?: boolean;
 }) {
   const nextAction = unifiedNextActionPresentation(readiness);
+  const blueprint = buildNextActionBlueprintCandidate({
+    projectId: readiness.projectId,
+    profileVersion,
+    actionKind: nextAction.actionKind,
+    actionLabel: nextAction.description,
+    reason: readiness.nextAction.reason,
+    readinessState: readiness.state,
+    evidenceFreshness: readiness.evidenceSummary.freshness,
+    // Evidence revision is NOT necessarily the current source HEAD. Fail closed.
+    sourceRevision: null,
+    workPackageId: nextAction.actionKind === "unblock-work"
+      ? (readiness.blockedWork[0]?.id ?? null) : null
+  });
 
   return (
     <>
@@ -170,19 +184,19 @@ export function ReadinessOverview({
             <p className="section-kicker">Công việc tiếp theo</p>
             <h2>{nextAction.description}</h2>
             <p>{readiness.nextAction.reason}</p>
+            <ProjectActionGuidance blueprint={blueprint} />
             {actionChanged ? (
               <p role="status">
                 Trạng thái hoặc phiên quyền của dự án đã thay đổi. Vui lòng
                 đọc lại công việc tiếp theo trước khi bấm.
               </p>
             ) : null}
-            <form action={continueCanonicalNextAction.bind(
-              null, readiness.projectId, profileVersion, nextAction.actionKind
-            )}>
-              <button className="primary-button" type="submit">
-                {nextAction.label} →
-              </button>
-            </form>
+            <ProjectNextActionRunner
+              projectId={readiness.projectId}
+              profileVersion={profileVersion}
+              actionKind={nextAction.actionKind}
+              actionLabel={readiness.nextAction.label}
+            />
           </article>
 
           <article className="readiness-panel">

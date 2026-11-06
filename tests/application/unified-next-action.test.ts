@@ -147,8 +147,15 @@ describe("Unified Constitution inheritance candidate (not ratified)", () => {
       "../../apps/web/app/projects/[projectId]/actions.ts",
       import.meta.url
     ),"utf8");
-    expect(component).toContain("action={continueCanonicalNextAction.bind(");
-    expect(component).toContain('type="submit"');
+    // R33 one-click uses server action; legacy navigation remains independently checked.
+    const runner=readFileSync(new URL(
+      "../../apps/web/app/projects/[projectId]/_components/project-next-action-runner.tsx",
+      import.meta.url
+    ),"utf8");
+    expect(component).toContain("<ProjectNextActionRunner");
+    expect(component).not.toContain("<form action={continueCanonicalNextAction");
+    expect(runner).toContain("startGuidedNextAction(projectId,profileVersion,actionKind,actionLabel,mode)");
+    expect(serverAction).toContain("export async function startGuidedNextAction(");
     expect(serverAction).toContain('"use server"');
     expect(serverAction).toContain("loadProjectWorkspace");
     expect(serverAction).toContain("workspace.runtime.readiness.read(");

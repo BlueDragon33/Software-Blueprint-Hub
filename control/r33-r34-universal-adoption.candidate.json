@@ -1,0 +1,289 @@
+{
+  "schema": "blueprint-os:r33-r34-universal-adoption-review/v1",
+  "status": "candidate-not-ratified-not-propagated",
+  "registrySource": "control/governance-current-view.v1.json",
+  "registrySourceHead": "cd01fb3c2178393628ce968af209db082227d2c4",
+  "constitutionalOwner": "Software-Blueprint-Hub",
+  "effectiveConstitution": "1.3.0",
+  "proposedConstitution": "1.4.0",
+  "rules": [
+    "R33",
+    "R34"
+  ],
+  "snapshotHistoryIsAdoptionEvidence": false,
+  "needsPerAppExactSourceAndIndependentRealHostAcceptance": true,
+  "apps": [
+    {
+      "projectId": "project:blueprint-os",
+      "repository": "BlueDragon33/Software-Blueprint-Hub",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:bauman-master-ai-system",
+      "repository": "BlueDragon33/Bauman-master-ai-system",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:application-management",
+      "repository": "BlueDragon33/Application-Management",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:boiech-ai",
+      "repository": "BlueDragon33/BOIECH_AI",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:ru-life",
+      "repository": "BlueDragon33/RU_LIFE",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:health-care",
+      "repository": "BlueDragon33/Health_Care",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:nc03-modem",
+      "repository": "BlueDragon33/NC03_Modem",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:ros-1-2",
+      "repository": "BlueDragon33/ROS-1-2",
+      "branch": "ros2",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:math-bauman",
+      "repository": "BlueDragon33/Math_Bauman",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:growup-mychildren",
+      "repository": "BlueDragon33/GrowUP_MyChildren",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:hardware-simulation",
+      "repository": "BlueDragon33/Hardware_Simulation",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:mpc-pid-system",
+      "repository": "BlueDragon33/MPC_PID_System",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:cad-cam-3d",
+      "repository": "BlueDragon33/CAD_CAM_3D",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:pricereport-tunggiabao",
+      "repository": "BlueDragon33/PriceReport_Tunggiabao",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:pc-manager-desktop",
+      "repository": "BlueDragon33/pc-manager-desktop",
+      "branch": "main",
+      "registrationState": "sealed-baseline",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:ecad-design",
+      "repository": "BlueDragon33/ECAD_Design",
+      "branch": "main",
+      "registrationState": "admitted-registration",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:cae-simulation",
+      "repository": "BlueDragon33/CAE_Simulation",
+      "branch": "main",
+      "registrationState": "admitted-registration",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    },
+    {
+      "projectId": "project:blueprint-russian-expert-engine",
+      "repository": "BlueDragon33/Blueprint-Russian-Expert-Engine",
+      "branch": "main",
+      "registrationState": "pending-onboarding",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "sourceHead": "UNVERIFIED",
+      "independentQA": "UNVERIFIED",
+      "realHostAcceptance": "UNVERIFIED",
+      "r34RuntimeContinuation": "NOT_INTEGRATED"
+    }
+  ],
+  "privateExecutionServices": [
+    {
+      "projectId": "project:software-blueprint-execution-gateway",
+      "repository": "BlueDragon33/Software-Blueprint-Execution-Gateway",
+      "branch": "main",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "infrastructureNotAppTile": true
+    },
+    {
+      "projectId": "project:software-blueprint-execution-worker",
+      "repository": "BlueDragon33/Software-Blueprint-Execution-Worker",
+      "branch": "main",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "infrastructureNotAppTile": true
+    },
+    {
+      "projectId": "project:software-blueprint-qa-worker",
+      "repository": "BlueDragon33/Software-Blueprint-QA-Worker",
+      "branch": "main",
+      "r33R34Adoption": "NOT_ADOPTED",
+      "infrastructureNotAppTile": true
+    }
+  ],
+  "sharedNextActionBlueprint": {
+    "schema": "blueprint-os:universal-next-action-blueprint/v1",
+    "centralTemplate": "packages/application/src/next-action-blueprint.candidate.ts",
+    "centralContract": "control/unified-next-action.candidate.v1.json#nextActionBlueprint",
+    "requiredOutputs": [
+      "guidance",
+      "prioritized-direction",
+      "one-step-optimized-prompt",
+      "end-to-end-bounded-prompt"
+    ],
+    "mandatoryAdapters": "per-device-per-role-no-child-constitution",
+    "requiredRealEvidence": [
+      "current-repository-HEAD",
+      "source-bound-canonical-readiness",
+      "ProjectProfile-version",
+      "interactive-guidance-toggle",
+      "prompt-copy-fallback",
+      "server-next-action-preflight",
+      "mobile-keyboard-a11y",
+      "safe-negative-auth",
+      "real-work-or-missing-runner-truth"
+    ],
+    "inheritanceAfterHumanRatificationOnly": true,
+    "adoptionDefault": "NOT_ADOPTED",
+    "executionInteraction": {
+      "state": "review-only-not-adopted",
+      "onClick": "auto-generate-current-step-plan-and-run-scoped-available-operations",
+      "notClipboardWorkflow": true,
+      "taskAdaptation": [
+        "read-only-inspection",
+        "signed-executor-required",
+        "allowlisted-canonical-cmd-evidence",
+        "human-review-authorization"
+      ],
+      "cmdEvidence": {
+        "marker": "BLUEPRINT_CMD_READONLY:<id>",
+        "from": "canonical-WorkPackage.acceptanceCriteria",
+        "pasteBoxOnlyForCmdTasks": true,
+        "untrustedInputCannotCloseGate": true
+      },
+      "runtimeProofRequired": [
+        "authenticated-one-click-run",
+        "canonical-work-and-gate-readback",
+        "stale-role-version-fail-close",
+        "safe-CMD-input-conditional",
+        "same-session-result",
+        "no-invented-mutation-or-publish"
+      ],
+      "appStatusBeforeIndependentEvidence": "NOT_ADOPTED"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+name: Constitution 1.4.0 Eight-Source Candidate QA (NO RATIFY/PUBLISH)
+on:
+  pull_request:
+    paths:
+      - "docs/amendments/CONSTITUTION-R33-R34-1.4.0-REVIEW.md"
+      - "scripts/prepare-constitution-1.4-candidate.mjs"
+      - "tests/tooling/constitution-1.4-proposal.test.mjs"
+      - "scripts/constitution-1.4-publication-readiness.mjs"
+      - "tests/tooling/constitution-1.4-publication-readiness.test.mjs"
+      - ".github/workflows/constitution-1.4-candidate-qa.yml"
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  isolated-authority-source-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Exact source HEAD
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - name: Validate 1.3.0 baseline and v1.4.0 candidate with native isolated replay and rollback
+        run: node --test tests/tooling/constitution-1.4-proposal.test.mjs
+      - name: Generate inspectable eight-source v1.4.0 proposal patch in artifacts only
+        run: node scripts/prepare-constitution-1.4-candidate.mjs --write-candidate artifacts/constitution-1.4-CANDIDATE.patch
+      - name: Publication fail-closed governance tests (never a grant)
+        run: node --test tests/tooling/constitution-1.4-publication-readiness.test.mjs
+      - name: Record live GitHub publication blockers for exact PR source
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/constitution-1.4-publication-readiness.mjs --json artifacts/constitution-1.4-publication-readiness.json
+      - name: Preserve proposed patch and blocker receipt for independent reviewer (not publication)
+        uses: actions/upload-artifact@v7
+        with:
+          name: constitution-1.4-proposal-${{ github.event.pull_request.head.sha }}
+          path: |
+            artifacts/constitution-1.4-CANDIDATE.patch
+            artifacts/constitution-1.4-publication-readiness.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Block all authority transitions
+        run: echo "CANDIDATE_REPLAY_ONLY=true; R33_R34_NOT_RATIFIED=true; PUBLISH=false; ECOSYSTEM_ROLLOUT=false"

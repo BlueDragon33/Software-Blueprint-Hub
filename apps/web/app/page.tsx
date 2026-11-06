@@ -8,8 +8,8 @@ import { loadCompassProjection } from "../src/server/compass-projection";
 import { RetryCurrentView } from "./_components/retry-current-view";
 import { SystemCompass } from "./_components/system-compass";
 import { HubLauncher } from "./_components/hub-launcher";
-import { presentGovernedApps } from "../src/lib/hub-app-directory";
-import governed from "../../../control/constitution-governed-repositories.json";
+import { presentTrackedApps } from "../src/lib/hub-app-directory";
+import tracked from "../../../control/governance-current-view.v1.json";
 
 export const dynamic = "force-dynamic";
 
@@ -122,7 +122,7 @@ export default async function HomePage() {
             projectId: item.projectId, name: item.name,
             blueprintLevel: item.blueprintLevel, updatedAt: item.updatedAt
           }))}
-          governedApps={canManageEcosystem ? presentGovernedApps(governed.repositories) : []}
+          governedApps={canManageEcosystem ? presentTrackedApps(tracked.repositories) : []}
           canManageEcosystem={canManageEcosystem}
         />
         <details className="hub-technical-details">
