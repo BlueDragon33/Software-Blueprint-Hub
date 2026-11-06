@@ -26,7 +26,6 @@ const attempt={...good,tasks:[verified('investigate'),blocked('fix')],scopeTaskI
   nextActions:['Receive authenticated human ratification decision for the reviewed revision'],
   nextActionProof:humanNext};
 const assertState=(x,decision)=>assert.equal(gate(x).decision,decision,JSON.stringify(gate(x)));
-const hasCode=(x,code)=>assert.equal(gate(x).reason,code,JSON.stringify(gate(x)));
 const setTasks=(x,tasks)=>({...x,tasks,scopeTaskIds:tasks.map(t=>t.id)});
 
 test('E2E-01 remaining eligible tasks must continue', () =>

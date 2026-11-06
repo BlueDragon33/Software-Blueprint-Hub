@@ -86,8 +86,7 @@ function harness(overrides: {
         projectId,recordVersion:1,status:"ready"
       }))},
       workflowExecutionAdoptionDecision:{
-        findFirst:vi.fn(async()=>({policyVersion:context.policyVersion,decision:"adopt",decidedAt:new Date("2026-10-17T00:00:00Z")})),
-        count:vi.fn(async()=>1)
+        findMany:vi.fn(async()=>[{policyVersion:context.policyVersion,decision:"adopt",decidedAt:new Date("2026-10-17T00:00:00Z")}])
       },
       workflowExecutionQaVerification:{create:vi.fn(),findUnique:vi.fn()}
     }
