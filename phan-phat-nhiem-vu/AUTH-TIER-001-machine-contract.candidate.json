@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/BlueDragon33/Software-Blueprint-Hub/blob/proposal/auth-tiers-task-dispatch-20261107/phan-phat-nhiem-vu/AUTH-TIER-001-machine-contract.candidate.json",
+  "title": "AUTH-TIER-001 app-scoped Project Profile extension candidate — NOT RATIFIED",
+  "description": "DRAFT ONLY. Future schema extension, no global account service, no runtime login mandate. Must be reconciled into canonical Project Profile schema and constitutional version set AFTER human ratification.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "accountModel",
+    "managedMode",
+    "accountAuthority",
+    "ownerPolicyBoundary",
+    "rollout"
+  ],
+  "properties": {
+    "accountModel": {
+      "enum": [
+        "AUTH-L1",
+        "AUTH-L2",
+        "AUTH-PLANE",
+        "NOT-APPLICABLE"
+      ]
+    },
+    "managedMode": {
+      "enum": [
+        "required",
+        "optional",
+        "not-applicable"
+      ]
+    },
+    "accountAuthority": {
+      "enum": [
+        "app-owned",
+        "control-plane",
+        "none"
+      ]
+    },
+    "ownerPolicyBoundary": {
+      "enum": [
+        "application-management:app-scoped",
+        "constitution-authority:existing",
+        "none"
+      ]
+    },
+    "classificationEvidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "userEntitlement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expiryPolicy",
+        "renewalPolicy"
+      ],
+      "properties": {
+        "expiryPolicy": {
+          "enum": [
+            "app-configured",
+            "not-applicable"
+          ]
+        },
+        "renewalPolicy": {
+          "enum": [
+            "owner-approved",
+            "not-applicable"
+          ]
+        }
+      }
+    },
+    "deviceLimit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "firstLinkApproval": {
+          "type": "boolean"
+        },
+        "supported": {
+          "type": "boolean"
+        }
+      }
+    },
+    "sync": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "consent"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "off",
+            "app-specific"
+          ]
+        },
+        "consent": {
+          "enum": [
+            "required-when-applicable",
+            "not-applicable"
+          ]
+        },
+        "conflictPolicy": {
+          "enum": [
+            "CAS-and-user-review",
+            "not-applicable"
+          ]
+        }
+      }
+    },
+    "managerDelegation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "scope",
+        "onboardingReview"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "scope": {
+          "enum": [
+            "explicit-app-scoped",
+            "none"
+          ]
+        },
+        "onboardingReview": {
+          "enum": [
+            "two-stage",
+            "reviewed-equivalent",
+            "not-applicable"
+          ]
+        }
+      }
+    },
+    "localCore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preserveExistingOffline"
+      ],
+      "properties": {
+        "preserveExistingOffline": {
+          "const": true
+        },
+        "protectedRemoteMutationsFailClosed": {
+          "const": true
+        }
+      }
+    },
+    "rollout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "defaultFlag",
+        "requiredEvidence",
+        "productionReleaseAuthority"
+      ],
+      "properties": {
+        "defaultFlag": {
+          "const": "OFF"
+        },
+        "requiredEvidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "security",
+              "privacy",
+              "migration",
+              "ux",
+              "runtime",
+              "offline",
+              "cost",
+              "independent-review"
+            ]
+          },
+          "minItems": 8
+        },
+        "productionReleaseAuthority": {
+          "const": false
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "accountModel": {
+            "const": "AUTH-L2"
+          }
+        },
+        "required": [
+          "accountModel"
+        ]
+      },
+      "then": {
+        "properties": {
+          "managedMode": {
+            "enum": [
+              "required",
+              "optional"
+            ]
+          },
+          "accountAuthority": {
+            "const": "app-owned"
+          },
+          "managerDelegation": {
+            "properties": {
+              "enabled": {
+                "const": true
+              },
+              "scope": {
+                "const": "explicit-app-scoped"
+              },
+              "onboardingReview": {
+                "enum": [
+                  "two-stage",
+                  "reviewed-equivalent"
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "managerDelegation",
+          "userEntitlement"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "accountModel": {
+            "const": "AUTH-L1"
+          }
+        },
+        "required": [
+          "accountModel"
+        ]
+      },
+      "then": {
+        "properties": {
+          "managedMode": {
+            "enum": [
+              "required",
+              "optional"
+            ]
+          },
+          "accountAuthority": {
+            "const": "app-owned"
+          },
+          "managerDelegation": {
+            "properties": {
+              "enabled": {
+                "const": false
+              },
+              "scope": {
+                "const": "none"
+              },
+              "onboardingReview": {
+                "const": "not-applicable"
+              }
+            }
+          }
+        },
+        "required": [
+          "managerDelegation",
+          "userEntitlement"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "accountModel": {
+            "enum": [
+              "AUTH-PLANE",
+              "NOT-APPLICABLE"
+            ]
+          }
+        },
+        "required": [
+          "accountModel"
+        ]
+      },
+      "then": {
+        "properties": {
+          "managedMode": {
+            "const": "not-applicable"
+          },
+          "managerDelegation": {
+            "properties": {
+              "enabled": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
