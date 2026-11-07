@@ -1,0 +1,507 @@
+{
+  "schemaVersion": "0.1.0-candidate",
+  "proposalId": "AUTH-TIER-001",
+  "status": "DRAFT_NOT_DISPATCHED",
+  "constitutionalBaseline": "1.3.0",
+  "hubBaselineSha": "cd01fb3c2178393628ce968af209db082227d2c4",
+  "dispatchBoundary": "AFTER_HUMAN_RATIFIED_AND_PUBLISHED",
+  "defaultFeatureFlag": "OFF",
+  "paidResourcesAllowed": false,
+  "workPackages": [
+    {
+      "id": "AUTH-TIER-001-APP-01",
+      "repository": "BlueDragon33/Software-Blueprint-Hub",
+      "profileTierCandidate": "AUTH-PLANE",
+      "managedMode": "governance-platform",
+      "risk": "CRITICAL",
+      "responsibleRole": "Constitutional Authority",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Reconcile other constitutional candidates and exact authority set; integrate canonical wording/contract/template only after authenticated ratification; version adoption evidence, no self-approval.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-02",
+      "repository": "BlueDragon33/Application-Management",
+      "profileTierCandidate": "AUTH-PLANE",
+      "managedMode": "control-plane",
+      "risk": "CRITICAL",
+      "responsibleRole": "Control-plane Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Confirm project registry omission of pc-manager-desktop; design per-app Owner UI for expiry/quotas/delegated grants, optimistic version CAS, audit/readback and server-scoped typed policy without duplicating app business data.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-03",
+      "repository": "BlueDragon33/Bauman-master-ai-system",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "managed-optional",
+      "risk": "HIGH",
+      "responsibleRole": "Bauman Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Optional L1 pilot: reuse existing Device Gate and owner entitlement; test expiry/revoke/renewal, account isolation, offline learning, no child app-subject duplication.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-04",
+      "repository": "BlueDragon33/BOIECH_AI",
+      "profileTierCandidate": "AUTH-L2",
+      "managedMode": "target-implementation",
+      "risk": "CRITICAL",
+      "responsibleRole": "Boi Ech Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Pilot L2 via existing Issue #108 and candidate Account-first P0: RED tests for two approvals, role/scope, race-safe 3 devices, consented sync, D1 migration/certificates, Cloudflare Workers Free CPU/KDF Preview; flag OFF.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-05",
+      "repository": "BlueDragon33/RU_LIFE",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "managed-optional",
+      "risk": "HIGH",
+      "responsibleRole": "RU_LIFE Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Inventory HN device/session registry; maintain offline Russia-life PWA without forced login; implement managed L1 only behind reviewed optional flag.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-06",
+      "repository": "BlueDragon33/Health_Care",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "managed-optional-sensitive",
+      "risk": "CRITICAL",
+      "responsibleRole": "Health_Care Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Privacy/child-health threat model, guardian consent and health retention; preserve app-owned confidential records and offline mode; defer optional login until specialist review.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-07",
+      "repository": "BlueDragon33/NC03_Modem",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "optional-managed-only",
+      "risk": "HIGH",
+      "responsibleRole": "NC03 Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Separate modem-local credentials and device write gates from optional app entitlement; preserve local-only login/AES-GCM vault, never export modem secrets to App Management.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-08",
+      "repository": "BlueDragon33/ROS-1-2",
+      "profileTierCandidate": "NOT-APPLICABLE",
+      "managedMode": "library-no-end-user-account",
+      "risk": "MEDIUM",
+      "responsibleRole": "ROS Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Mark N/A for ROS core; inspect future UI distribution separately; no auth dependency in ROS grid/pointcloud processing.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-09",
+      "repository": "BlueDragon33/Math_Bauman",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "managed-optional",
+      "risk": "MEDIUM",
+      "responsibleRole": "Math Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Classify independent Math site as optional L1; preserve academic content ownership, local exercises, module links without global identity.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-10",
+      "repository": "BlueDragon33/GrowUP_MyChildren",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "managed-optional-sensitive",
+      "risk": "CRITICAL",
+      "responsibleRole": "GrowUP Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Guardian/child-consent and local family scope assessment; no fabricated L2 manager; protect per-child records/exports/offline; optional managed L1 only after privacy review.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-11",
+      "repository": "BlueDragon33/Hardware_Simulation",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "optional-managed-only",
+      "risk": "MEDIUM",
+      "responsibleRole": "Hardware Simulation Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Keep simulation engine and firmware laboratory usable offline without login; only evaluate L1 for future hosted workspace.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-12",
+      "repository": "BlueDragon33/MPC_PID_System",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "optional-managed-only",
+      "risk": "MEDIUM",
+      "responsibleRole": "MPC PID Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Protect offline MPC/NMPC/PID workbench and benchmark workflows; optional L1 only for validated hosted collaboration scope.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-13",
+      "repository": "BlueDragon33/CAD_CAM_3D",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "managed-optional",
+      "risk": "HIGH",
+      "responsibleRole": "CAD CAM Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Preserve local design files/export and offline CAD; classify optional L1 for managed collaboration, no identity dependency in core CAD/CAE.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-14",
+      "repository": "BlueDragon33/PriceReport_Tunggiabao",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "managed-optional",
+      "risk": "HIGH",
+      "responsibleRole": "PriceReport Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Protect Standalone Mode/Device Gate OFF; if managed mode exists, expiry/quota via scoped L1. Reclassify to L2 only on real branch/employee delegated account approval evidence.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    },
+    {
+      "id": "AUTH-TIER-001-APP-15",
+      "repository": "BlueDragon33/pc-manager-desktop",
+      "profileTierCandidate": "AUTH-L1",
+      "managedMode": "managed-optional",
+      "risk": "HIGH",
+      "responsibleRole": "PC Manager Project Owner",
+      "stage": "PROPOSED_NOT_DISPATCHED",
+      "sourceValidation": "REPO_ID_AND_CLASSIFICATION_REVIEW_ONLY",
+      "task": "Reconcile missing Application Management project-registry entry; distinguish P-256 outbound agent/device identity from optional user account; preserve offline clean/startup and no remote shell.",
+      "requiredBeforeExecution": [
+        "published-exact-policy-version",
+        "authenticated-project-owner-scope",
+        "current-HEAD-readback",
+        "per-app-contract-migration-and-security-review"
+      ],
+      "evidence": [
+        "source-diff",
+        "negative-access-tests",
+        "runtime-or-N/A-justification",
+        "offline-rehearsal",
+        "migration-and-rollback",
+        "UX",
+        "independent-review",
+        "FREE-capacity-readback"
+      ],
+      "rollout": {
+        "flag": "OFF",
+        "productionAuthority": false,
+        "applicationManagementAuthorityUnchanged": true
+      },
+      "nextGate": "PROJECT_OWNER_REVIEW_AFTER_CONSTITUTION_PUBLICATION"
+    }
+  ]
+}
