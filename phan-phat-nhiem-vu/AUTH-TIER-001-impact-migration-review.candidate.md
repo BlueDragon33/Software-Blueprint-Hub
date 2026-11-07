@@ -1,6 +1,6 @@
 # AUTH-TIER-001 — Impact / migration / human-review brief
 
-**Status:** PRELIMINARY IMPACT DRAFT — NOT reviewed by independent actor; NOT ratification-ready. Policy ACTIVE 1.3.0 at main `cd01fb3c2178393628ce968af209db082227d2c4`. Proposal intake branch original `339e2c7fb6bc33f04b0bd082ce894211688e2ec8`. Source snapshot 2026-11-07, no runtime tests or deployed changes.
+**Status:** DRAFT / IMPACT_PRELIMINARY / NOT_RATIFIED / NOT_PUBLISHED / NOT_PROPAGATED — NOT reviewed by independent actor; NOT ratification-ready. Policy ACTIVE 1.3.0 at main `cd01fb3c2178393628ce968af209db082227d2c4`. Proposal intake branch original `339e2c7fb6bc33f04b0bd082ce894211688e2ec8`. Source snapshot 2026-11-07, no runtime tests or deployed changes.
 
 ## Inventory and discrepancy
 
