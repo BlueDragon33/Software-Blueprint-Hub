@@ -192,7 +192,7 @@ test("task preview, editable draft and explicit approval are separate from prote
   assert.equal(r.hostAcceptance, "NOT_RUN");
   for (const gate of ["CONSTITUTION_RATIFICATION", "INDEPENDENT_REVIEW", "MERGE", "PRODUCTION_RELEASE", "DESTRUCTIVE_WRITE", "PAID_SPEND"]) assert.ok(r.approvalsThatRemainSeparate.includes(gate), gate);
   for (const f of ["projectId", "goal", "repository", "sourceRevision", "scope", "plannedActions", "requiredEvidence", "knownBlockers", "protectedGates"]) assert.ok(r.previewMustShow.includes(f), f);
-  assert.match(amendment, /R34\\.C\\.10 — Review, edit and explicitly approve task dispatch/);
+  assert.match(amendment, /R34\.C\.10 — Review, edit and explicitly approve task dispatch/);
   assert.match(amendment, /DUYỆT & GỬI THỰC HIỆN/);
   assert.match(amendment, /task-dispatch instruction only/);
   assert.match(amendment, /not a persistent ChatGPT Project toolbar/);
