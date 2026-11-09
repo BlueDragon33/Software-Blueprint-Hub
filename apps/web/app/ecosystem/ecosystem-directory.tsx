@@ -88,9 +88,17 @@ export function EcosystemDirectory({ apps, canonicalProjectIds, initialAppId }: 
                 {pending && selected.sourceRevision && <div><dt>SHA</dt><dd><code>{selected.sourceRevision.slice(0, 12)}</code> ({en ? "historic observation" : "ghi nhận trước đó"})</dd></div>}
               </dl>
               <div className={styles.actions}>
-                {eligible && (
+                {eligible ? (
                   <Link className={styles.primary} href={"/projects/" + encodeURIComponent(selected.projectId)}>
                     {en ? "Open workspace →" : "Mở nội dung dự án →"}
+                  </Link>
+                ) : (
+                  <Link className={styles.primary} href={provisioned.has(selected.projectId)
+                    ? "/projects/" + encodeURIComponent(selected.projectId) + "/profile"
+                    : "/projects/new"}>
+                    {provisioned.has(selected.projectId)
+                      ? en ? "Inspect canonical Profile →" : "Xem hồ sơ dự án chuẩn →"
+                      : en ? "Prepare canonical Profile →" : "Chuẩn bị hồ sơ dự án chuẩn →"}
                   </Link>
                 )}
                 <a className={styles.secondary} href={"https://github.com/" + selected.repository}
@@ -99,8 +107,8 @@ export function EcosystemDirectory({ apps, canonicalProjectIds, initialAppId }: 
                 </a>
               </div>
               {!eligible && <p className={styles.note}>{pending
-                ? en ? "This repo is tracked for onboarding only. Its recorded SHA is not a live HEAD check. No canonical project access, Quality Gate PASS or Production approval is implied."
-                     : "Repo chỉ được theo dõi để tiếp nhận. SHA đã ghi không phải xác minh HEAD trực tiếp. Chưa được cấp quyền dự án, Quality Gate PASS hoặc Production."
+                ? en ? "This repo is tracked for onboarding only. Its recorded SHA is not a live HEAD check. A Profile link does not grant execution, Quality Gate PASS or Production approval."
+                     : "Repo đang chờ tiếp nhận. SHA đã ghi không phải HEAD trực tiếp. Mở hồ sơ không cấp quyền thực thi, Quality Gate PASS hoặc Production."
                 : en ? "No verified in-app deployment URL is associated with this repository in the Hub. Source access does not imply the app has been published."
                      : "Hub chưa xác minh URL ứng dụng đang chạy. Mã nguồn không chứng minh ứng dụng đã phát hành."}</p>}
               {selected.projectId === "project:application-management" && (
