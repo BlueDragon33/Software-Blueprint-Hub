@@ -12,6 +12,9 @@ const { createElement } = fromWeb("react") as { createElement: (...args: unknown
 const source = readFileSync(new URL(
   "../../apps/web/app/projects/[projectId]/_components/readiness-overview.tsx", import.meta.url
 ), "utf8");
+const ecosystemSource = readFileSync(new URL(
+  "../../apps/web/app/ecosystem/ecosystem-directory.tsx", import.meta.url
+), "utf8");
 const guideSource = readFileSync(new URL(
   "../../apps/web/app/projects/[projectId]/_components/project-action-guidance.tsx", import.meta.url
 ), "utf8");
@@ -56,6 +59,17 @@ describe("R33 centrally-sourced contextual actions — review-only", () => {
     expect(source).toContain("<ProjectNextActionRunner");
     expect(source.split("<ProjectNextActionRunner").length - 1).toBe(1);
     expect(source).not.toContain("<form action=");
+  });
+
+  it("supports canonical and pending onboarding with one true primary route and a source fallback", () => {
+    expect(ecosystemSource).toContain('registrationState === "pending-onboarding"');
+    expect(ecosystemSource).toContain('eligible ? (');
+    expect(ecosystemSource).toContain('href={provisioned.has(selected.projectId)');
+    expect(ecosystemSource).toContain('"/projects/new"');
+    expect(ecosystemSource).toContain(' + "/profile"');
+    expect(ecosystemSource).toContain('href={"https://github.com/" + selected.repository}');
+    expect(ecosystemSource).toContain('Mở hồ sơ không cấp quyền thực thi');
+    expect(ecosystemSource).not.toContain("dispatchExecution(");
   });
 
   it("never treats prompt copy as execution or invents a source HEAD", () => {
