@@ -93,9 +93,8 @@ describe("UANA 1.0 project-scoped choice → preview → edited human send contr
   expect(()=>renderUanaDraft(poisoned,"inspect")).toThrow(/current project/);
  });
  it("never labels a Prompt Projection as a GitHub Issue if no checkpoint exists",()=>{
-  const proposal=createUanaProposal(make({
-    headSha:undefined,repository:undefined,checkpointRef:undefined
-  }))!;
+  const {headSha: _headSha,repository: _repository,checkpointRef: _checkpointRef,...verifiedWithoutGit} = source;
+  const proposal=createUanaProposal(verifiedWithoutGit)!;
   expect(proposal.context.checkpointRef).toBe("prompt-projection:projection:boi-v1");
   const text=renderUanaDraft(proposal,"inspect");
   expect(text).toMatch(/Git HEAD: CHƯA XÁC MINH/);
