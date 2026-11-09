@@ -196,6 +196,7 @@ export function ReadinessOverview({
               profileVersion={profileVersion}
               actionKind={nextAction.actionKind}
               actionLabel={readiness.nextAction.label}
+              fallbackHref={nextAction.href}
             />
           </article>
 
