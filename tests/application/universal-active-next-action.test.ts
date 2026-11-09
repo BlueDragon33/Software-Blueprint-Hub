@@ -38,6 +38,12 @@ describe("UANA 1.0 project-scoped choice → preview → edited human send contr
   expect(proposal.requiresOwnerSend).toBe(true);
   expect(proposal.derivedNotCanonical).toBe(true);
  });
+ it("an in-progress task with non-PASS gate must recommend review-only unblock, not execution",()=>{
+  const proposal=createUanaProposal(source)!;
+  expect(proposal.options[1]).toMatchObject({id:"continue",isReviewOnly:true});
+  expect(proposal.options[1].title).toMatch(/Gỡ chặn/);
+  expect(proposal.options.some(o=>o.id==="extend")).toBe(false);
+ });
  it("blocking gates never offer a fictitious unrestricted expansion",()=>{
   const proposal=createUanaProposal(make({
     workPackages:[{projectId:source.projectId,id:"BLOCK-1",title:"Missing Preview authorization",
