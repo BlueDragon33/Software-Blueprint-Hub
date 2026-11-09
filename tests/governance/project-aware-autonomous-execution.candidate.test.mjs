@@ -88,7 +88,7 @@ test("review-edit-approve is a project-scoped task dispatch, not ratification or
 
 test("companion R34.C.10 contract pin is exact and remains unratified", () => {
   assert.ok(proposal.includes("blob/eb9d6ae29457e55f420833a04524f783d95ed1b5/control/chatgpt-next-action-hands-off.candidate.v1.json"));
-  assert.match(proposal, /No mutation to active Universal Constitution 1\\.3\\.0/);
+  assert.match(proposal, /No mutation to active Universal Constitution 1\.3\.0/);
   assert.match(impact, /no independent reviewer signoff/);
   assert.match(impact, /no human ratification/);
 });
