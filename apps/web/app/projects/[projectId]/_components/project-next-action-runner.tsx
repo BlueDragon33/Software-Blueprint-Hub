@@ -11,7 +11,7 @@ import styles from "./project-action-guidance.module.css";
 type NextKind = Parameters<typeof startGuidedNextAction>[2];
 
 export function ProjectNextActionRunner({
-  projectId, profileVersion, actionKind, actionLabel, fallbackHref
+  projectId, profileVersion, actionKind, actionLabel, fallbackHref, actionChanged = false
 }: {
   readonly projectId: string;
   readonly profileVersion: number;
@@ -19,6 +19,7 @@ export function ProjectNextActionRunner({
   readonly actionLabel: string;
   /** Navigation derived from the authorized canonical readiness snapshot. */
   readonly fallbackHref: string;
+  readonly actionChanged?: boolean;
 }) {
   const [busy,setBusy]=useState(false);
   const [scope,setScope]=useState<"next"|"end-to-end">("next");
@@ -28,7 +29,7 @@ export function ProjectNextActionRunner({
   const [cmdStatus,setCmdStatus]=useState("");
 
   async function run(mode:"next"|"end-to-end") {
-    if (inFlight.current) return;
+    if (actionChanged || inFlight.current) return;
     inFlight.current=true;
     setBusy(true);
     setCmdStatus("");
@@ -44,7 +45,7 @@ export function ProjectNextActionRunner({
   }
 
   async function submitCmd() {
-    if (!result?.command || !commandOutput.trim() || inFlight.current) return;
+    if (actionChanged || !result?.command || !commandOutput.trim() || inFlight.current) return;
     inFlight.current=true;
     setBusy(true);
     try {
@@ -79,12 +80,12 @@ export function ProjectNextActionRunner({
     <div className={styles.runWrap} aria-label="Điều phối NEXT ACTION">
       <label htmlFor="next-action-scope">Phạm vi kiểm tra</label>
       <select id="next-action-scope" className={styles.scopeSelect}
-        value={scope} disabled={busy}
+        value={scope} disabled={busy || actionChanged}
         onChange={event => setScope(event.target.value==="end-to-end"?"end-to-end":"next")}>
         <option value="next">Bước hiện hành</option>
         <option value="end-to-end">KIỂM TRA TOÀN BỘ KẾ HOẠCH (TRONG QUYỀN HIỆN CÓ)</option>
       </select>
-      <button type="button" className="primary-button" disabled={busy} onClick={() => void run(scope)}>
+      <button type="button" className="primary-button" disabled={busy || actionChanged} onClick={() => void run(scope)}>
         {busy ? "Đang xử lý…" : "NEXT ACTION — TỰ LẬP KẾ HOẠCH & KIỂM TRA"}
       </button>
       <a href={fallbackHref} className={styles.workflowLink}>
@@ -145,7 +146,7 @@ export function ProjectNextActionRunner({
                 maxLength={24000} onChange={event => setCommandOutput(event.target.value)}
                 placeholder="Dán kết quả CMD ở đây. Kết quả sẽ được phân tích, không tự xem là QA PASS."/>
               <button type="button" className={styles.helpButton}
-                disabled={busy || !commandOutput.trim()} onClick={() => void submitCmd()}>
+                disabled={busy || actionChanged || !commandOutput.trim()} onClick={() => void submitCmd()}>
                 TIẾP NHẬN KẾT QUẢ CMD & PHÂN TÍCH
               </button>
             </div>
