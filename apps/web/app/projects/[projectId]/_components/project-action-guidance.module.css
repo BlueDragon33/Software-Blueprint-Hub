@@ -65,3 +65,13 @@
 .assistPanel p { margin: 0; line-height: 1.55; }
 .assistPanel ul { margin: 0; padding-left: 1.25rem; }
 .assistPanel li + li { margin-top: 0.35rem; }
+
+/* One primary action + a native, keyboard-friendly scope selector.
+   Separate read-only navigation remains a link, not a second executor. */
+.scopeSelect {
+  box-sizing: border-box; width: 100%; min-height: 2.75rem; padding: 0.65rem 0.8rem;
+  border: 1px solid #aeb9d3; border-radius: 0.65rem;
+  background: #fff; color: #17203e; font: inherit; font-size: 0.9rem;
+}
+.scopeSelect:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.scopeSelect:disabled { opacity: 0.72; }
