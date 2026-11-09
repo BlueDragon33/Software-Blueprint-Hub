@@ -22,7 +22,6 @@ describe("R33 one-click flow and conditional CMD support",()=>{
     expect(ui).toContain("KIỂM TRA TOÀN BỘ KẾ HOẠCH");
     expect(ui).toContain("MỞ BƯỚC TƯƠNG ỨNG TRONG DỰ ÁN (CHỈ ĐIỀU HƯỚNG)");
     expect(ui).toContain("fallbackHref");
-    expect(ui).not.toContain("onClick={() => void run(\\"end-to-end\\")}");
     expect(ui).toContain("Chưa chạy sửa mã");
     expect(ui).toContain("Đã thực hiện");
     expect(ui).toContain("Chưa thực hiện / chờ điều kiện");
@@ -35,7 +34,9 @@ describe("R33 one-click flow and conditional CMD support",()=>{
     expect(ui.match(/className="primary-button"/g)).toHaveLength(1);
     expect(ui.match(/href={fallbackHref}/g)).toHaveLength(1);
     expect(ui).toContain('value={scope}');
-    expect(ui).toContain('disabled={busy}');
+    expect(ui).toContain('disabled={busy || actionChanged}');
+    expect(ui).toContain('if (actionChanged || inFlight.current) return;');
+    expect(ui).toContain('actionChanged || !result?.command');
     expect(ui).toContain('run(scope)');
     expect(ui).not.toContain('onClick={() => void run("end-to-end")}');
     expect(ui).toContain('Chưa chạy sửa mã');
