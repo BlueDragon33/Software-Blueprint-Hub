@@ -1,3 +1,4 @@
+import {readFileSync} from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   createUanaProposal, renderUanaDraft, UANA_VERSION,
@@ -105,5 +106,21 @@ describe("UANA 1.0 project-scoped choice → preview → edited human send contr
     workPackages:[source.workPackages[1]!,source.workPackages[1]!]
   }))).toThrow(/duplicate Work Package/);
   expect(()=>createUanaProposal(make({gates:[source.gates[0]!,source.gates[0]!]}))).toThrow(/duplicate Gate/);
+ });
+});
+
+describe("UANA portable metadata-only contract",()=>{
+ it("machine schema keeps source identity and no-authority flags required",()=>{
+  const schema=JSON.parse(readFileSync(new URL("../../schemas/uana-next-action.v1.json",import.meta.url),"utf8"));
+  expect(schema.title).toMatch(/advisory only/);
+  expect(schema.properties.schemaVersion.const).toBe("uana:v1.0");
+  expect(schema.properties.productionAuthorized.const).toBe(false);
+  expect(schema.properties.qualityGatePassed.const).toBe(false);
+  expect(schema.properties.requiresOwnerSend.const).toBe(true);
+  expect(schema.properties.derivedNotCanonical.const).toBe(true);
+  expect(schema.properties.context.required).toContain("sourceRevision");
+  expect(schema.properties.context.required).toContain("projectId");
+  expect(schema.properties.options.maxItems).toBe(3);
+  expect(schema.$comment).toMatch(/Cross-record projectId/);
  });
 });
