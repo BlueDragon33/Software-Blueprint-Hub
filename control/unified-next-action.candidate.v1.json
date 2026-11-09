@@ -27,6 +27,139 @@
       "allowGenericChatUrlAsWorkSession": false
     }
   },
+  "chatProjectUana": {
+    "schema": "blueprint-os:chat-project-uana-candidate/v1",
+    "version": "1.0.0",
+    "status": "proposal-only-not-constitutional-law",
+    "owner": "BlueDragon33/Software-Blueprint-Hub",
+    "scope": "ChatGPT Project conversation-level recommendation, preview and explicit new-turn submission; not the Hub web application Next Action runtime",
+    "infrastructure": {
+      "newApplication": false,
+      "newDatabase": false,
+      "newProjectRegistry": false,
+      "newCanonicalPromptStore": false,
+      "automaticGlobalChatGPTUiInstallation": false
+    },
+    "compatibility": {
+      "effectiveConstitution": "1.3.0",
+      "futureApproval": "constitutional/governance review and surface-specific adoption required",
+      "existingHubAppRunner": "keep existing POST-backed single Next Action, stale reauthorization and protected executor gates unchanged",
+      "hostAvailability": "render only supported actual controls; use editable/copyable text when unavailable",
+      "perProjectInstructions": "optional human-managed distribution after approval; not automatic and never replaces central authority"
+    },
+    "intake": {
+      "projectScope": "only the active ChatGPT Project; other projects only if directly dependent",
+      "recover": [
+        "last source-verified checkpoint",
+        "actual exact repository and HEAD or UNVERIFIED",
+        "effective policy",
+        "PASS/FAIL/BLOCKED/NOT_RUN",
+        "relevant owner feedback"
+      ],
+      "doNotReauditExistingPass": true,
+      "neverInfer": [
+        "CI outcome",
+        "repository SHA",
+        "host Work session",
+        "review/production authority"
+      ]
+    },
+    "trigger": [
+      "significant-checkpoint",
+      "real-owner-decision",
+      "user-asks-continue"
+    ],
+    "selection": {
+      "oneActiveNextAction": true,
+      "maximumOptions": 3,
+      "renderRadioIfEligibleChoicesAtLeast": 2,
+      "onlyGenuineAlternatives": true,
+      "exactlyOneSelected": true,
+      "recommendedDefault": "highest-impact-safe-eligible",
+      "singleViableOption": "direct-action-no-fake-radio",
+      "noOwnerQuestionWhenAlreadyAuthorized": true,
+      "eachOptionRequires": [
+        "goal",
+        "benefit",
+        "risk-or-execution-condition"
+      ]
+    },
+    "interaction": {
+      "heading": "ACTIVE NEXT ACTION — [ACTIVE CHATGPT PROJECT]",
+      "decisionHeading": "[WORK STEP ID] — [DECISION]",
+      "previewButton": "Xem Active Next Action",
+      "onPreview": "expand-read-only-context-and-editable-prompt-no-dispatch",
+      "promptEditor": "owner-editable-textarea",
+      "onOptionChange": "regenerate-preview-draft-from-selected-option-preserve-user-edits-only-when-explicit",
+      "explicitSubmitButton": "Gửi / Tiếp tục",
+      "onSubmit": "submit-edited-text-as-new-chat-turn-only-when-host-supports-real-user-triggered-submission",
+      "submitRequiresActualUserInteraction": true,
+      "previewOrRadioImpliesApproval": false,
+      "submissionImpliesAuthority": false,
+      "unsupportedInteractionFallback": "editable-or-copyable-text-no-fake-controls",
+      "responsive": true,
+      "accessible": [
+        "single-radio-group",
+        "keyboard-usable",
+        "clear-labels",
+        "mobile-friendly"
+      ]
+    },
+    "promptEnvelope": [
+      "ACTIVE NEXT ACTION — project identity",
+      "effective published Constitution version",
+      "correct owner repository",
+      "source-verified HEAD or UNVERIFIED",
+      "actual checkpoint/issue/PR",
+      "owner-selected option when needed",
+      "remaining scope after PASS preservation",
+      "bounded repair and focused QA",
+      "independent readback and actual evidence",
+      "one next action and honest terminal state",
+      "forbidden actions and approval/cost boundaries"
+    ],
+    "execution": [
+      "read-checkpoint",
+      "plan",
+      "execute-authorized-scope",
+      "focused-test",
+      "review-when-required",
+      "independent-readback",
+      "checkpoint-only-if-new-evidence",
+      "one-action-or-real-stop"
+    ],
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "NOT_RUN"
+    ],
+    "feedback": {
+      "error": "reproduce-root-cause-small-fix-regression-independent-review-if-needed",
+      "ownerAccepted": "acceptance-only-for-explicit-function-revision-and-tested-environment",
+      "improvement": "scope-delta-not-automatic-regression",
+      "lessons": "versioned-evidence-led-candidate-lessons; generalization-needs-governance-approval",
+      "modelWeightChanges": false
+    },
+    "safety": {
+      "promptIsNotAuthority": true,
+      "chatNewTurnIsNotProductionApproval": true,
+      "cannotClaimBackgroundExecution": true,
+      "noPaidServiceWithoutApproval": true,
+      "noMergeRatificationOrProtectedMutationWithoutGrant": true,
+      "noStatusPromotionWithoutEvidence": true,
+      "noGlobalDashboard": true,
+      "avoidUnchangedBlockedRepeat": true,
+      "noSyntheticActionOptions": true
+    },
+    "adoption": {
+      "hubDocumentStatus": "draft-reviewed-as-part-of-existing-pr153",
+      "chatSurfaceStatus": "not-globally-installed",
+      "otherProjects": "not-adopted",
+      "postApprovalInstructionsDistribution": "manual-opt-in-per-ChatGPT-Project",
+      "requiresRealHostInteractionQA": true
+    }
+  },
   "preflight": {
     "serverActorRequired": true,
     "projectReadPermission": "PROJECT_READ",
