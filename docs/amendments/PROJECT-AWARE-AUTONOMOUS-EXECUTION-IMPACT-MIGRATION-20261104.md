@@ -1,7 +1,7 @@
 # PAE Amendment — Impact and Migration Assessment (Draft)
 
 Status: DRAFT; no independent reviewer signoff; no human ratification; no publication.
-Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PROPOSAL.md (PAE-01..14).
+Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PROPOSAL.md (PAE-01..17).
 
 ## Impact matrix
 | Domain | Change | Risk / mitigation |
@@ -10,8 +10,8 @@ Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PRO
 | Security | Context isolation and authorization boundaries | Prevent cross-project leakage; fail closed on ambiguous identity |
 | Governance | Proposal cannot self-ratify | Separate constitutional owner, reviewers and publication |
 | QA | New ACTION_UX_PASS gate | Do not infer from CI, screenshot, label length or mock click |
-| Operations | Durable checkpoints and recovery | Exact revision binding, non-secret evidence, staleness detection |
-| Cost | Prefer ZERO-SPEND | No paid workflow or hosted CI without authorization |
+| Operations | Durable checkpoints, exact destination mapping and recovery | Wrong Worker/database/Preview/Production selection must fail closed before protected mutation; preserve known mapping and approved resources |
+| Cost | Prefer ZERO-SPEND and shortest safe execution path | No unnecessary tool/token/time loops or new paid workflow; never weaken required gates |
 | Compatibility | Additive process semantics | No host UI modification promised; no automatic rollout |
 
 ## Migration by project
@@ -40,6 +40,11 @@ Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PRO
 - UX-14: A-to-Z selected or inherited from explicit authorization continues independent READY work through bounded repair and checkpointing; a blocked branch does not halt the rest.
 - UX-15: Unsupported host, session/capability limits and protected review/release gates stay truthful; source/static tests and the Owner's screenshot cannot certify native-host ACTION_UX_PASS.
 
+
+- UX-16: Correct resource/Worker/D1/environment identity is checked from canonical config before a protected write; similar names must not be conflated (e.g., `boi-ech` Worker vs. `boi-ech-db` D1, with separate Preview resources).
+- UX-17: With target and permission already known, next action advances the active critical path without repeated plans, redundant inventory scans, duplicated PRs or asking the same question. A detour requires new cited evidence or real risk.
+- UX-18: Wrong target or repetitive work records one evidence-bound execution defect and a bounded corrective regression; screenshot/apology alone never asserts real deployment, measurable loss or PASS.
+- UX-19: Correct direct-path enforcement never bypasses migration, security, data protection, Quality Gates, independent review or explicit Production authority. Paid spend and token-cost minimization cannot override those gates.
 
 ## Protocol alignment and version decision
 - This document is an **author-authored assessment**, not an independent `IMPACT REVIEWED` decision or `MIGRATION READY` gate attestation.
