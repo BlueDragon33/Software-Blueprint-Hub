@@ -119,6 +119,7 @@ export function createUanaProposal(source: UanaSource): UanaProposal | null {
   if (!active) return null; // Don't invent a next action if canonical work is all complete/absent.
   const blocked = normalizedStatus(active.status) === "blocked";
   const gateIssues = source.gates.filter(g => normalizedStatus(g.status) !== "pass");
+  const gated = blocked || gateIssues.length > 0;
   const options: UanaOption[] = [
     Object.freeze({id: "inspect", projectId: source.projectId, workPackageId: active.id,
       title: "A — Kiểm tra và giữ nguyên phạm vi",
@@ -126,12 +127,12 @@ export function createUanaProposal(source: UanaSource): UanaProposal | null {
       objective: "Kiểm tra trạng thái thực tế và các blocker của " + active.id,
       recommended: false, isReviewOnly: true}),
     Object.freeze({id: "continue", projectId: source.projectId, workPackageId: active.id,
-      title: blocked ? "B — Gỡ chặn bằng chứng (khuyến nghị)" : "B — Tiếp tục Work Package (khuyến nghị)",
-      description: blocked ? "Tập trung xử lý lý do BLOCKED; không triển khai qua gate." :
+      title: gated ? "B — Gỡ chặn bằng chứng (khuyến nghị)" : "B — Tiếp tục Work Package (khuyến nghị)",
+      description: gated ? "Tập trung xử lý Quality Gate/BLOCKED; không triển khai qua gate." :
         "Triển khai bước còn lại trong Work Package với kiểm thử và review.",
-      objective: (blocked ? "Làm rõ và gỡ chặn " : "Tiếp tục ") + active.id +
+      objective: (gated ? "Làm rõ và gỡ chặn " : "Tiếp tục ") + active.id +
         " — " + active.title,
-      recommended: true, isReviewOnly: blocked})
+      recommended: true, isReviewOnly: gated})
   ];
   if (!blocked && gateIssues.length === 0) {
     options.push(Object.freeze({id:"extend",projectId:source.projectId,workPackageId:active.id,
