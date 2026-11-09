@@ -9,12 +9,14 @@ export type UanaWorkStatus = "blocked" | "in-progress" | "completed" | "planned"
 export type UanaGateStatus = "pass" | "fail" | "candidate" | "blocked" | "missing" | "pending" | "not-run";
 export type UanaChoiceId = "inspect" | "continue" | "extend";
 export interface UanaWorkRef {
+  readonly projectId: string;
   readonly id: string;
   readonly title: string;
   readonly status: string;
   readonly dependencies: readonly string[];
 }
 export interface UanaGateRef {
+  readonly projectId: string;
   readonly id: string;
   readonly name: string;
   readonly status: string;
@@ -72,13 +74,13 @@ function safe(value: unknown, max = 300): value is string {
     value.length <= max && SAFE.test(value);
 }
 function validWork(w: UanaWorkRef): boolean {
-  return safe(w?.id, 120) && safe(w?.title, 180) &&
+  return PROJECT.test(w?.projectId) && safe(w?.id, 120) && safe(w?.title, 180) &&
     typeof w.status === "string" && safe(w.status, 50) &&
     Array.isArray(w.dependencies) && w.dependencies.length <= 60 &&
     w.dependencies.every(dep => safe(dep, 120));
 }
 function validGate(g: UanaGateRef): boolean {
-  return safe(g?.id, 120) && safe(g?.name, 180) && safe(g?.status, 50);
+  return PROJECT.test(g?.projectId) && safe(g?.id, 120) && safe(g?.name, 180) && safe(g?.status, 50);
 }
 function normalizedStatus(value: string): string { return value.toLowerCase(); }
 function nextWork(work: readonly UanaWorkRef[]): UanaWorkRef | null {
@@ -103,8 +105,12 @@ export function createUanaProposal(source: UanaSource): UanaProposal | null {
   assert(source.checkpointRef === undefined || safe(source.checkpointRef, 300), "checkpoint must be source-bound");
   assert(Array.isArray(source.workPackages) && source.workPackages.length <= 250 &&
     source.workPackages.every(validWork), "bounded canonical work packages required");
+  assert(source.workPackages.every(w => w.projectId === source.projectId),
+    "cross-project Work Package blocked");
   assert(Array.isArray(source.gates) && source.gates.length <= 250 &&
     source.gates.every(validGate), "bounded canonical quality gates required");
+  assert(source.gates.every(g => g.projectId === source.projectId),
+    "cross-project Quality Gate blocked");
   assert(new Set(source.workPackages.map(w => w.id)).size === source.workPackages.length,
     "duplicate Work Package IDs");
   assert(new Set(source.gates.map(g => g.id)).size === source.gates.length,
