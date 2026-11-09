@@ -173,3 +173,27 @@ test("shared A-Z template carries the current goal and evidence without claiming
   assert.match(amendment, /R34\.C\.9 — Editable full prompt and scoped A-to-Z execution/);
   assert.match(amendment, /opening.*draft.*must not submit/i);
 });
+
+test("task preview, editable draft and explicit approval are separate from protected authority", () => {
+  const r = contract.promptInteraction.reviewApproveDispatch;
+  assert.deepEqual(r.sequence, ["PREVIEW_TASK", "EDIT_FULL_PROMPT", "EXPLICIT_APPROVE_AND_SEND", "DELIVERED_TO_INTERACTIVE_TURN", "EXECUTION_READBACK"]);
+  assert.equal(r.visiblePreviewButton, "XEM_NHIEM_VU_TIEP_THEO");
+  assert.equal(r.visibleApproveButton, "DUYET_VA_GUI_THUC_HIEN");
+  assert.equal(r.previewAndEditHaveExternalSideEffects, false);
+  assert.equal(r.fullDraftEditable, true);
+  assert.equal(r.explicitApprovalRequiredBeforeDispatch, true);
+  assert.equal(r.approvedPayload, "ACTUAL_USER_EDITED_TEXT");
+  assert.equal(r.approvalScope, "TASK_DISPATCH_INTENT_ONLY");
+  assert.equal(r.dispatchEffect, "SUBMIT_ONE_INTERACTIVE_CHAT_TURN_ONLY");
+  assert.equal(r.submissionMeansCompletion, false);
+  assert.equal(r.duplicateSubmitPreventionRequired, true);
+  assert.equal(r.revalidateScopeAndVersionBeforeProtectedOperations, true);
+  assert.equal(r.nativePermanentProjectButtonGuaranteed, false);
+  assert.equal(r.hostAcceptance, "NOT_RUN");
+  for (const gate of ["CONSTITUTION_RATIFICATION", "INDEPENDENT_REVIEW", "MERGE", "PRODUCTION_RELEASE", "DESTRUCTIVE_WRITE", "PAID_SPEND"]) assert.ok(r.approvalsThatRemainSeparate.includes(gate), gate);
+  for (const f of ["projectId", "goal", "repository", "sourceRevision", "scope", "plannedActions", "requiredEvidence", "knownBlockers", "protectedGates"]) assert.ok(r.previewMustShow.includes(f), f);
+  assert.match(amendment, /R34\\.C\\.10 — Review, edit and explicitly approve task dispatch/);
+  assert.match(amendment, /DUYỆT & GỬI THỰC HIỆN/);
+  assert.match(amendment, /task-dispatch instruction only/);
+  assert.match(amendment, /not a persistent ChatGPT Project toolbar/);
+});
