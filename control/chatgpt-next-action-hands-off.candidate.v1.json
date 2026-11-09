@@ -283,7 +283,49 @@
       "hostCapabilities"
     ],
     "unsupportedHost": "HOST_UNSUPPORTED_NO_FAKE_SEND",
-    "hostAcceptance": "NOT_RUN"
+    "hostAcceptance": "NOT_RUN",
+    "reviewApproveDispatch": {
+      "sequence": [
+        "PREVIEW_TASK",
+        "EDIT_FULL_PROMPT",
+        "EXPLICIT_APPROVE_AND_SEND",
+        "DELIVERED_TO_INTERACTIVE_TURN",
+        "EXECUTION_READBACK"
+      ],
+      "visiblePreviewButton": "XEM_NHIEM_VU_TIEP_THEO",
+      "visibleApproveButton": "DUYET_VA_GUI_THUC_HIEN",
+      "previewMustShow": [
+        "projectId",
+        "goal",
+        "repository",
+        "sourceRevision",
+        "scope",
+        "plannedActions",
+        "requiredEvidence",
+        "knownBlockers",
+        "protectedGates"
+      ],
+      "fullDraftEditable": true,
+      "previewAndEditHaveExternalSideEffects": false,
+      "explicitApprovalRequiredBeforeDispatch": true,
+      "approvedPayload": "ACTUAL_USER_EDITED_TEXT",
+      "approvalScope": "TASK_DISPATCH_INTENT_ONLY",
+      "approvalsThatRemainSeparate": [
+        "CONSTITUTION_RATIFICATION",
+        "INDEPENDENT_REVIEW",
+        "MERGE",
+        "PRODUCTION_RELEASE",
+        "DESTRUCTIVE_WRITE",
+        "PAID_SPEND"
+      ],
+      "dispatchEffect": "SUBMIT_ONE_INTERACTIVE_CHAT_TURN_ONLY",
+      "submissionMeansCompletion": false,
+      "duplicateSubmitPreventionRequired": true,
+      "revalidateScopeAndVersionBeforeProtectedOperations": true,
+      "hostAvailability": "DETECT_PER_RENDERED_SURFACE",
+      "nativePermanentProjectButtonGuaranteed": false,
+      "hostAcceptance": "NOT_RUN"
+    }
   },
   "executionModes": {
     "available": [
