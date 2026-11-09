@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://blueprint-os.example/schemas/uana-next-action.v1.json",
+  "$id": "uana-next-action.v1.json",
   "title": "UANA 1.0 derived next-action proposal (advisory only)",
   "type": "object",
   "additionalProperties": false,
