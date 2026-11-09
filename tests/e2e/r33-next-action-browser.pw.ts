@@ -29,6 +29,8 @@ test("synthetic Owner: one-click reads real canonical state without execution",a
   const result=page.getByRole("status").filter({hasText:"Trạng thái: READ_ONLY_INSPECTED"});
   await expect(result).toBeVisible();
   await expect(result).toContainText("Phạm vi: Bước hiện hành");
+  await expect(page.getByLabel("Phạm vi kiểm tra")).toHaveValue("next");
+  await expect(page.getByRole("link",{name:/MỞ BƯỚC TƯƠNG ỨNG TRONG DỰ ÁN/})).toHaveAttribute("href",/\/projects\/project%3Ap6-registry-beta\/quality/);
   await expect(result).toContainText("Đã thực hiện");
   await expect(result).toContainText("Chưa thực hiện / chờ điều kiện");
   await expect(result).toContainText("Nguồn: UNVERIFIED");
@@ -40,7 +42,8 @@ test("synthetic Viewer: can inspect but cannot gain execution approval",async({p
   await signIn(page,"r33-qa-viewer");
   await page.goto(route);
   await expect(page.getByRole("heading",{name:/Define required gate/})).toBeVisible();
-  await page.getByRole("button",{name:/KIỂM TRA TOÀN BỘ KẾ HOẠCH \(TRONG QUYỀN HIỆN CÓ\)/}).click();
+  await page.getByLabel("Phạm vi kiểm tra").selectOption("end-to-end");
+  await page.getByRole("button",{name:/NEXT ACTION — TỰ LẬP KẾ HOẠCH & KIỂM TRA/}).click();
   const result=page.getByRole("status").filter({hasText:"Trạng thái: READ_ONLY_INSPECTED"});
   await expect(result).toBeVisible();
   await expect(result).toContainText("Phạm vi: Toàn bộ công việc có thể kiểm tra");
