@@ -13,12 +13,16 @@ describe("R33 one-click flow and conditional CMD support",()=>{
     expect(guide).toContain("Không cần sao chép");
   });
   it("bounded end-to-end stays within actual authorization",()=>{
-    expect(ui).toContain('run("end-to-end")');
+    expect(ui).toContain('option value="end-to-end"');
+    expect(ui).toContain('onClick={() => void run(scope)}');
     expect(ui).toContain("TRONG QUYỀN HIỆN CÓ");
   });
   it("never advertises a read-only inspection as completed implementation",()=>{
     expect(ui).toContain("NEXT ACTION — TỰ LẬP KẾ HOẠCH & KIỂM TRA");
     expect(ui).toContain("KIỂM TRA TOÀN BỘ KẾ HOẠCH");
+    expect(ui).toContain("MỞ BƯỚC TƯƠNG ỨNG TRONG DỰ ÁN (CHỈ ĐIỀU HƯỚNG)");
+    expect(ui).toContain("fallbackHref");
+    expect(ui).not.toContain("onClick={() => void run(\\"end-to-end\\")}");
     expect(ui).toContain("Chưa chạy sửa mã");
     expect(ui).toContain("Đã thực hiện");
     expect(ui).toContain("Chưa thực hiện / chờ điều kiện");
@@ -26,6 +30,15 @@ describe("R33 one-click flow and conditional CMD support",()=>{
     expect(ui).toContain('if (response.state==="UNVERIFIED_MANUAL_OUTPUT") {');
     expect(ui).toContain('setCommandOutput("")');
     expect(ui).toContain("inFlight.current");
+  });
+  it("renders exactly one primary Next Action and one project-scoped fallback",()=>{
+    expect(ui.match(/className="primary-button"/g)).toHaveLength(1);
+    expect(ui.match(/href={fallbackHref}/g)).toHaveLength(1);
+    expect(ui).toContain('value={scope}');
+    expect(ui).toContain('disabled={busy}');
+    expect(ui).toContain('run(scope)');
+    expect(ui).not.toContain('onClick={() => void run("end-to-end")}');
+    expect(ui).toContain('Chưa chạy sửa mã');
   });
   it("CMD analysis auto-rechecks canonical checkpoint without granting QA PASS",()=>{
     expect(ui).toContain('const refreshed = await startGuidedNextAction(');
