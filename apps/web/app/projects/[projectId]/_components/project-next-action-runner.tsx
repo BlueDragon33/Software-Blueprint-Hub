@@ -11,14 +11,17 @@ import styles from "./project-action-guidance.module.css";
 type NextKind = Parameters<typeof startGuidedNextAction>[2];
 
 export function ProjectNextActionRunner({
-  projectId, profileVersion, actionKind, actionLabel
+  projectId, profileVersion, actionKind, actionLabel, fallbackHref
 }: {
   readonly projectId: string;
   readonly profileVersion: number;
   readonly actionKind: NextKind;
   readonly actionLabel: string;
+  /** Navigation derived from the authorized canonical readiness snapshot. */
+  readonly fallbackHref: string;
 }) {
   const [busy,setBusy]=useState(false);
+  const [scope,setScope]=useState<"next"|"end-to-end">("next");
   const inFlight=useRef(false);
   const [result,setResult]=useState<GuidedNextActionResult|null>(null);
   const [commandOutput,setCommandOutput]=useState("");
@@ -74,13 +77,19 @@ export function ProjectNextActionRunner({
 
   return (
     <div className={styles.runWrap} aria-label="Điều phối NEXT ACTION">
-      <button type="button" className="primary-button" disabled={busy} onClick={() => void run("next")}>
+      <label htmlFor="next-action-scope">Phạm vi kiểm tra</label>
+      <select id="next-action-scope" className={styles.scopeSelect}
+        value={scope} disabled={busy}
+        onChange={event => setScope(event.target.value==="end-to-end"?"end-to-end":"next")}>
+        <option value="next">Bước hiện hành</option>
+        <option value="end-to-end">KIỂM TRA TOÀN BỘ KẾ HOẠCH (TRONG QUYỀN HIỆN CÓ)</option>
+      </select>
+      <button type="button" className="primary-button" disabled={busy} onClick={() => void run(scope)}>
         {busy ? "Đang xử lý…" : "NEXT ACTION — TỰ LẬP KẾ HOẠCH & KIỂM TRA"}
       </button>
-      <button type="button" className={styles.helpButton} disabled={busy}
-        onClick={() => void run("end-to-end")}>
-        KIỂM TRA TOÀN BỘ KẾ HOẠCH (TRONG QUYỀN HIỆN CÓ)
-      </button>
+      <a href={fallbackHref} className={styles.workflowLink}>
+        MỞ BƯỚC TƯƠNG ỨNG TRONG DỰ ÁN (CHỈ ĐIỀU HƯỚNG)
+      </a>
       {result ? (
         <section role="status" aria-live="polite" className={styles.runResult}>
           <strong>{result.title}</strong>
@@ -141,11 +150,7 @@ export function ProjectNextActionRunner({
               </button>
             </div>
           ) : null}
-          {result.nextHref ? (
-            <a href={result.nextHref} className={styles.workflowLink}>
-              MỞ WORKSPACE ĐÃ KIỂM TRA QUYỀN (KHÔNG TỰ THỰC THI)
-            </a>
-          ) : null}
+
         </section>
       ) : null}
       {cmdStatus ? <p role="status" className={styles.feedback}>{cmdStatus}</p> : null}
