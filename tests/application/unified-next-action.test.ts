@@ -147,8 +147,17 @@ describe("Unified Constitution inheritance candidate (not ratified)", () => {
       "../../apps/web/app/projects/[projectId]/actions.ts",
       import.meta.url
     ),"utf8");
-    expect(component).toContain("action={continueCanonicalNextAction.bind(");
-    expect(component).toContain('type="submit"');
+    // R33 one-click uses server action; legacy navigation remains independently checked.
+    const runner=readFileSync(new URL(
+      "../../apps/web/app/projects/[projectId]/_components/project-next-action-runner.tsx",
+      import.meta.url
+    ),"utf8");
+    expect(component).toContain("<ProjectNextActionRunner");
+    expect(component).toContain("fallbackHref={nextAction.href}");
+    expect(component).toContain("actionChanged={actionChanged}");
+    expect(component).not.toContain("<form action={continueCanonicalNextAction");
+    expect(runner).toContain("startGuidedNextAction(projectId,profileVersion,actionKind,actionLabel,mode)");
+    expect(serverAction).toContain("export async function startGuidedNextAction(");
     expect(serverAction).toContain('"use server"');
     expect(serverAction).toContain("loadProjectWorkspace");
     expect(serverAction).toContain("workspace.runtime.readiness.read(");
@@ -200,5 +209,68 @@ describe("Directional Chat ↔ Work candidate surfaces (not live Work)", () => {
     expect(c.propagation.russianExpertEngine).toBe("not-adopted-by-this-candidate");
     expect(contract.constitution.mutatesConstitution).toBe(false);
     expect(contract.preflight.allowsWorkPackageExecution).toBe(false);
+  });
+});
+
+
+describe("ChatGPT Project UANA v1.0 candidate (no implied host installation)", () => {
+  const source = readFileSync(new URL("../../control/unified-next-action.candidate.v1.json", import.meta.url), "utf8");
+  const candidate = JSON.parse(source);
+  const c = candidate.chatProjectUana;
+  const guide = readFileSync(new URL("../../docs/UNIFIED-NEXT-ACTION-WORK-HANDOFF.candidate.md", import.meta.url), "utf8");
+
+  it("keeps the effective 1.3.0 law while proposing only a shared conversation standard", () => {
+    expect(candidate.status).toBe("candidate-not-ratified");
+    expect(candidate.constitution.mutatesConstitution).toBe(false);
+    expect(c.version).toBe("1.0.0");
+    expect(c.status).toBe("proposal-only-not-constitutional-law");
+    expect(c.compatibility.effectiveConstitution).toBe("1.3.0");
+    expect(c.infrastructure).toMatchObject({
+      newApplication: false, newDatabase: false, newProjectRegistry: false,
+      automaticGlobalChatGPTUiInstallation: false
+    });
+    expect(c.adoption.chatSurfaceStatus).toBe("not-globally-installed");
+    expect(c.adoption.otherProjects).toBe("not-adopted");
+  });
+
+  it("selects one next action and only displays a real multi-option radio when useful", () => {
+    expect(c.selection.oneActiveNextAction).toBe(true);
+    expect(c.selection.maximumOptions).toBe(3);
+    expect(c.selection.renderRadioIfEligibleChoicesAtLeast).toBe(2);
+    expect(c.selection.exactlyOneSelected).toBe(true);
+    expect(c.selection.noOwnerQuestionWhenAlreadyAuthorized).toBe(true);
+    expect(c.selection.singleViableOption).toBe("direct-action-no-fake-radio");
+    expect(c.selection.eachOptionRequires).toEqual(["goal","benefit","risk-or-execution-condition"]);
+    expect(c.intake.projectScope).toContain("active ChatGPT Project");
+  });
+
+  it("requires preview, owner editing, and an explicit send, never silently dispatches", () => {
+    expect(c.interaction.previewButton).toBe("Xem Active Next Action");
+    expect(c.interaction.promptEditor).toBe("owner-editable-textarea");
+    expect(c.interaction.explicitSubmitButton).toBe("Gửi / Tiếp tục");
+    expect(c.interaction.submitRequiresActualUserInteraction).toBe(true);
+    expect(c.interaction.submissionImpliesAuthority).toBe(false);
+    expect(c.interaction.previewOrRadioImpliesApproval).toBe(false);
+    expect(c.interaction.unsupportedInteractionFallback).toContain("no-fake-controls");
+    expect(c.promptEnvelope).toContain("source-verified HEAD or UNVERIFIED");
+    expect(c.promptEnvelope).toContain("actual checkpoint/issue/PR");
+  });
+
+  it("enforces honesty, user feedback scope, and non-automatic Project Instructions rollout", () => {
+    expect(c.states).toEqual(["PASS","FAIL","BLOCKED","NOT_RUN"]);
+    expect(c.feedback.ownerAccepted).toContain("tested-environment");
+    expect(c.feedback.modelWeightChanges).toBe(false);
+    expect(c.compatibility.perProjectInstructions).toContain("not automatic");
+    expect(c.safety).toMatchObject({
+      promptIsNotAuthority: true,
+      noPaidServiceWithoutApproval: true,
+      noMergeRatificationOrProtectedMutationWithoutGrant: true,
+      noStatusPromotionWithoutEvidence: true,
+      noGlobalDashboard: true,
+      avoidUnchangedBlockedRepeat: true
+    });
+    expect(guide).toContain("## UANA v1.0");
+    expect(guide).toContain("Project Instructions");
+    expect(guide).toContain("NOT_RUN");
   });
 });

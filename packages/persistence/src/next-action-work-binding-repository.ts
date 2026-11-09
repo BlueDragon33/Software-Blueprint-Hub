@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { BlueprintPrismaClient } from "./client";
+import { PostgresWorkflowExecutionAuthorityRepository } from "./workflow-execution-authority-repository";
 
 const PROJECT = /^project:[a-z0-9][a-z0-9-]{0,158}$/;
 const WORK = /^[a-zA-Z][a-zA-Z0-9:._/-]{1,159}$/;
@@ -66,33 +67,19 @@ export class PostgresNextActionWorkBindingRepository {
       const [work, adoption] = await Promise.all([
         tx.workPackage.findUnique({where:{id:input.workPackageId},
           select:{projectId:true,recordVersion:true,status:true}}),
-        tx.workflowExecutionAdoptionDecision.findFirst({
-          where:{projectId:input.projectId,workflowId:input.workflowId,
-            workflowDigest:input.workflowDigest},
-          orderBy:[{decidedAt:"desc"},{id:"desc"}]
-        })
+        new PostgresWorkflowExecutionAuthorityRepository(tx as BlueprintPrismaClient)
+          .latestAdoption(input.projectId, input.workflowId, input.workflowDigest)
       ]);
       if (!work || work.projectId !== input.projectId ||
           work.recordVersion !== input.workPackageRecordVersion) {
         throw new Error("Canonical WorkPackage project or recordVersion mismatch");
       }
-      // The existing adoption store orders by timestamp and UUID. Two
-      // decisions can share a timestamp, and UUID is NOT a decision sequence:
-      // a same-tick revoke must never be silently shadowed by an adopt.
-      // Refuse the tie rather than invent an authorization ordering.
-      const unambiguousAdoption = adoption && await tx.workflowExecutionAdoptionDecision.count({
-        where:{
-          projectId:input.projectId,
-          workflowId:input.workflowId,
-          workflowDigest:input.workflowDigest,
-          decidedAt:adoption.decidedAt
-        }
-      }) === 1;
+      // Reuse the canonical single-snapshot tie check. Never round-trip a
+      // TIMESTAMPTZ(6) through a millisecond Date into an exact SQL predicate.
       // Revocation must remain possible even if adoption itself was revoked.
       if (input.decision === "bind" &&
           (!adoption || adoption.decision !== "adopt" ||
-           adoption.policyVersion !== input.policyVersion ||
-           !unambiguousAdoption)) {
+           adoption.policyVersion !== input.policyVersion)) {
         throw new Error("Exact unambiguous adopted workflow decision required before binding");
       }
       await tx.nextActionWorkBindingDecision.create({
@@ -142,20 +129,9 @@ export class PostgresNextActionWorkBindingRepository {
         where:{id:scope.workPackageId},
         select:{projectId:true,recordVersion:true,status:true}
       }),
-      this.prisma.workflowExecutionAdoptionDecision.findFirst({
-        where:{projectId:scope.projectId,workflowId:scope.workflowId,
-          workflowDigest:scope.workflowDigest},
-        orderBy:[{decidedAt:"desc"},{id:"desc"}]
-      })
+      new PostgresWorkflowExecutionAuthorityRepository(this.prisma)
+        .latestAdoption(scope.projectId, scope.workflowId, scope.workflowDigest)
     ]);
-    const unambiguousAdoption = adoption && await this.prisma.workflowExecutionAdoptionDecision.count({
-      where:{
-        projectId:scope.projectId,
-        workflowId:scope.workflowId,
-        workflowDigest:scope.workflowDigest,
-        decidedAt:adoption.decidedAt
-      }
-    }) === 1;
     if (!latest || latest.decision !== "bind" ||
         latest.projectId !== scope.projectId ||
         latest.workPackageId !== scope.workPackageId ||
@@ -168,8 +144,7 @@ export class PostgresNextActionWorkBindingRepository {
         work.recordVersion !== scope.workPackageRecordVersion ||
         (work.status !== "ready" && work.status !== "in-progress") ||
         !adoption || adoption.decision !== "adopt" ||
-        adoption.policyVersion !== scope.policyVersion ||
-        !unambiguousAdoption) {
+        adoption.policyVersion !== scope.policyVersion) {
       throw new Error("NEXT_ACTION_BINDING_DENIED: missing, revoked or stale canonical WorkPackage/workflow/SHA/adoption");
     }
   }

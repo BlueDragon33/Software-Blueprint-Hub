@@ -44,6 +44,17 @@ const presentation: Readonly<Record<string, Pick<HubAppPresentation, "group" | "
   "project:pricereport-tunggiabao": { group: "utilities", icon: "📊", vi: "Báo cáo giá", en: "Price Reports", keywords: "giá báo cáo thương mại" }
 };
 
+/**
+ * Permission-neutral display ONLY for a ProjectProfile already returned by
+ * the authenticated registry. Never enumerate private repository identities
+ * or derive PROJECT_READ from this presentation profile.
+ */
+export function presentationForAuthorizedProject(projectId: string):
+  Pick<HubAppPresentation, "icon" | "group"> | null {
+  const item = presentation[projectId];
+  return item ? {icon:item.icon,group:item.group} : null;
+}
+
 export const groupLabels: Readonly<Record<HubGroup, { vi: string; en: string; icon: string }>> = {
   management: { vi: "Quản trị & vận hành", en: "Management & operations", icon: "⚙️" },
   education: { vi: "Học tập & phát triển", en: "Education & growth", icon: "📚" },

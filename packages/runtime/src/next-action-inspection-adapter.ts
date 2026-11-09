@@ -1,5 +1,6 @@
 import {
   preflightUnifiedNextAction,
+  resolveCanonicalNextWork,
   workflowManifestDigest,
   type WorkflowExecutionGrant,
   type WorkflowExecutionTrustedDependencies
@@ -71,7 +72,18 @@ async function assertCanonicalInspectionEligible(
     throw new Error("NEXT_ACTION_BLOCKED: workflow project/repository/HEAD binding mismatch");
   }
   const works = await runtime.workQuality.listWorkPackages(input.actor, input.projectId);
-  const work = works.find(item => item.id === input.workPackageId);
+  // A valid signed WorkPackage binding is NOT permission to run a different
+  // task of the same project. Resolve the actual current Next Action selector,
+  // including deterministic ID ordering when multiple tasks share a title.
+  const selected = resolveCanonicalNextWork({
+    kind: readiness.nextAction.kind,
+    label: readiness.nextAction.label,
+    blockedWorkId: null
+  }, works);
+  if (!selected || selected.id !== input.workPackageId) {
+    throw new Error("NEXT_ACTION_BLOCKED: signed WorkPackage differs from current canonical Next Action");
+  }
+  const work = selected;
   if (!work || (work.status !== "ready" && work.status !== "in-progress") ||
       work.projectId !== input.projectId ||
       work.meta.recordVersion !== input.workPackageRecordVersion ||

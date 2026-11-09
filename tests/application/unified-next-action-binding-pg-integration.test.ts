@@ -170,6 +170,30 @@ suite("P2 canonical WorkPackage ↔ adopted workflow ↔ SHA PostgreSQL binding"
       .rejects.toThrow(/adopted workflow/);
   });
 
+  it("accepts a unique adoption whose PostgreSQL timestamp has nonzero microseconds",async()=>{
+    const target=await work("work:p2-binding-microseconds");
+    const workflowId="binding-microseconds";
+    const preciseScope={...target,workflowId};
+    // Disposable QA fixture: a JS Date cannot insert this precision faithfully.
+    await prisma.$executeRaw`
+      INSERT INTO "WorkflowExecutionAdoptionDecision"
+        ("id","projectId","workflowId","workflowDigest","policyVersion",
+         "decision","decidedByPrincipalId","decidedAt","productionReleaseAuthority")
+      VALUES (${"workflow-adoption:binding-microseconds"},${projectId},${workflowId},
+        ${workflowDigest},${policyVersion},'adopt',${owner},
+        TIMESTAMPTZ '2026-10-17 00:00:00.123456+00',false)
+    `;
+    const precision=await prisma.$queryRaw<Array<{microseconds:string}>>`
+      SELECT to_char("decidedAt",'US') AS "microseconds"
+      FROM "WorkflowExecutionAdoptionDecision"
+      WHERE "id"=${"workflow-adoption:binding-microseconds"}
+    `;
+    expect(precision[0]?.microseconds).toBe("123456");
+    await expect(repo.record({...preciseScope,decision:"bind",actorPrincipalId:owner}))
+      .resolves.toBeUndefined();
+    await expect(repo.assertCurrent(preciseScope)).resolves.toBeUndefined();
+  });
+
   it("refuses tied-timestamp adopt/revoke even if UUID ordering incorrectly favors adopt",async()=>{
     const target=await work("work:p2-binding-adoption-tie");
     const workflowId="binding-same-tick";
