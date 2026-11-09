@@ -70,3 +70,25 @@ test("detour incident retains real provenance, impact uncertainty and regression
   assert.match(impact, /UX-18:.*evidence-bound execution defect/);
   for (const id of ["UX-16", "UX-17", "UX-18", "UX-19"]) assert.ok(impact.includes(id), id);
 });
+
+test("review-edit-approve is a project-scoped task dispatch, not ratification or deployment", () => {
+  assert.match(proposal, /PAE-18 — Review, edit and approve task dispatch/);
+  for (const term of [
+    "XEM NHIỆM VỤ TIẾP THEO",
+    "DUYỆT & GỬI THỰC HIỆN",
+    "complete editable dispatch text",
+    "zero external side effects",
+    "once into a new interactive conversation turn",
+    "not constitutional ratification",
+    "before each protected mutation"
+  ]) assert.ok(proposal.toLowerCase().includes(term.toLowerCase()), term);
+  for (const id of ["UX-20", "UX-21", "UX-22", "UX-23"]) assert.ok(impact.includes(id), id);
+  assert.match(impact, /real desktop\/mobile interaction acceptance remains NOT_RUN/);
+});
+
+test("companion R34.C.10 contract pin is exact and remains unratified", () => {
+  assert.ok(proposal.includes("blob/eb9d6ae29457e55f420833a04524f783d95ed1b5/control/chatgpt-next-action-hands-off.candidate.v1.json"));
+  assert.match(proposal, /No mutation to active Universal Constitution 1\\.3\\.0/);
+  assert.match(impact, /no independent reviewer signoff/);
+  assert.match(impact, /no human ratification/);
+});
