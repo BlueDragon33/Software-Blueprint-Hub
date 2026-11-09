@@ -1,7 +1,7 @@
 # PAE Amendment — Impact and Migration Assessment (Draft)
 
 Status: DRAFT; no independent reviewer signoff; no human ratification; no publication.
-Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PROPOSAL.md (PAE-01..17).
+Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PROPOSAL.md (PAE-01..18).
 
 ## Impact matrix
 | Domain | Change | Risk / mitigation |
@@ -45,6 +45,11 @@ Linked proposal: docs/amendments/PROJECT-AWARE-AUTONOMOUS-EXECUTION-20261104-PRO
 - UX-17: With target and permission already known, next action advances the active critical path without repeated plans, redundant inventory scans, duplicated PRs or asking the same question. A detour requires new cited evidence or real risk.
 - UX-18: Wrong target or repetitive work records one evidence-bound execution defect and a bounded corrective regression; screenshot/apology alone never asserts real deployment, measurable loss or PASS.
 - UX-19: Correct direct-path enforcement never bypasses migration, security, data protection, Quality Gates, independent review or explicit Production authority. Paid spend and token-cost minimization cannot override those gates.
+
+- UX-20: The current project's real XEM NHIỆM VỤ TIẾP THEO button opens only a read-only task preview and complete editable prompt; it performs no mutation or dispatch before approval.
+- UX-21: User can edit the whole proposed instruction, choose NEXT_STEP or SCOPED_A_TO_Z within existing authority and explicitly click DUYỆT & GỬI THỰC HIỆN; the exact edited request is dispatched once to a new interactive turn, with visible delivery feedback separate from execution.
+- UX-22: Cancel, double-click, stale HEAD/project, denied permission and unsupported host all fail closed without duplicate dispatch or privileged write; project isolation and source revision are revalidated at trusted execution boundaries.
+- UX-23: Approval of a task dispatch never counts as independent review, constitutional ratification, merge, Production release, paid services or destructive authority; real desktop/mobile interaction acceptance remains NOT_RUN until verified.
 
 ## Protocol alignment and version decision
 - This document is an **author-authored assessment**, not an independent `IMPACT REVIEWED` decision or `MIGRATION READY` gate attestation.
