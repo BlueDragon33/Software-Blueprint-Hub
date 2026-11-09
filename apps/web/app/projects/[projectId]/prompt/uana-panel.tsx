@@ -47,8 +47,7 @@ export function UanaPanel({proposal,notice}:{
     </div>
 
     {!proposal ? <p role="status" className={styles.empty}>
-      {notice ?? "Không có Work Package chưa hoàn tất, hoặc Prompt Projection chưa được tạo/xác minh.
-       Không tạo gợi ý hoặc giả định PASS."}
+      {notice ?? "Không có Work Package chưa hoàn tất hoặc Prompt Projection được xác minh. Không tạo gợi ý hay giả định PASS."}
     </p> : <>
       <fieldset className={styles.choices} disabled={preview}>
         <legend>Chọn hướng xử lý cho đúng Work Package</legend>
