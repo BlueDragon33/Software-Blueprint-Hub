@@ -33,3 +33,40 @@ test("acceptance covers edits, cancel, duplicate sends, stale context and bounde
   assert.match(audit, /OWNER_REVIEW_NOT_READY/);
   assert.match(audit, /source change invalidates prior exact-HEAD review/i);
 });
+test("destination lock distinguishes Worker, D1 and environment; unknown target cannot authorize writes", () => {
+  assert.match(proposal, /PAE-15 — Canonical destination lock before execution/);
+  for (const term of [
+    /repository\/branch\/HEAD/,
+    /Worker name, D1 database name\/binding/,
+    /Preview vs Production/,
+    /not interchangeable identifiers/,
+    /before protected writes/,
+    /cannot authorize a mutation/
+  ]) assert.match(proposal, term);
+  assert.match(impact, /UX-16:.*Worker.*D1.*environment/);
+  assert.match(impact, /UX-19:.*never bypasses migration.*security.*Production authority/);
+});
+test("shortest safe path avoids detours without trading away validation or human gates", () => {
+  assert.match(proposal, /PAE-16 — Shortest safe path/);
+  for (const term of [
+    /single minimum dependency path/,
+    /Do not repeatedly re-plan/,
+    /unless a concrete new failure/,
+    /never impose arbitrary token quotas/,
+    /one cheapest authorized recovery path/
+  ]) assert.match(proposal, term);
+  assert.match(impact, /UX-17:.*active critical path/);
+  assert.match(impact, /UX-19:.*Quality Gates.*Production authority/);
+});
+test("detour incident retains real provenance, impact uncertainty and regression conditions", () => {
+  assert.match(proposal, /PAE-17 — Detour incident and corrective evidence/);
+  for (const term of [
+    /intended target vs\. actual attempted target/,
+    /authoritative source used to correct the mapping/,
+    /NOT_MEASURED/,
+    /targeted regression scenario/,
+    /not proof of deployed changes/
+  ]) assert.match(proposal, term);
+  assert.match(impact, /UX-18:.*evidence-bound execution defect/);
+  for (const id of ["UX-16", "UX-17", "UX-18", "UX-19"]) assert.ok(impact.includes(id), id);
+});
