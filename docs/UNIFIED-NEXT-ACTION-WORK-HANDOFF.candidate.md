@@ -75,3 +75,38 @@ Each rollout is stopped if a project lacks actual metadata, local launcher bindi
 The central candidate JSON names the **minimum** inputs a later execution adapter must prove: separately authenticated scoped PROJECT_MUTATE, exact repo/app HEAD, signed and time-bounded grant, adopted central workflow digest, trusted issuer and source, single-use durable journal, authorized offline runner, and independent outcome readback. These requirements are already represented by the existing prompt-workflow execution authority/journal layers; **do not create a second parallel authority system**. Every dependency must be checked before its own step, with fresh permission and source checks after a pause or restart. Human review, issuer grants, merge, production release and Quality Gate PASS remain gated.
 
 The work of connecting that existing executor to this one-button user experience **has not been completed**; this policy alone does not grant execution rights. Work-mode project deep linking also remains unsupported, and there is no secondary button.
+
+## UANA v1.0 — Universal Active Next Action in ChatGPT Projects (PROPOSAL ONLY)
+
+**Candidate source of truth:** `control/unified-next-action.candidate.v1.json#chatProjectUana`. **Status: proposed / not ratified / not installed globally.** This is a **presentation and prompt-continuation guideline for ChatGPT Project conversations**, NOT a new application, PostgreSQL schema, global dashboard, canonical prompt database, or a replacement for the existing Hub web-app CTA. The published Blueprint OS Constitution **1.3.0** remains in force. R7, R9, R15–R24, R26, permission checks, Quality Gates and human authorization always outrank this candidate.
+
+### Scope and trigger
+
+- Identify **only the active ChatGPT Project**; allow cross-project references strictly for directly related dependencies. Recover relevant canonical ProjectProfile / WorkPackage / Quality Gate and the latest real Issue/PR/HEAD/checkpoint when accessible. Treat absent verification as **UNVERIFIED**, never guess a SHA or claim a PASS.
+- Trigger one high-value **Active Next Action** on an important milestone, genuine Owner choice, or request to continue. Prioritize P0/P1 failures, root causes, protected gates and ready independent work over repeated scans/empty prompts. Reuse unchanged PASS and previously given inputs.
+- Show **one** proposed next executable decision/action. Present **2–3 genuine options** only if materially different permitted strategies exist; recommend the best safe option by default. Show **no radio group** for a single valid path. Every choice has goal, benefit and risk or authorization condition. Do not solicit permission for routine work already authorized.
+
+### ChatGPT conversation interaction (host-dependent; not Hub web UI)
+
+1. Header `ACTIVE NEXT ACTION — [ACTIVE PROJECT]` and `[WORK STEP] — [DECISION]`. For a real choice, one accessible responsive radio group, one selected option and a stated recommendation. Avoid fake A/B/C alternatives and decorative buttons.
+2. The real **Xem Active Next Action** control opens the actual editable prompt preview, not an execution claim. Include published Constitution version, correct repository, verified SHA **or UNVERIFIED**, existing issue/PR checkpoint, Owner-selected direction, required steps, evidence and forbidden actions. Do not include raw secrets.
+3. Owner may edit the full prompt, go back and change the chosen option, and click **Gửi / Tiếp tục**. Only this explicit host-supported interaction submits the edited prompt as a **new chat turn**. Radio changes and preview are not submission. Submitting a chat turn is **not** an authenticated ProjectAuthority decision, Work session, job dispatch, CI/PASS, merge, ratification or Production approval.
+4. When a ChatGPT host cannot render/submit that interaction, provide honest editable or copyable text. Do not invent persistent app-wide controls, a global Project Instructions update, a Work launcher or background execution. Existing Hub app's scoped POST runner retains its own independent rules and preflight; UANA is a separate host-level *conversation* presentation.
+5. **No automatic propagation:** after authorized governance review, an Owner can separately place a compatible UANA instruction/prompt in each ChatGPT Project's **Project Instructions**. Committing this file does not install it in ChatGPT UI or mutate other Projects. Do not copy the Constitution as independent law.
+
+### Bounded execution, feedback and finish
+
+- Workflow: **checkpoint → plan → permitted execution → focused tests → reviewer when required → independent source readback → evidence → one next action**; group safe non-conflicting steps to save time/tokens, and stop at a genuine capability or human-authority gate. Preserve existing Quality Gates, offline and FREE requirements.
+- Distinguish **PASS** (observed on exact revision), **FAIL** (reproduced failure), **BLOCKED** (real dependency), **NOT_RUN** (untested). A prompt is a candidate continuation, never proof of execution. On unchanged blockers do not repeatedly resubmit the same task.
+- Owner feedback: reported defect → reproduce → root cause → smallest fix → regression → independent review when needed; Owner confirms success → scoped acceptance for the **tested revision/function/environment only**; improvement → product scope delta, not an invented regression. Version lessons with evidence; broad constitutional rule adoption requires review. Never claim LLM weight retraining.
+
+### Acceptance / rollout gates
+
+| Gate | Required demonstration | Until then |
+| --- | --- | --- |
+| Constitutional/governance | Correct review of scope, R7/R9/R15–R24/R26, no new authority, no duplicate prompt library | **CANDIDATE** |
+| Candidate contract | Source test confirms one action, max three real options, editable preview and explicit submit, no auto-propagation | **SOURCE-ONLY / QA pending** |
+| Actual ChatGPT host | Interactive radio when needed, mobile/keyboard, preview/edit/return/submit, no dispatch on preview, safe unsupported-host fallback | **NOT_RUN** |
+| Per-project adoption | Explicit human-managed Project Instructions update and real project-specific acceptance where supported | **NOT_ADOPTED** |
+
+**Non-goal:** Using a GitHub commit to change account-level ChatGPT behavior or to turn the Hub Next Action into an unapproved executor. The direct user-facing ChatGPT control may operate per response where supported, but is not a persistent global button until separately provided by the host.
