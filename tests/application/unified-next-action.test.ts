@@ -154,6 +154,7 @@ describe("Unified Constitution inheritance candidate (not ratified)", () => {
     ),"utf8");
     expect(component).toContain("<ProjectNextActionRunner");
     expect(component).toContain("fallbackHref={nextAction.href}");
+    expect(component).toContain("actionChanged={actionChanged}");
     expect(component).not.toContain("<form action={continueCanonicalNextAction");
     expect(runner).toContain("startGuidedNextAction(projectId,profileVersion,actionKind,actionLabel,mode)");
     expect(serverAction).toContain("export async function startGuidedNextAction(");
