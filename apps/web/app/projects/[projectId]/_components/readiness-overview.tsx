@@ -197,6 +197,7 @@ export function ReadinessOverview({
               actionKind={nextAction.actionKind}
               actionLabel={readiness.nextAction.label}
               fallbackHref={nextAction.href}
+              actionChanged={actionChanged}
             />
           </article>
 
