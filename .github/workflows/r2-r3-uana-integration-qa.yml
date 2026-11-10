@@ -75,9 +75,67 @@ jobs:
             tests/application/hub-app-directory.test.ts \
             tests/application/unified-next-action-execution.test.ts \
             tests/application/unified-next-action-binding-pg-integration.test.ts
-      - name: Full unit and integration regression
-        run: pnpm exec vitest run --fileParallelism=false
+      - name: Native Node test runner suites (not Vitest)
+        shell: bash
+        run: |
+          mapfile -t node_suites < <(find tests -name '*.test.mjs' -type f | sort)
+          test "${#node_suites[@]}" -gt 0
+          node --test --test-concurrency=1 "${node_suites[@]}"
+      - name: Full Vitest regression (dedicated PG suites isolated separately)
+        env:
+          BLUEPRINT_QA_DB_INTEGRATION: 'false'
+        run: pnpm exec vitest run --fileParallelism=false --exclude '**/*.test.mjs' --exclude '**/*-pg-integration.test.ts'
       - name: Next.js production build (not deploy)
         run: pnpm build
       - name: Explicit boundary
         run: echo "SOURCE QA ONLY; NO OWNER ACCEPTANCE, NO A/B VERDICT, NO PRODUCTION, NO RELEASE GRANT"
+
+  isolated-postgres-contracts:
+    name: Independent disposable PostgreSQL suite — ${{ matrix.suite }}
+    if: github.repository == 'BlueDragon33/Software-Blueprint-Hub' && github.ref == 'refs/heads/audit/r2-r3-uana-integration-20261110'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - tests/application/prompt-workflow-authority-pg-integration.test.ts
+          - tests/application/prompt-workflow-qa-pg-integration.test.ts
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: qa_disposable_only
+          POSTGRES_DB: blueprint_qa_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_qa_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:qa_disposable_only@localhost:5432/blueprint_qa_test
+      BLUEPRINT_QA_DB_INTEGRATION: 'true'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: pnpm install --frozen-lockfile
+      - name: Migrate isolated PostgreSQL
+        run: |
+          pnpm prisma:generate
+          pnpm exec prisma validate --config prisma7.config.ts
+          pnpm db:migrate:deploy
+          pnpm db:migrate:status
+      - name: Suite-specific data and immutability negatives
+        run: pnpm exec vitest run --fileParallelism=false ${{ matrix.suite }}
