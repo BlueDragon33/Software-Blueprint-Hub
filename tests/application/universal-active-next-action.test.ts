@@ -56,7 +56,7 @@ describe("UANA 1.0 project-scoped choice → preview → edited human send contr
  });
  it("allows a bounded third advisory option only when the source has no active gate issues",()=>{
   const proposal=createUanaProposal(make({
-    gates:[{projectId:source.projectId,id:"G4",name:"Preview",status:"pass"}]
+    gates:[{projectId:source.projectId,id:"G4",name:"Preview",status:"pass",evidenceComplete:true}]
   }))!;
   expect(proposal.options).toHaveLength(3);
   expect(proposal.options[2]).toMatchObject({id:"extend",recommended:false,isReviewOnly:true});
