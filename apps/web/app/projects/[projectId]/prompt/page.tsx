@@ -86,11 +86,13 @@ export default async function PromptPage({
         projectionRevision: latest.sourceRevision,
         projectionId: latest.id,
         workPackages: workPackages.map(w => ({
-          projectId:w.projectId,id:w.id,title:w.title,status:w.status,dependencies:w.dependencies
+          projectId:w.projectId,id:w.id,title:w.title,status:w.status,dependencies:w.dependencies,
+          qualityGateIds:w.qualityGateIds
         })),
         gates: gateBundles.map(item => ({
           projectId:item.gate.projectId,id:item.gate.id,name:item.gate.name,status:item.gate.status
-        }))
+        })),
+        requiredGateIds: workspace.project.blueprint.requiredGates
       });
       if (!uanaProposal) uanaNotice = "Không có Work Package chưa hoàn tất từ nguồn chuẩn. Không tự tạo việc mới.";
     } catch {
