@@ -17,12 +17,13 @@ const source: UanaSource = {
   checkpointRef:"https://github.com/BlueDragon33/BOIECH_AI/issues/108",
   workPackages:[
     {projectId:"project:boi-ech-ai",id:"BOI-L1",title:"Fix account intake",
-      status:"completed",dependencies:[]},
+      status:"completed",dependencies:[],qualityGateIds:[]},
     {projectId:"project:boi-ech-ai",id:"BOI-L2",title:"Owner approval and duration",
-      status:"in-progress",dependencies:["BOI-L1"]},
+      status:"in-progress",dependencies:["BOI-L1"],qualityGateIds:["G4"]},
   ],
   gates:[{projectId:"project:boi-ech-ai",id:"G4",name:"Real Cloudflare Preview",
-    status:"candidate"}]
+    status:"candidate"}],
+  requiredGateIds:["G4"]
 };
 const make = (overrides: Partial<UanaSource> = {}) => ({...source,...overrides});
 describe("UANA 1.0 project-scoped choice → preview → edited human send contract",()=>{
@@ -47,7 +48,7 @@ describe("UANA 1.0 project-scoped choice → preview → edited human send contr
  it("blocking gates never offer a fictitious unrestricted expansion",()=>{
   const proposal=createUanaProposal(make({
     workPackages:[{projectId:source.projectId,id:"BLOCK-1",title:"Missing Preview authorization",
-      status:"blocked",dependencies:[]}]
+      status:"blocked",dependencies:[],qualityGateIds:["G4"]}]
   }))!;
   expect(proposal.options.map(o=>o.id)).toEqual(["inspect","continue"]);
   expect(proposal.options[1].isReviewOnly).toBe(true);
@@ -59,6 +60,41 @@ describe("UANA 1.0 project-scoped choice → preview → edited human send contr
   }))!;
   expect(proposal.options).toHaveLength(3);
   expect(proposal.options[2]).toMatchObject({id:"extend",recommended:false,isReviewOnly:true});
+ });
+ it("required gate missing from registry is not interpreted as PASS",()=>{
+  const proposal=createUanaProposal(make({gates:[]}))!;
+  expect(proposal.options[1].isReviewOnly).toBe(true);
+  expect(proposal.options[1].title).toMatch(/Gỡ chặn/);
+  expect(proposal.options.map(x=>x.id)).not.toContain("extend");
+ });
+ it("Work Package gate missing even though global gates pass stays review-only",()=>{
+  const proposal=createUanaProposal(make({
+    requiredGateIds:[],
+    gates:[{...source.gates[0]!,status:"pass",id:"OTHER"}]
+  }))!;
+  expect(proposal.options[1].isReviewOnly).toBe(true);
+  expect(proposal.options).toHaveLength(2);
+ });
+ it("pending dependency or missing dependency cannot create an execute recommendation",()=>{
+  const a=createUanaProposal(make({
+    workPackages:source.workPackages.map(w=>w.id==="BOI-L1"?{...w,status:"planned"}:w),
+    gates:[{...source.gates[0]!,status:"pass"}]
+  }))!;
+  expect(a.options[1].isReviewOnly).toBe(true);
+  const b=createUanaProposal(make({
+    workPackages:[{...source.workPackages[1]!,dependencies:["UNKNOWN-WORK"]}],
+    gates:[{...source.gates[0]!,status:"pass"}]
+  }))!;
+  expect(b.options[1].isReviewOnly).toBe(true);
+ });
+ it("archived is a complete canonical status; review and testing remain unfinished",()=>{
+  expect(createUanaProposal(make({workPackages:source.workPackages.map(w=>({...w,status:"archived"}))}))).toBeNull();
+  expect(createUanaProposal(make({workPackages:[{...source.workPackages[1]!,status:"review",dependencies:[]}]}))).not.toBeNull();
+  expect(()=>createUanaProposal(make({workPackages:[{...source.workPackages[1]!,status:"cancelled"}]}))).toThrow(/bounded canonical/);
+ });
+ it("missing required gate list is blocked, not silently assumed empty",()=>{
+  const {requiredGateIds: _requiredGateIds,...missing}=source;
+  expect(()=>createUanaProposal(missing as UanaSource)).toThrow(/required gate list/);
  });
  it("does not make up work when all canonical tasks are complete or absent",()=>{
   expect(createUanaProposal(make({workPackages:[]}))).toBeNull();
