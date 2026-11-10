@@ -88,11 +88,16 @@ jobs:
         run: pnpm exec vitest run tests/application/universal-active-next-action.test.ts
       - name: UANA v1.0 scoped browser surface and copy-boundary tests
         run: node --test tests/governance/uana-surface.test.mjs
-      - name: Full repository ESLint validation
-        run: pnpm lint
+      - name: Lint the exact UANA sources and test contracts
+        run: |
+          pnpm exec eslint packages/application/src/universal-active-next-action.ts
+          pnpm exec eslint "apps/web/app/projects/[projectId]/prompt/page.tsx" "apps/web/app/projects/[projectId]/prompt/uana-panel.tsx" "apps/web/app/projects/[projectId]/prompt/actions.ts"
+          pnpm exec eslint tests/application/universal-active-next-action.test.ts
       - name: Full repository TypeScript validation
         run: pnpm typecheck
       - name: Build all project packages and web workspace
         run: pnpm build
+      - name: Full repository ESLint validation (includes pre-existing unrelated code)
+        run: pnpm lint
       - name: Vietnamese launcher, app grouping and no-invented-deployment tests
         run: pnpm exec vitest run tests/application/hub-app-directory.test.ts tests/application/appmanage-sso.test.ts
