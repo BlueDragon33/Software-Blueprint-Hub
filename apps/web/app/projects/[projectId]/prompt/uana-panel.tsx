@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { renderUanaDraft, type UanaChoiceId, type UanaProposal } from "@blueprint-os/application";
+import { renderUanaDraft, type UanaChoiceId, type UanaProposal } from "../../../../../../packages/application/src/universal-active-next-action";
 import styles from "./uana-panel.module.css";
 import { verifyUanaSourceForCopyAction } from "./actions";
 
