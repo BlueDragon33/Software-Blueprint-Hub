@@ -1,0 +1,83 @@
+name: R2-R3 UANA Integration QA (branch-only ZERO-SPEND)
+on:
+  push:
+    branches:
+      - audit/r2-r3-uana-integration-20261110
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: r2-r3-uana-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-integration-qa:
+    if: github.repository == 'BlueDragon33/Software-Blueprint-Hub' && github.ref == 'refs/heads/audit/r2-r3-uana-integration-20261110'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: qa_disposable_only
+          POSTGRES_DB: blueprint_r2_r3_qa
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_r2_r3_qa"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:qa_disposable_only@localhost:5432/blueprint_r2_r3_qa
+      BLUEPRINT_QA_DB_INTEGRATION: 'true'
+    steps:
+      - name: Checkout exact isolated source
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Read back source SHA
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git show --no-patch --format='%H %P'
+      - name: Setup pinned pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - name: Setup Node 24 without paid cache
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Prepare disposable PostgreSQL
+        run: |
+          pnpm prisma:generate
+          pnpm exec prisma validate --config prisma7.config.ts
+          pnpm db:migrate:deploy
+          pnpm db:migrate:status
+      - name: Build and static integration contracts
+        run: |
+          pnpm typecheck
+          pnpm lint
+          pnpm check:boundaries
+      - name: Integrated R33 and UANA negative regression
+        run: |
+          pnpm exec vitest run --fileParallelism=false \
+            tests/application/uana-r33-r34-integration.test.ts \
+            tests/application/next-action-blueprint.candidate.test.ts \
+            tests/application/universal-active-next-action.test.ts \
+            tests/application/hub-app-directory.test.ts \
+            tests/application/unified-next-action-execution.test.ts \
+            tests/application/unified-next-action-binding-pg-integration.test.ts
+      - name: Full unit and integration regression
+        run: pnpm exec vitest run --fileParallelism=false
+      - name: Next.js production build (not deploy)
+        run: pnpm build
+      - name: Explicit boundary
+        run: echo "SOURCE QA ONLY; NO OWNER ACCEPTANCE, NO A/B VERDICT, NO PRODUCTION, NO RELEASE GRANT"
