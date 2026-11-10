@@ -87,6 +87,25 @@ function validWork(w: UanaWorkRef): boolean {
     Array.isArray(w.qualityGateIds) && w.qualityGateIds.length <= 100 &&
     w.qualityGateIds.every(id => safe(id,120));
 }
+/**
+ * Fail-closed projection of the core QualityGate evidence integrity rule.
+ * The input must come from the PROJECT_READ-authorized canonical repository;
+ * it is NOT an independent authenticity attestation.
+ */
+export function hasCompleteUanaGateEvidence(
+  gateId: string,
+  evidenceIds: readonly string[],
+  evidence: readonly Readonly<{id: string; gateId: string; source: string; revision: string}>[]
+): boolean {
+  if (!safe(gateId, 120) || !Array.isArray(evidenceIds) ||
+      evidenceIds.length === 0 || evidenceIds.length > 250 ||
+      !Array.isArray(evidence)) return false;
+  if (new Set(evidenceIds).size !== evidenceIds.length) return false;
+  return evidenceIds.every(id => safe(id, 120) && evidence.some(item =>
+    item?.id === id && item.gateId === gateId &&
+    safe(item.source) && safe(item.revision)
+  ));
+}
 function validGate(g: UanaGateRef): boolean {
   return PROJECT.test(g?.projectId) && safe(g?.id, 120) && safe(g?.name, 200) &&
     GATE_STATUSES.has(g.status as UanaGateStatus) && typeof g.evidenceComplete === "boolean";
