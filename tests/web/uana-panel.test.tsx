@@ -28,7 +28,7 @@ const input: UanaSource = {
     projectId:"project:blueprint-os",id:"WP-UANA",title:"Preview feedback",
     status:"in-progress",dependencies:[],qualityGateIds:["REQUIRED_QA"]
   }],
-  gates:[{projectId:"project:blueprint-os",id:"REQUIRED_QA",name:"Owner Preview",status:"candidate"}]
+  gates:[{projectId:"project:blueprint-os",id:"REQUIRED_QA",name:"Owner Preview",status:"candidate",evidenceComplete:true}]
 };
 describe("UANA responsive semantic React render (no host submission)", () => {
  it("renders 2 real radio choices and a single default recommendation behind active gate", () => {
