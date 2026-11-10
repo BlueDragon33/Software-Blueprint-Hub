@@ -90,7 +90,15 @@ export default async function PromptPage({
           qualityGateIds:w.qualityGateIds
         })),
         gates: gateBundles.map(item => ({
-          projectId:item.gate.projectId,id:item.gate.id,name:item.gate.name,status:item.gate.status
+          projectId:item.gate.projectId,id:item.gate.id,name:item.gate.name,status:item.gate.status,
+          // Blueprint core requires a non-empty set of gate-bound evidence with
+          // source and revision. A stale PASS flag without those records cannot
+          // unlock an executable UANA proposal.
+          evidenceComplete: item.gate.evidenceIds.length > 0 &&
+            item.gate.evidenceIds.every(id => item.evidence.some(e =>
+              e.id === id && e.gateId === item.gate.id &&
+              e.source.trim().length > 0 && e.revision.trim().length > 0
+            ))
         })),
         requiredGateIds: workspace.project.blueprint.requiredGates
       });
