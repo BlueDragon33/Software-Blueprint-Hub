@@ -5,8 +5,8 @@
  * prompt text is an untrusted handoff, never an authorization token.
  */
 export const UANA_VERSION = "uana:v1.0" as const;
-export type UanaWorkStatus = "blocked" | "in-progress" | "completed" | "planned" | "cancelled" | "ready";
-export type UanaGateStatus = "pass" | "fail" | "candidate" | "blocked" | "missing" | "pending" | "not-run";
+export type UanaWorkStatus = "planned" | "blocked" | "ready" | "in-progress" | "testing" | "review" | "completed" | "archived";
+export type UanaGateStatus = "not-ready" | "candidate" | "pass" | "fail";
 export type UanaChoiceId = "inspect" | "continue" | "extend";
 export interface UanaWorkRef {
   readonly projectId: string;
@@ -14,6 +14,7 @@ export interface UanaWorkRef {
   readonly title: string;
   readonly status: string;
   readonly dependencies: readonly string[];
+  readonly qualityGateIds: readonly string[];
 }
 export interface UanaGateRef {
   readonly projectId: string;
@@ -33,6 +34,7 @@ export interface UanaSource {
   readonly checkpointRef?: string;
   readonly workPackages: readonly UanaWorkRef[];
   readonly gates: readonly UanaGateRef[];
+  readonly requiredGateIds: readonly string[];
 }
 export interface UanaOption {
   readonly id: UanaChoiceId;
@@ -66,6 +68,8 @@ const GIT_SHA = /^[a-f0-9]{40}$/;
 const PROJECT = /^project:[A-Za-z0-9_.:-]{2,110}$/;
 const REPO = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const SAFE = /^[^\r\n\x00-\x1f]{1,300}$/;
+const WORK_STATUSES = new Set<UanaWorkStatus>(["planned","blocked","ready","in-progress","testing","review","completed","archived"]);
+const GATE_STATUSES = new Set<UanaGateStatus>(["not-ready","candidate","pass","fail"]);
 function assert(ok: unknown, message: string): asserts ok {
   if (!ok) throw new TypeError("UANA_BLOCKED: " + message);
 }
@@ -74,18 +78,21 @@ function safe(value: unknown, max = 300): value is string {
     value.length <= max && SAFE.test(value);
 }
 function validWork(w: UanaWorkRef): boolean {
-  return PROJECT.test(w?.projectId) && safe(w?.id, 120) && safe(w?.title, 180) &&
-    typeof w.status === "string" && safe(w.status, 50) &&
+  return PROJECT.test(w?.projectId) && safe(w?.id, 120) && safe(w?.title, 200) &&
+    WORK_STATUSES.has(w.status as UanaWorkStatus) &&
     Array.isArray(w.dependencies) && w.dependencies.length <= 60 &&
-    w.dependencies.every(dep => safe(dep, 120));
+    w.dependencies.every(dep => safe(dep, 120)) &&
+    Array.isArray(w.qualityGateIds) && w.qualityGateIds.length <= 100 &&
+    w.qualityGateIds.every(id => safe(id,120));
 }
 function validGate(g: UanaGateRef): boolean {
-  return PROJECT.test(g?.projectId) && safe(g?.id, 120) && safe(g?.name, 180) && safe(g?.status, 50);
+  return PROJECT.test(g?.projectId) && safe(g?.id, 120) && safe(g?.name, 200) &&
+    GATE_STATUSES.has(g.status as UanaGateStatus);
 }
 function normalizedStatus(value: string): string { return value.toLowerCase(); }
 function nextWork(work: readonly UanaWorkRef[]): UanaWorkRef | null {
-  const outstanding = work.filter(w => !["completed", "cancelled"].includes(normalizedStatus(w.status)));
-  const priorities = ["blocked", "in-progress", "ready", "planned"];
+  const outstanding = work.filter(w => !["completed", "archived"].includes(normalizedStatus(w.status)));
+  const priorities = ["blocked", "in-progress", "testing", "review", "ready", "planned"];
   return [...outstanding].sort((a, b) =>
     (priorities.indexOf(normalizedStatus(a.status)) < 0 ? 9 : priorities.indexOf(normalizedStatus(a.status))) -
     (priorities.indexOf(normalizedStatus(b.status)) < 0 ? 9 : priorities.indexOf(normalizedStatus(b.status))) ||
@@ -111,6 +118,10 @@ export function createUanaProposal(source: UanaSource): UanaProposal | null {
     source.gates.every(validGate), "bounded canonical quality gates required");
   assert(source.gates.every(g => g.projectId === source.projectId),
     "cross-project Quality Gate blocked");
+  assert(Array.isArray(source.requiredGateIds) && source.requiredGateIds.length <= 250 &&
+    source.requiredGateIds.every(id => safe(id,120)) &&
+    new Set(source.requiredGateIds).size === source.requiredGateIds.length,
+    "canonical required gate list missing or invalid");
   assert(new Set(source.workPackages.map(w => w.id)).size === source.workPackages.length,
     "duplicate Work Package IDs");
   assert(new Set(source.gates.map(g => g.id)).size === source.gates.length,
@@ -118,8 +129,15 @@ export function createUanaProposal(source: UanaSource): UanaProposal | null {
   const active = nextWork(source.workPackages);
   if (!active) return null; // Don't invent a next action if canonical work is all complete/absent.
   const blocked = normalizedStatus(active.status) === "blocked";
+  const gateById = new Map(source.gates.map(g => [g.id,g] as const));
+  const workById = new Map(source.workPackages.map(w => [w.id,w] as const));
+  const knownGateIds = new Set([...source.requiredGateIds,...active.qualityGateIds]);
+  const unknownRequired = [...knownGateIds].some(id => gateById.get(id)?.status !== "pass");
+  const unfinishedDependency = active.dependencies.some(id =>
+    workById.get(id)?.status !== "completed");
   const gateIssues = source.gates.filter(g => normalizedStatus(g.status) !== "pass");
-  const gated = blocked || gateIssues.length > 0;
+  const gated = blocked || gateIssues.length > 0 || unknownRequired || unfinishedDependency ||
+    (source.requiredGateIds.length === 0 && source.gates.length === 0);
   const options: UanaOption[] = [
     Object.freeze({id: "inspect", projectId: source.projectId, workPackageId: active.id,
       title: "A — Kiểm tra và giữ nguyên phạm vi",
@@ -134,7 +152,7 @@ export function createUanaProposal(source: UanaSource): UanaProposal | null {
         " — " + active.title,
       recommended: true, isReviewOnly: gated})
   ];
-  if (!blocked && gateIssues.length === 0) {
+  if (!gated) {
     options.push(Object.freeze({id:"extend",projectId:source.projectId,workPackageId:active.id,
       title:"C — Thẩm định mở rộng dài hạn",
       description:"Đánh giá phạm vi lớn hơn, chỉ đề xuất thay đổi sau khi được duyệt.",
