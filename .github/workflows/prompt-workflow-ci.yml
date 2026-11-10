@@ -84,5 +84,20 @@ jobs:
         run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-authority.test.ts tests/application/prompt-workflow-journal.test.ts tests/application/prompt-workflow-github-executor.test.ts tests/application/prompt-workflow-operational-e2e.test.ts tests/application/prompt-workflow-observation-qa.test.ts tests/application/prompt-workflow-inspection-pipeline.test.ts tests/application/prompt-workflow-qa-journal.test.ts tests/application/prompt-workflow-qa-journal.test.ts
       - name: Visual Workflow Studio semantic SSR tests
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
+      - name: UANA v1.0 canonical option and missing-gate adversarial tests
+        run: pnpm exec vitest run tests/application/universal-active-next-action.test.ts
+      - name: UANA v1.0 scoped browser surface and copy-boundary tests
+        run: node --test tests/governance/uana-surface.test.mjs
+      - name: Lint the exact UANA sources and test contracts
+        run: |
+          pnpm exec eslint packages/application/src/universal-active-next-action.ts
+          pnpm exec eslint "apps/web/app/projects/[projectId]/prompt/page.tsx" "apps/web/app/projects/[projectId]/prompt/uana-panel.tsx" "apps/web/app/projects/[projectId]/prompt/actions.ts"
+          pnpm exec eslint tests/application/universal-active-next-action.test.ts
+      - name: Full repository TypeScript validation
+        run: pnpm typecheck
+      - name: Build all project packages and web workspace
+        run: pnpm build
+      - name: Full repository ESLint validation (includes pre-existing unrelated code)
+        run: pnpm lint
       - name: Vietnamese launcher, app grouping and no-invented-deployment tests
         run: pnpm exec vitest run tests/application/hub-app-directory.test.ts tests/application/appmanage-sso.test.ts

@@ -326,3 +326,6 @@ export * from "./constitution-propagation";
 export * from "./constitution-compliance-matrix";
 
 export * from "./constitution-publication-sources";
+
+// Derived UANA advisory workflow (no constitutional or release authority).
+export * from "./universal-active-next-action";

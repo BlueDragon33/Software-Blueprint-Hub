@@ -1,4 +1,6 @@
 import Link from "next/link";
+import {createUanaProposal,hasCompleteUanaGateEvidence,type UanaProposal} from "@blueprint-os/application";
+import publishedConstitution from "../../../../../../control/universal-constitution-version.json";
 import { StatusChip } from "@blueprint-os/ui";
 import {
   ProjectWorkspaceFrame,
@@ -6,6 +8,7 @@ import {
 } from "../_components/project-workspace";
 import { loadProjectWorkspace } from "../../../../src/server/project-workspace";
 import { PromptTools } from "./prompt-tools";
+import { UanaPanel } from "./uana-panel";
 import {
   isRegisteredGovernedProject,
   readConstitutionalWorkflowCatalog,
@@ -67,6 +70,43 @@ export default async function PromptPage({
   const latestIsStale = latest
     ? latest.sourceRevision !== currentSourceRevision
     : false;
+  let uanaProposal: UanaProposal | null = null;
+  let uanaNotice = "Cần tạo Prompt Projection từ nguồn chuẩn trước khi đề xuất lượt tiếp theo.";
+  if (latest && !latestIsStale) {
+    try {
+      const [workPackages, gateBundles] = await Promise.all([
+        workspace.runtime.workQuality.listWorkPackages(workspace.actor, workspace.projectId),
+        workspace.runtime.workQuality.listQualityGates(workspace.actor, workspace.projectId)
+      ]);
+      uanaProposal = createUanaProposal({
+        projectId: workspace.projectId,
+        projectName: workspace.project.profile.name,
+        constitutionVersion: publishedConstitution.policyVersion,
+        sourceRevision: currentSourceRevision,
+        projectionRevision: latest.sourceRevision,
+        projectionId: latest.id,
+        workPackages: workPackages.map(w => ({
+          projectId:w.projectId,id:w.id,title:w.title,status:w.status,dependencies:w.dependencies,
+          qualityGateIds:w.qualityGateIds
+        })),
+        gates: gateBundles.map(item => ({
+          projectId:item.gate.projectId,id:item.gate.id,name:item.gate.name,status:item.gate.status,
+          // Blueprint core requires a non-empty set of gate-bound evidence with
+          // source and revision. A stale PASS flag without those records cannot
+          // unlock an executable UANA proposal.
+          evidenceComplete: hasCompleteUanaGateEvidence(
+            item.gate.id, item.gate.evidenceIds, item.evidence
+          )
+        })),
+        requiredGateIds: workspace.project.blueprint.requiredGates
+      });
+      if (!uanaProposal) uanaNotice = "Không có Work Package chưa hoàn tất từ nguồn chuẩn. Không tự tạo việc mới.";
+    } catch {
+      uanaNotice = "Không xác minh được dữ liệu Work Package / Quality Gate. UANA dừng an toàn, không tạo giả đề xuất.";
+    }
+  } else if (latestIsStale) {
+    uanaNotice = "Prompt Projection đã cũ so với revision hiện tại. Cần regenerate trước khi đề xuất lượt tiếp theo.";
+  }
 
   return (
     <ProjectWorkspaceFrame
@@ -119,6 +159,8 @@ export default async function PromptPage({
           </div>
         </section>
       ) : null}
+
+      <UanaPanel key={workspace.projectId + ":" + currentSourceRevision + ":" + (uanaProposal?.context.projectionId ?? "no-projection")} proposal={uanaProposal} notice={uanaNotice}/>
 
       <section className="prompt-workspace-summary">
         <div className="prompt-workspace-revision">
