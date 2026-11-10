@@ -63,5 +63,7 @@ test("R1 UANA client imports ONLY the pure module, never the server-heavy barrel
  assert.match(page,/key=\{workspace\.projectId \+ ":" \+ currentSourceRevision/);
  assert.match(page,/qualityGateIds:w\.qualityGateIds/);
  assert.match(engine,/unknownRequired/);
+ assert.match(engine,/hasCompleteUanaGateEvidence/);
+ assert.match(page,/evidenceComplete: hasCompleteUanaGateEvidence/);
  assert.match(engine,/unfinishedDependency/);
 });
