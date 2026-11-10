@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { renderUanaDraft, type UanaChoiceId, type UanaProposal } from "@blueprint-os/application";
 import styles from "./uana-panel.module.css";
+import { verifyUanaSourceForCopyAction } from "./actions";
 
 export function UanaPanel({proposal,notice}:{
   readonly proposal: UanaProposal|null;
@@ -12,6 +13,7 @@ export function UanaPanel({proposal,notice}:{
   const [preview,setPreview]=useState(false);
   const [draft,setDraft]=useState("");
   const [feedback,setFeedback]=useState("");
+  const [checking,setChecking]=useState(false);
 
   function select(id:UanaChoiceId) {
     setSelected(id);
@@ -26,12 +28,30 @@ export function UanaPanel({proposal,notice}:{
     setFeedback("");
   }
   async function copyDraft() {
-    if(!draft.trim()) return;
+    if(!draft.trim() || !proposal || checking) return;
+    setChecking(true);
     try {
-      await navigator.clipboard.writeText(draft);
-      setFeedback("Đã sao chép. Dán vào ChatGPT Project đúng ngữ cảnh rồi gửi.");
+      const check = await verifyUanaSourceForCopyAction(
+        proposal.context.projectId,
+        proposal.context.sourceRevision,
+        proposal.context.projectionId
+      );
+      if(!check.ok){
+        setFeedback(check.message);
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(draft);
+        setFeedback("Đã sao chép sau khi đối chiếu nguồn. Dán vào đúng ChatGPT Project rồi gửi.");
+      } catch {
+        // Some browsers expire the click gesture during the async server read.
+        // Never bypass the source check; users may select and copy the visible text.
+        setFeedback("Nguồn hợp lệ nhưng trình duyệt chặn clipboard. Chọn nội dung ô bên trên để sao chép thủ công.");
+      }
     } catch {
-      setFeedback("Không thể tự sao chép. Chọn toàn bộ nội dung ô bên trên để sao chép thủ công.");
+      setFeedback("Không thể xác minh checkpoint trước khi sao chép. Tải lại trang và thử lại.");
+    } finally {
+      setChecking(false);
     }
   }
 
@@ -73,8 +93,8 @@ export function UanaPanel({proposal,notice}:{
         <div className={styles.buttons}>
           <button type="button" onClick={()=>{setPreview(false);setFeedback("");}}
             className={styles.secondary}>Quay lại chọn phương án</button>
-          <button type="button" disabled={!draft.trim()} onClick={()=>void copyDraft()}
-            className={styles.primary}>Sao chép để gửi</button>
+          <button type="button" disabled={!draft.trim()||checking} onClick={()=>void copyDraft()}
+            className={styles.primary}>{checking?"Đang đối chiếu nguồn…":"Sao chép để gửi"}</button>
           <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer"
             className={styles.secondary}>Mở ChatGPT</a>
         </div>
