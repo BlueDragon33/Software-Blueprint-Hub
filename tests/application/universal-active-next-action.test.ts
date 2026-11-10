@@ -1,7 +1,7 @@
 import {readFileSync} from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  createUanaProposal, renderUanaDraft, UANA_VERSION,
+  createUanaProposal, renderUanaDraft, hasCompleteUanaGateEvidence, UANA_VERSION,
   type UanaSource
 } from "../../packages/application/src/universal-active-next-action";
 
@@ -22,7 +22,7 @@ const source: UanaSource = {
       status:"in-progress",dependencies:["BOI-L1"],qualityGateIds:["G4"]},
   ],
   gates:[{projectId:"project:boi-ech-ai",id:"G4",name:"Real Cloudflare Preview",
-    status:"candidate"}],
+    status:"candidate",evidenceComplete:true}],
   requiredGateIds:["G4"]
 };
 const make = (overrides: Partial<UanaSource> = {}) => ({...source,...overrides});
@@ -60,6 +60,37 @@ describe("UANA 1.0 project-scoped choice → preview → edited human send contr
   }))!;
   expect(proposal.options).toHaveLength(3);
   expect(proposal.options[2]).toMatchObject({id:"extend",recommended:false,isReviewOnly:true});
+ });
+ it("a Gate marked PASS with missing verified evidence stays blocked, even if other gates PASS",()=>{
+  const proposal=createUanaProposal(make({
+    gates:[{...source.gates[0]!,status:"pass",evidenceComplete:false}]
+  }))!;
+  expect(proposal.options[1]).toMatchObject({id:"continue",isReviewOnly:true});
+  expect(proposal.options.map(option=>option.id)).not.toContain("extend");
+ });
+ it("canonical gate evidence binding rejects missing, foreign or incomplete provenance",()=>{
+  const eid="evidence:fixture-1";
+  const valid={id:eid,gateId:"G4",source:"https://github.com/example/review/1",revision:"sha256:"+"a".repeat(64)};
+  expect(hasCompleteUanaGateEvidence("G4",[eid],[valid])).toBe(true);
+  expect(hasCompleteUanaGateEvidence("G4",[],[valid])).toBe(false);
+  expect(hasCompleteUanaGateEvidence("G4",[eid],[])).toBe(false);
+  expect(hasCompleteUanaGateEvidence("G4",[eid],[{...valid,gateId:"OTHER"}])).toBe(false);
+  expect(hasCompleteUanaGateEvidence("G4",[eid],[{...valid,source:"   "}])).toBe(false);
+  expect(hasCompleteUanaGateEvidence("G4",[eid],[{...valid,revision:""}])).toBe(false);
+  expect(hasCompleteUanaGateEvidence("G4",[eid,eid],[valid])).toBe(false);
+ });
+ it("PASS alone never implies UANA release authority",()=>{
+  const proposal=createUanaProposal(make({
+    gates:[{...source.gates[0]!,status:"pass",evidenceComplete:true}]
+  }))!;
+  expect(proposal.options[1].isReviewOnly).toBe(false);
+  expect(proposal.qualityGatePassed).toBe(false);
+  expect(proposal.productionAuthorized).toBe(false);
+ });
+ it("unknown evidence-completeness truth must fail closed",()=>{
+  const gate={projectId:source.projectId,id:"G4",name:"Preview",status:"pass"};
+  expect(()=>createUanaProposal(make({gates:[gate as UanaSource["gates"][number]]})))
+    .toThrow(/bounded canonical quality gates/);
  });
  it("required gate missing from registry is not interpreted as PASS",()=>{
   const proposal=createUanaProposal(make({gates:[]}))!;
