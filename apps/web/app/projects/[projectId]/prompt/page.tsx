@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {createUanaProposal,type UanaProposal} from "@blueprint-os/application";
+import {createUanaProposal,hasCompleteUanaGateEvidence,type UanaProposal} from "@blueprint-os/application";
 import publishedConstitution from "../../../../../../control/universal-constitution-version.json";
 import { StatusChip } from "@blueprint-os/ui";
 import {
@@ -94,11 +94,9 @@ export default async function PromptPage({
           // Blueprint core requires a non-empty set of gate-bound evidence with
           // source and revision. A stale PASS flag without those records cannot
           // unlock an executable UANA proposal.
-          evidenceComplete: item.gate.evidenceIds.length > 0 &&
-            item.gate.evidenceIds.every(id => item.evidence.some(e =>
-              e.id === id && e.gateId === item.gate.id &&
-              e.source.trim().length > 0 && e.revision.trim().length > 0
-            ))
+          evidenceComplete: hasCompleteUanaGateEvidence(
+            item.gate.id, item.gate.evidenceIds, item.evidence
+          )
         })),
         requiredGateIds: workspace.project.blueprint.requiredGates
       });
