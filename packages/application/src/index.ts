@@ -329,3 +329,6 @@ export * from "./constitution-publication-sources";
 export * from "./unified-next-action";
 export * from "./next-action-blueprint.candidate";
 export * from "./next-action-run-plan.candidate";
+
+// UANA v1 advisory only; independent of R33/R34 execution authority.
+export * from "./universal-active-next-action";
