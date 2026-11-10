@@ -8,6 +8,7 @@ const page = read("apps/web/app/projects/[projectId]/prompt/page.tsx");
 const panel = read("apps/web/app/projects/[projectId]/prompt/uana-panel.tsx");
 const engine = read("packages/application/src/universal-active-next-action.ts");
 const projectInstructions=read("docs/UANA-CHATGPT-PROJECT-INSTRUCTIONS.v1.md");
+const actions=read("apps/web/app/projects/[projectId]/prompt/actions.ts");
 
 test("UANA is embedded in existing Prompt Workspace, not a second control plane",()=>{
  assert.match(page,/<UanaPanel/);
@@ -43,4 +44,23 @@ test("portable Project Instructions are scoped and opt-in, not auto-installed",(
  assert.match(projectInstructions,/ChatGPT Project/);
  assert.match(projectInstructions,/Không tự merge/);
  assert.match(projectInstructions,/Per-project Owners must apply it explicitly/);
+});
+
+test("R1 UANA rechecks authenticated current canonical revision before user copy",()=>{
+ assert.match(actions,/verifyUanaSourceForCopyAction/);
+ assert.match(actions,/loadProjectWorkspace\(projectId\)/);
+ assert.match(actions,/workspace\.state !== "ready"/);
+ assert.match(actions,/currentSourceRevisionFromProfile/);
+ assert.match(actions,/page\.latest\?\.id !== expectedProjectionId/);
+ assert.match(actions,/page\.latest\.sourceRevision !== actual/);
+ assert.match(panel,/await verifyUanaSourceForCopyAction/);
+ assert.match(panel,/if\(!check\.ok\)/);
+});
+test("R1 UANA client imports ONLY the pure module, never the server-heavy barrel",()=>{
+ assert.match(panel,/packages\/application\/src\/universal-active-next-action/);
+ assert.doesNotMatch(panel,/from "@blueprint-os\/application"/);
+ assert.match(page,/requiredGateIds: workspace\.project\.blueprint\.requiredGates/);
+ assert.match(page,/qualityGateIds:w\.qualityGateIds/);
+ assert.match(engine,/unknownRequired/);
+ assert.match(engine,/unfinishedDependency/);
 });
