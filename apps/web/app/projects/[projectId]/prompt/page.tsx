@@ -154,7 +154,7 @@ export default async function PromptPage({
         </section>
       ) : null}
 
-      <UanaPanel key={currentSourceRevision + ":" + (uanaProposal?.context.projectionId ?? "no-projection")} proposal={uanaProposal} notice={uanaNotice}/>
+      <UanaPanel key={workspace.projectId + ":" + currentSourceRevision + ":" + (uanaProposal?.context.projectionId ?? "no-projection")} proposal={uanaProposal} notice={uanaNotice}/>
 
       <section className="prompt-workspace-summary">
         <div className="prompt-workspace-revision">
