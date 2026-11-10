@@ -21,6 +21,8 @@ export interface UanaGateRef {
   readonly id: string;
   readonly name: string;
   readonly status: string;
+  /** True only when all required evidence IDs have authentic gate-bound provenance. */
+  readonly evidenceComplete: boolean;
 }
 export interface UanaSource {
   readonly projectId: string;
@@ -87,7 +89,7 @@ function validWork(w: UanaWorkRef): boolean {
 }
 function validGate(g: UanaGateRef): boolean {
   return PROJECT.test(g?.projectId) && safe(g?.id, 120) && safe(g?.name, 200) &&
-    GATE_STATUSES.has(g.status as UanaGateStatus);
+    GATE_STATUSES.has(g.status as UanaGateStatus) && typeof g.evidenceComplete === "boolean";
 }
 function normalizedStatus(value: string): string { return value.toLowerCase(); }
 function nextWork(work: readonly UanaWorkRef[]): UanaWorkRef | null {
@@ -132,10 +134,14 @@ export function createUanaProposal(source: UanaSource): UanaProposal | null {
   const gateById = new Map(source.gates.map(g => [g.id,g] as const));
   const workById = new Map(source.workPackages.map(w => [w.id,w] as const));
   const knownGateIds = new Set([...source.requiredGateIds,...active.qualityGateIds]);
-  const unknownRequired = [...knownGateIds].some(id => gateById.get(id)?.status !== "pass");
+  const unknownRequired = [...knownGateIds].some(id => {
+    const gate = gateById.get(id);
+    return gate?.status !== "pass" || gate.evidenceComplete !== true;
+  });
   const unfinishedDependency = active.dependencies.some(id =>
     workById.get(id)?.status !== "completed");
-  const gateIssues = source.gates.filter(g => normalizedStatus(g.status) !== "pass");
+  const gateIssues = source.gates.filter(g => normalizedStatus(g.status) !== "pass" ||
+    g.evidenceComplete !== true);
   const gated = blocked || gateIssues.length > 0 || unknownRequired || unfinishedDependency ||
     (source.requiredGateIds.length === 0 && source.gates.length === 0);
   const options: UanaOption[] = [
