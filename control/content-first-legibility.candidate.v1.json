@@ -1,0 +1,102 @@
+{
+  "schema": "blueprint-os:content-first-legibility-candidate/v1",
+  "status": "PROPOSED_ONLY_NOT_RATIFIED",
+  "effectiveConstitution": "1.3.0",
+  "centralOwner": "BlueDragon33/Software-Blueprint-Hub",
+  "normativeTarget": "docs/UNIVERSAL-CONSTITUTION.md#11-computed-contrast-and-legibility",
+  "existingMachineContract": "control/universal-constitution.contract.json#computedContrast",
+  "existingUxGate": "gate:ux:commercial-quality",
+  "rule": "MEANINGFUL_CONTENT_PRIMARY_BACKGROUND_SUPPORTIVE",
+  "forbid": [
+    "dark-on-dark-essential-text",
+    "light-on-light-essential-text",
+    "low-opacity-required-text",
+    "unreadable-modal-and-tooltip-text",
+    "unreadable-table-or-form-label",
+    "media-or-gradient-obscures-content",
+    "css-global-overrides-reverse-contrast",
+    "visual-only-state-meaning",
+    "infer-pass-from-token-only"
+  ],
+  "inheritRatiosFromPublishedContract": true,
+  "minimums": {
+    "normalText": 4.5,
+    "largeText": 3,
+    "meaningfulNonText": 3
+  },
+  "surfaces": [
+    "page-body",
+    "heading",
+    "long-document",
+    "form-field",
+    "placeholder-meaningful",
+    "button",
+    "tab",
+    "sidebar",
+    "dropdown",
+    "tooltip",
+    "toast",
+    "modal",
+    "data-table",
+    "chart-label",
+    "kpi",
+    "error-and-status",
+    "document-export"
+  ],
+  "states": [
+    "default",
+    "hover",
+    "focus-visible",
+    "active",
+    "selected",
+    "disabled",
+    "loading",
+    "error",
+    "warning",
+    "success",
+    "empty",
+    "offline",
+    "permission-denied"
+  ],
+  "environments": [
+    "desktop",
+    "tablet",
+    "mobile-320-to-430",
+    "light-theme",
+    "dark-theme",
+    "system-theme",
+    "supported-high-contrast",
+    "supported-zoom",
+    "controlled-print-or-pdf"
+  ],
+  "evidence": {
+    "mustBeRealRender": true,
+    "computedForeground": true,
+    "finalCompositedBackground": true,
+    "gradientWorstCase": true,
+    "realThemeAndState": true,
+    "screenAndViewport": true,
+    "privacyRedacted": true,
+    "exactSourceSha": true,
+    "humanReadingReview": true,
+    "unknownComposite": "UNVERIFIED"
+  },
+  "adoption": {
+    "gate": "existing-gate:ux:commercial-quality",
+    "scope": "all-governed-apps-with-user-facing-surface",
+    "headless": "NOT_APPLICABLE_WITH_REASON",
+    "perAppExactShaRequired": true,
+    "noPortfolioPassAssumption": true,
+    "zeroNewPaidService": true
+  },
+  "authority": {
+    "newQualityGate": false,
+    "newRegistry": false,
+    "newDatabase": false,
+    "newDashboard": false,
+    "automaticProjectRollout": false,
+    "ratified": false,
+    "published": false,
+    "productionAuthority": false
+  }
+}
