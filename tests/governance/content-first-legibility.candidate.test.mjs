@@ -22,6 +22,8 @@ test("existing published Constitution version remains unchanged", () => {
 });
 test("inherit the existing UX gate rather than creating duplicate authority", () => {
   assert.equal(candidate.existingUxGate, published.computedContrast.requirementId);
+  assert.equal(candidate.adoption.gate, published.computedContrast.requirementId);
+  assert.equal(candidate.adoption.gate, candidate.existingUxGate);
   assert.equal(candidate.authority.newQualityGate, false);
   assert.equal(candidate.authority.newRegistry, false);
   assert.equal(candidate.authority.newDatabase, false);
