@@ -82,7 +82,7 @@
     "unknownComposite": "UNVERIFIED"
   },
   "adoption": {
-    "gate": "existing-gate:ux:commercial-quality",
+    "gate": "gate:ux:commercial-quality",
     "scope": "all-governed-apps-with-user-facing-surface",
     "headless": "NOT_APPLICABLE_WITH_REASON",
     "perAppExactShaRequired": true,
