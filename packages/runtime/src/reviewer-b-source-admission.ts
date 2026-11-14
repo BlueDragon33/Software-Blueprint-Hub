@@ -99,7 +99,7 @@ export class ReviewerBSourceAdmissionService {
         !DIGEST.test(attempt.observationDigest ?? "") ||
         attempt.tokensUsed !== 0 || attempt.filesTouched.length !== 0 ||
         attempt.evidenceReferences.length !== order.scope.allowedPaths.length) {
-      fail("unverified, mutable or chargeable source inspection");
+      return fail("unverified, mutable or chargeable source inspection");
     }
     const expectedRefs = [...order.scope.allowedPaths].sort().map(
       path => "github:" + order.repository + "@" + order.sourceRevision + "#" + path
@@ -114,7 +114,7 @@ export class ReviewerBSourceAdmissionService {
         qa.observationDigest !== attempt.observationDigest ||
         qa.verifiedFiles !== order.scope.allowedPaths.length ||
         qa.verifierId !== INDEPENDENT_INSPECTION_VERIFIER_ID) {
-      fail("missing or inconsistent independently persisted byte readback");
+      return fail("missing or inconsistent independently persisted byte readback");
     }
     return Object.freeze({
       status: "SOURCE_AND_P3_QA_JOURNAL_VERIFIED",
