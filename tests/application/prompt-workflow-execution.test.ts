@@ -1,4 +1,4 @@
-import { generateKeyPairSync, sign } from "node:crypto";
+import { createHash, generateKeyPairSync, sign } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 
@@ -6,6 +6,7 @@ import {
   executeBoundedWorkflowNode,
   executeEvidenceBoundWorkflowNode,
   verifyWorkflowExecutionGrant,
+  verifyReviewSourceAdmission,
   workflowExecutionGrantSigningPayload,
   type WorkflowAttemptResult,
   type WorkflowExecutionGrantPayload,
@@ -277,5 +278,79 @@ describe("Phase 5B opt-in bounded execution and recovery", () => {
     };
     await expect(verifyWorkflowExecutionGrant(grant(), approved, context, authority, fixed))
       .rejects.toThrow("No pinned issuer");
+  });
+});
+
+describe("G3 read-only source admission (reuses real Ed25519 + WorkPackage CAS)",()=>{
+
+  function orderPin(g = grant()) {
+    return {
+      policyVersion: "1.3.0" as const, projectId: context.projectId,
+      repository: context.repository, workflowId: approved.workflowId,
+      workflowNodeId: g.nodeId, workflowDigest: digest,
+      sourceRevision: context.appHead, canonicalSourceRevision: context.canonicalDigest,
+      issuerGrantDigest: "sha256:" + requireSha(g),
+      workPackageId: "r2-r3-qa", workPackageRecordVersion: 4,
+      expectedStateVersion: 4,
+      scope: {allowedPaths:[...g.allowedPaths],maxFiles:g.maxFiles,
+        maxAttempts:g.maxAttempts,maxTokensUsed:0 as const}
+    };
+  }
+  const requireSha=(g:WorkflowExecutionGrant)=>
+    createHash("sha256").update(JSON.stringify(stableGrant(g))).digest("hex");
+  const stableGrant=(g:WorkflowExecutionGrant): Record<string, unknown>=>
+    Object.fromEntries(Object.entries(g).sort(([a],[b])=>a.localeCompare(b)));
+  const workRepo=(version=4,projectId=context.projectId)=>({
+    findWorkPackageById:vi.fn(async(id:string)=>({
+      id, projectId, meta:{recordVersion:version}
+    }))
+  });
+  it("verifies existing Ed25519/adoption/issuer and canonical WorkPackage version without reviewer PASS",async()=>{
+    const g=grant(),a=harness();
+    const result=await verifyReviewSourceAdmission(
+      orderPin(g),g,approved,context,a.authority,workRepo(),fixed);
+    expect(result.sourceInspectionGrantVerified).toBe(true);
+    expect(result.canonicalWorkPackageVersionVerified).toBe(true);
+    expect(result.independentReviewerBVerified).toBe(false);
+    expect(result.qualityGatePassed).toBe(false);
+    expect(result.productionAuthorized).toBe(false);
+  });
+  it("rejects a revoked/unauthorized issuer (not just a string token)",async()=>{
+    const g=grant(),a=harness({permitted:false});
+    await expect(verifyReviewSourceAdmission(orderPin(g),g,approved,context,
+      a.authority,workRepo(),fixed)).rejects.toThrow(/permission/);
+  });
+  it("rejects forged grant signature and stale SHA",async()=>{
+    const g=grant(),a=harness();
+    await expect(verifyReviewSourceAdmission(orderPin(g),{...g,appHead:"f".repeat(40)},
+      approved,context,a.authority,workRepo(),fixed)).rejects.toThrow(/source|signature/);
+  });
+  it("rejects changed signed-grant digest without replacing review authority",async()=>{
+    const g=grant(),a=harness();
+    await expect(verifyReviewSourceAdmission({...orderPin(g),
+      issuerGrantDigest:"sha256:"+"f".repeat(64)},g,approved,context,
+      a.authority,workRepo(),fixed)).rejects.toThrow(/scope mismatch/);
+  });
+  it("rejects foreign/stale canonical WorkPackage and CAS",async()=>{
+    const g=grant(),a=harness();
+    for(const repo of [workRepo(5),workRepo(4,"project:other")]) {
+      await expect(verifyReviewSourceAdmission(orderPin(g),g,approved,context,
+        a.authority,repo,fixed)).rejects.toThrow(/canonical WorkPackage CAS/);
+    }
+    await expect(verifyReviewSourceAdmission({...orderPin(g),expectedStateVersion:5},
+      g,approved,context,a.authority,workRepo(),fixed))
+      .rejects.toThrow(/WorkPackage\/CAS/);
+  });
+  it("rejects attempts to widen source scope, paid token budget or impersonate a review node",async()=>{
+    const g=grant(),a=harness();
+    await expect(verifyReviewSourceAdmission({...orderPin(g),scope:{
+      ...orderPin(g).scope,allowedPaths:["outside.ts"]}},g,approved,
+      context,a.authority,workRepo(),fixed)).rejects.toThrow(/scope mismatch/);
+    await expect(verifyReviewSourceAdmission({...orderPin(g),scope:{
+      ...orderPin(g).scope,maxTokensUsed:1 as 0}},g,approved,
+      context,a.authority,workRepo(),fixed)).rejects.toThrow(/WorkPackage\/CAS/);
+    await expect(verifyReviewSourceAdmission(orderPin(grant("release-check")),
+      grant("release-check"),approved,context,a.authority,workRepo(),fixed))
+      .rejects.toThrow(/Human\/release/);
   });
 });

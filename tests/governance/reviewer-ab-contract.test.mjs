@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {reviewOrderKey,validateReviewWorkOrder,validateReviewEvidence,assessReviewHandoff}
+import {reviewOrderKey,reviewSourceDigestV1,validateReviewWorkOrder,validateReviewEvidence,assessReviewHandoff}
   from "../../packages/application/src/reviewer-ab-contract.mjs";
 
 const sha="a".repeat(40),d1="sha256:"+"b".repeat(64),d2="sha256:"+"c".repeat(64);
@@ -9,7 +9,7 @@ function workOrder(){
     projectId:"project:blueprint-os",repository:"BlueDragon33/Software-Blueprint-Hub",
     pullRequestNumber:161,workPackageId:"r2-r3-qa",workPackageRecordVersion:4,
     workflowId:"ab-review",workflowNodeId:"review",workflowDigest:d1,
-    sourceRevision:sha,canonicalSourceRevision:d2,expectedStateVersion:7,
+    sourceRevision:sha,canonicalSourceRevision:d2,expectedStateVersion:4,
     issuerGrantDigest:d1,issuedAt:"2026-11-11T09:00:00.000Z",
     expiresAt:"2026-11-11T09:09:00.000Z",
     scope:{allowedPaths:["src/example.ts"],maxFiles:1,maxBytes:65536,maxAttempts:3,maxTokensUsed:0},
@@ -195,4 +195,27 @@ test("B ACCEPT still needs authenticated CAS, canonical gates and Owner",async()
 });
 test("B BLOCKED remains blocked regardless of successful CI claims",async()=>{
   const o=workOrder();await blocked(assess(o,report(o),report(o,"B",{verdict:"BLOCKED"})));
+});
+test("canonical source manifest digest matches Reviewer B exact cross-repo v1 fixture",()=>{
+  const files=[
+    {path:"z.txt",bytes:3,sha256:"sha256:"+"b".repeat(64)},
+    {path:"src/example.ts",bytes:12,sha256:"sha256:"+"a".repeat(64)}
+  ];
+  assert.equal(reviewSourceDigestV1(files),
+    "sha256:2b6e337df69380382d6f968697356a5747719aa98a15ab120de5749c51250f03");
+  assert.equal(reviewSourceDigestV1(files),reviewSourceDigestV1([...files].reverse()));
+  assert.notEqual(reviewSourceDigestV1(files),reviewSourceDigestV1([
+    {...files[0],bytes:4},files[1]
+  ]));
+});
+test("source manifest cannot claim duplicate path, traversal, invalid digest or unlimited bytes",()=>{
+  const f={path:"src/example.ts",bytes:12,sha256:"sha256:"+"a".repeat(64)};
+  assert.throws(()=>reviewSourceDigestV1([f,f]),/duplicate/);
+  assert.throws(()=>reviewSourceDigestV1([{...f,path:"src/../escape"}]),/invalid source/);
+  assert.throws(()=>reviewSourceDigestV1([{...f,sha256:"a".repeat(40)}]),/invalid source/);
+  assert.throws(()=>reviewSourceDigestV1([{...f,bytes:512001}]),/invalid source/);
+});
+test("WorkOrder cannot invent a second CAS state separate from WorkPackage recordVersion",()=>{
+  const o=workOrder();o.expectedStateVersion++;
+  assert.throws(()=>validateReviewWorkOrder(o),/WorkPackage.meta.recordVersion/);
 });

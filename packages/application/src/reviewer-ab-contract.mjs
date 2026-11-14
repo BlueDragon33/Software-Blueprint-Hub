@@ -34,6 +34,29 @@ function timestamp(x){return typeof x==="string"&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d
 function safePath(x){return typeof x==="string"&&PATH.test(x)&&x.split("/").every(p=>p&&p!=="."&&p!=="..");}
 function unique(a){return Array.isArray(a)&&new Set(a).size===a.length;}
 function digest(x){return "sha256:"+createHash("sha256").update(x).digest("hex");}
+
+/** Source identity v1: domain-separated, ordered manifest of independently
+ * fetched GitHub file bytes. Caller must verify each file's actual SHA-256;
+ * a format-valid manifest alone is NOT QA provenance or review acceptance. */
+export function reviewSourceDigestV1(files){
+  check(Array.isArray(files)&&files.length>=1&&files.length<=10,
+    "bounded source manifest required");
+  let total=0;
+  const entries=files.map(file=>{
+    exact(file,["path","bytes","sha256"],"source file");
+    check(safePath(file.path)&&Number.isSafeInteger(file.bytes)&&
+      file.bytes>=0&&file.bytes<=256000&&DIGEST.test(file.sha256),
+      "invalid source file bytes or digest");
+    total+=file.bytes;
+    return {path:file.path,bytes:file.bytes,sha256:file.sha256};
+  }).sort((a,b)=>a.path<b.path?-1:a.path>b.path?1:0);
+  check(total<=512000&&new Set(entries.map(x=>x.path)).size===entries.length,
+    "duplicate or unbounded source manifest");
+  return "sha256:"+createHash("sha256")
+    .update("blueprint-os:review-source-manifest:v1\0")
+    .update(JSON.stringify(entries)).digest("hex");
+}
+
 export function reviewOrderKey(o){
   return digest(JSON.stringify(["review-ab:1",o.projectId,o.repository,o.pullRequestNumber,
     o.workPackageId,o.workPackageRecordVersion,o.workflowId,o.workflowNodeId,
@@ -51,6 +74,8 @@ export function validateReviewWorkOrder(o){
   check(SHA.test(o.sourceRevision)&&DIGEST.test(o.canonicalSourceRevision)&&
     DIGEST.test(o.workflowDigest)&&DIGEST.test(o.issuerGrantDigest),
     "Git SHA, canonical revision, workflow and issuer are distinct pinned identities");
+  check(o.expectedStateVersion===o.workPackageRecordVersion,
+    "CAS must bind canonical WorkPackage.meta.recordVersion, not a shadow state version");
   exact(o.scope,SCOPE_KEYS,"inspection scope");
   const s=o.scope;
   check(unique(s.allowedPaths)&&s.allowedPaths.length>=1&&s.allowedPaths.length<=10&&
