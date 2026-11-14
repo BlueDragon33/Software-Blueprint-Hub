@@ -71,7 +71,7 @@ test("canonical sha256 digest is not a Git SHA",()=>{
   assert.throws(()=>validateReviewWorkOrder(o),/distinct pinned identities/);
 });
 test("stale idempotency after record version changes is rejected",()=>{
-  const o=workOrder();o.workPackageRecordVersion++;
+  const o=workOrder();o.workPackageRecordVersion++;o.expectedStateVersion++;
   assert.throws(()=>validateReviewWorkOrder(o),/idempotency/);
 });
 test("out-of-governance repository rejected",()=>{
