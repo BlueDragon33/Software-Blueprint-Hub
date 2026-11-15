@@ -48,7 +48,7 @@ test("3D art is not universal, canonical inventory owns counts and templates req
  assert.equal(candidate.templateLifecycle.preventDuplicateIdentity,true);
  assert.equal(candidate.templateLifecycle.requiresReadback,true);
  assert.match(proposal,/Do not auto-create resources when opening a page/);
- assert.match(proposal,/not a mandatory design style/);
+ assert.match(proposal,/neither a mandatory design style/);
 });
 
 test("unknown practice-pool configuration fails closed and cannot be represented as certified",()=>{
