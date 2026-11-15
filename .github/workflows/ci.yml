@@ -72,6 +72,8 @@ jobs:
         run: |
           node --test tests/source-truth/constitution-1.3-candidate.test.mjs tests/source-truth/constitution-contrast.test.mjs
           node scripts/check-constitution-1.3-candidate.mjs
+      - name: Non-authoritative spatial resource UX amendment candidate
+        run: node --test tests/governance/spatial-resource-ux.candidate.test.mjs
       - name: Central prompt workflow contract validation
         run: node scripts/check-prompt-workflows.mjs
       - name: Central prompt workflow adversarial regression
