@@ -13,7 +13,7 @@
     "checkedAtRevision": "cd01fb3c2178393628ce968af209db082227d2c4"
   },
   "baselineHead": "cd01fb3c2178393628ce968af209db082227d2c4",
-  "currentHead": "c83d53b2c5dcf46d4b6a95a632be767f19e63029",
+  "currentHead": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
   "headSemantics": "currentHead is the last verified implementation commit, not a self-referential ledger commit. Always resolve live HEAD and git status before resuming; later evidence-only commits must not be mistaken for tested code changes.",
   "ledgerOwnership": "This is the sole development execution ledger for this mission, under the existing projects/blueprint-os owner. Runtime execution journals and governance-registration-ledger own different canonical entities and are not repurposed or duplicated.",
   "permissions": {
@@ -278,19 +278,20 @@
       "dependencies": [
         "FIG-005"
       ],
-      "status": "ACTIVE",
+      "status": "DONE",
       "acceptance": "Remote source/CI readback and fixture browser measurements/screenshots; no online publication. Distinguish synthetic browser QA from authenticated runtime and Owner acceptance.",
       "verification": [
-        "public standard Ubuntu Node24 scoped QA job",
-        "16 synthetic Chromium cases across desktop/mobile and light/dark",
-        "remote branch/PR/deployment readback"
+        "docs/evidence/graph-intelligence/verified-evidence.json",
+        "3 exact-source CI workflows SUCCESS",
+        "401 Vitest PASS, 60 SKIPPED; 189 native Node PASS; 16 Chromium PASS, no flaky or skipped browser cases",
+        "Artifact bytes verified; code/test/CI source manifest preserved for evidence-only checkpoint"
       ],
       "risk": "low",
       "next": "FIG-007"
     },
     {
       "id": "FIG-007",
-      "objective": "Independent technical review and Owner product acceptance",
+      "objective": "Real authenticated-runtime verification, independent technical review and Owner product acceptance",
       "ownerFiles": [
         "Draft PR",
         "existing Human Review surfaces"
@@ -301,12 +302,13 @@
       "status": "BLOCKED",
       "acceptance": "Independent authorized reviewer and real Owner acceptance at exact revision",
       "verification": [
-        "authenticated independent review",
-        "Owner UX acceptance"
+        "Authorize and observe the existing project workspace with real actors/roles and canonical PostgreSQL records",
+        "Read denied/allowed/revoked project states; source outage recovery; real revisions; no cross-project reads or writes",
+        "Independent technical review and Owner acceptance bound to final exact source/evidence revision"
       ],
       "risk": "medium",
       "next": "Only separately authorized merge/release",
-      "blocker": "No independent reviewer identity or Owner acceptance supplied; author cannot certify either."
+      "blocker": "No authorized persistent PostgreSQL/sign-in QA runtime with real roles, independent reviewer identity or Owner acceptance supplied. Fixture CI cannot certify these."
     }
   ],
   "knownDefects": [
@@ -335,13 +337,13 @@
     {
       "id": "QA-EXACT-LABEL-LOCATOR",
       "scope": "Playwright test locator only",
-      "resolution": "AOM snapshot confirms Relationship combobox. Replace exact label-text lookup with exact combobox accessible-role locator. All behavior assertions and WCAG thresholds preserved; full rerun pending."
+      "resolution": "AOM snapshot confirms Relationship combobox. Replace exact label-text lookup with exact combobox accessible-role locator. All behavior assertions and WCAG thresholds preserved; full rerun pending.",
+      "verification": "Resolved at b818406511fb10be16b7cd3d9fbb27224ea4488a: full 16/16 actual Chromium PASS."
     }
   ],
   "blockers": [
-    "Authenticated PostgreSQL runtime and real Owner UX acceptance NOT_RUN",
-    "Independent reviewer identity/authorization unavailable",
-    "Full fixture browser suite pending corrected accessible-role locator; 12/16 PASS and all contrast checks already evidenced."
+    "Real authenticated PostgreSQL/role/device runtime NOT_RUN (60 existing integration tests skipped)",
+    "Independent technical reviewer identity/authority unavailable; Owner product acceptance NOT_RUN"
   ],
   "evidence": [
     {
@@ -383,11 +385,16 @@
       "path": "docs/evidence/graph-intelligence/ci-attempt-2.json",
       "revision": "c83d53b2c5dcf46d4b6a95a632be767f19e63029",
       "result": "Source gates PASS; fixture browser 12 PASS/4 locator failures; computed contrast PASS in all four configurations; overall browser gate NOT_PASS."
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/verified-evidence.json",
+      "revision": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
+      "result": "EXACT SOURCE VERIFIED / SYNTHETIC UI VERIFIED / REAL RUNTIME AND HUMAN ACCEPTANCE PENDING"
     }
   ],
-  "nextSafeAtomicAction": "FIG-006: observe updated exact-HEAD public CI browser job; inspect failures before changes; persist measurements/artifact hashes and final handoff. Do not rerun green checks without source drift.",
-  "lastVerifiedTimestamp": "2026-11-17T20:24:31.687333+00:00",
-  "lastVerifiedRevision": "c83d53b2c5dcf46d4b6a95a632be767f19e63029",
+  "nextSafeAtomicAction": "FIG-007: use an authorized persistent QA runtime to verify /projects/<authorized-project>/evidence-graph with real signed-in roles and canonical records, then obtain independent review and Owner acceptance. Reuse the exact verified code/evidence only if the source manifest still matches. Keep BLOCKED where runtime/identity is unavailable; never self-certify or merge/publish.",
+  "lastVerifiedTimestamp": "2026-11-17T20:26:51Z",
+  "lastVerifiedRevision": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
   "remainingCapabilities": [
     "Real authenticated PostgreSQL/roles and Owner UX acceptance require a supported runtime; fixtures do not prove those journeys.",
     "Mechanism nodes describe existing source contracts. Live domain health, signed workflow completion, agent execution and cross-project E3 federation are not inferred or implemented by this projection.",
@@ -398,5 +405,21 @@
     "number": 166,
     "url": "https://github.com/BlueDragon33/Software-Blueprint-Hub/pull/166",
     "state": "DRAFT"
+  },
+  "sourceManifestSHA256": "fc2ab7df2f1b295eecafe3a9714514ffe29f733fe0c335b17429db4b3236ecd7",
+  "checkpointNote": "The following commit only archives evidence and updates this ledger. Its HEAD must be resolved from Git; currentHead remains the tested implementation SHA. All source/test/CI/config blobs must match sourceManifestSHA256; do not present a docs-only checkpoint as a newly tested code revision.",
+  "handoff": {
+    "repository": "BlueDragon33/Software-Blueprint-Hub",
+    "ledgerPath": "projects/blueprint-os/graph-intelligence.execution.json",
+    "branch": "feat/federated-graph-intelligence-20261117",
+    "verifiedCodeHead": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
+    "wp": "FIG-007",
+    "goal": "Real authenticated-runtime/role verification, independent review and Owner UX acceptance",
+    "gates": "401 Vitest PASS/60 SKIP, 189 Node PASS, 16 Chromium PASS; lint/typecheck/build/contracts/schema/boundaries/truth PASS at verifiedCodeHead",
+    "blockers": [
+      "Real authenticated PostgreSQL/role/device runtime NOT_RUN (60 existing integration tests skipped)",
+      "Independent technical reviewer identity/authority unavailable; Owner product acceptance NOT_RUN"
+    ],
+    "authority": "Branch development + Draft PR only; no merge, constitutional change/ratification, canonical runtime writes or online publication."
   }
 }
