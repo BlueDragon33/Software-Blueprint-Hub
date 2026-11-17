@@ -13,7 +13,7 @@
     "checkedAtRevision": "cd01fb3c2178393628ce968af209db082227d2c4"
   },
   "baselineHead": "cd01fb3c2178393628ce968af209db082227d2c4",
-  "currentHead": "1d791be5d5eca47d09918f99cfa084c20b64f0b8",
+  "currentHead": "c83d53b2c5dcf46d4b6a95a632be767f19e63029",
   "headSemantics": "currentHead is the last verified implementation commit, not a self-referential ledger commit. Always resolve live HEAD and git status before resuming; later evidence-only commits must not be mistaken for tested code changes.",
   "ledgerOwnership": "This is the sole development execution ledger for this mission, under the existing projects/blueprint-os owner. Runtime execution journals and governance-registration-ledger own different canonical entities and are not repurposed or duplicated.",
   "permissions": {
@@ -331,12 +331,17 @@
       "id": "QA-HARNESS-MIDDLEWARE-ORDER",
       "scope": "isolated fixture harness only",
       "resolution": "Use Vite configureServer before terminal 404 middleware; local fixture endpoint HTTP200, 19 nodes."
+    },
+    {
+      "id": "QA-EXACT-LABEL-LOCATOR",
+      "scope": "Playwright test locator only",
+      "resolution": "AOM snapshot confirms Relationship combobox. Replace exact label-text lookup with exact combobox accessible-role locator. All behavior assertions and WCAG thresholds preserved; full rerun pending."
     }
   ],
   "blockers": [
     "Authenticated PostgreSQL runtime and real Owner UX acceptance NOT_RUN",
     "Independent reviewer identity/authorization unavailable",
-    "Local browser blocked by socket policy; exact-revision public CI browser result PENDING"
+    "Full fixture browser suite pending corrected accessible-role locator; 12/16 PASS and all contrast checks already evidenced."
   ],
   "evidence": [
     {
@@ -373,11 +378,16 @@
       "path": "docs/evidence/graph-intelligence/ci-attempt-1.json",
       "revision": "1d791be5d5eca47d09918f99cfa084c20b64f0b8",
       "result": "Source checks PASS; CI failed native-runner mismatch; browser NOT_RUN; local corrections verified"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/ci-attempt-2.json",
+      "revision": "c83d53b2c5dcf46d4b6a95a632be767f19e63029",
+      "result": "Source gates PASS; fixture browser 12 PASS/4 locator failures; computed contrast PASS in all four configurations; overall browser gate NOT_PASS."
     }
   ],
   "nextSafeAtomicAction": "FIG-006: observe updated exact-HEAD public CI browser job; inspect failures before changes; persist measurements/artifact hashes and final handoff. Do not rerun green checks without source drift.",
-  "lastVerifiedTimestamp": "2026-11-17T20:18:06.650128+00:00",
-  "lastVerifiedRevision": "1d791be5d5eca47d09918f99cfa084c20b64f0b8",
+  "lastVerifiedTimestamp": "2026-11-17T20:24:31.687333+00:00",
+  "lastVerifiedRevision": "c83d53b2c5dcf46d4b6a95a632be767f19e63029",
   "remainingCapabilities": [
     "Real authenticated PostgreSQL/roles and Owner UX acceptance require a supported runtime; fixtures do not prove those journeys.",
     "Mechanism nodes describe existing source contracts. Live domain health, signed workflow completion, agent execution and cross-project E3 federation are not inferred or implemented by this projection.",

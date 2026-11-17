@@ -31,7 +31,9 @@ test("overview, search, source trace, independent states and impact filters work
   await page.getByRole("button", { name: "Impact only", exact: true }).click();
   await expect(page.locator("button[data-kind='release']")).toHaveCount(1);
   await expect(page.locator("button[data-kind='work-package']")).toHaveCount(2);
-  await page.getByLabel("Relationship", { exact: true }).selectOption("dependency");
+  // Use the browser's accessible combobox name; nested select option text is
+  // included by Playwright's exact label-text lookup, despite the correct AOM name.
+  await page.getByRole("combobox", { name: "Relationship", exact: true }).selectOption("dependency");
   await expect(page.locator("button[data-kind]")).toHaveCount(1);
   await page.getByRole("button", { name: "Reset filters", exact: true }).click();
   await page.getByLabel("Search graph", { exact: true }).fill("absent-record");
