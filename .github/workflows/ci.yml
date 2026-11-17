@@ -80,6 +80,39 @@ jobs:
         run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
 
 
+  graph-intelligence:
+    # Public standard runner only; synthetic browser QA, no secrets or deployment.
+    if: ${{ github.event_name == 'pull_request' && startsWith(github.head_ref, 'feat/federated-graph-intelligence-') && github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm prisma:generate
+      - run: pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm contracts:check && pnpm schema:compat
+      - run: pnpm exec vitest run --fileParallelism=false --reporter=default --reporter=json --outputFile.json=artifacts/graph-intelligence-vitest.json
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test --config tests/web/graph-intelligence.pw.config.ts
+      - name: Preserve scoped QA evidence, never product approval
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: graph-intelligence-qa-${{ github.sha }}
+          path: |
+            artifacts/
+            tests/web/artifacts/
+            test-results/
+          retention-days: 7
+
   release-gate:
     if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[release-gate]') }}
     runs-on: ubuntu-24.04
