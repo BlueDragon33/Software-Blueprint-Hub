@@ -6,22 +6,12 @@ const fromWeb = createRequire(new URL("../../../apps/web/package.json", import.m
 const { createServer } = await import(fromVitest.resolve("vite"));
 const server = await createServer({
   configFile: false,
-  oxc: { jsx: { runtime: "automatic", importSource: "react" } },
-  resolve: { alias: [
-    { find: "react-dom/client", replacement: fromWeb.resolve("react-dom/client") },
-    { find: /^react$/, replacement: fromWeb.resolve("react") },
-    { find: "react/jsx-runtime", replacement: fromWeb.resolve("react/jsx-runtime") },
-    { find: "react/jsx-dev-runtime", replacement: fromWeb.resolve("react/jsx-dev-runtime") }
-  ] },
-  ssr: { noExternal: [/^@blueprint-os\//] },
-  server: { host: "127.0.0.1", port: 3107, strictPort: true },
-  appType: "mpa"
-});
-server.middlewares.use(async (req, res, next) => {
+  plugins: [{ name: "graph-fixture-only", configureServer(vite) {
+vite.middlewares.use(async (req, res, next) => {
   if (!req.url?.startsWith("/__graph-fixture")) return next();
   try {
-    const { graphFixture } = await server.ssrLoadModule("/tests/fixtures/graph-intelligence.ts");
-    const { buildGraphIntelligence } = await server.ssrLoadModule("/packages/application/src/graph-intelligence.ts");
+    const { graphFixture } = await vite.ssrLoadModule("/tests/fixtures/graph-intelligence.ts");
+    const { buildGraphIntelligence } = await vite.ssrLoadModule("/packages/application/src/graph-intelligence.ts");
     const fixture = graphFixture();
     const mode = new URL(req.url, "http://127.0.0.1:3107").searchParams.get("case");
     if (mode === "large") fixture.workPackages = Array.from({ length: 500 }, (_, i) => ({
@@ -35,5 +25,18 @@ server.middlewares.use(async (req, res, next) => {
     res.statusCode = 500; res.end(String(error));
   }
 });
+  } }],
+  oxc: { jsx: { runtime: "automatic", importSource: "react" } },
+  resolve: { alias: [
+    { find: "react-dom/client", replacement: fromWeb.resolve("react-dom/client") },
+    { find: /^react$/, replacement: fromWeb.resolve("react") },
+    { find: "react/jsx-runtime", replacement: fromWeb.resolve("react/jsx-runtime") },
+    { find: "react/jsx-dev-runtime", replacement: fromWeb.resolve("react/jsx-dev-runtime") }
+  ] },
+  ssr: { noExternal: [/^@blueprint-os\//] },
+  server: { host: "127.0.0.1", port: 3107, strictPort: true },
+  appType: "mpa"
+});
+
 await server.listen();
 console.log("Graph fixture QA available at http://127.0.0.1:3107/tests/web/graph-harness/index.html");

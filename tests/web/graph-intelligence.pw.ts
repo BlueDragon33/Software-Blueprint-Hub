@@ -1,6 +1,11 @@
 import { test, expect } from "@playwright/test";
 
 const path = "/tests/web/graph-harness/index.html";
+test.beforeAll(async ({ request }) => {
+  const response = await request.get("/__graph-fixture");
+  expect(response.ok(), "Synthetic source endpoint must be ready before browser assertions").toBe(true);
+  expect((await response.json()).projectId).toBe("project:graph");
+});
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("blueprint:hub:language", "en"));
   await page.route("**/*", route => new URL(route.request().url()).hostname === "127.0.0.1" ? route.continue() : route.abort());

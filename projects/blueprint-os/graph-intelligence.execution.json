@@ -13,7 +13,7 @@
     "checkedAtRevision": "cd01fb3c2178393628ce968af209db082227d2c4"
   },
   "baselineHead": "cd01fb3c2178393628ce968af209db082227d2c4",
-  "currentHead": "cd01fb3c2178393628ce968af209db082227d2c4",
+  "currentHead": "1d791be5d5eca47d09918f99cfa084c20b64f0b8",
   "headSemantics": "currentHead is the last verified implementation commit, not a self-referential ledger commit. Always resolve live HEAD and git status before resuming; later evidence-only commits must not be mistaken for tested code changes.",
   "ledgerOwnership": "This is the sole development execution ledger for this mission, under the existing projects/blueprint-os owner. Runtime execution journals and governance-registration-ledger own different canonical entities and are not repurposed or duplicated.",
   "permissions": {
@@ -321,6 +321,16 @@
       "scope": "pre-existing",
       "detail": "Full suite reproduced two failures: already tracked pending Russian Expert Engine lacked presentation; exact source repair reused from Draft #162. Canonical inventory and registrations unchanged.",
       "resolution": "Full suite after repair: 400 PASS, 60 SKIPPED, 0 FAIL."
+    },
+    {
+      "id": "CI-NATIVE-RUNNER-MISMATCH",
+      "scope": "verification infrastructure",
+      "resolution": "Bound Vitest to its TS/TSX suites and run Node-native .mjs checks separately; local full suite 401 PASS, 60 SKIPPED."
+    },
+    {
+      "id": "QA-HARNESS-MIDDLEWARE-ORDER",
+      "scope": "isolated fixture harness only",
+      "resolution": "Use Vite configureServer before terminal 404 middleware; local fixture endpoint HTTP200, 19 nodes."
     }
   ],
   "blockers": [
@@ -358,15 +368,25 @@
       "scope": "local-source-only",
       "path": "docs/evidence/graph-intelligence/local-verification.json",
       "result": "Source gates PASS, 189 Node checks PASS; browser and authenticated runtime NOT_VERIFIED"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/ci-attempt-1.json",
+      "revision": "1d791be5d5eca47d09918f99cfa084c20b64f0b8",
+      "result": "Source checks PASS; CI failed native-runner mismatch; browser NOT_RUN; local corrections verified"
     }
   ],
-  "nextSafeAtomicAction": "FIG-006: commit the isolated source candidate; push only this branch with Vercel automatic publication denied; create Draft PR; observe public standard-runner QA and repair evidence-backed findings before updating this ledger.",
-  "lastVerifiedTimestamp": "2026-11-17T20:09:57.471390+00:00",
-  "lastVerifiedRevision": "cd01fb3c2178393628ce968af209db082227d2c4",
+  "nextSafeAtomicAction": "FIG-006: observe updated exact-HEAD public CI browser job; inspect failures before changes; persist measurements/artifact hashes and final handoff. Do not rerun green checks without source drift.",
+  "lastVerifiedTimestamp": "2026-11-17T20:18:06.650128+00:00",
+  "lastVerifiedRevision": "1d791be5d5eca47d09918f99cfa084c20b64f0b8",
   "remainingCapabilities": [
     "Real authenticated PostgreSQL/roles and Owner UX acceptance require a supported runtime; fixtures do not prove those journeys.",
     "Mechanism nodes describe existing source contracts. Live domain health, signed workflow completion, agent execution and cross-project E3 federation are not inferred or implemented by this projection.",
     "No optional local LLM adapter is installed; all delivered recommendations are deterministic. Existing bounded AI/execution services remain separate.",
     "Snapshot revision comparison uses canonical recordVersion/content digest and release-evidence revision checks; no second history store or graph database is introduced."
-  ]
+  ],
+  "pr": {
+    "number": 166,
+    "url": "https://github.com/BlueDragon33/Software-Blueprint-Hub/pull/166",
+    "state": "DRAFT"
+  }
 }
