@@ -13,7 +13,7 @@
     "checkedAtRevision": "cd01fb3c2178393628ce968af209db082227d2c4"
   },
   "baselineHead": "cd01fb3c2178393628ce968af209db082227d2c4",
-  "currentHead": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
+  "currentHead": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
   "headSemantics": "currentHead is the last verified implementation commit, not a self-referential ledger commit. Always resolve live HEAD and git status before resuming; later evidence-only commits must not be mistaken for tested code changes.",
   "ledgerOwnership": "This is the sole development execution ledger for this mission, under the existing projects/blueprint-os owner. Runtime execution journals and governance-registration-ledger own different canonical entities and are not repurposed or duplicated.",
   "permissions": {
@@ -24,7 +24,8 @@
       "source commits",
       "Draft PR",
       "disposable loopback PostgreSQL QA fixtures and role/failure/recovery probes",
-      "public standard-runner PostgreSQL + actual Next.js/Auth.js QA"
+      "public standard-runner PostgreSQL + actual Next.js/Auth.js QA",
+      "existing protected read-only GitHub App credential QA with unchanged scopes"
     ],
     "forbidden": [
       "merge",
@@ -249,7 +250,7 @@
         "FIG-003"
       ],
       "status": "DONE",
-      "acceptance": "Integrated source UI and project-authorized loader; controls, truthful states and recovery are implemented. Semantic/port tests PASS. Browser acceptance is owned by FIG-006 and remains pending.",
+      "acceptance": "Integrated source UI and project-authorized loader; controls, truthful states and recovery verified by FIG-006 fixture browser QA and FIG-007 actual Next.js/PostgreSQL/Auth.js role QA.",
       "verification": [
         "25 focused tests PASS (projection, hostile inputs, loader authorization, semantic UI and capacity)",
         "Workspace typecheck PASS",
@@ -314,16 +315,19 @@
       "dependencies": [
         "FIG-006"
       ],
-      "status": "ACTIVE",
-      "acceptance": "All eligible technical gaps resolved with exact-source evidence. Independent A/B review is assigned to Owner; protected human acceptance is not fabricated.",
+      "status": "DONE",
+      "acceptance": "Delivered read-only Graph technical scope verified on real disposable PostgreSQL16 + Next.js production server + Auth.js session decoding across roles/devices/themes/recovery. A/B and real human acceptance remain external Owner gates.",
       "verification": [
-        "PostgreSQL canonical integration suites on a disposable database; existing P2 workflow verifies immutable journal/authority suites separately",
-        "28 actual app HTTP/Auth.js/role/database/contrast cases plus 4 process-restart probes across desktop/mobile light/dark",
-        "Disposable app DB role has SELECT-only business access; mutable fixture controls are separate admin-only QA code",
-        "No user canonical data or human approvals are touched"
+        "docs/evidence/graph-intelligence/runtime-verified-evidence.json: exact tested source 2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+        "435 canonical Vitest PASS/26 raw SKIP; 17 immutable Postgres +1 public pinned +8 protected-main unchanged-source credential probes PASS separately; all 461 distinct Vitest cases covered, no combined-run fiction",
+        "189 native Node PASS; 16 fixture Chromium PASS; 28 actual Next.js/Auth.js/PostgreSQL browser cases +4 process-restart cases PASS, 0 skipped/flaky",
+        "Persisted VIEWER/EDITOR/REVIEWER/OWNER roles, signed-out/invalid/unassigned/foreign-project denial, revocation/regrant, source revision, broken references, database permission outage, retry, read-only business digest and restart verified",
+        "264 actual rendered text samples across four device/theme cases PASS, minimum 6.54:1; 500-work build + impact 19ms in this run",
+        "Existing protected main credential workflow kept source/secrets custody; read-only scopes, separate tokens, exact HEAD reads, invalid credential denial and revocation verified; no human reviewer A/B or Quality Gate issued",
+        "All raw reports, representative actual screenshots, job metadata/logs and SHA256/source manifests archived; no online publication"
       ],
       "risk": "medium",
-      "next": "Owner handles independent A/B; any protected release decision remains separately authorized"
+      "next": "Owner A/B and acceptance. Reconcile supplied findings against verified source before any separately authorized merge/release."
     }
   ],
   "knownDefects": [
@@ -358,14 +362,11 @@
     {
       "id": "QA-SHARED-EMPTY-STATE-TITLE",
       "scope": "New runtime test locator",
-      "resolution": "Observe shared component strong title via exact text and explicit sign-in-link/denial assertions; do not relabel a successful denial as an app failure. Full suite/restart rerun pending."
+      "resolution": "Corrected title text locator after actual AOM evidence; sign-in link, graph denial and no-source-leak assertions retained.",
+      "verification": "2340adc0bb6119a5acd44bdea35df9fced87c7b6: full 28/28 actual-runtime cases and 4/4 process-restart cases PASS."
     }
   ],
-  "blockers": [
-    "Independent A/B is Owner-handled and excluded from agent execution",
-    "Actual runtime QA is now prepared; await exact-source public CI observations rather than assuming inability",
-    "Eight pre-existing private App-credential bridge probes remain opt-in and belong to the separate execution-service credential trust boundary"
-  ],
+  "blockers": [],
   "evidence": [
     {
       "scope": "baseline",
@@ -416,37 +417,44 @@
       "path": "docs/evidence/graph-intelligence/runtime-attempt-1.json",
       "revision": "3da357532f189792234d9d860aa34bb9b0ca4e8b",
       "result": "Canonical PostgreSQL 435 PASS/26 SKIP; 24/28 actual-runtime cases PASS; sign-in locator correction pending rerun; restart NOT_RUN."
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-verified-evidence.json",
+      "revision": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+      "result": "TECHNICAL_NONPRODUCTION_QA_COMPLETE: 461 distinct Vitest coverage across documented scopes, 189 Node, 16 fixture browser, 32 actual-app/restart browser; human gates external."
     }
   ],
-  "nextSafeAtomicAction": "FIG-007: run the corrected actual-runtime suite at exact HEAD, verify all 28 initial and 4 process-restart cases, then archive fresh source/runtime evidence. Reviewer A/B stays Owner-handled.",
-  "lastVerifiedTimestamp": "2026-11-17T20:26:51Z",
-  "lastVerifiedRevision": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
+  "nextSafeAtomicAction": "Read live PR #166 HEAD and this ledger; FIG-001..FIG-007 technical work is DONE. When Owner supplies real A/B findings or acceptance, bind them to source SHA/manifest, repair evidenced findings on this branch and run targeted/regression gates. Do not generate A/B verdicts, merge or publish under current authority.",
+  "lastVerifiedTimestamp": "2026-11-18T06:48:57Z",
+  "lastVerifiedRevision": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
   "remainingCapabilities": [
-    "Real authenticated PostgreSQL/roles and Owner UX acceptance require a supported runtime; fixtures do not prove those journeys.",
-    "Mechanism nodes describe existing source contracts. Live domain health, signed workflow completion, agent execution and cross-project E3 federation are not inferred or implemented by this projection.",
-    "No optional local LLM adapter is installed; all delivered recommendations are deterministic. Existing bounded AI/execution services remain separate.",
-    "Snapshot revision comparison uses canonical recordVersion/content digest and release-evidence revision checks; no second history store or graph database is introduced."
+    "No eligible technical QA blocker remains for the delivered project-authorized read-only Graph slice. External OAuth provider handshake and real human Owner acceptance were not simulated as product acceptance.",
+    "Mechanism nodes describe existing source contracts. Live domain health, signed workflow completion, autonomous agent execution and cross-project E3 federation remain outside this read-only projection; no compliance or completion is inferred.",
+    "All delivered recommendations are deterministic. No paid or mandatory LLM provider was introduced; existing bounded execution services remain separate.",
+    "Revision comparison uses canonical recordVersion/content digests and release-evidence revision checks; no new history store or graph database."
   ],
   "pr": {
     "number": 166,
     "url": "https://github.com/BlueDragon33/Software-Blueprint-Hub/pull/166",
     "state": "DRAFT"
   },
-  "sourceManifestSHA256": "fc2ab7df2f1b295eecafe3a9714514ffe29f733fe0c335b17429db4b3236ecd7",
-  "checkpointNote": "This revision reopens eligible runtime QA under the 2026-11-18 Owner direction; prior evidence remains valid only for its exact source manifest.",
+  "sourceManifestSHA256": "3e0d8fa2ba227cd0db548cc39333934badf935c330181f80c715117e4fd92676",
+  "checkpointNote": "Technical runtime gaps closed under Owner direction dated 2026-11-18. Preserve historical limited/failed evidence. This checkpoint updates evidence/ledger only and must keep the exact verified implementation/test/CI/config manifest.",
   "handoff": {
     "repository": "BlueDragon33/Software-Blueprint-Hub",
     "ledgerPath": "projects/blueprint-os/graph-intelligence.execution.json",
     "branch": "feat/federated-graph-intelligence-20261117",
-    "verifiedCodeHead": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
-    "wp": "FIG-007",
-    "goal": "Real authenticated-runtime/role verification, independent review and Owner UX acceptance",
-    "gates": "401 Vitest PASS/60 SKIP, 189 Node PASS, 16 Chromium PASS; lint/typecheck/build/contracts/schema/boundaries/truth PASS at verifiedCodeHead",
-    "blockers": [
-      "Real authenticated PostgreSQL/role/device runtime NOT_RUN (60 existing integration tests skipped)",
-      "Independent technical reviewer identity/authority unavailable; Owner product acceptance NOT_RUN"
+    "verifiedCodeHead": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+    "wp": "FIG-007 DONE",
+    "goal": "Reconcile actual Owner-provided A/B findings/acceptance at the verified source; do not repeat completed architecture or valid QA.",
+    "gates": "461 distinct Vitest verified across 435+17+1+8 scopes; 189 Node; 16 fixture Chromium; 28 actual Next/Auth/Postgres +4 restart Chromium PASS. lint/typecheck/build/contracts/schema/boundaries/truth PASS.",
+    "blockers": [],
+    "externalGates": [
+      "A/B handled separately by Owner",
+      "Real human product acceptance and separate merge/publication authority"
     ],
-    "authority": "Branch development + Draft PR only; no merge, constitutional change/ratification, canonical runtime writes or online publication."
+    "nextAtomicAction": "Read live PR #166 HEAD and this ledger; FIG-001..FIG-007 technical work is DONE. When Owner supplies real A/B findings or acceptance, bind them to source SHA/manifest, repair evidenced findings on this branch and run targeted/regression gates. Do not generate A/B verdicts, merge or publish under current authority.",
+    "authority": "Branch development + Draft PR only; no merge, constitutional change/ratification, user canonical writes, online publication or mandatory spend."
   },
   "resumeReadback": {
     "date": "2026-11-18",
@@ -510,7 +518,9 @@
       "publish": "NOT_AUTHORIZED"
     },
     "decision": "Keep FIG-007 BLOCKED. Do not rerun completed WPs or promote fixture-only QA into live acceptance. Await an explicitly authorized non-production runtime and independent/Owner gates; no autonomous merge or publish.",
-    "currentScopeNote": "Historical provider discovery retained. Current Owner instruction authorizes disposable CI technical QA; this does not activate archived Neon branches, access user data or confer human acceptance."
+    "currentScopeNote": "Historical provider discovery retained. Current Owner instruction authorizes disposable CI technical QA; this does not activate archived Neon branches, access user data or confer human acceptance.",
+    "historicalOnly": true,
+    "supersededTechnicalGateEvidence": "docs/evidence/graph-intelligence/runtime-verified-evidence.json"
   },
   "auditScope": "Historical baseline at cd01fb3c2178393628ce968af209db082227d2c4; current capability results are in workPackages and referenced evidence.",
   "ownerDirection": {
@@ -531,5 +541,43 @@
     "preservedCheckpoint": "efdf2990235db16eb384cad907e4712eee3f7f61",
     "change": "Additive read-only gate-discovery metadata retained; current runtime QA is layered on top.",
     "leaseSafety": "Stale expected-head update rejected; no concurrent data overwritten."
+  },
+  "externalGates": {
+    "reviewerAB": "OWNER_HANDLED_OUTSIDE_AGENT_SCOPE_PENDING_ACTUAL_REVIEWS",
+    "humanOwnerProductAcceptance": "PENDING_NO_REAL_HUMAN_SIGNOFF_FABRICATED",
+    "merge": "NOT_AUTHORIZED_NOT_RUN",
+    "activeConstitutionChange": "NOT_AUTHORIZED_NOT_RUN",
+    "onlinePreviewOrProductionPublish": "NOT_AUTHORIZED_NOT_RUN"
+  },
+  "technicalClosure": {
+    "status": "DONE",
+    "verifiedHead": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+    "verifiedAt": "2026-11-18T06:48:57Z",
+    "dependencyDAG": {
+      "done": [
+        "FIG-001",
+        "FIG-002",
+        "FIG-003",
+        "FIG-004",
+        "FIG-005",
+        "FIG-006",
+        "FIG-007"
+      ],
+      "active": [],
+      "ready": [],
+      "blocked": []
+    },
+    "acceptanceEvidence": "docs/evidence/graph-intelligence/runtime-verified-evidence.json",
+    "canonicalStateIntegrity": "PASS in declared disposable QA databases; no user/Preview/Production canonical data touched",
+    "remainingRawSkipsResolvedElsewhere": {
+      "immutablePostgres": 17,
+      "publicPinnedTransport": 1,
+      "protectedPrivateCredentialTransport": 8
+    },
+    "reviewerAB": "OWNER_HANDLED_NOT_EXECUTED",
+    "releaseGateJob": "SKIPPED_BY_DESIGN_DEVELOPMENT_BRANCH_NOT_RELEASE_PASS",
+    "actualOAuthProviderLogin": "NOT_RUN_QA_SESSIONS_USED",
+    "publication": "NONE",
+    "vercelFeatureBranchDeployments": 0
   }
 }

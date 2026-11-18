@@ -1,0 +1,601 @@
+﻿2026-11-18T06:37:37.7115704Z Current runner version: '2.338.2'
+2026-11-18T06:37:37.7145357Z ##[group]Runner Image Provisioner
+2026-11-18T06:37:37.7146434Z Hosted Compute Agent
+2026-11-18T06:37:37.7147150Z Version: 20261103.629
+2026-11-18T06:37:37.7148018Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-18T06:37:37.7148927Z Build Date: 2026-11-03T17:26:59Z
+2026-11-18T06:37:37.7149801Z Worker ID: {675557e2-fa25-465a-9fa8-4ab4abb0a5fa}
+2026-11-18T06:37:37.7150666Z Region: eastus2
+2026-11-18T06:37:37.7151337Z Cloud: Azure
+2026-11-18T06:37:37.7152018Z ##[endgroup]
+2026-11-18T06:37:37.7153769Z ##[group]Operating System
+2026-11-18T06:37:37.7154738Z Ubuntu
+2026-11-18T06:37:37.7155439Z 24.04.5
+2026-11-18T06:37:37.7156061Z LTS
+2026-11-18T06:37:37.7156664Z ##[endgroup]
+2026-11-18T06:37:37.7157463Z ##[group]Runner Image
+2026-11-18T06:37:37.7158198Z Image: ubuntu-24.04
+2026-11-18T06:37:37.7158966Z Version: 20261111.370.1
+2026-11-18T06:37:37.7160543Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-18T06:37:37.7162682Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+2026-11-18T06:37:37.7164232Z ##[endgroup]
+2026-11-18T06:37:37.7165618Z ##[group]GITHUB_TOKEN Permissions
+2026-11-18T06:37:37.7168060Z Contents: read
+2026-11-18T06:37:37.7168801Z Metadata: read
+2026-11-18T06:37:37.7169496Z ##[endgroup]
+2026-11-18T06:37:37.7172041Z Secret source: Actions
+2026-11-18T06:37:37.7173157Z Cache mode: write
+2026-11-18T06:37:37.7174280Z Prepare workflow directory
+2026-11-18T06:37:37.7669395Z Prepare all required actions
+2026-11-18T06:37:37.7726363Z Getting action download info
+2026-11-18T06:37:37.9358312Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-11-18T06:37:38.3172192Z Download action repository 'pnpm/action-setup@v6' (SHA:73e46992e05b19abd31f2f3c20e0e7370d762115)
+2026-11-18T06:37:38.4579180Z Download action repository 'actions/setup-node@v5' (SHA:a0853c24544627f65ddf259abe73b1d18a591444)
+2026-11-18T06:37:38.7489017Z Complete job name: P3 isolated PostgreSQL migration and journal guards
+2026-11-18T06:37:38.8015946Z ##[group]Checking docker version
+2026-11-18T06:37:38.8027064Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-11-18T06:37:39.0549117Z '1.48'
+2026-11-18T06:37:39.0561492Z Docker daemon API version: '1.48'
+2026-11-18T06:37:39.0562183Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-11-18T06:37:39.0722164Z '1.48'
+2026-11-18T06:37:39.0738021Z Docker client API version: '1.48'
+2026-11-18T06:37:39.0744132Z ##[endgroup]
+2026-11-18T06:37:39.0746415Z ##[group]Clean up resources from previous jobs
+2026-11-18T06:37:39.0750804Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=bac275"
+2026-11-18T06:37:39.0899206Z ##[command]/usr/bin/docker network prune --force --filter "label=bac275"
+2026-11-18T06:37:39.1052990Z ##[endgroup]
+2026-11-18T06:37:39.1053494Z ##[group]Create local container network
+2026-11-18T06:37:39.1062822Z ##[command]/usr/bin/docker network create --label bac275 github_network_194dc7ccf8ec4e3d84241ed87796aead
+2026-11-18T06:37:39.2126339Z b270ec3a0906338e87588f8c15b26426007a37a411688dcbaa08648b355ffa05
+2026-11-18T06:37:39.2143413Z ##[endgroup]
+2026-11-18T06:37:39.2164892Z ##[group]Starting postgres service container
+2026-11-18T06:37:39.2185390Z ##[command]/usr/bin/docker pull postgres:16-alpine
+2026-11-18T06:37:39.6427835Z 16-alpine: Pulling from library/postgres
+2026-11-18T06:37:39.8187556Z 881fc932939e: Pulling fs layer
+2026-11-18T06:37:39.8188727Z ea98517a315c: Pulling fs layer
+2026-11-18T06:37:39.8189670Z 41713cbe7496: Pulling fs layer
+2026-11-18T06:37:39.8190409Z 5788ee6f91dc: Pulling fs layer
+2026-11-18T06:37:39.8191149Z f997efa53d88: Pulling fs layer
+2026-11-18T06:37:39.8191887Z a2d17f5b24d5: Pulling fs layer
+2026-11-18T06:37:39.8192614Z f85a33377d83: Pulling fs layer
+2026-11-18T06:37:39.8193395Z 86cc7190d1c0: Pulling fs layer
+2026-11-18T06:37:39.8194350Z 5959c7ea857a: Pulling fs layer
+2026-11-18T06:37:39.8195492Z 6bceb0db2fd1: Pulling fs layer
+2026-11-18T06:37:39.8196313Z b7106f8586ee: Pulling fs layer
+2026-11-18T06:37:39.8197118Z f85a33377d83: Waiting
+2026-11-18T06:37:39.8197823Z 6bceb0db2fd1: Waiting
+2026-11-18T06:37:39.8198509Z 5788ee6f91dc: Waiting
+2026-11-18T06:37:39.8199194Z b7106f8586ee: Waiting
+2026-11-18T06:37:39.8199896Z 86cc7190d1c0: Waiting
+2026-11-18T06:37:39.8200672Z 5959c7ea857a: Waiting
+2026-11-18T06:37:39.8201720Z a2d17f5b24d5: Waiting
+2026-11-18T06:37:39.9231273Z ea98517a315c: Download complete
+2026-11-18T06:37:39.9574927Z 41713cbe7496: Verifying Checksum
+2026-11-18T06:37:39.9576706Z 41713cbe7496: Download complete
+2026-11-18T06:37:39.9683071Z 881fc932939e: Verifying Checksum
+2026-11-18T06:37:39.9685181Z 881fc932939e: Download complete
+2026-11-18T06:37:40.0019336Z 5788ee6f91dc: Download complete
+2026-11-18T06:37:40.0335620Z f997efa53d88: Verifying Checksum
+2026-11-18T06:37:40.0337222Z f997efa53d88: Download complete
+2026-11-18T06:37:40.0813512Z f85a33377d83: Verifying Checksum
+2026-11-18T06:37:40.0816441Z f85a33377d83: Download complete
+2026-11-18T06:37:40.1169512Z 86cc7190d1c0: Verifying Checksum
+2026-11-18T06:37:40.1171975Z 86cc7190d1c0: Download complete
+2026-11-18T06:37:40.1707956Z 5959c7ea857a: Download complete
+2026-11-18T06:37:40.1911180Z 6bceb0db2fd1: Verifying Checksum
+2026-11-18T06:37:40.1912903Z 6bceb0db2fd1: Download complete
+2026-11-18T06:37:40.2019468Z 881fc932939e: Pull complete
+2026-11-18T06:37:40.2497944Z b7106f8586ee: Verifying Checksum
+2026-11-18T06:37:40.2499836Z b7106f8586ee: Download complete
+2026-11-18T06:37:40.4817374Z a2d17f5b24d5: Verifying Checksum
+2026-11-18T06:37:41.5673460Z ea98517a315c: Pull complete
+2026-11-18T06:37:41.6095915Z 41713cbe7496: Pull complete
+2026-11-18T06:37:41.6223210Z 5788ee6f91dc: Pull complete
+2026-11-18T06:37:41.6330975Z f997efa53d88: Pull complete
+2026-11-18T06:37:45.0884878Z a2d17f5b24d5: Pull complete
+2026-11-18T06:37:45.0991957Z f85a33377d83: Pull complete
+2026-11-18T06:37:45.1095638Z 86cc7190d1c0: Pull complete
+2026-11-18T06:37:45.1181025Z 5959c7ea857a: Pull complete
+2026-11-18T06:37:45.1272799Z 6bceb0db2fd1: Pull complete
+2026-11-18T06:37:45.1351233Z b7106f8586ee: Pull complete
+2026-11-18T06:37:45.1386189Z Digest: sha256:81e77a4833487b8132fe4b00bedd39dc3f74b8641e387f19312a48f7de218c2e
+2026-11-18T06:37:45.1400160Z Status: Downloaded newer image for postgres:16-alpine
+2026-11-18T06:37:45.1408873Z docker.io/library/postgres:16-alpine
+2026-11-18T06:37:45.1465708Z ##[command]/usr/bin/docker create --name 2172712455274ae9a76e5ba0be58f3dd_postgres16alpine_cd38f6 --label bac275 --network github_network_194dc7ccf8ec4e3d84241ed87796aead --network-alias postgres -p 5432:5432 --health-cmd "pg_isready -U blueprint -d blueprint_qa_test" --health-interval 5s --health-timeout 5s --health-retries 10 -e "POSTGRES_USER=blueprint" -e "POSTGRES_PASSWORD=blueprint" -e "POSTGRES_DB=blueprint_qa_test" -e GITHUB_ACTIONS=true -e CI=true postgres:16-alpine
+2026-11-18T06:37:45.1728874Z 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:37:45.1754667Z ##[command]/usr/bin/docker start 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:37:45.3631602Z 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:37:45.3669775Z ##[command]/usr/bin/docker ps --all --filter id=44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-11-18T06:37:45.3816840Z 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade Up Less than a second (health: starting)
+2026-11-18T06:37:45.3842442Z ##[command]/usr/bin/docker port 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:37:45.4005063Z 5432/tcp -> 0.0.0.0:5432
+2026-11-18T06:37:45.4014825Z 5432/tcp -> [::]:5432
+2026-11-18T06:37:45.4048478Z ##[endgroup]
+2026-11-18T06:37:45.4056585Z ##[group]Waiting for all services to be ready
+2026-11-18T06:37:45.4069850Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:37:45.4220801Z starting
+2026-11-18T06:37:45.4242509Z postgres service is starting, waiting 2 seconds before checking again.
+2026-11-18T06:37:47.4239785Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:37:47.4375419Z starting
+2026-11-18T06:37:47.4391036Z postgres service is starting, waiting 3 seconds before checking again.
+2026-11-18T06:37:51.3955965Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:37:51.4084305Z healthy
+2026-11-18T06:37:51.4101564Z postgres service is healthy.
+2026-11-18T06:37:51.4102252Z ##[endgroup]
+2026-11-18T06:37:51.4417213Z ##[group]Run actions/checkout@v5
+2026-11-18T06:37:51.4417627Z with:
+2026-11-18T06:37:51.4417847Z   persist-credentials: false
+2026-11-18T06:37:51.4418116Z   repository: BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:37:51.4420786Z   token: ***
+2026-11-18T06:37:51.4420964Z   ssh-strict: true
+2026-11-18T06:37:51.4421143Z   ssh-user: git
+2026-11-18T06:37:51.4421303Z   clean: true
+2026-11-18T06:37:51.4421508Z   sparse-checkout-cone-mode: true
+2026-11-18T06:37:51.4421732Z   fetch-depth: 1
+2026-11-18T06:37:51.4421910Z   fetch-tags: false
+2026-11-18T06:37:51.4422094Z   show-progress: true
+2026-11-18T06:37:51.4422267Z   lfs: false
+2026-11-18T06:37:51.4422419Z   submodules: false
+2026-11-18T06:37:51.4422608Z   set-safe-directory: true
+2026-11-18T06:37:51.4422814Z   allow-unsafe-pr-checkout: false
+2026-11-18T06:37:51.4423200Z env:
+2026-11-18T06:37:51.4423684Z   DATABASE_URL: ***localhost:5432/blueprint_qa_test
+2026-11-18T06:37:51.4424153Z   BLUEPRINT_QA_DB_INTEGRATION: true
+2026-11-18T06:37:51.4424424Z ##[endgroup]
+2026-11-18T06:37:51.7075231Z Syncing repository: BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:37:51.7077009Z ##[group]Getting Git version info
+2026-11-18T06:37:51.7077611Z Working directory is '/home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub'
+2026-11-18T06:37:51.7078435Z [command]/usr/bin/git version
+2026-11-18T06:37:51.7126640Z git version 2.56.1
+2026-11-18T06:37:51.7143535Z ##[endgroup]
+2026-11-18T06:37:51.7156697Z Temporarily overriding HOME='/home/runner/work/_temp/c85b6706-2bed-4f9c-8a1b-b4305fd0433f' before making global git config changes
+2026-11-18T06:37:51.7157683Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T06:37:51.7162076Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub
+2026-11-18T06:37:51.7218704Z Deleting the contents of '/home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub'
+2026-11-18T06:37:51.7220095Z ##[group]Initializing the repository
+2026-11-18T06:37:51.7222210Z [command]/usr/bin/git init /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub
+2026-11-18T06:37:51.7306952Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-18T06:37:51.7307704Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-18T06:37:51.7308416Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-18T06:37:51.7308915Z hint: call:
+2026-11-18T06:37:51.7309150Z hint:
+2026-11-18T06:37:51.7309507Z hint: 	git config --global init.defaultBranch <name>
+2026-11-18T06:37:51.7309945Z hint:
+2026-11-18T06:37:51.7310322Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-18T06:37:51.7310959Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-18T06:37:51.7311450Z hint:
+2026-11-18T06:37:51.7311706Z hint: 	git branch -m <name>
+2026-11-18T06:37:51.7312000Z hint:
+2026-11-18T06:37:51.7312459Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-18T06:37:51.7313411Z Initialized empty Git repository in /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub/.git/
+2026-11-18T06:37:51.7321472Z [command]/usr/bin/git remote add origin https://github.com/BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:37:51.7371044Z ##[endgroup]
+2026-11-18T06:37:51.7371523Z ##[group]Disabling automatic garbage collection
+2026-11-18T06:37:51.7374670Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-18T06:37:51.7409452Z ##[endgroup]
+2026-11-18T06:37:51.7409950Z ##[group]Setting up auth
+2026-11-18T06:37:51.7416146Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T06:37:51.7451817Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T06:37:51.7799936Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T06:37:51.7834492Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T06:37:51.8072989Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T06:37:51.8119465Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T06:37:51.8339618Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-18T06:37:51.8384096Z ##[endgroup]
+2026-11-18T06:37:51.8384638Z ##[group]Fetching the repository
+2026-11-18T06:37:51.8394891Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +769256d116ff5d509206ae6e5729c674d56a8698:refs/remotes/pull/166/merge
+2026-11-18T06:37:52.3675850Z From https://github.com/BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:37:52.3676558Z  * [new ref]         769256d116ff5d509206ae6e5729c674d56a8698 -> pull/166/merge
+2026-11-18T06:37:52.3679325Z ##[endgroup]
+2026-11-18T06:37:52.3679935Z ##[group]Determining the checkout info
+2026-11-18T06:37:52.3682112Z ##[endgroup]
+2026-11-18T06:37:52.3695660Z [command]/usr/bin/git sparse-checkout disable
+2026-11-18T06:37:52.3753623Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-18T06:37:52.3788766Z ##[group]Checking out the ref
+2026-11-18T06:37:52.3791955Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/166/merge
+2026-11-18T06:37:52.4138233Z Note: switching to 'refs/remotes/pull/166/merge'.
+2026-11-18T06:37:52.4138569Z 
+2026-11-18T06:37:52.4138811Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-18T06:37:52.4139197Z changes and commit them, and you can discard any commits you make in this
+2026-11-18T06:37:52.4139602Z state without impacting any branches by switching back to a branch.
+2026-11-18T06:37:52.4139829Z 
+2026-11-18T06:37:52.4140190Z If you want to create a new branch to retain commits you create, you may
+2026-11-18T06:37:52.4140571Z do so (now or later) by using -c with the switch command. Example:
+2026-11-18T06:37:52.4140770Z 
+2026-11-18T06:37:52.4140861Z   git switch -c <new-branch-name>
+2026-11-18T06:37:52.4140999Z 
+2026-11-18T06:37:52.4141083Z Or undo this operation with:
+2026-11-18T06:37:52.4141218Z 
+2026-11-18T06:37:52.4141295Z   git switch -
+2026-11-18T06:37:52.4141405Z 
+2026-11-18T06:37:52.4141587Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-18T06:37:52.4141822Z 
+2026-11-18T06:37:52.4142098Z HEAD is now at 769256d Merge 2340adc0bb6119a5acd44bdea35df9fced87c7b6 into cd01fb3c2178393628ce968af209db082227d2c4
+2026-11-18T06:37:52.4148175Z ##[endgroup]
+2026-11-18T06:37:52.4198192Z [command]/usr/bin/git log -1 --format=%H
+2026-11-18T06:37:52.4229478Z 769256d116ff5d509206ae6e5729c674d56a8698
+2026-11-18T06:37:52.4239208Z ##[group]Removing auth
+2026-11-18T06:37:52.4243486Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T06:37:52.4280626Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T06:37:52.4492413Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T06:37:52.4524139Z http.https://github.com/.extraheader
+2026-11-18T06:37:52.4533001Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-18T06:37:52.4570773Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T06:37:52.4780851Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T06:37:52.4824986Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T06:37:52.5024299Z ##[endgroup]
+2026-11-18T06:37:52.5217907Z ##[group]Run pnpm/action-setup@v6
+2026-11-18T06:37:52.5218134Z with:
+2026-11-18T06:37:52.5218294Z   version: 12.4.0
+2026-11-18T06:37:52.5218463Z   run_install: false
+2026-11-18T06:37:52.5218634Z   dest: ~/setup-pnpm
+2026-11-18T06:37:52.5218799Z   cache: false
+2026-11-18T06:37:52.5218987Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-18T06:37:52.5219218Z   package_json_file: package.json
+2026-11-18T06:37:52.5219416Z   standalone: false
+2026-11-18T06:37:52.5219580Z env:
+2026-11-18T06:37:52.5220030Z   DATABASE_URL: ***localhost:5432/blueprint_qa_test
+2026-11-18T06:37:52.5220316Z   BLUEPRINT_QA_DB_INTEGRATION: true
+2026-11-18T06:37:52.5220528Z ##[endgroup]
+2026-11-18T06:37:53.0068635Z ##[group]Running self-installer...
+2026-11-18T06:37:54.8319719Z 
+2026-11-18T06:37:54.8320338Z added 2 packages, and audited 3 packages in 2s
+2026-11-18T06:37:54.8325772Z 
+2026-11-18T06:37:54.8325932Z found 0 vulnerabilities
+2026-11-18T06:37:54.8821598Z Checking for updates...
+2026-11-18T06:37:55.1480825Z Switching pnpm from v12.17.0 to v12.4.0...
+2026-11-18T06:37:55.9515284Z Packages are copied from the content-addressable store to the virtual store.
+2026-11-18T06:37:55.9516032Z   Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-18T06:37:55.9516751Z   Virtual store is at:             node_modules/.bin/global/v11/a3e-18e9105327fd64c4-0/node_modules/.pnpm
+2026-11-18T06:37:56.0145651Z Downloading @pnpm/exe.linux-x64@12.4.0: 0.00 B/21.01 MB
+2026-11-18T06:37:56.3515937Z .../global/v11/a3e-18e9105327fd64c4-0    | Progress: resolved 2, reused 0, downloaded 2, added 2, done
+2026-11-18T06:37:56.6759998Z Successfully updated pnpm to v12.4.0
+2026-11-18T06:37:56.6817009Z ##[endgroup]
+2026-11-18T06:37:56.6817334Z Installation Completed!
+2026-11-18T06:37:56.6969264Z ##[group]Run actions/setup-node@v5
+2026-11-18T06:37:56.6969488Z with:
+2026-11-18T06:37:56.6969668Z   node-version: 24
+2026-11-18T06:37:56.6969838Z   cache: pnpm
+2026-11-18T06:37:56.6969999Z   always-auth: false
+2026-11-18T06:37:56.6970176Z   check-latest: false
+2026-11-18T06:37:56.6972417Z   token: ***
+2026-11-18T06:37:56.6972597Z   package-manager-cache: true
+2026-11-18T06:37:56.6972796Z env:
+2026-11-18T06:37:56.6973105Z   DATABASE_URL: ***localhost:5432/blueprint_qa_test
+2026-11-18T06:37:56.6973365Z   BLUEPRINT_QA_DB_INTEGRATION: true
+2026-11-18T06:37:56.6973628Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:37:56.6974079Z ##[endgroup]
+2026-11-18T06:37:56.8219454Z (node:2686) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-18T06:37:56.8220259Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-18T06:37:56.8221214Z Found in cache @ /opt/hostedtoolcache/node/24.22.2/x64
+2026-11-18T06:37:56.8223482Z ##[group]Environment details
+2026-11-18T06:37:57.1759074Z node: v24.22.2
+2026-11-18T06:37:57.1759378Z npm: 11.19.1
+2026-11-18T06:37:57.1759612Z yarn: 1.22.22
+2026-11-18T06:37:57.1760255Z ##[endgroup]
+2026-11-18T06:37:57.1779568Z [command]/home/runner/setup-pnpm/node_modules/.bin/bin/pnpm store path --silent
+2026-11-18T06:37:57.1926929Z /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-18T06:37:57.2741931Z Cache hit for: node-cache-Linux-x64-pnpm-77381a78c2540560b483104112501f5a344971055acd787850442a9659582170
+2026-11-18T06:37:57.2827890Z (node:2686) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-18T06:37:58.3483708Z Received 201326592 of 226510098 (88.9%), 192.0 MBs/sec
+2026-11-18T06:37:58.4294912Z Received 226510098 of 226510098 (100.0%), 199.6 MBs/sec
+2026-11-18T06:37:58.4295990Z Cache Size: ~216 MB (226510098 B)
+2026-11-18T06:37:58.4321574Z [command]/usr/bin/tar -xf /home/runner/work/_temp/48f7c964-65d1-4638-921d-7b26e33058e7/cache.tzst -P -C /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub --use-compress-program unzstd
+2026-11-18T06:37:59.8437206Z Cache restored successfully
+2026-11-18T06:37:59.8534200Z Cache restored from key: node-cache-Linux-x64-pnpm-77381a78c2540560b483104112501f5a344971055acd787850442a9659582170
+2026-11-18T06:37:59.8885419Z ##[group]Run pnpm install --frozen-lockfile
+2026-11-18T06:37:59.8885823Z [36;1mpnpm install --frozen-lockfile[0m
+2026-11-18T06:37:59.8886076Z [36;1mpnpm prisma:generate[0m
+2026-11-18T06:37:59.8886349Z [36;1mpnpm exec prisma validate --config prisma7.config.ts[0m
+2026-11-18T06:37:59.8886659Z [36;1mpnpm db:migrate:deploy[0m
+2026-11-18T06:37:59.8886872Z [36;1mpnpm db:migrate:status[0m
+2026-11-18T06:37:59.8911806Z shell: /usr/bin/bash -e {0}
+2026-11-18T06:37:59.8912027Z env:
+2026-11-18T06:37:59.8912517Z   DATABASE_URL: ***localhost:5432/blueprint_qa_test
+2026-11-18T06:37:59.8912797Z   BLUEPRINT_QA_DB_INTEGRATION: true
+2026-11-18T06:37:59.8913086Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:37:59.8913337Z ##[endgroup]
+2026-11-18T06:37:59.9130177Z Scope: all 9 workspace projects
+2026-11-18T06:37:59.9329620Z ? Verifying lockfile against supply-chain policies (368 entries)...
+2026-11-18T06:38:00.0189818Z Packages are hard linked from the content-addressable store to the virtual store.
+2026-11-18T06:38:00.0190431Z   Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-18T06:38:00.0190914Z   Virtual store is at:             node_modules/.pnpm
+2026-11-18T06:38:04.5042485Z ✓ Lockfile passes supply-chain policies (368 entries in 4.6s)
+2026-11-18T06:38:04.5043078Z Lockfile is up to date, resolution step is skipped
+2026-11-18T06:38:04.5098669Z Packages: +311
+2026-11-18T06:38:04.5099201Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-11-18T06:38:04.5381441Z Progress: resolved 311, reused 311, downloaded 0, added 311, done
+2026-11-18T06:38:04.7431349Z 
+2026-11-18T06:38:04.7432157Z devDependencies:
+2026-11-18T06:38:04.7432525Z + @playwright/test 1.63.0
+2026-11-18T06:38:04.7432988Z + @types/node 24.13.6
+2026-11-18T06:38:04.7433250Z + eslint 10.11.0
+2026-11-18T06:38:04.7433601Z + json-schema-to-typescript 16.0.0
+2026-11-18T06:38:04.7434048Z + prisma 7.10.0
+2026-11-18T06:38:04.7434356Z + typescript 6.0.3
+2026-11-18T06:38:04.7434639Z + typescript-eslint 8.70.1
+2026-11-18T06:38:04.7434925Z + vitest 5.0.0
+2026-11-18T06:38:04.7435077Z 
+2026-11-18T06:38:04.7450375Z Done in 4.8s using pnpm v12.4.0
+2026-11-18T06:38:04.8098977Z $ prisma generate --config prisma7.config.ts
+2026-11-18T06:38:05.6569751Z Loaded Prisma config from prisma7.config.ts.
+2026-11-18T06:38:05.6569997Z 
+2026-11-18T06:38:05.6893596Z Prisma schema loaded from packages/persistence/prisma/schema.prisma.
+2026-11-18T06:38:06.0152832Z 
+2026-11-18T06:38:06.0154261Z ✔ Generated Prisma Client (7.10.0) to ./packages/persistence/src/generated/prisma in 222ms
+2026-11-18T06:38:06.0154755Z 
+2026-11-18T06:38:06.6238716Z Loaded Prisma config from prisma7.config.ts.
+2026-11-18T06:38:06.6238952Z 
+2026-11-18T06:38:06.6541696Z Prisma schema loaded from packages/persistence/prisma/schema.prisma.
+2026-11-18T06:38:06.7004016Z ┌─────────────────────────────────────────────────────────┐
+2026-11-18T06:38:06.7004906Z The schema at packages/persistence/prisma/schema.prisma is valid 🚀
+2026-11-18T06:38:06.7005893Z │  Update available 7.10.0 -> 8.0.0-rc.34                 │
+2026-11-18T06:38:06.7033224Z │                                                         │
+2026-11-18T06:38:06.7064944Z │  This is a major update - please follow the guide at    │
+2026-11-18T06:38:06.7097617Z │  https://pris.ly/d/major-version-upgrade                │
+2026-11-18T06:38:06.7104995Z │                                                         │
+2026-11-18T06:38:06.7114587Z │  Run the following to update                            │
+2026-11-18T06:38:06.7115685Z │    npm i --save-dev prisma@latest                       │
+2026-11-18T06:38:06.7116443Z │    npm i @prisma/client@latest                          │
+2026-11-18T06:38:06.7117185Z └─────────────────────────────────────────────────────────┘
+2026-11-18T06:38:06.8134032Z $ prisma migrate deploy --config prisma7.config.ts
+2026-11-18T06:38:07.3787832Z Loaded Prisma config from prisma7.config.ts.
+2026-11-18T06:38:07.3788078Z 
+2026-11-18T06:38:07.4095041Z Prisma schema loaded from packages/persistence/prisma/schema.prisma.
+2026-11-18T06:38:07.4165484Z Datasource "db": PostgreSQL database "blueprint_qa_test", schema "public" at "localhost:5432"
+2026-11-18T06:38:07.4816612Z 
+2026-11-18T06:38:07.4817236Z 14 migrations found in prisma/migrations
+2026-11-18T06:38:07.4817535Z 
+2026-11-18T06:38:07.5929117Z Applying migration `20260925090000_fnd003_init`
+2026-11-18T06:38:07.6094537Z Applying migration `20260925100000_fnd004_identity_authority`
+2026-11-18T06:38:07.6475574Z Applying migration `20260925183000_fnd007_work_quality`
+2026-11-18T06:38:07.6708615Z Applying migration `20260925233000_p6_004_governance_state`
+2026-11-18T06:38:07.6962130Z Applying migration `20260926004000_p6_006_release_lessons`
+2026-11-18T06:38:07.7164091Z Applying migration `20260926013000_p6_007_prompt_history`
+2026-11-18T06:38:07.8661533Z Applying migration `20260927130000_p9_019_human_professional_review_decision`
+2026-11-18T06:38:07.8771308Z Applying migration `20260928080000_ca002_constitution_authority`
+2026-11-18T06:38:07.9241159Z Applying migration `20260928093000_ca004_constitution_publication`
+2026-11-18T06:38:07.9375904Z Applying migration `20261013124900_phase5c_workflow_execution_journal`
+2026-11-18T06:38:07.9977601Z Applying migration `20261014160000_appmanage_sso_identity_link`
+2026-11-18T06:38:08.0618076Z Applying migration `20261015150000_phase5d_independent_qa_verification`
+2026-11-18T06:38:08.0710205Z Applying migration `20261015190000_execution_journal_append_only`
+2026-11-18T06:38:08.0748046Z Applying migration `20261015211000_workflow_execution_authority`
+2026-11-18T06:38:08.0941768Z 
+2026-11-18T06:38:08.0948300Z The following migration(s) have been applied:
+2026-11-18T06:38:08.0948638Z 
+2026-11-18T06:38:08.0948771Z migrations/
+2026-11-18T06:38:08.0949421Z   └─ 20260925090000_fnd003_init/
+2026-11-18T06:38:08.0949809Z     └─ migration.sql
+2026-11-18T06:38:08.0950225Z   └─ 20260925100000_fnd004_identity_authority/
+2026-11-18T06:38:08.0950631Z     └─ migration.sql
+2026-11-18T06:38:08.0951051Z   └─ 20260925183000_fnd007_work_quality/
+2026-11-18T06:38:08.0951426Z     └─ migration.sql
+2026-11-18T06:38:08.0951871Z   └─ 20260925233000_p6_004_governance_state/
+2026-11-18T06:38:08.0952283Z     └─ migration.sql
+2026-11-18T06:38:08.0953230Z   └─ 20260926004000_p6_006_release_lessons/
+2026-11-18T06:38:08.0953671Z     └─ migration.sql
+2026-11-18T06:38:08.0954260Z   └─ 20260926013000_p6_007_prompt_history/
+2026-11-18T06:38:08.0954709Z     └─ migration.sql
+2026-11-18T06:38:08.0955224Z   └─ 20260927130000_p9_019_human_professional_review_decision/
+2026-11-18T06:38:08.0955691Z     └─ migration.sql
+2026-11-18T06:38:08.0956137Z   └─ 20260928080000_ca002_constitution_authority/
+2026-11-18T06:38:08.0956937Z     └─ migration.sql
+2026-11-18T06:38:08.0957320Z   └─ 20260928093000_ca004_constitution_publication/
+2026-11-18T06:38:08.0957716Z     └─ migration.sql
+2026-11-18T06:38:08.0958106Z   └─ 20261013124900_phase5c_workflow_execution_journal/
+2026-11-18T06:38:08.0958533Z     └─ migration.sql
+2026-11-18T06:38:08.0958913Z   └─ 20261014160000_appmanage_sso_identity_link/
+2026-11-18T06:38:08.0959277Z     └─ migration.sql
+2026-11-18T06:38:08.0959665Z   └─ 20261015150000_phase5d_independent_qa_verification/
+2026-11-18T06:38:08.0960046Z     └─ migration.sql
+2026-11-18T06:38:08.0960403Z   └─ 20261015190000_execution_journal_append_only/
+2026-11-18T06:38:08.0960782Z     └─ migration.sql
+2026-11-18T06:38:08.0961145Z   └─ 20261015211000_workflow_execution_authority/
+2026-11-18T06:38:08.0961503Z     └─ migration.sql
+2026-11-18T06:38:08.0961643Z 
+2026-11-18T06:38:08.0961850Z All migrations have been successfully applied.
+2026-11-18T06:38:08.1289157Z $ prisma migrate status --config prisma7.config.ts
+2026-11-18T06:38:08.6935118Z Loaded Prisma config from prisma7.config.ts.
+2026-11-18T06:38:08.6935381Z 
+2026-11-18T06:38:08.7199814Z Prisma schema loaded from packages/persistence/prisma/schema.prisma.
+2026-11-18T06:38:08.7242923Z Datasource "db": PostgreSQL database "blueprint_qa_test", schema "public" at "localhost:5432"
+2026-11-18T06:38:08.8572808Z 
+2026-11-18T06:38:08.8573613Z 14 migrations found in prisma/migrations
+2026-11-18T06:38:08.8574320Z 
+2026-11-18T06:38:08.8574709Z Database schema is up to date!
+2026-11-18T06:38:08.8797372Z ##[group]Run pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts tests/application/prompt-workflow-authority-pg-integration.test.ts
+2026-11-18T06:38:08.8798322Z [36;1mpnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts tests/application/prompt-workflow-authority-pg-integration.test.ts[0m
+2026-11-18T06:38:08.8816839Z shell: /usr/bin/bash -e {0}
+2026-11-18T06:38:08.8817067Z env:
+2026-11-18T06:38:08.8817643Z   DATABASE_URL: ***localhost:5432/blueprint_qa_test
+2026-11-18T06:38:08.8817920Z   BLUEPRINT_QA_DB_INTEGRATION: true
+2026-11-18T06:38:08.8818192Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:38:08.8818441Z ##[endgroup]
+2026-11-18T06:38:09.1574108Z 
+2026-11-18T06:38:09.1577075Z [1m[30m[46m RUN [49m[39m[22m [36mv5.0.0 [39m[90m/home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub[39m
+2026-11-18T06:38:09.1577759Z 
+2026-11-18T06:38:10.1065830Z  [32m✓[39m tests/application/prompt-workflow-authority-pg-integration.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 381[2mms[22m[39m
+2026-11-18T06:38:10.4175758Z  [32m✓[39m tests/application/prompt-workflow-qa-pg-integration.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 991[2mms[22m[39m
+2026-11-18T06:38:10.4176946Z    [32m✓[39m real PostgreSQL immutable QA verification integrity [2m(13)[22m
+2026-11-18T06:38:10.4177988Z      [33m[2m✓[22m[39m persists separate service replay namespaces and retains them after reconnect[33m 352[2mms[22m[39m
+2026-11-18T06:38:10.4197962Z 
+2026-11-18T06:38:10.4202560Z [2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+2026-11-18T06:38:10.4203226Z [2m      Tests [22m [1m[32m17 passed[39m[22m[90m (17)[39m
+2026-11-18T06:38:10.4203918Z [2m   Start at [22m 06:38:09
+2026-11-18T06:38:10.4205603Z [2m   Duration [22m 1.25s[2m (tests 68%, transform 17%, import 15%)[22m
+2026-11-18T06:38:10.4218088Z 
+2026-11-18T06:38:10.4648394Z Post job cleanup.
+2026-11-18T06:38:10.5778208Z (node:3219) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-18T06:38:10.5778879Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-18T06:38:10.5780713Z Cache hit occurred on the primary key node-cache-Linux-x64-pnpm-77381a78c2540560b483104112501f5a344971055acd787850442a9659582170, not saving cache.
+2026-11-18T06:38:10.5885372Z Post job cleanup.
+2026-11-18T06:38:10.7128967Z Pruning is unnecessary.
+2026-11-18T06:38:10.7327638Z Post job cleanup.
+2026-11-18T06:38:10.8062239Z [command]/usr/bin/git version
+2026-11-18T06:38:10.8130402Z git version 2.56.1
+2026-11-18T06:38:10.8160118Z Temporarily overriding HOME='/home/runner/work/_temp/9f7ff498-7166-4fea-b793-6fa5b5e2d14b' before making global git config changes
+2026-11-18T06:38:10.8161249Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T06:38:10.8165246Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub
+2026-11-18T06:38:10.8210710Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T06:38:10.8245425Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T06:38:10.8462970Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T06:38:10.8507070Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T06:38:10.8764835Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T06:38:10.8810363Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T06:38:10.9176552Z Print service container logs: 2172712455274ae9a76e5ba0be58f3dd_postgres16alpine_cd38f6
+2026-11-18T06:38:10.9179994Z ##[command]/usr/bin/docker logs --details 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:38:10.9313228Z  The files belonging to this database system will be owned by user "postgres".
+2026-11-18T06:38:10.9315305Z  sh: locale: not found
+2026-11-18T06:38:10.9315678Z  This user must also own the server process.
+2026-11-18T06:38:10.9316058Z  
+2026-11-18T06:38:10.9316404Z  The database cluster will be initialized with locale "en_US.utf8".
+2026-11-18T06:38:10.9316965Z  The default database encoding has accordingly been set to "UTF8".
+2026-11-18T06:38:10.9317472Z  The default text search configuration will be set to "english".
+2026-11-18T06:38:10.9317869Z  
+2026-11-18T06:38:10.9318108Z  Data page checksums are disabled.
+2026-11-18T06:38:10.9318419Z  
+2026-11-18T06:38:10.9318864Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+2026-11-18T06:38:10.9319363Z  creating subdirectories ... ok
+2026-11-18T06:38:10.9319746Z  selecting dynamic shared memory implementation ... posix
+2026-11-18T06:38:10.9320184Z  selecting default max_connections ... 100
+2026-11-18T06:38:10.9320548Z  selecting default shared_buffers ... 128MB
+2026-11-18T06:38:10.9320900Z  selecting default time zone ... UTC
+2026-11-18T06:38:10.9321249Z  creating configuration files ... ok
+2026-11-18T06:38:10.9321582Z  running bootstrap script ... ok
+2026-11-18T06:38:10.9321946Z  performing post-bootstrap initialization ... ok
+2026-11-18T06:38:10.9322322Z  syncing data to disk ... ok
+2026-11-18T06:38:10.9322597Z  
+2026-11-18T06:38:10.9322799Z  
+2026-11-18T06:38:10.9323069Z  Success. You can now start the database server using:
+2026-11-18T06:38:10.9323440Z  
+2026-11-18T06:38:10.9323727Z      pg_ctl -D /var/lib/postgresql/data -l logfile start
+2026-11-18T06:38:10.9324246Z  
+2026-11-18T06:38:10.9324942Z  waiting for server to start....2026-11-18 06:37:46.505 UTC [41] LOG:  starting PostgreSQL 16.16 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-11-18T06:38:10.9325918Z  2026-11-18 06:37:46.506 UTC [41] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-11-18T06:38:10.9326611Z  2026-11-18 06:37:46.557 UTC [44] LOG:  database system was shut down at 2026-11-18 06:37:46 UTC
+2026-11-18T06:38:10.9327243Z  2026-11-18 06:37:46.561 UTC [41] LOG:  database system is ready to accept connections
+2026-11-18T06:38:10.9328052Z   done
+2026-11-18T06:38:10.9328284Z  server started
+2026-11-18T06:38:10.9328528Z  CREATE DATABASE
+2026-11-18T06:38:10.9328759Z  
+2026-11-18T06:38:10.9328961Z  
+2026-11-18T06:38:10.9329345Z  /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+2026-11-18T06:38:10.9329828Z  
+2026-11-18T06:38:10.9330268Z  waiting for server to shut down....2026-11-18 06:37:46.658 UTC [41] LOG:  received fast shutdown request
+2026-11-18T06:38:10.9330918Z  2026-11-18 06:37:46.659 UTC [41] LOG:  aborting any active transactions
+2026-11-18T06:38:10.9331624Z  2026-11-18 06:37:46.661 UTC [41] LOG:  background worker "logical replication launcher" (PID 47) exited with exit code 1
+2026-11-18T06:38:10.9332279Z  2026-11-18 06:37:46.662 UTC [42] LOG:  shutting down
+2026-11-18T06:38:10.9332709Z  2026-11-18 06:37:46.663 UTC [42] LOG:  checkpoint starting: shutdown immediate
+2026-11-18T06:38:10.9334267Z  2026-11-18 06:37:46.798 UTC [42] LOG:  checkpoint complete: wrote 935 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.071 s, sync=0.063 s, total=0.136 s; sync files=301, longest=0.048 s, average=0.001 s; distance=4355 kB, estimate=4355 kB; lsn=0/1949CE8, redo lsn=0/1949CE8
+2026-11-18T06:38:10.9335609Z  2026-11-18 06:37:46.805 UTC [41] LOG:  database system is shut down
+2026-11-18T06:38:10.9336022Z   done
+2026-11-18T06:38:10.9336264Z  server stopped
+2026-11-18T06:38:10.9336507Z  
+2026-11-18T06:38:10.9336804Z  PostgreSQL init process complete; ready for start up.
+2026-11-18T06:38:10.9337163Z  
+2026-11-18T06:38:10.9337754Z  2026-11-18 06:37:45.738 UTC [35] WARNING:  no usable system locales were found
+2026-11-18T06:38:10.9338489Z  initdb: warning: enabling "trust" authentication for local connections
+2026-11-18T06:38:10.9339283Z  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+2026-11-18T06:38:10.9339948Z  2026-11-18 06:37:46.879 UTC [1] LOG:  starting PostgreSQL 16.16 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-11-18T06:38:10.9340450Z  2026-11-18 06:37:46.879 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-11-18T06:38:10.9340849Z  2026-11-18 06:37:46.879 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-11-18T06:38:10.9341262Z  2026-11-18 06:37:46.912 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-11-18T06:38:10.9341700Z  2026-11-18 06:37:46.914 UTC [57] LOG:  database system was shut down at 2026-11-18 06:37:46 UTC
+2026-11-18T06:38:10.9342096Z  2026-11-18 06:37:46.918 UTC [1] LOG:  database system is ready to accept connections
+2026-11-18T06:38:10.9342584Z  2026-11-18 06:38:09.644 UTC [99] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9343195Z  2026-11-18 06:38:09.644 UTC [99] DETAIL:  Key ("requestId")=(sha256:c6236f981756592bd974903c2080d96dcebff0836c5864190c67cc3ebd10f835) already exists.
+2026-11-18T06:38:10.9344794Z  2026-11-18 06:38:09.644 UTC [99] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9346074Z  2026-11-18 06:38:09.647 UTC [93] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9346732Z  2026-11-18 06:38:09.647 UTC [93] DETAIL:  Key ("requestId")=(sha256:c6236f981756592bd974903c2080d96dcebff0836c5864190c67cc3ebd10f835) already exists.
+2026-11-18T06:38:10.9347821Z  2026-11-18 06:38:09.647 UTC [93] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9348795Z  2026-11-18 06:38:09.648 UTC [94] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9349695Z  2026-11-18 06:38:09.648 UTC [94] DETAIL:  Key ("requestId")=(sha256:c6236f981756592bd974903c2080d96dcebff0836c5864190c67cc3ebd10f835) already exists.
+2026-11-18T06:38:10.9350755Z  2026-11-18 06:38:09.648 UTC [94] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9351728Z  2026-11-18 06:38:09.659 UTC [97] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9352332Z  2026-11-18 06:38:09.659 UTC [97] DETAIL:  Key ("requestId")=(sha256:c6236f981756592bd974903c2080d96dcebff0836c5864190c67cc3ebd10f835) already exists.
+2026-11-18T06:38:10.9353366Z  2026-11-18 06:38:09.659 UTC [97] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9354578Z  2026-11-18 06:38:09.660 UTC [96] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9355182Z  2026-11-18 06:38:09.660 UTC [96] DETAIL:  Key ("requestId")=(sha256:c6236f981756592bd974903c2080d96dcebff0836c5864190c67cc3ebd10f835) already exists.
+2026-11-18T06:38:10.9356390Z  2026-11-18 06:38:09.660 UTC [96] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9357355Z  2026-11-18 06:38:09.662 UTC [98] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9357957Z  2026-11-18 06:38:09.662 UTC [98] DETAIL:  Key ("requestId")=(sha256:c6236f981756592bd974903c2080d96dcebff0836c5864190c67cc3ebd10f835) already exists.
+2026-11-18T06:38:10.9358980Z  2026-11-18 06:38:09.662 UTC [98] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9359941Z  2026-11-18 06:38:09.662 UTC [95] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9360532Z  2026-11-18 06:38:09.662 UTC [95] DETAIL:  Key ("requestId")=(sha256:c6236f981756592bd974903c2080d96dcebff0836c5864190c67cc3ebd10f835) already exists.
+2026-11-18T06:38:10.9361559Z  2026-11-18 06:38:09.662 UTC [95] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9362522Z  2026-11-18 06:38:09.722 UTC [100] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9363129Z  2026-11-18 06:38:09.722 UTC [100] DETAIL:  Key ("requestId")=(sha256:d06e5938ca7d36d95f260718b2399c11b768a89297e331491e3dd501580dee1b) already exists.
+2026-11-18T06:38:10.9364275Z  2026-11-18 06:38:09.722 UTC [100] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9365241Z  2026-11-18 06:38:09.733 UTC [101] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9365863Z  2026-11-18 06:38:09.733 UTC [101] DETAIL:  Key ("requestId")=(sha256:2e51a8000af1fc754484ecaec11c06f69fe6d6866080e583b566a6ba1ac78cac) already exists.
+2026-11-18T06:38:10.9367051Z  2026-11-18 06:38:09.733 UTC [101] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9368053Z  2026-11-18 06:38:09.743 UTC [102] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9368670Z  2026-11-18 06:38:09.743 UTC [102] DETAIL:  Key ("requestId")=(sha256:de0c6c8ab93115a985cc5334e766e586b4450e195426e10d26b4272ad2a85644) already exists.
+2026-11-18T06:38:10.9369694Z  2026-11-18 06:38:09.743 UTC [102] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9370660Z  2026-11-18 06:38:09.756 UTC [103] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9371257Z  2026-11-18 06:38:09.756 UTC [103] DETAIL:  Key ("requestId")=(sha256:bbc6d58818b5c5bdba149736738f90d6254ceec4670583de88e52ec5d6c068e7) already exists.
+2026-11-18T06:38:10.9372384Z  2026-11-18 06:38:09.756 UTC [103] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9373267Z  2026-11-18 06:38:09.856 UTC [106] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9373708Z  2026-11-18 06:38:09.856 UTC [106] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9374590Z  2026-11-18 06:38:09.856 UTC [106] STATEMENT:  UPDATE "WorkflowExecutionClaim" SET "expiresAt" = "expiresAt" + interval '1 minute' WHERE "requestId" = $1
+2026-11-18T06:38:10.9375119Z  2026-11-18 06:38:09.922 UTC [108] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9375554Z  2026-11-18 06:38:09.922 UTC [108] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9376040Z  2026-11-18 06:38:09.922 UTC [108] STATEMENT:  DELETE FROM "WorkflowExecutionClaim" WHERE "requestId" = $1
+2026-11-18T06:38:10.9376445Z  2026-11-18 06:38:09.975 UTC [110] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9376860Z  2026-11-18 06:38:09.975 UTC [110] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9377412Z  2026-11-18 06:38:09.975 UTC [110] STATEMENT:  UPDATE "WorkflowExecutionObservation" SET "outcome" = 'failed' WHERE "requestId" = $1
+2026-11-18T06:38:10.9377904Z  2026-11-18 06:38:10.060 UTC [105] ERROR:  Workflow execution authority is append-only
+2026-11-18T06:38:10.9378358Z  2026-11-18 06:38:10.060 UTC [105] CONTEXT:  PL/pgSQL function "rejectWorkflowAuthorityMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9380567Z  2026-11-18 06:38:10.060 UTC [105] STATEMENT:  UPDATE "public"."WorkflowExecutionAdoptionDecision" SET "decision" = $1 WHERE ("public"."WorkflowExecutionAdoptionDecision"."id" = $2 AND 1=1) RETURNING "public"."WorkflowExecutionAdoptionDecision"."id", "public"."WorkflowExecutionAdoptionDecision"."projectId", "public"."WorkflowExecutionAdoptionDecision"."workflowId", "public"."WorkflowExecutionAdoptionDecision"."workflowDigest", "public"."WorkflowExecutionAdoptionDecision"."policyVersion", "public"."WorkflowExecutionAdoptionDecision"."decision", "public"."WorkflowExecutionAdoptionDecision"."decidedByPrincipalId", "public"."WorkflowExecutionAdoptionDecision"."decidedAt", "public"."WorkflowExecutionAdoptionDecision"."productionReleaseAuthority"
+2026-11-18T06:38:10.9382690Z  2026-11-18 06:38:10.064 UTC [112] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9383226Z  2026-11-18 06:38:10.064 UTC [112] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9383741Z  2026-11-18 06:38:10.064 UTC [112] STATEMENT:  DELETE FROM "WorkflowExecutionObservation" WHERE "requestId" = $1
+2026-11-18T06:38:10.9384277Z  2026-11-18 06:38:10.081 UTC [114] ERROR:  Workflow execution authority is append-only
+2026-11-18T06:38:10.9384726Z  2026-11-18 06:38:10.081 UTC [114] CONTEXT:  PL/pgSQL function "rejectWorkflowAuthorityMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9386911Z  2026-11-18 06:38:10.081 UTC [114] STATEMENT:  DELETE FROM "public"."WorkflowExecutionAdoptionDecision" WHERE ("public"."WorkflowExecutionAdoptionDecision"."id" = $1 AND 1=1) RETURNING "public"."WorkflowExecutionAdoptionDecision"."id", "public"."WorkflowExecutionAdoptionDecision"."projectId", "public"."WorkflowExecutionAdoptionDecision"."workflowId", "public"."WorkflowExecutionAdoptionDecision"."workflowDigest", "public"."WorkflowExecutionAdoptionDecision"."policyVersion", "public"."WorkflowExecutionAdoptionDecision"."decision", "public"."WorkflowExecutionAdoptionDecision"."decidedByPrincipalId", "public"."WorkflowExecutionAdoptionDecision"."decidedAt", "public"."WorkflowExecutionAdoptionDecision"."productionReleaseAuthority"
+2026-11-18T06:38:10.9389113Z  2026-11-18 06:38:10.100 UTC [115] ERROR:  Workflow execution authority is append-only
+2026-11-18T06:38:10.9389568Z  2026-11-18 06:38:10.100 UTC [115] CONTEXT:  PL/pgSQL function "rejectWorkflowAuthorityMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9390258Z  2026-11-18 06:38:10.100 UTC [115] STATEMENT:  TRUNCATE TABLE "WorkflowExecutionIssuerDecision", "WorkflowExecutionAdoptionDecision"
+2026-11-18T06:38:10.9390769Z  2026-11-18 06:38:10.118 UTC [116] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9391186Z  2026-11-18 06:38:10.118 UTC [116] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9391790Z  2026-11-18 06:38:10.118 UTC [116] STATEMENT:  UPDATE "WorkflowExecutionQaVerification" SET "sourceRevision" = repeat('d', 40) WHERE "requestId" = $1
+2026-11-18T06:38:10.9392320Z  2026-11-18 06:38:10.154 UTC [118] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9392736Z  2026-11-18 06:38:10.154 UTC [118] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9393248Z  2026-11-18 06:38:10.154 UTC [118] STATEMENT:  DELETE FROM "WorkflowExecutionQaVerification" WHERE "requestId" = $1
+2026-11-18T06:38:10.9393680Z  2026-11-18 06:38:10.214 UTC [120] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9394439Z  2026-11-18 06:38:10.214 UTC [120] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9394904Z  2026-11-18 06:38:10.214 UTC [120] STATEMENT:  TRUNCATE TABLE "WorkflowExecutionClaim" CASCADE
+2026-11-18T06:38:10.9395278Z  2026-11-18 06:38:10.238 UTC [121] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9395676Z  2026-11-18 06:38:10.238 UTC [121] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9396152Z  2026-11-18 06:38:10.238 UTC [121] STATEMENT:  TRUNCATE TABLE "WorkflowExecutionObservation" CASCADE
+2026-11-18T06:38:10.9396553Z  2026-11-18 06:38:10.263 UTC [122] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9397000Z  2026-11-18 06:38:10.263 UTC [122] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9397490Z  2026-11-18 06:38:10.263 UTC [122] STATEMENT:  TRUNCATE TABLE "WorkflowExecutionQaVerification" CASCADE
+2026-11-18T06:38:10.9397892Z  2026-11-18 06:38:10.288 UTC [123] ERROR:  Execution journal is append-only
+2026-11-18T06:38:10.9398299Z  2026-11-18 06:38:10.288 UTC [123] CONTEXT:  PL/pgSQL function "rejectWorkflowJournalMutation"() line 3 at RAISE
+2026-11-18T06:38:10.9399284Z  2026-11-18 06:38:10.288 UTC [123] STATEMENT:  DELETE FROM "public"."WorkflowExecutionClaim" WHERE ("public"."WorkflowExecutionClaim"."requestId" = $1 AND 1=1) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9400452Z  2026-11-18 06:38:10.297 UTC [124] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9401071Z  2026-11-18 06:38:10.297 UTC [124] DETAIL:  Key ("requestId")=(sha256:a941c87a0008e682ff8902c66535fb1567f27452b6ca37692ce99bd3671c26f7) already exists.
+2026-11-18T06:38:10.9402126Z  2026-11-18 06:38:10.297 UTC [124] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9403103Z  2026-11-18 06:38:10.339 UTC [126] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionClaim_pkey"
+2026-11-18T06:38:10.9403723Z  2026-11-18 06:38:10.339 UTC [126] DETAIL:  Key ("requestId")=(sha256:253e02c088c934ecd60b648facf0522749f16f1a8f8a84e5659a1cbbc176817e) already exists.
+2026-11-18T06:38:10.9404866Z  2026-11-18 06:38:10.339 UTC [126] STATEMENT:  INSERT INTO "public"."WorkflowExecutionClaim" ("requestId","expiresAt","createdAt") VALUES ($1,$2,$3) RETURNING "public"."WorkflowExecutionClaim"."requestId", "public"."WorkflowExecutionClaim"."expiresAt", "public"."WorkflowExecutionClaim"."createdAt"
+2026-11-18T06:38:10.9405947Z  2026-11-18 06:38:10.372 UTC [128] ERROR:  duplicate key value violates unique constraint "WorkflowExecutionQaVerification_pkey"
+2026-11-18T06:38:10.9406632Z  2026-11-18 06:38:10.372 UTC [128] DETAIL:  Key ("requestId", attempt)=(sha256:8f36f9146bae43033a79cd3af54ec1a42284a6088099a8eccb66b7fc889a058c, 1) already exists.
+2026-11-18T06:38:10.9408693Z  2026-11-18 06:38:10.372 UTC [128] STATEMENT:  INSERT INTO "public"."WorkflowExecutionQaVerification" ("requestId","attempt","observationDigest","sourceRevision","verifierId","verifiedFiles","verifiedAt") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."WorkflowExecutionQaVerification"."requestId", "public"."WorkflowExecutionQaVerification"."attempt", "public"."WorkflowExecutionQaVerification"."observationDigest", "public"."WorkflowExecutionQaVerification"."sourceRevision", "public"."WorkflowExecutionQaVerification"."verifierId", "public"."WorkflowExecutionQaVerification"."verifiedFiles", "public"."WorkflowExecutionQaVerification"."verifiedAt"
+2026-11-18T06:38:10.9410585Z  2026-11-18 06:38:10.385 UTC [129] ERROR:  QA verification requires matching successful read-only execution observation
+2026-11-18T06:38:10.9411114Z  2026-11-18 06:38:10.385 UTC [129] CONTEXT:  PL/pgSQL function "verifyWorkflowQaObservation"() line 12 at RAISE
+2026-11-18T06:38:10.9412973Z  2026-11-18 06:38:10.385 UTC [129] STATEMENT:  INSERT INTO "public"."WorkflowExecutionQaVerification" ("requestId","attempt","observationDigest","sourceRevision","verifierId","verifiedFiles","verifiedAt") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."WorkflowExecutionQaVerification"."requestId", "public"."WorkflowExecutionQaVerification"."attempt", "public"."WorkflowExecutionQaVerification"."observationDigest", "public"."WorkflowExecutionQaVerification"."sourceRevision", "public"."WorkflowExecutionQaVerification"."verifierId", "public"."WorkflowExecutionQaVerification"."verifiedFiles", "public"."WorkflowExecutionQaVerification"."verifiedAt"
+2026-11-18T06:38:10.9414981Z  2026-11-18 06:38:10.397 UTC [130] ERROR:  QA verification requires matching successful read-only execution observation
+2026-11-18T06:38:10.9415510Z  2026-11-18 06:38:10.397 UTC [130] CONTEXT:  PL/pgSQL function "verifyWorkflowQaObservation"() line 12 at RAISE
+2026-11-18T06:38:10.9417389Z  2026-11-18 06:38:10.397 UTC [130] STATEMENT:  INSERT INTO "public"."WorkflowExecutionQaVerification" ("requestId","attempt","observationDigest","sourceRevision","verifierId","verifiedFiles","verifiedAt") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."WorkflowExecutionQaVerification"."requestId", "public"."WorkflowExecutionQaVerification"."attempt", "public"."WorkflowExecutionQaVerification"."observationDigest", "public"."WorkflowExecutionQaVerification"."sourceRevision", "public"."WorkflowExecutionQaVerification"."verifierId", "public"."WorkflowExecutionQaVerification"."verifiedFiles", "public"."WorkflowExecutionQaVerification"."verifiedAt"
+2026-11-18T06:38:10.9419394Z  2026-11-18 06:38:10.406 UTC [131] ERROR:  QA verification requires matching successful read-only execution observation
+2026-11-18T06:38:10.9419919Z  2026-11-18 06:38:10.406 UTC [131] CONTEXT:  PL/pgSQL function "verifyWorkflowQaObservation"() line 12 at RAISE
+2026-11-18T06:38:10.9421782Z  2026-11-18 06:38:10.406 UTC [131] STATEMENT:  INSERT INTO "public"."WorkflowExecutionQaVerification" ("requestId","attempt","observationDigest","sourceRevision","verifierId","verifiedFiles","verifiedAt") VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING "public"."WorkflowExecutionQaVerification"."requestId", "public"."WorkflowExecutionQaVerification"."attempt", "public"."WorkflowExecutionQaVerification"."observationDigest", "public"."WorkflowExecutionQaVerification"."sourceRevision", "public"."WorkflowExecutionQaVerification"."verifierId", "public"."WorkflowExecutionQaVerification"."verifiedFiles", "public"."WorkflowExecutionQaVerification"."verifiedAt"
+2026-11-18T06:38:10.9429292Z Stop and remove container: 2172712455274ae9a76e5ba0be58f3dd_postgres16alpine_cd38f6
+2026-11-18T06:38:10.9433611Z ##[command]/usr/bin/docker rm --force 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:38:17.8187102Z 44cbc031122acb047125c0818599ac6b4c68b6aa24594734a02174e1664abade
+2026-11-18T06:38:17.8220261Z Remove container network: github_network_194dc7ccf8ec4e3d84241ed87796aead
+2026-11-18T06:38:17.8223500Z ##[command]/usr/bin/docker network rm github_network_194dc7ccf8ec4e3d84241ed87796aead
+2026-11-18T06:38:17.8944242Z github_network_194dc7ccf8ec4e3d84241ed87796aead
+2026-11-18T06:38:17.9033195Z Cleaning up orphan processes
