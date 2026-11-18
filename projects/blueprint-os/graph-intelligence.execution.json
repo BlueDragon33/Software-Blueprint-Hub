@@ -22,7 +22,9 @@
       "isolated-branch source edits",
       "local verification",
       "source commits",
-      "Draft PR"
+      "Draft PR",
+      "disposable loopback PostgreSQL QA fixtures and role/failure/recovery probes",
+      "public standard-runner PostgreSQL + actual Next.js/Auth.js QA"
     ],
     "forbidden": [
       "merge",
@@ -33,7 +35,8 @@
       "slug/domain changes",
       "mandatory service spend",
       "claim independent review from the author"
-    ]
+    ],
+    "canonicalWriteBoundary": "No writes to user/Preview/Production canonical data. Declared disposable CI databases and test-only principals are authorized QA fixtures."
   },
   "audit": [
     {
@@ -166,6 +169,14 @@
     {
       "id": "D8",
       "decision": "Before first push, add branch-specific git.deploymentEnabled=false to both repository and apps/web Vercel roots because connector does not expose rootDirectory. Both configs share one exact branch denial and change no existing live deployment/domain. Source: https://vercel.com/docs/project-configuration/git-configuration."
+    },
+    {
+      "id": "D9",
+      "decision": "Reuse the public standard graph CI runner with two disposable Postgres databases: canonical integration and separate clean Next.js runtime. Existing P2 workflow separately verifies 17 immutable QA/authority tests. Do not combine their one-time owner bootstrap state or reset append-only history."
+    },
+    {
+      "id": "D10",
+      "decision": "Runtime tests use existing Auth.js session decoding with QA-only signed claims and persisted project roles. This is an authenticated local technical path, not proof of a GitHub OAuth handshake or a human Owner/reviewer decision. App database role receives SELECT-only business access and principal upsert permission."
     }
   ],
   "workPackages": [
@@ -291,24 +302,28 @@
     },
     {
       "id": "FIG-007",
-      "objective": "Real authenticated-runtime verification, independent technical review and Owner product acceptance",
+      "objective": "Complete actual PostgreSQL/Next.js/Auth.js technical QA with persisted project roles, revisions, outages, restart and rendered UX",
       "ownerFiles": [
-        "Draft PR",
-        "existing Human Review surfaces"
+        ".github/workflows/ci.yml",
+        "playwright.graph-runtime.config.ts",
+        "tests/e2e/graph-intelligence.pw.ts",
+        "tests/e2e/graph-runtime-support.ts",
+        "tests/fixtures/graph-runtime-roles.sql",
+        "docs/evidence/graph-intelligence/"
       ],
       "dependencies": [
         "FIG-006"
       ],
-      "status": "BLOCKED",
-      "acceptance": "Independent authorized reviewer and real Owner acceptance at exact revision",
+      "status": "ACTIVE",
+      "acceptance": "All eligible technical gaps resolved with exact-source evidence. Independent A/B review is assigned to Owner; protected human acceptance is not fabricated.",
       "verification": [
-        "Authorize and observe the existing project workspace with real actors/roles and canonical PostgreSQL records",
-        "Read denied/allowed/revoked project states; source outage recovery; real revisions; no cross-project reads or writes",
-        "Independent technical review and Owner acceptance bound to final exact source/evidence revision"
+        "PostgreSQL canonical integration suites on a disposable database; existing P2 workflow verifies immutable journal/authority suites separately",
+        "28 actual app HTTP/Auth.js/role/database/contrast cases plus 4 process-restart probes across desktop/mobile light/dark",
+        "Disposable app DB role has SELECT-only business access; mutable fixture controls are separate admin-only QA code",
+        "No user canonical data or human approvals are touched"
       ],
       "risk": "medium",
-      "next": "Only separately authorized merge/release",
-      "blocker": "No authorized persistent PostgreSQL/sign-in QA runtime with real roles, independent reviewer identity or Owner acceptance supplied. Fixture CI cannot certify these."
+      "next": "Owner handles independent A/B; any protected release decision remains separately authorized"
     }
   ],
   "knownDefects": [
@@ -342,8 +357,9 @@
     }
   ],
   "blockers": [
-    "Real authenticated PostgreSQL/role/device runtime NOT_RUN (60 existing integration tests skipped)",
-    "Independent technical reviewer identity/authority unavailable; Owner product acceptance NOT_RUN"
+    "Independent A/B is Owner-handled and excluded from agent execution",
+    "Actual runtime QA is now prepared; await exact-source public CI observations rather than assuming inability",
+    "Eight pre-existing private App-credential bridge probes remain opt-in and belong to the separate execution-service credential trust boundary"
   ],
   "evidence": [
     {
@@ -392,7 +408,7 @@
       "result": "EXACT SOURCE VERIFIED / SYNTHETIC UI VERIFIED / REAL RUNTIME AND HUMAN ACCEPTANCE PENDING"
     }
   ],
-  "nextSafeAtomicAction": "FIG-007: use an authorized persistent QA runtime to verify /projects/<authorized-project>/evidence-graph with real signed-in roles and canonical records, then obtain independent review and Owner acceptance. Reuse the exact verified code/evidence only if the source manifest still matches. Keep BLOCKED where runtime/identity is unavailable; never self-certify or merge/publish.",
+  "nextSafeAtomicAction": "FIG-007: verify local test collection/workflow guards, publish this bounded test change on the existing Draft branch, observe exact-source PostgreSQL/runtime CI, fix evidence-backed failures, archive truthful results. Do not execute independent reviewer A/B.",
   "lastVerifiedTimestamp": "2026-11-17T20:26:51Z",
   "lastVerifiedRevision": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
   "remainingCapabilities": [
@@ -407,7 +423,7 @@
     "state": "DRAFT"
   },
   "sourceManifestSHA256": "fc2ab7df2f1b295eecafe3a9714514ffe29f733fe0c335b17429db4b3236ecd7",
-  "checkpointNote": "The following commit only archives evidence and updates this ledger. Its HEAD must be resolved from Git; currentHead remains the tested implementation SHA. All source/test/CI/config blobs must match sourceManifestSHA256; do not present a docs-only checkpoint as a newly tested code revision.",
+  "checkpointNote": "This revision reopens eligible runtime QA under the 2026-11-18 Owner direction; prior evidence remains valid only for its exact source manifest.",
   "handoff": {
     "repository": "BlueDragon33/Software-Blueprint-Hub",
     "ledgerPath": "projects/blueprint-os/graph-intelligence.execution.json",
@@ -483,6 +499,27 @@
       "merge": "NOT_AUTHORIZED",
       "publish": "NOT_AUTHORIZED"
     },
-    "decision": "Keep FIG-007 BLOCKED. Do not rerun completed WPs or promote fixture-only QA into live acceptance. Await an explicitly authorized non-production runtime and independent/Owner gates; no autonomous merge or publish."
+    "decision": "Keep FIG-007 BLOCKED. Do not rerun completed WPs or promote fixture-only QA into live acceptance. Await an explicitly authorized non-production runtime and independent/Owner gates; no autonomous merge or publish.",
+    "currentScopeNote": "Historical provider discovery retained. Current Owner instruction authorizes disposable CI technical QA; this does not activate archived Neon branches, access user data or confer human acceptance."
+  },
+  "auditScope": "Historical baseline at cd01fb3c2178393628ce968af209db082227d2c4; current capability results are in workPackages and referenced evidence.",
+  "ownerDirection": {
+    "date": "2026-11-18",
+    "request": "Finish outstanding eligible work; independent reviewer A/B handled separately by Owner",
+    "reviewerAB": "OWNER_HANDLED_OUTSIDE_AGENT_SCOPE",
+    "protectedHumanDecisions": "Do not impersonate an Owner, independent reviewer or external OAuth account."
+  },
+  "skipClassificationCorrection": {
+    "priorTotal": 60,
+    "canonicalPostgreSQL": 34,
+    "immutablePostgreSQLInSeparateP2Workflow": 17,
+    "publicPinnedTransport": 1,
+    "privateCredentialBridge": 8,
+    "note": "Previous summaries overgeneralized the 60 skips as PostgreSQL-dependent. This classification corrects that label without changing historical test results. Private transport requires separately scoped executor/QA App credentials; no reviewer A/B verdict is implied by transport tests."
+  },
+  "concurrencyReadback": {
+    "preservedCheckpoint": "efdf2990235db16eb384cad907e4712eee3f7f61",
+    "change": "Additive read-only gate-discovery metadata retained; current runtime QA is layered on top.",
+    "leaseSafety": "Stale expected-head update rejected; no concurrent data overwritten."
   }
 }
