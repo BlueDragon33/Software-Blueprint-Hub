@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "1.0.0",
+  "workflowId": "blueprint-reviewer-ab-source-inspection",
+  "workflowVersion": "1.0.0",
+  "status": "candidate",
+  "templateId": "engineering-node@1.0.0",
+  "project": {
+    "id": "project:blueprint-os",
+    "repo": "BlueDragon33/Software-Blueprint-Hub",
+    "constitutionMinVersion": "1.3.0",
+    "area": "Reviewer A/B exact source inspection in Preview",
+    "architectureDepthTarget": 100
+  },
+  "nodes": [
+    {
+      "id": "inspect-exact-source",
+      "stage": "DISCOVER",
+      "role": "Reviewer A",
+      "goal": "Read the exact approved PR source scope in one bounded attempt and record the observation in the Hub Preview journal.",
+      "dependsOn": [],
+      "inputs": [
+        "Hub WorkPackage ID and canonical record version",
+        "Signed inspect-scoped grant and exact workflow digest",
+        "PR number, exact Git HEAD and complete bounded changed-file scope"
+      ],
+      "outputs": [
+        "SHA-256 source manifest",
+        "Hub journal request ID and observation digest",
+        "Source-bound A handoff for separately authenticated B"
+      ],
+      "acceptance": [
+        "Current adoption and issuer authority match the exact Preview scope",
+        "One successful journaled attempt uses zero model tokens and modifies zero source files"
+      ],
+      "evidence": [
+        "Git commit SHA, A actor and execution run",
+        "Canonical WorkPackage version and immutable journal readback"
+      ],
+      "allowedActions": [
+        "Read exact PR metadata and scoped source bytes",
+        "Persist one bounded inspection observation using the existing Hub journal"
+      ],
+      "forbiddenActions": [
+        "Edit or execute PR source",
+        "Call a model or paid service",
+        "Self-approve independent B verification or release"
+      ],
+      "budget": {
+        "maxAttempts": 1,
+        "maxFiles": 10,
+        "maxTokenEstimate": 1
+      },
+      "onFailure": "BLOCK",
+      "humanGate": false
+    },
+    {
+      "id": "verify-independent-readback",
+      "stage": "TEST",
+      "role": "Reviewer B",
+      "goal": "Use the existing independent QA path to verify the same source bytes and journal observation under B's own read-only principal.",
+      "dependsOn": ["inspect-exact-source"],
+      "inputs": [
+        "A handoff and exact PR identity",
+        "Distinct B GitHub App installation and execution run",
+        "Same Preview runtime and canonical journal binding"
+      ],
+      "outputs": [
+        "Independent source digest and journal readback evidence",
+        "Explicit byte verification result and semantic review status"
+      ],
+      "acceptance": [
+        "B independently re-reads the pinned PR scope and checks every source hash",
+        "The current WorkPackage version, workflow digest and issuer still match",
+        "Missing B identity, signed evidence or journal access blocks the result"
+      ],
+      "evidence": [
+        "B installation ID and run ID",
+        "SHA-256 manifest, request ID and persisted QA readback"
+      ],
+      "allowedActions": [
+        "Use the existing QA Worker read-only PR and Hub journal adapters"
+      ],
+      "forbiddenActions": [
+        "Execute untrusted source through the Hub grant executor",
+        "Infer semantic approval from byte parity or CI",
+        "Issue a Quality Gate decision, merge or deploy"
+      ],
+      "budget": {
+        "maxAttempts": 1,
+        "maxFiles": 10,
+        "maxTokenEstimate": 1
+      },
+      "onFailure": "BLOCK",
+      "humanGate": true
+    }
+  ]
+}

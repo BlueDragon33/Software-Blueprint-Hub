@@ -4,7 +4,7 @@ import {reviewOrderKey,reviewSourceDigestV1,validateReviewWorkOrder,validateRevi
   from "../../packages/application/src/reviewer-ab-contract.mjs";
 
 const sha="a".repeat(40),d1="sha256:"+"b".repeat(64),d2="sha256:"+"c".repeat(64);
-function workOrder(){
+function workOrder(overrides={}){
   const o={schemaVersion:"1.0.0",kind:"review-work-order",policyVersion:"1.3.0",
     projectId:"project:blueprint-os",repository:"BlueDragon33/Software-Blueprint-Hub",
     pullRequestNumber:161,workPackageId:"r2-r3-qa",workPackageRecordVersion:4,
@@ -13,7 +13,7 @@ function workOrder(){
     issuerGrantDigest:d1,issuedAt:"2026-11-11T09:00:00.000Z",
     expiresAt:"2026-11-11T09:09:00.000Z",
     scope:{allowedPaths:["src/example.ts"],maxFiles:1,maxBytes:65536,maxAttempts:3,maxTokensUsed:0},
-    orderKey:""};
+    orderKey:"",...overrides};
   o.orderKey=reviewOrderKey(o);return o;
 }
 function report(o,role="A",patch={}){
@@ -51,6 +51,16 @@ test("valid signed-grant shape remains advisory; no quality/release authority",(
 test("role packets are claims, not verified independent attestation",()=>{
   const o=workOrder();
   assert.equal(validateReviewEvidence(o,report(o,"B")).independenceUnverified,true);
+});
+test("Hub-generated WorkPackage IDs remain bound to the exact canonical record",async()=>{
+  const workPackageId="work-package:9d8304d3-78bd-4ec5-9c61-05b79630b058";
+  const order=workOrder({workPackageId});
+  assert.equal(validateReviewWorkOrder(order).valid,true);
+  assert.equal((await assess(order)).status,"CANONICAL_GATES_REQUIRED");
+  await blocked(assess(order,report(order),report(order,"B",{workPackageId:workPackageId.slice(13)})));
+  for(const invalid of ["project:blueprint-os","work-package:","work-package:../foreign",[workPackageId]]){
+    assert.throws(()=>validateReviewWorkOrder(workOrder({workPackageId:invalid})),/WorkPackage IDs/);
+  }
 });
 test("idempotency binds PR + exact SHA + workflow + record version",()=>{
   const o=workOrder();

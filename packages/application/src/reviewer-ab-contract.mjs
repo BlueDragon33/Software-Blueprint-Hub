@@ -9,6 +9,8 @@ const DIGEST=/^sha256:[a-f0-9]{64}$/;
 const PROJECT=/^project:[a-z][a-z0-9-]{1,110}$/;
 const REPO=/^BlueDragon33\/[A-Za-z0-9_.-]{1,100}$/;
 const ID=/^[a-z][a-z0-9-]{1,79}$/;
+// Accept the canonical workspace prefix without rewriting earlier candidate IDs.
+const WORK_PACKAGE_ID=/^(?:work-package:[a-z0-9][a-z0-9-]{1,79}|[a-z][a-z0-9-]{1,79})$/;
 const PATH=/^[A-Za-z0-9_.\/-]{2,240}$/;
 const ACTOR=/^[A-Za-z0-9_.:@/-]{3,120}$/;
 const ORDER_KEYS=["schemaVersion","kind","policyVersion","projectId","repository",
@@ -73,7 +75,8 @@ export function validateReviewWorkOrder(o){
   check(PROJECT.test(o.projectId)&&REPO.test(o.repository),"project/repository identity");
   check(positive(o.pullRequestNumber)&&positive(o.workPackageRecordVersion)&&positive(o.expectedStateVersion),
     "PR/workPackage record and canonical CAS version");
-  check(ID.test(o.workPackageId)&&ID.test(o.workflowId)&&ID.test(o.workflowNodeId),
+  check(typeof o.workPackageId==="string"&&WORK_PACKAGE_ID.test(o.workPackageId)&&
+    ID.test(o.workflowId)&&ID.test(o.workflowNodeId),
     "unknown workflow or WorkPackage IDs");
   check(SHA.test(o.sourceRevision)&&DIGEST.test(o.canonicalSourceRevision)&&
     DIGEST.test(o.workflowDigest)&&DIGEST.test(o.issuerGrantDigest),
