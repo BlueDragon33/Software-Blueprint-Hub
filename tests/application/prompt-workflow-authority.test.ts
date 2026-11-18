@@ -1,6 +1,12 @@
 import { generateKeyPairSync } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
+import {
+  makeReviewerAbP3WorkPackage,
+  prepareReviewerAbP3Binding,
+  verifyReviewerAbP3DraftHeads
+} from "../../apps/web/src/server/reviewer-ab-preview-p3";
 import { PostgresWorkflowExecutionAuthority } from "../../packages/runtime/src/workflow-execution-authority";
 import type {
   WorkflowExecutionAdoptionRecord,
@@ -98,5 +104,62 @@ describe("P1 request-scoped workflow execution authority", () => {
       store, projectId, workflowId, "1.4.0"
     );
     expect(wrongPolicy.publicKeyFor(projectId, issuerId)).toBeNull();
+  });
+});
+
+describe("Reviewer A/B initial Preview P3 binding", () => {
+  const manifest = JSON.parse(readFileSync(new URL(
+    "../../prompt-workflows/projects/blueprint-os.reviewer-ab-source-inspection.v1.json",
+    import.meta.url
+  ), "utf8"));
+  const env = {
+    BLUEPRINT_AB_P3_MODE: "isolated-loopback",
+    AUTH_URL: "http://127.0.0.1:3000",
+    DATABASE_URL: "postgresql://ep-dawn-band-b3r8ahco.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require",
+    BLUEPRINT_AB_P3_HUB_SHA: "a".repeat(40),
+    BLUEPRINT_AB_P3_A_SHA: "b".repeat(40),
+    BLUEPRINT_AB_P3_B_SHA: "c".repeat(40),
+    BLUEPRINT_AB_P3_ISSUER_PUBLIC_KEY: keyA
+  };
+
+  it("binds exact candidate revisions, workflow projection and issuer to planned work", () => {
+    const binding = prepareReviewerAbP3Binding(manifest, env)!;
+    expect(binding.workflowDigest).not.toBe(binding.candidateDigest);
+    expect(manifest.status).toBe("candidate");
+    expect(makeReviewerAbP3WorkPackage(binding, new Date().toISOString())).toMatchObject({
+      id: binding.workPackageId, status: "planned", qualityGateIds: [], meta: { recordVersion: 1 }
+    });
+    expect(prepareReviewerAbP3Binding(manifest, { ...env, BLUEPRINT_AB_P3_B_SHA: "d".repeat(40) })?.reviewDigest)
+      .not.toBe(binding.reviewDigest);
+    expect(prepareReviewerAbP3Binding(manifest, { ...env, BLUEPRINT_AB_P3_ISSUER_PUBLIC_KEY: keyB })?.reviewDigest)
+      .not.toBe(binding.reviewDigest);
+  });
+
+  it("rejects the production endpoint, cloud runtime, off-host origin and invalid issuer key", () => {
+    for (const change of [
+      { DATABASE_URL: env.DATABASE_URL.replace("dawn-band-b3r8ahco", "floral-truth-b35a7tn7") },
+      { DATABASE_URL: env.DATABASE_URL + "&host=misconfigured.example" },
+      { VERCEL_ENV: "production" },
+      { AUTH_URL: "https://preview.example" },
+      { BLUEPRINT_AB_P3_ISSUER_PUBLIC_KEY: "invalid" }
+    ]) {
+      expect(prepareReviewerAbP3Binding(manifest, { ...env, ...change })).toBeNull();
+    }
+  });
+
+  it("requires all authenticated Draft metadata to match the configured scope and SHA", async () => {
+    const { revisions } = prepareReviewerAbP3Binding(manifest, env)!;
+    const read = (stale: boolean): typeof fetch => async (url, init) => {
+      expect(new URL(String(url)).origin).toBe("https://api.github.com");
+      expect(init?.redirect).toBe("error");
+      const item = revisions.find(({ repository }) => String(url).includes(repository + "/pulls/"))!;
+      return Response.json({
+        number: item.number, state: "open", draft: true,
+        base: { repo: { full_name: item.repository } },
+        head: { repo: { full_name: item.repository }, sha: stale && item.role === "B" ? "e".repeat(40) : item.sha }
+      });
+    };
+    await expect(verifyReviewerAbP3DraftHeads(revisions, null, read(false))).resolves.toBeUndefined();
+    await expect(verifyReviewerAbP3DraftHeads(revisions, null, read(true))).rejects.toThrow(/HEAD changed/);
   });
 });

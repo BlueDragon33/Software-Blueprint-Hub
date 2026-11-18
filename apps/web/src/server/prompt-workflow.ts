@@ -17,11 +17,22 @@ import governed from "../../../../control/constitution-governed-repositories.jso
 import { CENTRAL_WORKFLOW_MANIFESTS } from "./prompt-workflow-manifests.generated";
 import { getBlueprintServerRuntime } from "./runtime";
 import { trustedWorkflowReceiptAdapters } from "./prompt-workflow-receipts";
+import {
+  prepareReviewerAbP3Binding,
+  REVIEWER_AB_P3_PROJECT,
+  REVIEWER_AB_P3_WORKFLOW
+} from "./reviewer-ab-preview-p3";
 
 const workflowRegistry = new CentralPromptWorkflowRegistry(
   governed.repositories,
   CENTRAL_WORKFLOW_MANIFESTS
 );
+
+export function reviewerAbP3Binding() {
+  return prepareReviewerAbP3Binding(workflowRegistry.workflowForProject(
+    REVIEWER_AB_P3_PROJECT, REVIEWER_AB_P3_WORKFLOW
+  ));
+}
 
 export type WorkflowNodeSummary = WorkflowNode;
 

@@ -2,6 +2,7 @@ import { generateKeyPairSync } from "node:crypto";
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 
 import { AuthorityService } from "../../packages/core/src";
+import type { WorkPackage } from "../../packages/contracts/src";
 import {
   createPrismaClient,
   PostgresAuthorityRepository,
@@ -122,5 +123,72 @@ suite("P1 workflow execution authority PostgreSQL integrity", () => {
     await expect(prisma.$executeRawUnsafe(
       'TRUNCATE TABLE "WorkflowExecutionIssuerDecision", "WorkflowExecutionAdoptionDecision"'
     )).rejects.toThrow(/append-only/);
+  });
+
+  function previewBinding(label: string) {
+    const now = new Date().toISOString();
+    const workPackage: WorkPackage = {
+      id: "work-package:p3-" + label, projectId, title: "Preview P3 binding",
+      purpose: "Verify independent reviewer identity and canonical journal readback.",
+      status: "planned", dependencies: [], qualityGateIds: [],
+      acceptanceCriteria: ["Verify separate Reviewer A and B identities."],
+      meta: { schemaVersion: "1.0.0", recordVersion: 1, createdAt: now, updatedAt: now }
+    };
+    return { workPackage, workflowId: "p3-" + label, workflowDigest: digest, policyVersion,
+      issuerId: "p3-test-issuer", publicKeyPem, actorPrincipalId: ownerId };
+  }
+
+  it("records planned work and both authority decisions once, then respects revocation", async () => {
+    const input = previewBinding("atomic");
+    const attempt = () => repository.recordInitialPreviewBinding(input);
+    await expect(attempt()).resolves.toMatchObject({ status: "created", workPackage: input.workPackage });
+    await expect(attempt()).resolves.toMatchObject({ status: "existing", workPackage: input.workPackage });
+    const where = { projectId, workflowId: input.workflowId };
+    expect(await prisma.workflowExecutionAdoptionDecision.count({ where })).toBe(1);
+    expect(await prisma.workflowExecutionIssuerDecision.count({ where })).toBe(1);
+    await repository.recordIssuer({
+      projectId, workflowId: input.workflowId, issuerId: input.issuerId,
+      policyVersion, publicKeyPem, actorPrincipalId: ownerId, decision: "revoke"
+    });
+    await expect(attempt()).rejects.toThrow(/revoked/);
+    expect(await prisma.workflowExecutionIssuerDecision.count({ where })).toBe(2);
+  });
+
+  it("rejects an authenticated non-Owner before creating any binding records", async () => {
+    const input = previewBinding("denied");
+    const actor = await authority.resolveIdentity({ provider: "github", providerSubject: "p3-non-owner" });
+    await expect(repository.recordInitialPreviewBinding({ ...input, actorPrincipalId: actor.id }))
+      .rejects.toThrow(/System Owner authority required/);
+    const where = { projectId, workflowId: input.workflowId };
+    expect(await prisma.workPackage.count({ where: { id: input.workPackage.id } })).toBe(0);
+    expect(await prisma.workflowExecutionAdoptionDecision.count({ where })).toBe(0);
+    expect(await prisma.workflowExecutionIssuerDecision.count({ where })).toBe(0);
+  });
+
+  it("rolls back the WorkPackage and adoption when saving the issuer fails", async () => {
+    const input = previewBinding("rollback");
+    // An isolated DB trigger fails the last insert during this test.
+    await prisma.$executeRawUnsafe(`
+      CREATE FUNCTION p3_test_deny_issuer() RETURNS trigger LANGUAGE plpgsql AS $$
+      BEGIN
+        IF NEW."workflowId" = 'p3-rollback' THEN
+          RAISE EXCEPTION 'P3 issuer write rejected';
+        END IF;
+        RETURN NEW;
+      END;
+      $$`);
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TRIGGER p3_test_deny_issuer BEFORE INSERT ON "WorkflowExecutionIssuerDecision"
+        FOR EACH ROW EXECUTE FUNCTION p3_test_deny_issuer()`);
+      await expect(repository.recordInitialPreviewBinding(input)).rejects.toThrow();
+      const where = { projectId, workflowId: input.workflowId };
+      expect(await prisma.workPackage.count({ where: { id: input.workPackage.id } })).toBe(0);
+      expect(await prisma.workflowExecutionAdoptionDecision.count({ where })).toBe(0);
+      expect(await prisma.workflowExecutionIssuerDecision.count({ where })).toBe(0);
+    } finally {
+      await prisma.$executeRawUnsafe('DROP TRIGGER IF EXISTS p3_test_deny_issuer ON "WorkflowExecutionIssuerDecision"');
+      await prisma.$executeRawUnsafe('DROP FUNCTION p3_test_deny_issuer()');
+    }
   });
 });

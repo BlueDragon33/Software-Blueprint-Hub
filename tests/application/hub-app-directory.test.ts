@@ -30,14 +30,17 @@ describe("Vietnamese-first ecosystem launcher", () => {
     expect(apps.every((item) => groupOrder.includes(item.group) && !!item.icon && !!item.vi)).toBe(true);
     expect(apps.some((item) => "url" in item || "deployed" in item)).toBe(false);
   });
-  it("shows 15 sealed and 2 admitted repositories without inventing rights", () => {
+  it("shows 15 sealed, 2 admitted and 1 pending repository without inventing rights", () => {
     const tracked = presentTrackedApps(coverage.repositories);
-    expect(tracked).toHaveLength(17);
+    expect(tracked).toHaveLength(18);
     expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);
-    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(0);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(1);
     expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
     expect(tracked.some((app) => app.projectId === "project:ecad-design")).toBe(true);
     expect(tracked.some((app) => app.projectId === "project:cae-simulation")).toBe(true);
+    expect(tracked.find((app) => app.projectId === "project:blueprint-russian-expert-engine"))
+      .toMatchObject({ registrationState: "pending-onboarding", group: "education" });
+    expect(apps.some((app) => app.projectId === "project:blueprint-russian-expert-engine")).toBe(false);
     expect(tracked.every((app) => !("url" in app) && !("deployed" in app))).toBe(true);
     expect(() => presentTrackedApps([...coverage.repositories, coverage.repositories[0]!])).toThrow("Duplicate");
     expect(() => presentTrackedApps(coverage.repositories.map((app) =>
@@ -45,12 +48,12 @@ describe("Vietnamese-first ecosystem launcher", () => {
     ))).toThrow("observed exact SHA");
   });
 
-  it("stages all 20 identities: 15 sealed, 2 admitted and 3 private pending, without inventing deployments", () => {
+  it("stages 21 tracked identities without inventing deployments", () => {
     const tracked = presentTrackedApps([...coverage.repositories,...privateServices.entries]);
-    expect(tracked).toHaveLength(20);
+    expect(tracked).toHaveLength(21);
     expect(tracked.filter((app) => app.registrationState === "sealed-baseline")).toHaveLength(15);
     expect(tracked.filter((app) => app.registrationState === "admitted-registration")).toHaveLength(2);
-    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(3);
+    expect(tracked.filter((app) => app.registrationState === "pending-onboarding")).toHaveLength(4);
     expect(tracked.filter((app) => app.visibility === "private")).toHaveLength(3);
     expect(tracked.filter((app) => app.visibility === "private").every((app) => app.liveCrossRepoVerified === false)).toBe(true);
     expect(tracked.every((app) => !("productionAuthorized" in app) && !("deploymentUrl" in app))).toBe(true);
@@ -68,6 +71,8 @@ describe("Vietnamese-first ecosystem launcher", () => {
   it("refuses duplicate governed IDs and unidentified repos rather than labeling them randomly", () => {
     expect(() => presentGovernedApps([...governed.repositories, governed.repositories[0]!])).toThrow("Duplicate");
     expect(() => presentGovernedApps([{ projectId:"project:evil", repository:"fake/evil",branch:"main",blueprintLevel:"B4" }])).toThrow("Unknown");
+    expect(() => presentTrackedApps([{ ...coverage.repositories[0]!, projectId: "project:unregistered" }]))
+      .toThrow("Unknown tracked app");
   });
   it("exposes defensive readonly catalog projection", () => {
     expect(Object.isFrozen(apps)).toBe(true);

@@ -1,6 +1,10 @@
 import { createPublicKey, randomUUID } from "node:crypto";
 
+import type { WorkPackage } from "@blueprint-os/contracts";
+
 import type { BlueprintPrismaClient } from "./client";
+import type { Prisma } from "./generated/prisma/client";
+import { PostgresWorkQualityRepository } from "./work-quality-repository";
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const ID = /^[a-z][a-z0-9-]{1,79}$/;
@@ -47,6 +51,16 @@ export interface RecordWorkflowIssuerInput {
   readonly publicKeyPem: string;
   readonly policyVersion: string;
   readonly decision: WorkflowIssuerDecision;
+  readonly actorPrincipalId: string;
+}
+
+export interface RecordInitialPreviewBindingInput {
+  readonly workPackage: WorkPackage;
+  readonly workflowId: string;
+  readonly workflowDigest: string;
+  readonly policyVersion: string;
+  readonly issuerId: string;
+  readonly publicKeyPem: string;
   readonly actorPrincipalId: string;
 }
 
@@ -99,7 +113,7 @@ export class PostgresWorkflowExecutionAuthorityRepository {
   constructor(private readonly prisma: BlueprintPrismaClient) {}
 
   private async assertOwnerAndProject(
-    tx: BlueprintPrismaClient,
+    tx: Prisma.TransactionClient,
     actorPrincipalId: string,
     projectId: string
   ): Promise<void> {
@@ -119,36 +133,40 @@ export class PostgresWorkflowExecutionAuthorityRepository {
       throw new TypeError("Invalid workflow adoption decision");
     }
     return this.prisma.$transaction(async (tx) => {
-      await this.assertOwnerAndProject(tx as BlueprintPrismaClient, input.actorPrincipalId, input.projectId);
-      const row = await tx.workflowExecutionAdoptionDecision.create({
-        data: {
-          id: "workflow-adoption:" + randomUUID(),
-          projectId: input.projectId,
+      await this.assertOwnerAndProject(tx, input.actorPrincipalId, input.projectId);
+      return this.appendAdoption(tx, input);
+    });
+  }
+
+  private async appendAdoption(tx: Prisma.TransactionClient, input: RecordWorkflowAdoptionInput) {
+    const row = await tx.workflowExecutionAdoptionDecision.create({
+      data: {
+        id: "workflow-adoption:" + randomUUID(),
+        projectId: input.projectId,
+        workflowId: input.workflowId,
+        workflowDigest: input.workflowDigest,
+        policyVersion: input.policyVersion,
+        decision: input.decision,
+        decidedByPrincipalId: input.actorPrincipalId,
+        productionReleaseAuthority: false
+      }
+    });
+    await tx.authorityAuditEvent.create({
+      data: {
+        id: "audit:" + randomUUID(),
+        actorPrincipalId: input.actorPrincipalId,
+        projectId: input.projectId,
+        action: "WORKFLOW_EXECUTION_ADOPTION_DECISION",
+        detail: {
           workflowId: input.workflowId,
           workflowDigest: input.workflowDigest,
           policyVersion: input.policyVersion,
           decision: input.decision,
-          decidedByPrincipalId: input.actorPrincipalId,
           productionReleaseAuthority: false
         }
-      });
-      await tx.authorityAuditEvent.create({
-        data: {
-          id: "audit:" + randomUUID(),
-          actorPrincipalId: input.actorPrincipalId,
-          projectId: input.projectId,
-          action: "WORKFLOW_EXECUTION_ADOPTION_DECISION",
-          detail: {
-            workflowId: input.workflowId,
-            workflowDigest: input.workflowDigest,
-            policyVersion: input.policyVersion,
-            decision: input.decision,
-            productionReleaseAuthority: false
-          }
-        }
-      });
-      return adoption(row);
+      }
     });
+    return adoption(row);
   }
 
   async recordIssuer(input: RecordWorkflowIssuerInput): Promise<WorkflowExecutionIssuerRecord> {
@@ -158,37 +176,94 @@ export class PostgresWorkflowExecutionAuthorityRepository {
     }
     validateEd25519PublicKey(input.publicKeyPem);
     return this.prisma.$transaction(async (tx) => {
-      await this.assertOwnerAndProject(tx as BlueprintPrismaClient, input.actorPrincipalId, input.projectId);
-      const row = await tx.workflowExecutionIssuerDecision.create({
-        data: {
-          id: "workflow-issuer:" + randomUUID(),
-          projectId: input.projectId,
+      await this.assertOwnerAndProject(tx, input.actorPrincipalId, input.projectId);
+      return this.appendIssuer(tx, input);
+    });
+  }
+
+  private async appendIssuer(tx: Prisma.TransactionClient, input: RecordWorkflowIssuerInput) {
+    const row = await tx.workflowExecutionIssuerDecision.create({
+      data: {
+        id: "workflow-issuer:" + randomUUID(),
+        projectId: input.projectId,
+        workflowId: input.workflowId,
+        issuerId: input.issuerId,
+        publicKeyPem: input.publicKeyPem,
+        policyVersion: input.policyVersion,
+        decision: input.decision,
+        decidedByPrincipalId: input.actorPrincipalId,
+        productionReleaseAuthority: false
+      }
+    });
+    await tx.authorityAuditEvent.create({
+      data: {
+        id: "audit:" + randomUUID(),
+        actorPrincipalId: input.actorPrincipalId,
+        projectId: input.projectId,
+        action: "WORKFLOW_EXECUTION_ISSUER_DECISION",
+        detail: {
           workflowId: input.workflowId,
           issuerId: input.issuerId,
-          publicKeyPem: input.publicKeyPem,
           policyVersion: input.policyVersion,
           decision: input.decision,
-          decidedByPrincipalId: input.actorPrincipalId,
           productionReleaseAuthority: false
         }
-      });
-      await tx.authorityAuditEvent.create({
-        data: {
-          id: "audit:" + randomUUID(),
-          actorPrincipalId: input.actorPrincipalId,
-          projectId: input.projectId,
-          action: "WORKFLOW_EXECUTION_ISSUER_DECISION",
-          detail: {
-            workflowId: input.workflowId,
-            issuerId: input.issuerId,
-            policyVersion: input.policyVersion,
-            decision: input.decision,
-            productionReleaseAuthority: false
-          }
-        }
-      });
-      return issuer(row);
+      }
     });
+    return issuer(row);
+  }
+
+  /**
+   * Initialize a Preview binding atomically. A retry returns the existing
+   * binding only while the original WorkPackage and authority are current.
+   */
+  async recordInitialPreviewBinding(input: RecordInitialPreviewBindingInput) {
+    const { workPackage, workflowId, workflowDigest, policyVersion, issuerId, publicKeyPem, actorPrincipalId } = input;
+    const { projectId } = workPackage;
+    validateScope(projectId, workflowId, policyVersion);
+    validateEd25519PublicKey(publicKeyPem);
+    if (!DIGEST.test(workflowDigest) || !ID.test(issuerId) ||
+        workPackage.status !== "planned" || workPackage.meta.recordVersion !== 1 ||
+        workPackage.dependencies.length || workPackage.qualityGateIds.length) {
+      throw new TypeError("Invalid initial Preview binding");
+    }
+    const scope = { projectId, workflowId, policyVersion, actorPrincipalId };
+    return this.prisma.$transaction(async (tx) => {
+      await this.assertOwnerAndProject(tx, actorPrincipalId, projectId);
+      const work = new PostgresWorkQualityRepository(tx);
+      const [current, adopted, allowed] = await Promise.all([
+        work.findWorkPackageById(workPackage.id),
+        tx.workflowExecutionAdoptionDecision.findFirst({
+          where: { projectId, workflowId, workflowDigest },
+          orderBy: [{ decidedAt: "desc" }, { id: "desc" }]
+        }),
+        tx.workflowExecutionIssuerDecision.findFirst({
+          where: { projectId, workflowId, issuerId },
+          orderBy: [{ decidedAt: "desc" }, { id: "desc" }]
+        })
+      ]);
+      if (current || adopted || allowed) {
+        if (current?.projectId !== projectId || current.status !== "planned" ||
+            current.meta.recordVersion !== 1 || current.purpose !== workPackage.purpose ||
+            current.title !== workPackage.title || current.dependencies.length || current.qualityGateIds.length ||
+            current.acceptanceCriteria.length !== workPackage.acceptanceCriteria.length ||
+            current.acceptanceCriteria.some((criterion, index) => criterion !== workPackage.acceptanceCriteria[index]) ||
+            adopted?.decision !== "adopt" || adopted.policyVersion !== policyVersion ||
+            adopted.decidedByPrincipalId !== actorPrincipalId || adopted.productionReleaseAuthority ||
+            allowed?.decision !== "allow" || allowed.policyVersion !== policyVersion ||
+            allowed.decidedByPrincipalId !== actorPrincipalId || allowed.productionReleaseAuthority ||
+            allowed.publicKeyPem !== publicKeyPem) {
+          throw new Error("Initial Preview binding is stale, partial or revoked");
+        }
+        return Object.freeze({ status: "existing" as const, workPackage: current,
+          adoption: adoption(adopted), issuer: issuer(allowed) });
+      }
+      const stored = await work.createWorkPackage(workPackage);
+      const adoptionRecord = await this.appendAdoption(tx, { ...scope, workflowDigest, decision: "adopt" });
+      const issuerRecord = await this.appendIssuer(tx, { ...scope, issuerId, publicKeyPem, decision: "allow" });
+      return Object.freeze({ status: "created" as const, workPackage: stored,
+        adoption: adoptionRecord, issuer: issuerRecord });
+    }, { isolationLevel: "Serializable" });
   }
 
   async latestAdoption(

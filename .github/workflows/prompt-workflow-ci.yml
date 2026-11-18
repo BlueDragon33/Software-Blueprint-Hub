@@ -12,6 +12,7 @@ on:
       - "packages/runtime/src/workflow-scoped-github-executor.ts"
       - "packages/runtime/src/workflow-observation-qa.ts"
       - "packages/runtime/src/workflow-inspection-pipeline.ts"
+      - "packages/runtime/src/reviewer-b-source-admission.ts"
       - "packages/runtime/src/workflow-inspection-qa-journal.ts"
       - "packages/runtime/src/workflow-inspection-qa-journal.ts"
       - "packages/runtime/src/index.ts"

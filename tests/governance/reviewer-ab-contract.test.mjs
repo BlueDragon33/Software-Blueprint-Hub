@@ -4,7 +4,7 @@ import {reviewOrderKey,reviewSourceDigestV1,validateReviewWorkOrder,validateRevi
   from "../../packages/application/src/reviewer-ab-contract.mjs";
 
 const sha="a".repeat(40),d1="sha256:"+"b".repeat(64),d2="sha256:"+"c".repeat(64);
-function workOrder(){
+function workOrder(overrides={}){
   const o={schemaVersion:"1.0.0",kind:"review-work-order",policyVersion:"1.3.0",
     projectId:"project:blueprint-os",repository:"BlueDragon33/Software-Blueprint-Hub",
     pullRequestNumber:161,workPackageId:"r2-r3-qa",workPackageRecordVersion:4,
@@ -13,7 +13,7 @@ function workOrder(){
     issuerGrantDigest:d1,issuedAt:"2026-11-11T09:00:00.000Z",
     expiresAt:"2026-11-11T09:09:00.000Z",
     scope:{allowedPaths:["src/example.ts"],maxFiles:1,maxBytes:65536,maxAttempts:3,maxTokensUsed:0},
-    orderKey:""};
+    orderKey:"",...overrides};
   o.orderKey=reviewOrderKey(o);return o;
 }
 function report(o,role="A",patch={}){
@@ -33,7 +33,7 @@ function trust(o,patch={}){
     readCanonicalSnapshot:async()=>({
       projectId:o.projectId,repository:o.repository,pullRequestNumber:o.pullRequestNumber,
       workPackageId:o.workPackageId,workPackageRecordVersion:o.workPackageRecordVersion,
-      workflowId:o.workflowId,workflowDigest:o.workflowDigest,sourceRevision:o.sourceRevision,
+      workflowId:o.workflowId,workflowNodeId:o.workflowNodeId,workflowDigest:o.workflowDigest,sourceRevision:o.sourceRevision,
       canonicalSourceRevision:o.canonicalSourceRevision,issuerGrantDigest:o.issuerGrantDigest,
       stateVersion:o.expectedStateVersion}),
     verifyReviewEvidence:async()=>true,verifyIndependentBReadback:async()=>true,...patch};
@@ -51,6 +51,16 @@ test("valid signed-grant shape remains advisory; no quality/release authority",(
 test("role packets are claims, not verified independent attestation",()=>{
   const o=workOrder();
   assert.equal(validateReviewEvidence(o,report(o,"B")).independenceUnverified,true);
+});
+test("Hub-generated WorkPackage IDs remain bound to the exact canonical record",async()=>{
+  const workPackageId="work-package:9d8304d3-78bd-4ec5-9c61-05b79630b058";
+  const order=workOrder({workPackageId});
+  assert.equal(validateReviewWorkOrder(order).valid,true);
+  assert.equal((await assess(order)).status,"CANONICAL_GATES_REQUIRED");
+  await blocked(assess(order,report(order),report(order,"B",{workPackageId:workPackageId.slice(13)})));
+  for(const invalid of ["project:blueprint-os","work-package:","work-package:../foreign",[workPackageId]]){
+    assert.throws(()=>validateReviewWorkOrder(workOrder({workPackageId:invalid})),/WorkPackage IDs/);
+  }
 });
 test("idempotency binds PR + exact SHA + workflow + record version",()=>{
   const o=workOrder();
@@ -186,12 +196,93 @@ test("B REQUEST_CHANGES only creates A repair proposal",async()=>{
   const x=await assess(o,report(o),report(o,"B",{verdict:"REQUEST_CHANGES",findings:[f]}));
   assert.equal(x.status,"A_REPAIR_REQUIRED");assert.equal(x.productionAuthorized,false);
 });
-test("B ACCEPT still needs authenticated CAS, canonical gates and Owner",async()=>{
+test("B ACCEPT waits for canonical gates without creating an Owner candidate",async()=>{
   const x=await assess();
-  assert.equal(x.status,"OWNER_REVIEW_CANDIDATE");
+  assert.equal(x.status,"CANONICAL_GATES_REQUIRED");
   assert.equal(x.authenticatedCASRequired,true);
   assert.equal(x.qualityGatePassed,false);assert.equal(x.ownerApproved,false);
   assert.equal(x.productionAuthorized,false);
+});
+test("issuer, exact scope, budget and authorization window changes invalidate old evidence",async()=>{
+  const original=workOrder(),a=report(original),b=report(original,"B");
+  for(const changed of [
+    {issuerGrantDigest:d2},
+    {scope:{...original.scope,allowedPaths:["src/other.ts"]}},
+    {scope:{...original.scope,maxBytes:65535}},
+    {expiresAt:"2026-11-11T09:08:00.000Z"},
+    {issuedAt:"2026-11-11T09:00:01.000Z"}
+  ]){
+    const current={...original,...changed};current.orderKey=reviewOrderKey(current);
+    assert.notEqual(current.orderKey,original.orderKey);
+    await blocked(assess(current,a,b,trust(current)));
+  }
+});
+test("legacy v1 key is denied; scope-set ordering stays deterministic",()=>{
+  const o=workOrder(),scope={...o.scope,allowedPaths:["aa.txt","bb.txt"],maxFiles:2};
+  assert.equal(reviewOrderKey({...o,scope}),reviewOrderKey({...o,scope:{...scope,allowedPaths:[...scope.allowedPaths].reverse()}}));
+  assert.throws(()=>validateReviewWorkOrder({...o,orderKey:d2}),/idempotency/);
+});
+test("authority-bound v2 key matches the actual Reviewer B shared fixture",()=>{
+  const original=workOrder();
+  const o={...original,pullRequestNumber:163,issuedAt:"2026-11-14T12:00:00.000Z",
+    expiresAt:"2026-11-14T12:05:00.000Z",scope:{...original.scope,maxBytes:4096}};
+  assert.equal(reviewOrderKey(o),
+    "sha256:42280246406da6cbfe110d0880cee062e8bbb49a0fe713c5285a853a17408193");
+});
+test("accepting verdict cannot hide P0 or P1 findings",async()=>{
+  const o=workOrder();
+  for(const severity of ["P0","P1"]){
+    for(const verdict of ["ACCEPT","ACCEPT_WITH_NOTES"]){
+      const b=report(o,"B",{verdict,findings:[{path:"src/example.ts",line:1,severity,code:"AUTH_BYPASS"}]});
+      assert.throws(()=>validateReviewEvidence(o,b),/blocking findings/);
+      await blocked(assess(o,report(o),b));
+    }
+  }
+});
+test("issuer revocation during B verification invalidates result",async()=>{
+  const o=workOrder();let active=true;
+  await blocked(assess(o,report(o),report(o,"B"),trust(o,{
+    verifyIssuerGrant:async()=>active,
+    verifyIndependentBReadback:async()=>{active=false;return true;}
+  })));
+});
+test("A-only handoff cannot advance after issuer revocation or canonical drift",async()=>{
+  const o=workOrder(),t=trust(o);
+  for(const mode of ["issuer","CAS"]){
+    let active=true;
+    await blocked(assess(o,report(o),null,{...t,
+      verifyIssuerGrant:async()=>mode!=="issuer"||active,
+      readCanonicalSnapshot:async()=>({...await t.readCanonicalSnapshot(),
+        stateVersion:mode==="CAS"&&!active?5:4}),
+      verifyReviewEvidence:async()=>{active=false;return true;}
+    }));
+  }
+});
+test("canonical state change during B verification invalidates result",async()=>{
+  const o=workOrder(),t=trust(o);let reads=0;
+  await blocked(assess(o,report(o),report(o,"B"),{...t,
+    readCanonicalSnapshot:async()=>({...await t.readCanonicalSnapshot(),stateVersion:++reads===1?4:5})
+  }));
+});
+test("an expired grant is denied after asynchronous verification completes",async()=>{
+  const o=workOrder();o.expiresAt="2026-11-11T09:02:00.020Z";o.orderKey=reviewOrderKey(o);
+  await blocked(assess(o,report(o),report(o,"B"),trust(o,{
+    verifyIndependentBReadback:async()=>{
+      await new Promise(resolve=>setTimeout(resolve,35));return true;
+    }
+  })));
+});
+test("asynchronous trust cannot replace the admitted request via caller mutation",async()=>{
+  const o=workOrder(),a=report(o),b=report(o,"B");let checkedB=false;
+  const x=await assess(o,a,b,trust(o,{
+    verifyReviewEvidence:async(e,role)=>{
+      if(role==="A"){b.verdict="REQUEST_CHANGES";o.scope.allowedPaths[0]="src/replaced.ts";}
+      if(role==="B"){checkedB=true;assert.equal(e.verdict,"ACCEPT");assert.ok(Object.isFrozen(e));}
+      return true;
+    },
+    readCanonicalSnapshot:async order=>({...await trust(workOrder()).readCanonicalSnapshot(order)})
+  }));
+  assert.equal(checkedB,true);assert.equal(x.status,"CANONICAL_GATES_REQUIRED");
 });
 test("B BLOCKED remains blocked regardless of successful CI claims",async()=>{
   const o=workOrder();await blocked(assess(o,report(o),report(o,"B",{verdict:"BLOCKED"})));

@@ -9,6 +9,8 @@ const DIGEST=/^sha256:[a-f0-9]{64}$/;
 const PROJECT=/^project:[a-z][a-z0-9-]{1,110}$/;
 const REPO=/^BlueDragon33\/[A-Za-z0-9_.-]{1,100}$/;
 const ID=/^[a-z][a-z0-9-]{1,79}$/;
+// Accept the canonical workspace prefix without rewriting earlier candidate IDs.
+const WORK_PACKAGE_ID=/^(?:work-package:[a-z0-9][a-z0-9-]{1,79}|[a-z][a-z0-9-]{1,79})$/;
 const PATH=/^[A-Za-z0-9_.\/-]{2,240}$/;
 const ACTOR=/^[A-Za-z0-9_.:@/-]{3,120}$/;
 const ORDER_KEYS=["schemaVersion","kind","policyVersion","projectId","repository",
@@ -58,9 +60,13 @@ export function reviewSourceDigestV1(files){
 }
 
 export function reviewOrderKey(o){
-  return digest(JSON.stringify(["review-ab:1",o.projectId,o.repository,o.pullRequestNumber,
+  // v2 invalidates earlier evidence when authorization, scope or TTL changes.
+  // Sorting paths makes the same signed set independent of serialization order.
+  return digest(JSON.stringify(["review-ab:2",o.policyVersion,o.projectId,o.repository,o.pullRequestNumber,
     o.workPackageId,o.workPackageRecordVersion,o.workflowId,o.workflowNodeId,
-    o.workflowDigest,o.sourceRevision,o.canonicalSourceRevision]));
+    o.workflowDigest,o.sourceRevision,o.canonicalSourceRevision,o.expectedStateVersion,
+    o.issuerGrantDigest,o.issuedAt,o.expiresAt,[...o.scope.allowedPaths].sort(),
+    o.scope.maxFiles,o.scope.maxBytes,o.scope.maxAttempts,o.scope.maxTokensUsed]));
 }
 export function validateReviewWorkOrder(o){
   exact(o,ORDER_KEYS,"work order");
@@ -69,7 +75,8 @@ export function validateReviewWorkOrder(o){
   check(PROJECT.test(o.projectId)&&REPO.test(o.repository),"project/repository identity");
   check(positive(o.pullRequestNumber)&&positive(o.workPackageRecordVersion)&&positive(o.expectedStateVersion),
     "PR/workPackage record and canonical CAS version");
-  check(ID.test(o.workPackageId)&&ID.test(o.workflowId)&&ID.test(o.workflowNodeId),
+  check(typeof o.workPackageId==="string"&&WORK_PACKAGE_ID.test(o.workPackageId)&&
+    ID.test(o.workflowId)&&ID.test(o.workflowNodeId),
     "unknown workflow or WorkPackage IDs");
   check(SHA.test(o.sourceRevision)&&DIGEST.test(o.canonicalSourceRevision)&&
     DIGEST.test(o.workflowDigest)&&DIGEST.test(o.issuerGrantDigest),
@@ -119,6 +126,9 @@ export function validateReviewEvidence(o,e){
       "finding must have scoped path:line and severity");
   }
   check(e.verdict!=="REQUEST_CHANGES"||e.findings.length>0,"request changes needs actual finding");
+  check(!["ACCEPT","ACCEPT_WITH_NOTES"].includes(e.verdict)||
+    !e.findings.some(f=>["P0","P1"].includes(f.severity)),
+    "blocking findings cannot accompany an accepting verdict");
   return Object.freeze({valid:true,advisoryOnly:true,independenceUnverified:true});
 }
 function result(status,reason,o){
@@ -127,6 +137,17 @@ function result(status,reason,o){
     authenticatedCASRequired:true,qualityGatePassed:false,ownerApproved:false,
     productionAuthorized:false});
 }
+function immutableCopy(value){
+  const copy=structuredClone(value);
+  const freeze=x=>{
+    if(x&&typeof x==="object"){
+      for(const child of Object.values(x))freeze(child);
+      Object.freeze(x);
+    }
+    return x;
+  };
+  return freeze(copy);
+}
 /**
  * Trust must be a server-owned, independently authenticated adapter.
  * Its verifyReviewEvidence reads own exact-SHA bytes, run logs and credential identity.
@@ -134,7 +155,10 @@ function result(status,reason,o){
  * All outputs are proposals; the Hub's existing journal/CAS owns every mutation.
  */
 export async function assessReviewHandoff({order,aEvidence=null,bEvidence=null,now},trust){
+  const started=performance.now();
   try{
+    // Async trust callbacks cannot change the request that was admitted.
+    ({order,aEvidence,bEvidence}=immutableCopy({order,aEvidence,bEvidence}));
     validateReviewWorkOrder(order);
     check(timestamp(now)&&Date.parse(now)>=Date.parse(order.issuedAt)&&
       Date.parse(now)<Date.parse(order.expiresAt),"expired or not-yet-effective grant");
@@ -142,21 +166,29 @@ export async function assessReviewHandoff({order,aEvidence=null,bEvidence=null,n
       typeof trust.readCanonicalSnapshot==="function"&&
       typeof trust.verifyReviewEvidence==="function"&&
       typeof trust.verifyIndependentBReadback==="function","independent trust adapter unavailable");
-    check((await trust.verifyIssuerGrant(order))===true,"unverified issuer grant");
-    const state=await trust.readCanonicalSnapshot(order);
-    for(const key of ["projectId","repository","pullRequestNumber","workPackageId",
-      "workPackageRecordVersion","workflowId","workflowDigest","sourceRevision",
-      "canonicalSourceRevision","issuerGrantDigest"]){
-      check(record(state)&&state[key]===order[key],"stale canonical readback: "+key);
-    }
-    check(state.stateVersion===order.expectedStateVersion,"stale CAS state version");
+    const verifyCurrentAuthority=async()=>{
+      check((await trust.verifyIssuerGrant(order))===true,"unverified issuer grant");
+      const state=await trust.readCanonicalSnapshot(order);
+      for(const key of ["projectId","repository","pullRequestNumber","workPackageId",
+        "workPackageRecordVersion","workflowId","workflowNodeId","workflowDigest","sourceRevision",
+        "canonicalSourceRevision","issuerGrantDigest"]){
+        check(record(state)&&state[key]===order[key],"stale canonical readback: "+key);
+      }
+      check(state.stateVersion===order.expectedStateVersion,"stale CAS state version");
+      check(Date.parse(now)+Math.max(0,performance.now()-started)<Date.parse(order.expiresAt),
+        "grant expired during asynchronous verification");
+    };
+    await verifyCurrentAuthority();
     if(!aEvidence)return result("A_REVIEW_REQUIRED","A execution NOT_RUN",order);
     validateReviewEvidence(order,aEvidence);
     check(Date.parse(aEvidence.observedAt)<=Date.parse(now),"A evidence from the future");
     check(aEvidence.role==="A"&&(await trust.verifyReviewEvidence(aEvidence,"A"))===true,
       "A source/actor/test evidence not independently verified");
     if(aEvidence.verdict==="BLOCKED")return result("BLOCKED","A reports blocker",order);
-    if(!bEvidence)return result("B_REVIEW_REQUIRED","A handoff verified; B execution NOT_RUN",order);
+    if(!bEvidence){
+      await verifyCurrentAuthority();
+      return result("B_REVIEW_REQUIRED","A handoff verified; B execution NOT_RUN",order);
+    }
     validateReviewEvidence(order,bEvidence);
     check(Date.parse(bEvidence.observedAt)>=Date.parse(aEvidence.observedAt)&&
       Date.parse(bEvidence.observedAt)<=Date.parse(now),"B must independently follow A");
@@ -171,11 +203,14 @@ export async function assessReviewHandoff({order,aEvidence=null,bEvidence=null,n
     check((await trust.verifyReviewEvidence(bEvidence,"B"))===true&&
       (await trust.verifyIndependentBReadback(order,bEvidence))===true,
       "B independent source readback unverified");
+    await verifyCurrentAuthority();
     if(bEvidence.verdict==="BLOCKED")return result("BLOCKED","B reports blocker",order);
     if(bEvidence.verdict==="REQUEST_CHANGES")
       return result("A_REPAIR_REQUIRED","B identified path:line findings",order);
-    return result("OWNER_REVIEW_CANDIDATE",
-      "A+B evidence advisory only; canonical Quality Gates and human decision still required",order);
+    // This contract has no canonical mandatory-gate evaluator. It cannot
+    // produce an Owner candidate from A/B advisory evidence alone.
+    return result("CANONICAL_GATES_REQUIRED",
+      "A+B evidence advisory only; mandatory canonical Quality Gates NOT_VERIFIED",order);
   }catch(e){
     return result("BLOCKED",e instanceof Error?e.message:"unverified boundary",order);
   }
