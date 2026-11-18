@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueprint-os.invalid/schemas/intelligence-exchange-manifest.v1.json",
+  "title": "Blueprint OS intelligence exchange manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "schemaVersion",
+    "id",
+    "producer",
+    "owner",
+    "contentRevision",
+    "sourceRevision",
+    "timestamp",
+    "evidenceId",
+    "outcome",
+    "visibility",
+    "rights",
+    "shareScope",
+    "retentionDays",
+    "integrityDigest"
+  ],
+  "properties": {
+    "kind": {
+      "const": "intelligence-exchange-manifest/v1"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "producer": {
+      "enum": [
+        "project:software-blueprint-tech-intelligence",
+        "project:software-blueprint-innovation-defense"
+      ]
+    },
+    "owner": {
+      "enum": [
+        "project:software-blueprint-tech-intelligence",
+        "project:software-blueprint-innovation-defense"
+      ]
+    },
+    "contentRevision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "sourceRevision": {
+      "type": "string",
+      "pattern": "^(?!0{40}$)[0-9a-f]{40}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+    },
+    "evidenceId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "outcome": {
+      "enum": [
+        "RESEARCH_HYPOTHESIS_SUPPORTED",
+        "RESEARCH_HYPOTHESIS_FALSIFIED",
+        "DEFENSE_MITIGATION_VERIFIED",
+        "DEFENSE_REVIEW_REQUIRED"
+      ]
+    },
+    "visibility": {
+      "const": "private"
+    },
+    "rights": {
+      "const": "reference-only"
+    },
+    "shareScope": {
+      "const": "BlueDragon33/Software-Blueprint-Hub"
+    },
+    "retentionDays": {
+      "const": 30
+    },
+    "integrityDigest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}
