@@ -421,5 +421,68 @@
       "Independent technical reviewer identity/authority unavailable; Owner product acceptance NOT_RUN"
     ],
     "authority": "Branch development + Draft PR only; no merge, constitutional change/ratification, canonical runtime writes or online publication."
+  },
+  "resumeReadback": {
+    "date": "2026-11-18",
+    "evidenceClass": "READ_ONLY_PROVIDER_METADATA_AND_EXISTING_EXACT_SOURCE_CI_ONLY",
+    "observedBranchHeadBeforeReadback": "792c5f030076a18b272f038ad213f2ff37914a95",
+    "sourceOnlyVerifiedHead": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
+    "exactSourceUnchangedFromVerifiedHead": true,
+    "sourceComparison": "git tree blob SHA comparison for apps/packages/tests/schemas/control/prompt-workflows/scripts/.github and selected root build/config files: zero differences; intervening 1 commit only evidence/ledger",
+    "confirmedCI": [
+      {
+        "runId": 44169084920,
+        "conclusion": "success",
+        "headSha": "b818406511fb10be16b7cd3d9fbb27224ea4488a"
+      },
+      {
+        "runId": 44169084709,
+        "conclusion": "success",
+        "headSha": "b818406511fb10be16b7cd3d9fbb27224ea4488a"
+      },
+      {
+        "runId": 44169084690,
+        "conclusion": "success",
+        "headSha": "b818406511fb10be16b7cd3d9fbb27224ea4488a"
+      }
+    ],
+    "artifact": {
+      "id": 14367241423,
+      "exists": true,
+      "expired": false,
+      "bytes": 900146,
+      "previouslyVerifiedSHA256": "3046b1ba98ae2ab9d603502308e885ba3cd1693c19eec6b94c3344731979a326",
+      "hashRecomputedThisSession": false
+    },
+    "prReviewsObserved": 0,
+    "runtimeDiscovery": {
+      "vercelConnectedScope": "No linked deployment or deployments for feature branch observed; not a universal account-level negative",
+      "neonConnectedScope": "software-blueprint-hub project found; 7/7 listed branches archived including production and historic QA branches",
+      "authenticatedRoleDeviceQa": "NOT_RUN",
+      "authorizedNonProductionRuntime": "NOT_DEMONSTRATED",
+      "lifecycleActions": "NONE; no branch reactivation, compute start, database write or production data access"
+    },
+    "dependencyDAG": {
+      "ready": [],
+      "done": [
+        "FIG-001",
+        "FIG-002",
+        "FIG-003",
+        "FIG-004",
+        "FIG-005",
+        "FIG-006"
+      ],
+      "blocked": [
+        "FIG-007"
+      ]
+    },
+    "gates": {
+      "realPostgres": "BLOCKED",
+      "independentReviewer": "BLOCKED_SEPARATELY_OWNER_COORDINATED",
+      "ownerAcceptance": "PENDING",
+      "merge": "NOT_AUTHORIZED",
+      "publish": "NOT_AUTHORIZED"
+    },
+    "decision": "Keep FIG-007 BLOCKED. Do not rerun completed WPs or promote fixture-only QA into live acceptance. Await an explicitly authorized non-production runtime and independent/Owner gates; no autonomous merge or publish."
   }
 }
