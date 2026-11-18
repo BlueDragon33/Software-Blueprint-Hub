@@ -1,9 +1,29 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { WorkflowNode } from "../../packages/application/src/prompt-workflow-core.mjs";
+import WorkflowPreviewPage from "../../apps/web/app/projects/[projectId]/prompt/workflow/page";
 import { WorkflowStudio } from "../../apps/web/app/projects/[projectId]/prompt/workflow/workflow-studio";
+import { loadProjectWorkspace } from "../../apps/web/src/server/project-workspace";
+import { readConstitutionalWorkflowCatalog, registeredWorkflowSummaries } from "../../apps/web/src/server/prompt-workflow";
+import { REVIEWER_AB_P3_WORKFLOW } from "../../apps/web/src/server/reviewer-ab-preview-p3";
+
+vi.mock("../../apps/web/app/projects/[projectId]/_components/project-workspace", () => ({
+  ProjectWorkspaceFrame: ({ children }: { children: unknown }) => children,
+  ProjectWorkspaceState: () => null
+}));
+vi.mock("../../apps/web/src/server/project-workspace", () => ({ loadProjectWorkspace: vi.fn() }));
+vi.mock("../../apps/web/src/server/prompt-workflow", () => ({
+  isRegisteredGovernedProject: () => true,
+  inspectLatestWorkflowRootChange: vi.fn(),
+  previewRegisteredWorkflowRoot: vi.fn(),
+  readConstitutionalWorkflowCatalog: vi.fn(),
+  readRegisteredWorkflowReadiness: vi.fn(),
+  registeredWorkflowNodes: () => manifest.nodes,
+  registeredWorkflowSummaries: vi.fn(),
+  reviewerAbP3Binding: () => null
+}));
 
 // pnpm isolates React dependencies within @blueprint-os/web, not repository root.
 const fromWeb = createRequire(new URL("../../apps/web/package.json", import.meta.url));
@@ -72,5 +92,41 @@ describe("Visual Workflow Studio semantic and fail-closed output", () => {
     expect(markup).toContain("App HEAD");
     expect(markup).not.toContain(marker);
     expect(markup).toContain("aria-expanded=\"false\"");
+  });
+});
+
+describe("Reviewer A/B Constitution action", () => {
+  const projectId = "project:blueprint-os";
+  const constitutionHref = "/constitution#constitution-authority-set-title";
+
+  async function renderSelectedWorkflow(owner: boolean, workflowId: string) {
+    vi.mocked(loadProjectWorkspace).mockResolvedValue({
+      state: "ready",
+      actor: { principalId: owner ? "owner" : "reader" },
+      projectId,
+      project: { profile: { projectId } },
+      runtime: { authority: { canExerciseConstitutionalAuthority: async () => owner } }
+    } as Awaited<ReturnType<typeof loadProjectWorkspace>>);
+    const workflows = [{
+      projectId, workflowId, area: "Workflow", repository: "BlueDragon33/Software-Blueprint-Hub",
+      branch: "main", workflowVersion: "1.0.0", status: "candidate",
+      nodeCount: manifest.nodes.length, rootNodeIds: ["inventory"]
+    }] as ReturnType<typeof registeredWorkflowSummaries>;
+    vi.mocked(registeredWorkflowSummaries).mockReturnValue(workflows);
+    vi.mocked(readConstitutionalWorkflowCatalog).mockResolvedValue(workflows);
+    return renderToStaticMarkup(await WorkflowPreviewPage({
+      params: Promise.resolve({ projectId }), searchParams: Promise.resolve({ workflowId })
+    }));
+  }
+
+  it("links the Owner to the published authority set even before P3 is configured", async () => {
+    const markup = await renderSelectedWorkflow(true, REVIEWER_AB_P3_WORKFLOW);
+    expect(markup).toContain(`href="${constitutionHref}">Theo Hiến pháp</a>`);
+    expect(markup).not.toContain("Record Preview P3 binding");
+  });
+
+  it("does not put the Owner action on a reader's view or another workflow", async () => {
+    expect(await renderSelectedWorkflow(false, REVIEWER_AB_P3_WORKFLOW)).not.toContain(constitutionHref);
+    expect(await renderSelectedWorkflow(true, "independent-workflow")).not.toContain(constitutionHref);
   });
 });

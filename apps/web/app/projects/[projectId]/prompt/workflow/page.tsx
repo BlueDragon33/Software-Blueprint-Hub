@@ -51,8 +51,8 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
   const graphOnly = !!selected && selected.projectId !== workspace.projectId;
   const nodes = selected ? registeredWorkflowNodes(selected.projectId, selected.workflowId) : [];
   const root = selected?.rootNodeIds[0];
-  const previewBinding = hubCatalog && selected?.workflowId === REVIEWER_AB_P3_WORKFLOW
-    ? reviewerAbP3Binding() : null;
+  const isOwnerReviewerWorkflow = hubCatalog && selected?.workflowId === REVIEWER_AB_P3_WORKFLOW;
+  const previewBinding = isOwnerReviewerWorkflow ? reviewerAbP3Binding() : null;
   let preview: Awaited<ReturnType<typeof previewRegisteredWorkflowRoot>> | null = null;
   let previewError = graphOnly
     ? "The target repository is governed but its canonical Project Profile has not been loaded. No executable prompt is generated from registry metadata."
@@ -173,6 +173,15 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
                     {selected.nodeCount} nodes in a versioned DAG. Registration is not a record of approval or execution.
                   </small>
                 </div>
+                {isOwnerReviewerWorkflow ? (
+                  <Link
+                    className="secondary-button registry-action"
+                    href="/constitution#constitution-authority-set-title"
+                    prefetch={false}
+                  >
+                    Theo Hiến pháp
+                  </Link>
+                ) : null}
               </div>
               {previewBinding ? (
                 <section className="workspace-module-state">
