@@ -475,6 +475,34 @@ describe("G3 canonical runtime source/QA journal wiring — no B-agent PASS", ()
     await expect(service.verifySource(st)).rejects.toThrow(/canonical WorkPackage CAS/);
     expect(stores.execution.read).not.toHaveBeenCalled();
   });
+  it.each([
+    ["issuer revocation", { revokeIssuer: true }, /issuer permission/],
+    ["workflow revocation", { unadopted: true }, /not currently adopted/],
+    ["WorkPackage CAS change", { staleCAS: true }, /canonical WorkPackage CAS/]
+  ] as const)("rejects %s during QA journal readback", async (_change, update, reason) => {
+    const options = {};
+    const { service, st, stores } = setup(options);
+    const readback = await stores.qa.readVerified();
+    stores.qa.readVerified.mockImplementationOnce(async () => {
+      Object.assign(options, update);
+      return readback;
+    });
+    await expect(service.verifySource(st)).rejects.toThrow(reason);
+  });
+  it("rejects a WorkOrder that expires while reading the QA journal", async () => {
+    const { service, st, stores } = setup();
+    const readback = await stores.qa.readVerified();
+    const monotonicClock = vi.spyOn(performance, "now").mockReturnValue(0);
+    try {
+      stores.qa.readVerified.mockImplementationOnce(async () => {
+        monotonicClock.mockReturnValue(3 * 60_000);
+        return readback;
+      });
+      await expect(service.verifySource(st)).rejects.toThrow(/expired/);
+    } finally {
+      monotonicClock.mockRestore();
+    }
+  });
   it("missing, duplicated, out-of-scope durable observations fail closed",async()=>{
     for(const options of [{missingJournal:true},{duplicateAttempt:true},{badEvidence:true}]) {
       const {service,st}=setup(options);

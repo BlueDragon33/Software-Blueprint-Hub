@@ -63,7 +63,8 @@ export class ReviewerBSourceAdmissionService {
     qualityGatePassed: false;
     productionAuthorized: false;
   }>> {
-    const {order, grant, workflow, context, requestId, now} = input ?? {};
+    const started = performance.now();
+    const {order, grant, workflow, context, requestId, now} = structuredClone(input ?? {});
     if (!order || !workflow || !context || !(now instanceof Date) ||
         !Number.isFinite(now.getTime()) || !DIGEST.test(requestId ?? "") ||
         !SHA.test(order.sourceRevision ?? "")) {
@@ -84,8 +85,9 @@ export class ReviewerBSourceAdmissionService {
     // Existing executor's durable key = SHA-256 of the FULL signed grant.
     // This prevents a caller from substituting a successful journal request
     // from another task, even if the path/SHA happens to match.
+    const signedGrant = grant as WorkflowExecutionGrant;
     const pinnedRequestId = "sha256:" + createHash("sha256")
-      .update(workflowExecutionGrantSigningPayload(grant as WorkflowExecutionGrant))
+      .update(workflowExecutionGrantSigningPayload(signedGrant))
       .digest("hex");
     if (requestId !== pinnedRequestId || order.issuerGrantDigest !== pinnedRequestId) {
       fail("signed grant identity is not the claimed durable requestId");
@@ -104,8 +106,8 @@ export class ReviewerBSourceAdmissionService {
     const expectedRefs = [...order.scope.allowedPaths].sort().map(
       path => "github:" + order.repository + "@" + order.sourceRevision + "#" + path
     );
-    if (expectedRefs.some((expected, index) =>
-      [...attempt.evidenceReferences].sort()[index] !== expected)) {
+    const actualRefs = [...attempt.evidenceReferences].sort();
+    if (expectedRefs.some((expected, index) => actualRefs[index] !== expected)) {
       fail("durable evidence differs from exact signed path/SHA scope");
     }
     const qa = await this.stores.qa.readVerified(requestId, 1);
@@ -116,6 +118,17 @@ export class ReviewerBSourceAdmissionService {
         qa.verifierId !== INDEPENDENT_INSPECTION_VERIFIER_ID) {
       return fail("missing or inconsistent independently persisted byte readback");
     }
+
+    // Durable reads may finish after a revocation, CAS change or expiry.
+    const expiresAt = Math.min(Date.parse(order.expiresAt), Date.parse(signedGrant.expiresAt));
+    const currentTime = () => now.getTime() + performance.now() - started;
+    const verifiedAt = currentTime();
+    if (verifiedAt >= expiresAt) fail("source authority expired while reading the journal");
+    await verifyReviewSourceAdmission(
+      order, signedGrant, workflow, context, authority, this.stores.workPackages, new Date(verifiedAt)
+    );
+    if (currentTime() >= expiresAt) fail("source authority expired while rechecking the binding");
+
     return Object.freeze({
       status: "SOURCE_AND_P3_QA_JOURNAL_VERIFIED",
       sourceRevision: order.sourceRevision,
