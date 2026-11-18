@@ -1,0 +1,28 @@
+{
+  "revision": "3da357532f189792234d9d860aa34bb9b0ca4e8b",
+  "runId": 44251710263,
+  "jobId": 134623735341,
+  "artifactId": 14403329172,
+  "artifactSha256": "548e8afa87a6c20490dc72c68083efc403ee0b108ad6351cfa68261f6103c5eb",
+  "archiveBytesVerified": true,
+  "canonicalPostgresSuite": {
+    "pass": 435,
+    "skip": 26,
+    "fail": 0
+  },
+  "immutablePostgresSeparateP2Run": 44251710267,
+  "publicPinnedSourceTransport": "PASS",
+  "fixtureBrowser": {
+    "pass": 16,
+    "fail": 0
+  },
+  "realNextAuthPostgresRuntime": {
+    "pass": 24,
+    "fail": 4,
+    "scope": "Next.js production build, PostgreSQL16, QA-signed Auth.js sessions, persisted roles and SELECT-only app business access",
+    "rootCause": "Initial test assumed heading semantics for the shared EmptyState title. Actual accessibility snapshot shows strong text with the exact expected sign-in title and link. Correct title locator while retaining source-leak and graph-denial checks."
+  },
+  "processRestart": "NOT_RUN because initial runtime suite failed",
+  "reviewerAB": "NOT_EXECUTED_OWNER_HANDLED",
+  "publication": "NONE"
+}

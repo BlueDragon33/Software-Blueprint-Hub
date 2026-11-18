@@ -354,6 +354,11 @@
       "scope": "Playwright test locator only",
       "resolution": "AOM snapshot confirms Relationship combobox. Replace exact label-text lookup with exact combobox accessible-role locator. All behavior assertions and WCAG thresholds preserved; full rerun pending.",
       "verification": "Resolved at b818406511fb10be16b7cd3d9fbb27224ea4488a: full 16/16 actual Chromium PASS."
+    },
+    {
+      "id": "QA-SHARED-EMPTY-STATE-TITLE",
+      "scope": "New runtime test locator",
+      "resolution": "Observe shared component strong title via exact text and explicit sign-in-link/denial assertions; do not relabel a successful denial as an app failure. Full suite/restart rerun pending."
     }
   ],
   "blockers": [
@@ -406,9 +411,14 @@
       "path": "docs/evidence/graph-intelligence/verified-evidence.json",
       "revision": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
       "result": "EXACT SOURCE VERIFIED / SYNTHETIC UI VERIFIED / REAL RUNTIME AND HUMAN ACCEPTANCE PENDING"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-attempt-1.json",
+      "revision": "3da357532f189792234d9d860aa34bb9b0ca4e8b",
+      "result": "Canonical PostgreSQL 435 PASS/26 SKIP; 24/28 actual-runtime cases PASS; sign-in locator correction pending rerun; restart NOT_RUN."
     }
   ],
-  "nextSafeAtomicAction": "FIG-007: verify local test collection/workflow guards, publish this bounded test change on the existing Draft branch, observe exact-source PostgreSQL/runtime CI, fix evidence-backed failures, archive truthful results. Do not execute independent reviewer A/B.",
+  "nextSafeAtomicAction": "FIG-007: run the corrected actual-runtime suite at exact HEAD, verify all 28 initial and 4 process-restart cases, then archive fresh source/runtime evidence. Reviewer A/B stays Owner-handled.",
   "lastVerifiedTimestamp": "2026-11-17T20:26:51Z",
   "lastVerifiedRevision": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
   "remainingCapabilities": [

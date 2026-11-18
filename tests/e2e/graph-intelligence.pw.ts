@@ -17,12 +17,16 @@ test.beforeEach(async ({ page }) => {
 
 test("Graph runtime rejects signed-out, invalid-session, unassigned and foreign-project reads", async ({ page }) => {
   let response = await page.goto(graphQaRoute);
-  await expect(page.getByRole("heading", { name: "Đăng nhập để mở dự án này." })).toBeVisible();
+  // Existing shared EmptyState renders its title as strong text, not a heading.
+  await expect(page.getByText("Đăng nhập để mở dự án này.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Đăng nhập", exact: true })).toHaveAttribute("href", "/api/auth/signin");
+  await expect(heading(page)).toHaveCount(0);
   expect(await response!.text()).not.toContain("Verify platform foundation");
   await page.context().addCookies([{ name: "authjs.session-token", value: "invalid-qa-session",
     url: "http://127.0.0.1:3000", httpOnly: true, secure: false, sameSite: "Lax" }]);
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Đăng nhập để mở dự án này." })).toBeVisible();
+  await expect(page.getByText("Đăng nhập để mở dự án này.", { exact: true })).toBeVisible();
+  await expect(heading(page)).toHaveCount(0);
   await authenticateGraphRole(page, "DENIED");
   response = await page.goto(graphQaRoute);
   await expect(page.locator("#project-forbidden-title")).toBeVisible();
