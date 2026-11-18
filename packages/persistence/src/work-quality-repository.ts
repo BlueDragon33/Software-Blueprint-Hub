@@ -9,7 +9,6 @@ import {
   type WorkQualityRepository
 } from "@blueprint-os/core";
 
-import type { BlueprintPrismaClient } from "./client";
 import { Prisma } from "./generated/prisma/client";
 
 function assertValid<T>(
@@ -30,7 +29,7 @@ function asJson(value: unknown): Prisma.InputJsonValue {
 }
 
 export class PostgresWorkQualityRepository implements WorkQualityRepository {
-  constructor(private readonly prisma: BlueprintPrismaClient) {}
+  constructor(private readonly prisma: Prisma.TransactionClient) {}
 
   async createWorkPackage(workPackage: WorkPackage): Promise<WorkPackage> {
     assertValid<WorkPackage>("WorkPackage", workPackage);

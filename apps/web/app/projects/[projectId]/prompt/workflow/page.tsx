@@ -12,8 +12,13 @@ import {
   readConstitutionalWorkflowCatalog,
   readRegisteredWorkflowReadiness,
   registeredWorkflowNodes,
-  registeredWorkflowSummaries
+  registeredWorkflowSummaries,
+  reviewerAbP3Binding
 } from "../../../../../src/server/prompt-workflow";
+import {
+  REVIEWER_AB_P3_ISSUER,
+  REVIEWER_AB_P3_WORKFLOW
+} from "../../../../../src/server/reviewer-ab-preview-p3";
 import { WorkflowStudio } from "./workflow-studio";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +51,8 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
   const graphOnly = !!selected && selected.projectId !== workspace.projectId;
   const nodes = selected ? registeredWorkflowNodes(selected.projectId, selected.workflowId) : [];
   const root = selected?.rootNodeIds[0];
+  const previewBinding = hubCatalog && selected?.workflowId === REVIEWER_AB_P3_WORKFLOW
+    ? reviewerAbP3Binding() : null;
   let preview: Awaited<ReturnType<typeof previewRegisteredWorkflowRoot>> | null = null;
   let previewError = graphOnly
     ? "The target repository is governed but its canonical Project Profile has not been loaded. No executable prompt is generated from registry metadata."
@@ -167,6 +174,23 @@ export default async function WorkflowPreviewPage({ params, searchParams }: Prop
                   </small>
                 </div>
               </div>
+              {previewBinding ? (
+                <section className="workspace-module-state">
+                  <h4>Owner · Reviewer A/B Preview P3</h4>
+                  <p>Record one planned WorkPackage, workflow adoption and the configured issuer for this isolated runtime.</p>
+                  <ul>
+                    {previewBinding.revisions.map(({ role, number, sha }) => (
+                      <li key={role}>{role} #{number} <code>{sha}</code></li>
+                    ))}
+                  </ul>
+                  <p>Workflow digest <code>{previewBinding.workflowDigest}</code></p>
+                  <p>Issuer {REVIEWER_AB_P3_ISSUER} <code>{previewBinding.issuerFingerprint}</code></p>
+                  <form method="post" action="/api/workflow/reviewer-ab-preview-p3">
+                    <input type="hidden" name="reviewDigest" value={previewBinding.reviewDigest} />
+                    <button className="secondary-button" type="submit">Record Preview P3 binding</button>
+                  </form>
+                </section>
+              ) : null}
               {root && !graphOnly ? (
                 <section className="workspace-section">
                   <div className="workspace-section-heading">

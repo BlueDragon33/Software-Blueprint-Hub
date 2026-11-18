@@ -123,6 +123,22 @@ P9-019 approval:
 - cannot deploy;
 - cannot override Constitution or exact-revision evidence requirements.
 
+## Reviewer A/B Preview P3 binding
+
+Use the existing isolated P3 Neon database and the local Hub review runtime. The Owner must already have a valid GitHub OAuth session mapped to the canonical System Owner. Register the OAuth callback for `http://127.0.0.1:3000/api/auth/callback/github` on the local review client. Use the existing P3 endpoint `ep-dawn-band-b3r8ahco` and database `neondb` over TLS.
+
+Prepare clean worktrees at Hub #167, Reviewer A #6 and Reviewer B #10. Install the pinned dependencies and generate Prisma in the Hub checkout. Use the existing secure local configuration for `DATABASE_URL`, Auth.js and the GitHub OAuth client. Configure `BLUEPRINT_AB_P3_ISSUER_PUBLIC_KEY` with the issuer's Ed25519 **public** SPKI key. When the OAuth session lacks access to the private candidate PRs, use the existing `WORKFLOW_RECEIPT_GITHUB_READ_TOKEN` configuration with read access to their PR metadata. Keep A and B runtime credentials in their separate execution contexts.
+
+Run from the Hub candidate worktree, using a GitHub CLI session authorized to read all three Draft PRs.
+
+```text
+node scripts/start-reviewer-ab-p3.mjs <reviewer-a-worktree> <reviewer-b-worktree>
+```
+
+The launcher compares the clean worktrees to live Draft HEADs and starts Hub on loopback. Sign in as the System Owner and open [/projects/project:blueprint-os/prompt/workflow?workflowId=blueprint-reviewer-ab-source-inspection](http://127.0.0.1:3000/projects/project%3Ablueprint-os/prompt/workflow?workflowId=blueprint-reviewer-ab-source-inspection). Review the three SHAs, workflow digest and issuer fingerprint, then select **Record Preview P3 binding**. The response returns a planned WorkPackage ID and CAS version after the atomic write. Repeating the same current request reads back the existing binding. A changed or revoked binding requires a separate Owner decision.
+
+The binding uses the digest of the approved projection of the exact registered candidate and leaves the Git manifest in candidate state. It grants no signed dispatch. Verify separate A and B principals and run IDs and read back the canonical journal using their scoped access in the same P3 runtime before authorizing any pilot.
+
 
 ### Vercel monorepo build
 
