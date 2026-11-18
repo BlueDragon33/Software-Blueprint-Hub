@@ -459,8 +459,8 @@ describe("G3 canonical runtime source/QA journal wiring — no B-agent PASS", ()
   });
   it("expired Hub WorkOrder denies admission even when underlying grant is valid",async()=>{
     const {service,st}=setup();
-    await expect(service.verifySource({...st,order:{...st.order,
-      expiresAt:"2026-10-13T03:04:00.000Z"}})).
+    const expired={...st.order,expiresAt:"2026-10-13T03:04:00.000Z"};
+    await expect(service.verifySource({...st,order:{...expired,orderKey:reviewOrderKey(expired)}})).
       rejects.toThrow(/expired/);
   });
   it("a revoked issuer or unadopted workflow fails before journal lookup",async()=>{
