@@ -236,6 +236,18 @@ test("issuer revocation during B verification invalidates result",async()=>{
     verifyIndependentBReadback:async()=>{active=false;return true;}
   })));
 });
+test("A-only handoff cannot advance after issuer revocation or canonical drift",async()=>{
+  const o=workOrder(),t=trust(o);
+  for(const mode of ["issuer","CAS"]){
+    let active=true;
+    await blocked(assess(o,report(o),null,{...t,
+      verifyIssuerGrant:async()=>mode!=="issuer"||active,
+      readCanonicalSnapshot:async()=>({...await t.readCanonicalSnapshot(),
+        stateVersion:mode==="CAS"&&!active?5:4}),
+      verifyReviewEvidence:async()=>{active=false;return true;}
+    }));
+  }
+});
 test("canonical state change during B verification invalidates result",async()=>{
   const o=workOrder(),t=trust(o);let reads=0;
   await blocked(assess(o,report(o),report(o,"B"),{...t,

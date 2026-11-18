@@ -182,7 +182,10 @@ export async function assessReviewHandoff({order,aEvidence=null,bEvidence=null,n
     check(aEvidence.role==="A"&&(await trust.verifyReviewEvidence(aEvidence,"A"))===true,
       "A source/actor/test evidence not independently verified");
     if(aEvidence.verdict==="BLOCKED")return result("BLOCKED","A reports blocker",order);
-    if(!bEvidence)return result("B_REVIEW_REQUIRED","A handoff verified; B execution NOT_RUN",order);
+    if(!bEvidence){
+      await verifyCurrentAuthority();
+      return result("B_REVIEW_REQUIRED","A handoff verified; B execution NOT_RUN",order);
+    }
     validateReviewEvidence(order,bEvidence);
     check(Date.parse(bEvidence.observedAt)>=Date.parse(aEvidence.observedAt)&&
       Date.parse(bEvidence.observedAt)<=Date.parse(now),"B must independently follow A");
