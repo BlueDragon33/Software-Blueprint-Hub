@@ -1,11 +1,14 @@
-import { generateKeyPairSync, sign } from "node:crypto";
+import { createHash, generateKeyPairSync, sign } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
+import { ReviewerBSourceAdmissionService } from "../../packages/runtime/src/reviewer-b-source-admission";
+import { reviewOrderKey, type ReviewWorkOrder } from "../../packages/application/src/reviewer-ab-contract.mjs";
 
 import {
   executeBoundedWorkflowNode,
   executeEvidenceBoundWorkflowNode,
   verifyWorkflowExecutionGrant,
+  verifyReviewSourceAdmission,
   workflowExecutionGrantSigningPayload,
   type WorkflowAttemptResult,
   type WorkflowExecutionGrantPayload,
@@ -277,5 +280,218 @@ describe("Phase 5B opt-in bounded execution and recovery", () => {
     };
     await expect(verifyWorkflowExecutionGrant(grant(), approved, context, authority, fixed))
       .rejects.toThrow("No pinned issuer");
+  });
+});
+
+describe("G3 read-only source admission (reuses real Ed25519 + WorkPackage CAS)",()=>{
+
+  function orderPin(g = grant()) {
+    return {
+      policyVersion: "1.3.0" as const, projectId: context.projectId,
+      repository: context.repository, workflowId: approved.workflowId,
+      workflowNodeId: g.nodeId, workflowDigest: digest,
+      sourceRevision: context.appHead, canonicalSourceRevision: context.canonicalDigest,
+      issuerGrantDigest: "sha256:" + requireSha(g),
+      workPackageId: "r2-r3-qa", workPackageRecordVersion: 4,
+      expectedStateVersion: 4,
+      scope: {allowedPaths:[...g.allowedPaths],maxFiles:g.maxFiles,
+        maxAttempts:g.maxAttempts,maxTokensUsed:0 as const}
+    };
+  }
+  const requireSha=(g:WorkflowExecutionGrant)=>
+    createHash("sha256").update(JSON.stringify(stableGrant(g))).digest("hex");
+  const stableGrant=(g:WorkflowExecutionGrant): Record<string, unknown>=>
+    Object.fromEntries(Object.entries(g).sort(([a],[b])=>a.localeCompare(b)));
+  const workRepo=(version=4,projectId=context.projectId)=>({
+    findWorkPackageById:vi.fn(async(id:string)=>({
+      id, projectId, meta:{recordVersion:version}
+    }))
+  });
+  it("verifies existing Ed25519/adoption/issuer and canonical WorkPackage version without reviewer PASS",async()=>{
+    const g=grant(),a=harness();
+    const result=await verifyReviewSourceAdmission(
+      orderPin(g),g,approved,context,a.authority,workRepo(),fixed);
+    expect(result.sourceInspectionGrantVerified).toBe(true);
+    expect(result.canonicalWorkPackageVersionVerified).toBe(true);
+    expect(result.independentReviewerBVerified).toBe(false);
+    expect(result.qualityGatePassed).toBe(false);
+    expect(result.productionAuthorized).toBe(false);
+  });
+  it("rejects a revoked/unauthorized issuer (not just a string token)",async()=>{
+    const g=grant(),a=harness({permitted:false});
+    await expect(verifyReviewSourceAdmission(orderPin(g),g,approved,context,
+      a.authority,workRepo(),fixed)).rejects.toThrow(/permission/);
+  });
+  it("rejects forged grant signature and stale SHA",async()=>{
+    const g=grant(),a=harness();
+    await expect(verifyReviewSourceAdmission(orderPin(g),{...g,appHead:"f".repeat(40)},
+      approved,context,a.authority,workRepo(),fixed)).rejects.toThrow(/source|signature/);
+  });
+  it("rejects changed signed-grant digest without replacing review authority",async()=>{
+    const g=grant(),a=harness();
+    await expect(verifyReviewSourceAdmission({...orderPin(g),
+      issuerGrantDigest:"sha256:"+"f".repeat(64)},g,approved,context,
+      a.authority,workRepo(),fixed)).rejects.toThrow(/scope mismatch/);
+  });
+  it("rejects foreign/stale canonical WorkPackage and CAS",async()=>{
+    const g=grant(),a=harness();
+    for(const repo of [workRepo(5),workRepo(4,"project:other")]) {
+      await expect(verifyReviewSourceAdmission(orderPin(g),g,approved,context,
+        a.authority,repo,fixed)).rejects.toThrow(/canonical WorkPackage CAS/);
+    }
+    await expect(verifyReviewSourceAdmission({...orderPin(g),expectedStateVersion:5},
+      g,approved,context,a.authority,workRepo(),fixed))
+      .rejects.toThrow(/WorkPackage\/CAS/);
+  });
+  it("rejects attempts to widen source scope, paid token budget or impersonate a review node",async()=>{
+    const g=grant(),a=harness();
+    await expect(verifyReviewSourceAdmission({...orderPin(g),scope:{
+      ...orderPin(g).scope,allowedPaths:["outside.ts"]}},g,approved,
+      context,a.authority,workRepo(),fixed)).rejects.toThrow(/scope mismatch/);
+    await expect(verifyReviewSourceAdmission({...orderPin(g),scope:{
+      ...orderPin(g).scope,maxTokensUsed:1 as 0}},g,approved,
+      context,a.authority,workRepo(),fixed)).rejects.toThrow(/WorkPackage\/CAS/);
+    await expect(verifyReviewSourceAdmission(orderPin(grant("release-check")),
+      grant("release-check"),approved,context,a.authority,workRepo(),fixed))
+      .rejects.toThrow(/Human\/release/);
+  });
+});
+
+
+describe("G3 canonical runtime source/QA journal wiring — no B-agent PASS", () => {
+  const hash = (payload: string) => "sha256:" +
+    createHash("sha256").update(payload).digest("hex");
+  const observationDigest = "sha256:" + "c".repeat(64);
+  const issuerRecord = {
+    projectId: context.projectId,workflowId: approved.workflowId,
+    issuerId:"trusted-operator",publicKeyPem:publicPem,
+    policyVersion:"1.3.0",decision:"allow",decidedByPrincipalId:"owner",
+    decidedAt:fixed
+  };
+  function contextFor(g = grant()) {
+    const requestId = hash(workflowExecutionGrantSigningPayload(g));
+    const fields = {
+      schemaVersion:"1.0.0" as const,kind:"review-work-order" as const,
+      policyVersion:"1.3.0" as const,projectId:context.projectId,
+      repository:context.repository,pullRequestNumber:163,
+      workPackageId:"r2-r3-qa",workPackageRecordVersion:4,
+      workflowId:approved.workflowId,workflowNodeId:g.nodeId,
+      workflowDigest:digest,sourceRevision:context.appHead,
+      canonicalSourceRevision:context.canonicalDigest,expectedStateVersion:4,
+      issuerGrantDigest:requestId,
+      issuedAt:"2026-10-13T03:02:00.000Z",
+      expiresAt:"2026-10-13T03:08:00.000Z",
+      scope:{allowedPaths:[...g.allowedPaths],maxFiles:g.maxFiles,
+        maxBytes:512000,maxAttempts:g.maxAttempts,maxTokensUsed:0 as const},
+      orderKey:""
+    };
+    const order:ReviewWorkOrder={...fields,orderKey:reviewOrderKey({...fields,orderKey:""})};
+    return {order,grant:g,workflow:approved,context,requestId,now:fixed};
+  }
+  function setup(options:{
+    staleCAS?:boolean;revokeIssuer?:boolean;unadopted?:boolean;
+    missingJournal?:boolean;duplicateAttempt?:boolean;
+    badEvidence?:boolean;qaMissing?:boolean;qaMismatch?:boolean;
+  }={}) {
+    const st = contextFor();
+    const obs={attempt:1,outcome:"succeeded",observationDigest,
+      evidenceReferences:["github:"+context.repository+"@"+context.appHead+"#src/form"],
+      filesTouched:[],tokensUsed:0};
+    const stores={
+      authority:{
+        currentAllowedIssuers:vi.fn(async()=>new Map([["trusted-operator",issuerRecord]])),
+        latestIssuer:vi.fn(async()=>options.revokeIssuer?
+          {...issuerRecord,decision:"revoke"}:issuerRecord),
+        latestAdoption:vi.fn(async()=>({
+          projectId:context.projectId,workflowId:approved.workflowId,
+          workflowDigest:digest,policyVersion:"1.3.0",
+          decision:options.unadopted?"revoke":"adopt"
+        }))
+      },
+      workPackages:{
+        findWorkPackageById:vi.fn(async(id:string)=>({
+          id,projectId:context.projectId,meta:{
+            recordVersion:options.staleCAS?5:4
+          }
+        }))
+      },
+      execution:{
+        read:vi.fn(async()=>({
+          claimed:!options.missingJournal,
+          attempts:options.missingJournal?[]:options.duplicateAttempt?[obs,obs]:[
+            {...obs,evidenceReferences:options.badEvidence?
+              ["github:"+context.repository+"@"+context.appHead+"#outside"]:obs.evidenceReferences}
+          ]
+        }))
+      },
+      qa:{
+        readVerified:vi.fn(async()=>options.qaMissing?null:{
+          requestId:st.requestId,attempt:1,sourceRevision:context.appHead,
+          observationDigest:options.qaMismatch?"sha256:"+"f".repeat(64):observationDigest,
+          verifiedFiles:1,verifierId:"pinned-independent-github-readback-v1"
+        })
+      }
+    };
+    const service=new ReviewerBSourceAdmissionService(
+      stores as unknown as ConstructorParameters<typeof ReviewerBSourceAdmissionService>[0]
+    );
+    return {service,st,stores};
+  }
+  it("binds actual signed issuer, adopted workflow, canonical WP CAS and P3 journal without claiming B",async()=>{
+    const {service,st,stores}=setup();
+    const result=await service.verifySource(st);
+    expect(result.status).toBe("SOURCE_AND_P3_QA_JOURNAL_VERIFIED");
+    expect(result.signedSourceInspectionVerified).toBe(true);
+    expect(result.canonicalWorkPackageCASVerified).toBe(true);
+    expect(result.independentP3QaJournalVerified).toBe(true);
+    expect(result.reviewerBPrincipalVerified).toBe(false);
+    expect(result.reviewerBReviewExecuted).toBe(false);
+    expect(result.authenticatedReviewEvidenceIssued).toBe(false);
+    expect(result.qualityGatePassed).toBe(false);
+    expect(result.productionAuthorized).toBe(false);
+    expect(stores.execution.read).toHaveBeenCalledWith(st.requestId);
+  });
+  it("invalid signed requestId cannot hijack another journal's PASS",async()=>{
+    const {service,st,stores}=setup();
+    await expect(service.verifySource({...st,requestId:hash("forged")})).
+      rejects.toThrow(/requestId/);
+    expect(stores.execution.read).not.toHaveBeenCalled();
+  });
+  it("expired Hub WorkOrder denies admission even when underlying grant is valid",async()=>{
+    const {service,st}=setup();
+    await expect(service.verifySource({...st,order:{...st.order,
+      expiresAt:"2026-10-13T03:04:00.000Z"}})).
+      rejects.toThrow(/expired/);
+  });
+  it("a revoked issuer or unadopted workflow fails before journal lookup",async()=>{
+    for(const options of [{revokeIssuer:true},{unadopted:true}]) {
+      const {service,st,stores}=setup(options);
+      await expect(service.verifySource(st)).rejects.toThrow();
+      expect(stores.execution.read).not.toHaveBeenCalled();
+    }
+  });
+  it("foreign or stale WorkPackage CAS fails before journal lookup",async()=>{
+    const {service,st,stores}=setup({staleCAS:true});
+    await expect(service.verifySource(st)).rejects.toThrow(/canonical WorkPackage CAS/);
+    expect(stores.execution.read).not.toHaveBeenCalled();
+  });
+  it("missing, duplicated, out-of-scope durable observations fail closed",async()=>{
+    for(const options of [{missingJournal:true},{duplicateAttempt:true},{badEvidence:true}]) {
+      const {service,st}=setup(options);
+      await expect(service.verifySource(st)).rejects.toThrow(/G3_SOURCE_ADMISSION_BLOCKED/);
+    }
+  });
+  it("missing or mutated P3 independent readback remains blocked",async()=>{
+    for(const options of [{qaMissing:true},{qaMismatch:true}]) {
+      const {service,st}=setup(options);
+      await expect(service.verifySource(st)).rejects.toThrow(/P3|readback/);
+    }
+  });
+  it("changed signed grant byte or source SHA fails even if previous journal passed",async()=>{
+    const {service,st}=setup();
+    await expect(service.verifySource({...st,grant:{...st.grant,appHead:"f".repeat(40)}})).
+      rejects.toThrow(/source|signature/);
+    await expect(service.verifySource({...st,order:{...st.order,sourceRevision:"f".repeat(40)}})).
+      rejects.toThrow(/idempotency|binding|source/);
   });
 });

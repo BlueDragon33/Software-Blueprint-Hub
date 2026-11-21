@@ -6,6 +6,8 @@ on:
       - "control/private-execution-service-onboarding.v1.json"
       - "scripts/check-execution-service-protocol.mjs"
       - "tests/governance/execution-service-protocol.test.mjs"
+      - "packages/application/src/reviewer-ab-contract.mjs"
+      - "tests/governance/reviewer-ab-contract.test.mjs"
       - ".github/workflows/execution-service-protocol.yml"
   push:
     branches: [main]
@@ -28,3 +30,5 @@ jobs:
         run: node scripts/check-execution-service-protocol.mjs
       - name: Reject unauthorized protocol drift
         run: node --test tests/governance/execution-service-protocol.test.mjs
+      - name: Independent Reviewer A/B handoff contract — candidate only
+        run: node --test tests/governance/reviewer-ab-contract.test.mjs

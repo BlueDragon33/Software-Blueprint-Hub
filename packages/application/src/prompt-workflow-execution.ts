@@ -276,6 +276,107 @@ export async function verifyWorkflowExecutionGrant(
   return { grant, node };
 }
 
+
+/**
+ * Read-only A/B source admission from the existing authority and canonical
+ * WorkPackage. The existing signed grant authorizes a bounded INSPECT node,
+ * never a REVIEW node, Reviewer B identity, independent QA, or Production.
+ * This is a pure gate: no journal claims, source disclosure or writes.
+ */
+export interface ReviewSourceAdmissionPin {
+  readonly policyVersion: "1.3.0";
+  readonly projectId: string;
+  readonly repository: string;
+  readonly workflowId: string;
+  readonly workflowNodeId: string;
+  readonly workflowDigest: string;
+  readonly sourceRevision: string;
+  readonly canonicalSourceRevision: string;
+  /** SHA256 of the complete, signed, canonical workflow execution grant. */
+  readonly issuerGrantDigest: string;
+  readonly workPackageId: string;
+  readonly workPackageRecordVersion: number;
+  readonly expectedStateVersion: number;
+  readonly scope: {
+    readonly allowedPaths: readonly string[];
+    readonly maxFiles: number;
+    readonly maxAttempts: number;
+    readonly maxTokensUsed: 0;
+  };
+}
+
+export async function verifyReviewSourceAdmission(
+  order: ReviewSourceAdmissionPin,
+  grantInput: unknown,
+  workflow: WorkflowManifest,
+  context: NodeSourceContext,
+  authority: WorkflowExecutionAuthority,
+  workRepository: {
+    findWorkPackageById(id: string): Promise<{
+      readonly id: string;
+      readonly projectId: string;
+      readonly meta: { readonly recordVersion: number };
+    } | null>;
+  },
+  now: Date
+): Promise<{
+  readonly sourceInspectionGrantVerified: true;
+  readonly canonicalWorkPackageVersionVerified: true;
+  readonly independentReviewerBVerified: false;
+  readonly qualityGatePassed: false;
+  readonly productionAuthorized: false;
+}> {
+  if (!order || order.policyVersion !== "1.3.0" ||
+      !Number.isSafeInteger(order.workPackageRecordVersion) ||
+      order.workPackageRecordVersion < 1 ||
+      order.expectedStateVersion !== order.workPackageRecordVersion ||
+      !DIGEST.test(order.issuerGrantDigest) ||
+      order.scope?.maxTokensUsed !== 0) {
+    throw new Error("REVIEW_SOURCE_BLOCKED: invalid pinned source WorkPackage/CAS contract");
+  }
+  // Reuse the actual Ed25519 + adoption + issuer revocation verification;
+  // source inspection is not a permit to run a REVIEW stage.
+  const {grant} = await verifyWorkflowExecutionGrant(
+    grantInput, workflow, context, authority, now
+  );
+  const signedDigest = "sha256:" + createHash("sha256")
+    .update(JSON.stringify(stable(grant))).digest("hex");
+  if (order.issuerGrantDigest !== signedDigest ||
+      order.projectId !== grant.projectId ||
+      order.repository !== grant.repository ||
+      order.workflowId !== grant.workflowId ||
+      order.workflowNodeId !== grant.nodeId ||
+      order.workflowDigest !== grant.workflowDigest ||
+      order.sourceRevision !== grant.appHead ||
+      order.canonicalSourceRevision !== grant.canonicalDigest ||
+      grant.mode !== "inspect-scoped" ||
+      order.scope.maxFiles !== grant.maxFiles ||
+      order.scope.maxAttempts > grant.maxAttempts ||
+      !Array.isArray(order.scope.allowedPaths) ||
+      order.scope.allowedPaths.length !== grant.allowedPaths.length ||
+      order.scope.allowedPaths.some((p, i) => p !== grant.allowedPaths[i])) {
+    throw new Error("REVIEW_SOURCE_BLOCKED: signed grant / WorkOrder scope mismatch");
+  }
+  if (typeof workRepository?.findWorkPackageById !== "function") {
+    throw new Error("REVIEW_SOURCE_BLOCKED: canonical WorkPackage repository unavailable");
+  }
+  const work = await workRepository.findWorkPackageById(order.workPackageId);
+  if (!work || work.id !== order.workPackageId ||
+      work.projectId !== order.projectId ||
+      work.meta?.recordVersion !== order.workPackageRecordVersion) {
+    throw new Error("REVIEW_SOURCE_BLOCKED: stale or foreign canonical WorkPackage CAS");
+  }
+  // This is not a signed review receipt. B still needs its OWN principal,
+  // exact-HEAD GitHub readback, signed PR identity and durable QA journal.
+  return Object.freeze({
+    sourceInspectionGrantVerified: true,
+    canonicalWorkPackageVersionVerified: true,
+    independentReviewerBVerified: false,
+    qualityGatePassed: false,
+    productionAuthorized: false
+  });
+}
+
 function validResult(result: WorkflowAttemptResult, grant: WorkflowExecutionGrant): boolean {
   return isRecord(result) &&
     (result.outcome === "failed" || result.outcome === "succeeded") &&
