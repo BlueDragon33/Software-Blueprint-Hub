@@ -19,6 +19,8 @@ on:
       - "packages/persistence/prisma/migrations/**"
       - "scripts/generate-prompt-workflow-imports.mjs"
       - "packages/application/src/index.ts"
+      - "packages/application/src/pattern-governance.ts"
+      - "tests/application/pattern-governance.test.ts"
       - "scripts/prompt-workflow-*.mjs"
       - "tests/application/prompt-workflow-*.test.ts"
       - "tests/prompt-workflows/**"
@@ -82,6 +84,8 @@ jobs:
         run: pnpm --filter @blueprint-os/web typecheck
       - name: Candidate projection authorization and drift tests
         run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-authority.test.ts tests/application/prompt-workflow-journal.test.ts tests/application/prompt-workflow-github-executor.test.ts tests/application/prompt-workflow-operational-e2e.test.ts tests/application/prompt-workflow-observation-qa.test.ts tests/application/prompt-workflow-inspection-pipeline.test.ts tests/application/prompt-workflow-qa-journal.test.ts tests/application/prompt-workflow-qa-journal.test.ts
+      - name: Reviewer A/B learning provenance and retrieval negative tests
+        run: pnpm exec vitest run tests/application/pattern-governance.test.ts
       - name: Visual Workflow Studio semantic SSR tests
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
       - name: Vietnamese launcher, app grouping and no-invented-deployment tests
