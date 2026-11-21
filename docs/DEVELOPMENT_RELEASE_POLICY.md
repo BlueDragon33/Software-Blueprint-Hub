@@ -2,7 +2,7 @@
 
 ## Development default: Offline-First; manual direct-Production release — Owner directives 2026-10-16 and 2026-11-21
 
-**Operational policy proposal on this branch (NOT a new ratification or ACTIVE constitutional text).**
+**Owner operational release direction, pending adoption into main (not a new ratification of Universal Constitution 1.3.0).**
 The canonical machine-readable policy is `control/development-runtime-policy.v1.json`.
 Offline-runtime obligations cover registered and future applications except the existing `BlueDragon33/BOIECH_AI` (Bơi Ếch) exemption. The new **owner-only manual Production dispatch** release overlay below is intended for all governed applications, including Bơi Ếch; adoption remains per repository and requires existing release gates.
 
