@@ -17,6 +17,35 @@ The operational rule covers ALL registered and future applications, **except `Bl
 - **Bơi Ếch exception:** leave `BOIECH_AI` deployment mode untouched, not an implied permission to publish other apps.
 - Existing deployed public URLs are not deleted or revoked by a GitHub workflow change. Decommissioning them is a distinct reviewed action, not implicit in this instruction.
 
+## BOIECH_AI operational release profile — OWNER decision 2026-11-21
+
+This paragraph is a **project-scoped release policy**, not an amendment or
+waiver of the published Universal Constitution 1.3.0. It is recorded in
+the constitutional authority repository to avoid later agents imposing a
+nonexistent Preview requirement on this single-app Owner workflow.
+
+- Applies **only** to `BlueDragon33/BOIECH_AI`; no other governed repository
+  inherits it by default. Current canonical project policy:
+  `BOIECH_AI/docs/DEVELOPMENT_RELEASE_POLICY.md`.
+- Routine BOIECH_AI release is **direct-to-Production**; a separate Cloudflare
+  Preview stage is **optional, not mandatory**, at the Owner's request.
+- The mandatory path remains exact-SHA scope → CI/regressions/build/Constitution
+  checks → reviewed persistent-data migration plan and rollback points →
+  explicit manual protected Production dispatch → live revision and asset,
+  session, authorization/data-scope smoke → real Owner post-deploy acceptance.
+- Do not relabel missing signed E2E or human UX evidence as PASS. A direct
+  production release can be DEPLOYED while post-deploy USER_ACCEPTED is still
+  pending; any required pre-deploy high-consequence gate remains fail-closed.
+- For non-recoverable D1/schema/identity changes or unknown risk, stop and
+  obtain appropriate evidence; skipping Preview does **not** waive integrity,
+  human review, security, data recovery or Production authority.
+- Retain Cloudflare-only, ZERO-SPEND, existing runtime identities and database.
+  No auto-release on merge/push, no cross-project release privilege.
+
+This is compatible with Universal Constitution 1.3.0 §§ 3, 5–8 and R3/R5/R9/R20.
+Do **not** edit the normative Constitution, machine contract, canonical template,
+version marker or claim constitutional ratification solely for this decision.
+
 ### Non-exempt deployment release boundary
 
 To resume online deployment in the future, the owner must explicitly request it **for a named application and environment**. The project must first prove offline correctness and then meet applicable security, data migration, quality, release and production gates. Mere workflow_dispatch, a green test or an environment secret is not publication approval.
