@@ -93,3 +93,34 @@ Constitutional ratification/publication/propagation, canonical Quality Gate deci
 **This document is DRAFT only.** The immediate goal is to implement the smallest credible A/B live pilot and evidence-grounded learning slice; it is not permissible to call a policy active merely because the document or a GitHub PR exists.
 
 **Một câu ngắn:** Reviewer phải **tự kiểm chứng mã nguồn, phản biện sâu, sửa lỗi có bằng chứng và tích lũy bài học đã được kiểm định**, nhưng không được tự phong quyền phê duyệt hoặc biến kết luận chưa xác thực thành kiến thức chung.
+
+
+## 7. Hub-first constitutional control plane and managed branches
+
+The Owner's desired "Hub as brain" is a **hierarchy of governing authority and evidence**, not a new super-application with remote shell or unrestricted central access. Reuse existing Constitution 1.3.0 R11–R14 and R25–R27, the governed repository manifest, and Application-Management contracts:
+
+| Layer | Responsibility | Must NOT do |
+| --- | --- | --- |
+| Blueprint OS Hub | Own immutable Constitution versions; canonical rule definitions, Project Profile/WorkPackage, exact-source adoption requirements, Quality Gates, provenance and versioned knowledge promotion; generate scoped, project-specific policy/advice | Run a second app catalog, pool all user data/secrets, bypass Owner decisions or self-publish |
+| Reviewer A / B | A implements within delegated scope; B independently checks exact Git source, security/data/UX/tests and learns from verified cases | Self-approve, share credentials as independent evidence, edit constitutional authority, merge/deploy |
+| Application-Management | Existing operational application catalog, enrollment/identity delegation and task coordination under published Hub policy | Independently ratify rules, change a project's business state without its scoped authority, issue universal super-admin privileges |
+| Governed app (branch/project) | Adopt a pinned policy version and project-specific obligations; own business data, user UX, runtime quality evidence and separate release decisions | Declare itself constitutionally compliant from a badge, ignore stale/revoked policies, override Core or central Owner gates |
+
+### Versioned policy distribution (candidate requirement)
+
+1. Hub releases one **atomic, signed/provenance-verifiable policy version set**: normative document, machine-readable contract, universal template and source-authority version. A PR, Git commit or package alone is not a constitutional publication.
+2. Each governed repository declares \`policyId\`, exact \`policyVersion\`, \`projectId\`, Blueprint Level, relevant scope, governance evidence and source SHA. Existing adoption checks must fetch the authoritative published Hub state; a stale local manifest is \`NON_COMPLIANT/UNVERIFIED\`, not auto-upgraded.
+3. Translate universal law into **proportional project review requirements** (B0–B5 and E0–E3 topology, without creating a third execution mode). App-specific decisions remain in their owning app; delegated operations use the existing management entry point.
+4. After verified publication, propagate through the existing dependency/registration ledger. Every adopter returns exact revision, tests and migration blockers; Hub exposes a read-only portfolio view and mandatory gate statuses, not an invented shared mutable database.
+5. When a policy update, issuer revoke or critical source revision changes, dependent acceptance becomes stale and must be reverified. Healthy unrelated work may continue on isolated branches, but no blocked review/constitutional/release gate can be silently waived.
+6. A/B verified experience produces **KnowledgeLibrary/PatternGovernance candidates** only; neither project history nor a machine learning model can autonomously rewrite the Constitution or grant privileges.
+
+### Recorded baseline/impact audit required before ratification
+
+- The canonical governed-repositories manifest currently seals 15 baseline repositories, while separate onboarding and observed coverage may record further pending/admitted entries. Reconcile live project registration individually; **do not** infer a new project's adoption by repository discovery.
+- The ecosystem snapshot still includes historical policy 1.2.0 adoption records in its observed data. Distinguish that historical snapshot from the currently ACTIVE policy 1.3.0. Do not silently rewrite observation history or claim all 15 have migrated.
+- Create a minimal **impact matrix** for each real governed app including exact target policy, owner, Blueprint Level, applicable independent-review critical path, knowledge/privacy constraints, tests, migration action and truthful adoption status.
+- Keep \`DIRECT-PRODUCTION-OWNER-001\` separate: Owner-requested direct Production may omit an optional promotion Preview, but cannot omit mandatory source/authenticity, QA, data safety, rollback and release authorization evidence.
+- Treat an archived or unavailable canonical database/journal as an operational dependency to re-authorize, not as a reviewer finding that can be solved by changing a validation regex.
+
+This topology is a **constitutional proposal**. No repo is governed by proposed 1.4 rules until the authenticated lifecycle completes and the published authority set is atomically verified.
