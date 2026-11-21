@@ -1,0 +1,35 @@
+{
+  "id": "profile:software-blueprint-innovation-defense",
+  "projectId": "project:software-blueprint-innovation-defense",
+  "meta": {
+    "schemaVersion": "1.0.0",
+    "recordVersion": 1,
+    "createdAt": "2026-11-19T00:00:00.000Z",
+    "updatedAt": "2026-11-19T00:00:00.000Z"
+  },
+  "name": "Innovation Defense",
+  "projectType": "offline-engine",
+  "blueprintLevel": "B3",
+  "primaryUsers": [
+    "Owner-authorized engineers"
+  ],
+  "jobsToBeDone": [
+    "Assess architecture exposure in explicitly authorized metadata and verify mitigations with local fixtures."
+  ],
+  "dataSensitivity": "restricted",
+  "persistence": "local",
+  "authentication": "none",
+  "authorization": "policy-based",
+  "offlineRequirement": "read-write",
+  "externalIntegrations": [
+    "optional Hub metadata intake"
+  ],
+  "aiUse": "assistive",
+  "extensibilityRequirement": "configuration",
+  "expectedLifetime": "long-lived",
+  "expectedScale": "Single workstation and bounded manifest imports per project",
+  "availabilityRequirement": "Core works on an isolated workstation",
+  "complianceSecuritySensitivity": "Asset authorization and leakage of private technical metadata",
+  "deploymentTarget": "Local Node 24 runtime",
+  "maintenanceModel": "Exact-revision contract updates and regression evidence"
+}

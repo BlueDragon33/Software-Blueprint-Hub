@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedDate": "2026-11-19",
+  "branch": "feat/dual-intelligence-offline",
+  "constitution": {
+    "version": "1.3.0",
+    "status": "ACTIVE",
+    "repository": "BlueDragon33/Software-Blueprint-Hub",
+    "sourceRevision": "cd01fb3c2178393628ce968af209db082227d2c4",
+    "normativePath": "docs/UNIVERSAL-CONSTITUTION.md",
+    "versionPath": "control/universal-constitution-version.json"
+  },
+  "cost": {
+    "paidResourcesCreated": 0,
+    "cloudModelCalls": 0,
+    "privateHostedActionsStarted": 0,
+    "packageDependenciesAdded": 0
+  },
+  "approvals": {
+    "canonicalEnrollment": "PENDING",
+    "humanAcceptance": "PENDING",
+    "productionAuthority": false
+  },
+  "kind": "cross-project-execution-record",
+  "repository": "BlueDragon33/Software-Blueprint-Hub",
+  "baseRevision": "cd01fb3c2178393628ce968af209db082227d2c4",
+  "verifiedSourceRevision": "bc4979604c15dd2e8f409e10d7eff7cb6058e63d",
+  "sourceTree": "5b68fed4c241b4c36ea08a5a1e902c7375830858",
+  "checkpoint": "P2_DUAL_ENGINE_VERIFIED",
+  "phase": "P3",
+  "phaseStatus": "BLOCKED_WITH_EVIDENCE",
+  "headSemantics": "Verified source revision excludes the later evidence-only commit.",
+  "ownership": "References and compatibility results. Engine execution evidence stays in each engine's record.",
+  "workPackages": [
+    {
+      "id": "P0-01",
+      "objective": "Verify live repositories, policy and active dependencies",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "P0-02",
+      "objective": "Capability ownership and trust boundary ADR",
+      "status": "VERIFIED",
+      "path": "projects/dual-intelligence/ARCHITECTURE.md"
+    },
+    {
+      "id": "P0-03",
+      "objective": "Validate candidate Project Profiles and risk budget",
+      "status": "PROFILE_CANDIDATES_VALIDATED"
+    },
+    {
+      "id": "P1-01",
+      "objective": "Verify bounded v1 exchange schema and portable module",
+      "status": "VERIFIED",
+      "sourceRevision": "de9f6a1f5e1e50f6c1ef3d129b97ebdd8a283028"
+    },
+    {
+      "id": "P1-02",
+      "objective": "Separate provenance and local domain data from shared evidence",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "P1-03",
+      "objective": "Validate malformed, foreign, replayed and untrusted metadata rejection",
+      "status": "VERIFIED_OFFLINE"
+    },
+    {
+      "id": "P2",
+      "objective": "Run both standalone engines and their portable contract",
+      "status": "P2_DUAL_ENGINE_VERIFIED",
+      "engineEvidenceReferences": [
+        {
+          "repository": "BlueDragon33/Software-Blueprint-Tech-Intelligence",
+          "verifiedSourceRevision": "777c96b52825540c34a5538fdc4e83765cf528e9",
+          "evidencePath": "control/execution-record.v1.json"
+        },
+        {
+          "repository": "BlueDragon33/Software-Blueprint-Innovation-Defense",
+          "verifiedSourceRevision": "e8f1abd616aade6bd51372b90a7a115e32eccee9",
+          "evidencePath": "control/execution-record.v1.json"
+        }
+      ]
+    },
+    {
+      "id": "P3-01",
+      "objective": "Prepare independently pinned read-only evidence intake",
+      "status": "FIXTURE_INTEGRATION_VERIFIED",
+      "runtimeAuthority": "NOT_RUN"
+    },
+    {
+      "id": "P3-02",
+      "objective": "Connect existing Graph Intelligence extension",
+      "status": "BLOCKED_EXISTING_DRAFT",
+      "dependency": "Hub PR #166 @ ca498220ee77e259cca8906622ff9432810288fb"
+    },
+    {
+      "id": "P3-03",
+      "objective": "Verify private catalog discovery",
+      "status": "BLOCKED_PRIVATE_DISCOVERY",
+      "dependency": "Application Management fef4ebe9bd620fa10a11d972252c69838c1f9079"
+    },
+    {
+      "id": "P3-04",
+      "objective": "Verify actual Hub access, canonical gate protection and reviewer separation",
+      "status": "BLOCKED_DEPENDENCIES",
+      "fixtureRegression": "PASS"
+    },
+    {
+      "id": "P4",
+      "objective": "Adversarial, performance and system release-readiness QA",
+      "status": "BLOCKED_P3_FULL_FEDERATION"
+    }
+  ],
+  "changedPaths": [
+    "projects/dual-intelligence/ARCHITECTURE.md",
+    "projects/dual-intelligence/tech.profile.proposed.json",
+    "projects/dual-intelligence/defense.profile.proposed.json",
+    "packages/contracts/src/intelligence-exchange.mjs",
+    "schemas/intelligence-exchange-manifest.v1.json",
+    "tests/contracts/intelligence-exchange.test.mjs",
+    "projects/dual-intelligence/EXCHANGE.md",
+    "packages/application/src/intelligence-reference.mjs",
+    "tests/governance/intelligence-reference.test.mjs",
+    "projects/dual-intelligence/verify-offline.mjs"
+  ],
+  "contracts": {
+    "portableSourceRevision": "de9f6a1f5e1e50f6c1ef3d129b97ebdd8a283028",
+    "portableSha256": "a1d1a1d0ea190b46ef5514003b43cac0ff920ac8eaa28e2a61e987df245216d2",
+    "schemaPath": "schemas/intelligence-exchange-manifest.v1.json"
+  },
+  "evidence": {
+    "environment": "Node 24.22.3, isolated Linux network namespace",
+    "tests": {
+      "hubScoped": {
+        "pass": 20,
+        "fail": 0,
+        "skip": 0
+      },
+      "crossRepoFixtureFlows": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    "scope": "Wire, authority decisions supplied by fixtures, current-policy regressions, no Graph or catalog mutation",
+    "constitutionAuthoritySetDigest": "sha256:89a9783e0c521d4f5b7c5e8625f4a818e1ebcd4fc92e166f47a0039320bfb5a7",
+    "projectProfileSchemas": "PASS",
+    "existingSchemaCompatibility": "PASS",
+    "architectureBoundaries": "PASS",
+    "sourceOfTruth": "PASS",
+    "command": "node projects/dual-intelligence/verify-offline.mjs TECH_PATH TECH_SHA DEFENSE_PATH DEFENSE_SHA",
+    "testOutput": "✔ published schema and portable validation share the same definitions (3.881022ms)\n✔ both producers round trip using the same closed v1 wire (3.590187ms)\n✔ field order cannot change the canonical bytes or digest (0.994256ms)\n✔ malformed, oversize, duplicate-name and noncanonical input fail closed (1.623295ms)\n✔ unknown version, malformed revision and invalid calendar values fail closed (0.879275ms)\n✔ wire denies cross-producer outcomes, content changes and ambient authority (1.629195ms)\n✔ offline default is explicit and preserves the one owner exception (2.14823ms)\n✔ every tracked repository except Bơi Ếch inherits offline development (0.472628ms)\n✔ policy cannot quietly claim runtime verification or production authority (0.645898ms)\n✔ contract maps exactly three separately staged private repos to Hub policy (3.522591ms)\n✔ no source/workflow/canonical digest may be dropped from a signed handoff (0.915406ms)\n✔ cannot grant Production, Quality Gate or claim a live private credential bridge (0.952095ms)\n✔ service roles cannot be swapped to fake an authority (0.587637ms)\n✔ no shell-capable or unbounded inspect grant may be introduced (0.411963ms)\n✔ claimed canonical DB outside Hub is invalid (0.514445ms)\n✔ both producers yield typed read-only references with expiry and no decision fields (9.793496ms)\n✔ cross-project input, absent scope and verifier outage fail closed (7.07275ms)\n✔ integrity alone grants no origin, stale digests and revoked pins reject (3.474411ms)\n✔ retention and pin expiry cannot silently renew trust (1.660166ms)\n✔ repeat, stale, conflicting and unavailable previous references are distinguished (3.591847ms)\nℹ tests 20\nℹ suites 0\nℹ pass 20\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 365.490879\n{\n  \"trustMode\": \"isolated-fixture\",\n  \"portableContractSha256\": \"a1d1a1d0ea190b46ef5514003b43cac0ff920ac8eaa28e2a61e987df245216d2\",\n  \"results\": [\n    {\n      \"producer\": \"project:software-blueprint-tech-intelligence\",\n      \"sourceRevision\": \"777c96b52825540c34a5538fdc4e83765cf528e9\",\n      \"outcome\": \"RESEARCH_HYPOTHESIS_FALSIFIED\",\n      \"exportBytes\": 695,\n      \"exportMilliseconds\": 148.747,\n      \"fixtureReferenceAdmission\": \"PASS\"\n    },\n    {\n      \"producer\": \"project:software-blueprint-innovation-defense\",\n      \"sourceRevision\": \"e8f1abd616aade6bd51372b90a7a115e32eccee9\",\n      \"outcome\": \"DEFENSE_MITIGATION_VERIFIED\",\n      \"exportBytes\": 696,\n      \"exportMilliseconds\": 88.701,\n      \"fixtureReferenceAdmission\": \"PASS\"\n    }\n  ]\n}\n",
+    "testOutputSha256": "sha256:cd99c20516f9b13e91c87c718092f99453db590fb9c214adc51f41b66e74f4c2"
+  },
+  "blocked": [
+    "Draft Graph Intelligence has no approved external intelligence extension. No overlapping file changed.",
+    "Existing catalog repository discovery only reads public manifests. An authenticated or offline private metadata intake remains unverified.",
+    "P3 runtime authorization and independent review are not supplied by fixture decisions."
+  ],
+  "nextSafeAction": "Re-read Graph Intelligence #166 and bind the typed reference adapter to its approved extension on an authorized non-production Hub runtime."
+}
