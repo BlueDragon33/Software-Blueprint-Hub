@@ -1,0 +1,7 @@
+100644 blob 2c12d4bc680d973369368c981061f9c7b0cec58a	.github/workflows/execution-private-bridge-preview.yml
+100644 blob 0322553c9a0a62ef5d1d9f71ce98d44410593b2e	control/private-execution-service-onboarding.v1.json
+100644 blob a5aa67084e4ef88f197d64f1fa916a84ec3183d5	package.json
+100644 blob bb253f752bf388c47a2a5586d7a0228beca49846	packages/runtime/src/workflow-observation-qa.ts
+100644 blob b403dc2d637c36447484dbbff80e7c042d726a7d	packages/runtime/src/workflow-scoped-github-executor.ts
+100644 blob 24aab8e4ff4bd7dbddc00e8f2752525d46285b74	pnpm-lock.yaml
+100644 blob f56546f62df0b15aa762d404b22c44506497fe0d	tests/application/prompt-workflow-live-private-bridge.test.ts

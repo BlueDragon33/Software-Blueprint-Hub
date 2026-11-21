@@ -1,0 +1,18 @@
+{
+  "head": "1d791be5d5eca47d09918f99cfa084c20b64f0b8",
+  "ciCheckout": "a7929f2a894afb8a18f5259471da0ee7b0e11deb",
+  "runId": 44166934599,
+  "jobId": 134335385709,
+  "result": "FAILED_RUNNER_CONFIGURATION",
+  "sourceChecks": "lint/typecheck/contracts/schema/boundaries PASS",
+  "vitestCases": {
+    "pass": 401,
+    "skip": 60,
+    "fail": 0
+  },
+  "suiteFailures": "14 native node:test .mjs files were misinterpreted as empty Vitest suites; do not report overall CI PASS.",
+  "rootCauseFix": "Vitest now includes .test.ts/.test.tsx; native .mjs suites execute separately with node --test. No assertion, threshold or actual test removed.",
+  "browser": "NOT_RUN on this CI attempt",
+  "harness": "Separate local HTTP smoke exposed post-fallback middleware ordering; configureServer hook repaired it; fixture endpoint now HTTP200 with 19 nodes.",
+  "localAfterFix": "401 Vitest PASS, 60 SKIPPED, 0 failed suites; fixture endpoint HTTP200; branch-scoped exact-HEAD CI rerun pending."
+}

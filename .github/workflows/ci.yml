@@ -80,6 +80,89 @@ jobs:
         run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
 
 
+  graph-intelligence:
+    # Public standard runner; disposable databases and QA identities, never deployment.
+    if: ${{ github.event_name == 'pull_request' && startsWith(github.head_ref, 'feat/federated-graph-intelligence-') && github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_graph_canonical
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_graph_canonical"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_graph_canonical
+      RELEASE_GATE_REVISION: ${{ github.event.pull_request.head.sha }}
+      GRAPH_QA_ADMIN_DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_graph_runtime
+      BLUEPRINT_GRAPH_RUNTIME_QA: "true"
+      BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH: "true"
+      AUTH_SECRET: graph-runtime-ci-only-session-secret-never-deploy
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm prisma:generate
+      - name: Migrate the disposable canonical integration database
+        run: pnpm db:migrate:deploy && pnpm db:migrate:status
+      - run: pnpm lint && pnpm typecheck && pnpm check:boundaries && pnpm contracts:check && pnpm schema:compat
+      - run: pnpm exec vitest run --fileParallelism=false --reporter=default --reporter=json --outputFile.json=artifacts/graph-intelligence-vitest.json
+      - run: node --test tests/governance/*.test.mjs tests/source-truth/*.test.mjs tests/prompt-workflows/*.test.mjs > artifacts/graph-intelligence-node.txt
+      - name: Pin and independently re-read public source bytes (not reviewer A/B)
+        env:
+          BLUEPRINT_LIVE_PINNED_SMOKE: "true"
+          BLUEPRINT_LIVE_SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: pnpm exec vitest run tests/application/prompt-workflow-live-inspection.test.ts --reporter=json --outputFile=artifacts/graph-pinned-transport.json
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test --config tests/web/graph-intelligence.pw.config.ts
+      - name: Create a separate clean database for actual Next.js/Auth.js runtime QA
+        env:
+          DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_graph_runtime
+        run: |
+          docker exec ${{ job.services.postgres.id }} createdb -U blueprint blueprint_graph_runtime
+          pnpm db:migrate:deploy
+          pnpm exec prisma db execute --config prisma7.config.ts --stdin <<< "DO \$\$ BEGIN IF current_database() <> 'blueprint_graph_runtime' THEN RAISE EXCEPTION 'Wrong QA database'; END IF; END \$\$;"
+          pnpm exec prisma db execute --config prisma7.config.ts --file scripts/e2e-project-registry.sql
+          pnpm exec prisma db execute --config prisma7.config.ts --file tests/fixtures/graph-runtime-roles.sql
+      - name: Real PostgreSQL + Next.js + Auth.js role/device/contrast/recovery QA
+        env:
+          DATABASE_URL: postgresql://graph_runtime_app:graph-runtime-ci-only@localhost:5432/blueprint_graph_runtime
+        run: pnpm exec playwright test --config playwright.graph-runtime.config.ts --grep-invert "process restart"
+      - name: Restart Next.js and re-read persisted canonical state
+        env:
+          DATABASE_URL: postgresql://graph_runtime_app:graph-runtime-ci-only@localhost:5432/blueprint_graph_runtime
+          GRAPH_QA_RESTART_STAGE: "true"
+        run: pnpm exec playwright test --config playwright.graph-runtime.config.ts --grep "process restart"
+      - name: Preserve scoped QA evidence, never product approval
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: graph-intelligence-qa-${{ github.event.pull_request.head.sha }}
+          path: |
+            artifacts/
+            tests/web/artifacts/
+            test-results/
+          retention-days: 7
+
   release-gate:
     if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[release-gate]') }}
     runs-on: ubuntu-24.04

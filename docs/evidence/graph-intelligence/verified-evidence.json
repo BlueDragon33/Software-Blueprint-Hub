@@ -1,0 +1,162 @@
+{
+  "schemaVersion": "1.0.0",
+  "scope": "EXACT_SOURCE_AND_SYNTHETIC_UI_QA_ONLY",
+  "repository": "BlueDragon33/Software-Blueprint-Hub",
+  "branch": "feat/federated-graph-intelligence-20261117",
+  "pullRequest": 166,
+  "verifiedCodeHead": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
+  "verifiedCodeTree": "6bed23905112d66f624cbcb0a3b5566b81cb36e4",
+  "sourceManifest": {
+    "paths": [
+      "apps",
+      "packages",
+      "tests",
+      "schemas",
+      "control",
+      "prompt-workflows",
+      "scripts",
+      ".github",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      "tsconfig.base.json",
+      "vitest.config.mts",
+      "playwright.config.ts",
+      "vercel.json"
+    ],
+    "sha256": "fc2ab7df2f1b295eecafe3a9714514ffe29f733fe0c335b17429db4b3236ecd7",
+    "method": "SHA256 of git ls-tree -r --full-tree VERIFIED_HEAD -- listed paths. Compare after an evidence-only checkpoint; do not reuse if any source/test/CI/config blob changes."
+  },
+  "verifiedAt": "2026-11-17T20:26:51Z",
+  "clock": "Final timestamp is GitHub provider UTC; local evidence logs retain executor clock timestamps.",
+  "ci": [
+    {
+      "id": 44169084920,
+      "name": "Development Fast CI + graph-intelligence",
+      "conclusion": "success"
+    },
+    {
+      "id": 44169084709,
+      "name": "Central Prompt Workflow Integration CI",
+      "conclusion": "success"
+    },
+    {
+      "id": 44169084690,
+      "name": "P2 Provider-Neutral Scoped Integration",
+      "conclusion": "success"
+    }
+  ],
+  "artifact": {
+    "id": 14367241423,
+    "sha256": "3046b1ba98ae2ab9d603502308e885ba3cd1693c19eec6b94c3344731979a326",
+    "bytes": 900146,
+    "downloadedAndHashVerified": true,
+    "sourceHeadVerifiedByJobLog": true
+  },
+  "results": {
+    "vitest": {
+      "pass": 401,
+      "fail": 0,
+      "skip": 60,
+      "skipReason": "PostgreSQL/integration runtime absent; not a PASS for those checks"
+    },
+    "nodeGovernanceSourceWorkflow": {
+      "pass": 189,
+      "fail": 0,
+      "skip": 0
+    },
+    "browser": {
+      "pass": 16,
+      "fail": 0,
+      "skip": 0,
+      "flaky": 0,
+      "scope": "Actual Chromium, synthetic fixtures only; desktop/mobile and light/dark; interactions, source tracing, impact filter, keyboard, zoom/pan, bounded 500-work rendering, recovery, external-network requests blocked"
+    },
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "build": "PASS_NOT_PUBLICATION",
+    "contractsSchemaBoundariesTruth": "PASS",
+    "constitutionAuthoritySet": "1.3.0 unchanged",
+    "graph500WorkBuildPlusTransitiveImpactMs": 21,
+    "computedContrast": [
+      {
+        "project": "desktop-light",
+        "checked": 125,
+        "minimum": 6.5427719735711625,
+        "placeholder": 7.711148365374599,
+        "border": 3.9126090704351313,
+        "focus": 6.970253093923143,
+        "failures": []
+      },
+      {
+        "project": "desktop-dark",
+        "checked": 125,
+        "minimum": 6.715602754768362,
+        "placeholder": 10.147680088889732,
+        "border": 4.679058173838422,
+        "focus": 7.730942720262169,
+        "failures": []
+      },
+      {
+        "project": "mobile-light",
+        "checked": 125,
+        "minimum": 6.5427719735711625,
+        "placeholder": 7.711148365374599,
+        "border": 3.9126090704351313,
+        "focus": 6.970253093923143,
+        "failures": []
+      },
+      {
+        "project": "mobile-dark",
+        "checked": 125,
+        "minimum": 6.715602754768362,
+        "placeholder": 10.147680088889732,
+        "border": 4.679058173838422,
+        "focus": 7.730942720262169,
+        "failures": []
+      }
+    ],
+    "realAuthenticatedPostgreSQLRuntime": "NOT_RUN",
+    "independentReviewer": "NOT_RUN",
+    "ownerAcceptance": "NOT_RUN",
+    "merge": "NOT_AUTHORIZED_NOT_RUN",
+    "constitutionAmendment": "NOT_AUTHORIZED_NOT_RUN",
+    "productionOrPreviewPublish": "NOT_AUTHORIZED_NOT_RUN",
+    "vercelBranchDeploymentReadback": "0 records"
+  },
+  "visualInspection": {
+    "agent": "implementing agent only",
+    "files": [
+      "desktop-light.png",
+      "mobile-dark.png"
+    ],
+    "independentAcceptance": false
+  },
+  "files": [
+    {
+      "path": "docs/evidence/graph-intelligence/verified-vitest.json",
+      "sha256": "7b81a3c0b89126a591b3a675d22c1f1f8ce0181d65056d85435accec2e0e00a1",
+      "bytes": 186749
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/verified-node.txt",
+      "sha256": "3dbb78da644132c3dd0ef8796ef946e8078f9cf8b293342292d8d759af6828bc",
+      "bytes": 16138
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/verified-browser.json",
+      "sha256": "259551c21638cf56692d59df53ff788a029a9f0bc6914d639795124144e50dbd",
+      "bytes": 558615
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/desktop-light.png",
+      "sha256": "4178b7b426d03a198239964200a6d28b3fc98f589b43789e1b3b65a0c04dc97e",
+      "bytes": 209547
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/mobile-dark.png",
+      "sha256": "556ff0214d7f3cbc886cc5ea8ea39405a924e75b652d9f5a193fbfd9ea3590cd",
+      "bytes": 179648
+    }
+  ]
+}

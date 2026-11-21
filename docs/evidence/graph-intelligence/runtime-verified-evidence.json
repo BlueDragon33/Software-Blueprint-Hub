@@ -1,0 +1,290 @@
+{
+  "schemaVersion": "1.0.0",
+  "scope": "ACTUAL_NEXT_POSTGRES_AUTH_SESSION_TECHNICAL_QA_NOT_HUMAN_ACCEPTANCE",
+  "repository": "BlueDragon33/Software-Blueprint-Hub",
+  "branch": "feat/federated-graph-intelligence-20261117",
+  "pullRequest": 166,
+  "verifiedCodeHead": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+  "verifiedCodeTree": "380fa9effbd5b666796650c6a75a4a4b5cc7e115",
+  "verifiedAt": "2026-11-18T06:48:57Z",
+  "clock": "GitHub provider UTC",
+  "sourceManifest": {
+    "path": "docs/evidence/graph-intelligence/runtime-source-manifest.txt",
+    "paths": [
+      "apps",
+      "packages",
+      "tests",
+      "schemas",
+      "control",
+      "prompt-workflows",
+      "scripts",
+      ".github",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      "tsconfig.base.json",
+      "vitest.config.mts",
+      "playwright.config.ts",
+      "playwright.graph-runtime.config.ts",
+      "vercel.json",
+      "docs/UNIVERSAL-CONSTITUTION.md"
+    ],
+    "sha256": "3e0d8fa2ba227cd0db548cc39333934badf935c330181f80c715117e4fd92676",
+    "method": "SHA256 of git ls-tree -r --full-tree verifiedCodeHead -- listed paths; evidence-only checkpoint must have identical source blobs."
+  },
+  "ci": [
+    {
+      "id": 44252676986,
+      "name": "Development Fast CI + graph-intelligence",
+      "conclusion": "success",
+      "head": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+      "graphJobId": 134626870772
+    },
+    {
+      "id": 44252676923,
+      "name": "Central Prompt Workflow Integration CI",
+      "conclusion": "success",
+      "head": "2340adc0bb6119a5acd44bdea35df9fced87c7b6"
+    },
+    {
+      "id": 44252676936,
+      "name": "P2 Provider-Neutral Scoped Integration",
+      "conclusion": "success",
+      "head": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+      "postgresJobId": 134627014821
+    },
+    {
+      "id": 44254057875,
+      "name": "Existing protected Private Execution App Bridge Preview",
+      "conclusion": "success",
+      "head": "cd01fb3c2178393628ce968af209db082227d2c4",
+      "jobId": 134631380539,
+      "scope": "Eight credential transport probes on unchanged runtime/test/lockfile/onboarding source, not human reviewer A/B"
+    }
+  ],
+  "artifact": {
+    "id": 14404991451,
+    "bytes": 3799509,
+    "sha256": "ba861e2202e82878546c2d64cec7609fa0d0e6b47c1ba5ce03d3aa9ebf620119",
+    "downloadedAndHashVerified": true,
+    "safeArchivePathsVerified": true,
+    "sourceHeadVerifiedByCheckpointAndCiCheckout": true
+  },
+  "results": {
+    "canonicalVitest": {
+      "pass": 435,
+      "fail": 0,
+      "skip": 26,
+      "rawReport": "runtime-vitest.json"
+    },
+    "immutablePostgresSeparateP2": {
+      "pass": 17,
+      "fail": 0,
+      "skip": 0,
+      "rawJobLog": "runtime-immutable-postgres-job.txt"
+    },
+    "publicPinnedTransport": {
+      "pass": 1,
+      "fail": 0,
+      "skip": 0,
+      "rawReport": "runtime-public-pinned.json"
+    },
+    "privateCredentialTransport": {
+      "pass": 8,
+      "fail": 0,
+      "skip": 0,
+      "rawJobLog": "runtime-private-bridge-job.txt",
+      "testedHead": "cd01fb3c2178393628ce968af209db082227d2c4",
+      "matchedCandidatePaths": [
+        ".github/workflows/execution-private-bridge-preview.yml",
+        "control/private-execution-service-onboarding.v1.json",
+        "package.json",
+        "pnpm-lock.yaml",
+        "packages/runtime/src/workflow-observation-qa.ts",
+        "packages/runtime/src/workflow-scoped-github-executor.ts",
+        "tests/application/prompt-workflow-live-private-bridge.test.ts"
+      ],
+      "identicalGitBlobManifest": "runtime-private-source-manifest.txt",
+      "configDifference": "Candidate Vitest include explicitly selects TS/TSX; protected main workflow explicitly selects this same .test.ts file. Assertions and tested transport implementations are unchanged."
+    },
+    "distinctVitestCoverage": {
+      "pass": 461,
+      "fail": 0,
+      "stillUnverified": 0,
+      "method": "435 canonical + 17 separate immutable PostgreSQL + 1 public pinned + 8 protected-main unchanged-source credential tests; NOT a claim of one 461-pass run. Preserve raw 26 skips in the canonical run."
+    },
+    "nativeNode": {
+      "pass": 189,
+      "fail": 0,
+      "skip": 0,
+      "rawReport": "runtime-node.txt"
+    },
+    "syntheticChromium": {
+      "startTime": "2026-11-18T06:43:06.156Z",
+      "duration": 10758.655,
+      "expected": 16,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0,
+      "scope": "Synthetic graph fixtures, real Chromium; interaction, keyboard, pan/zoom, source tracing and 500-work bounded rendering"
+    },
+    "actualAppChromium": {
+      "startTime": "2026-11-18T06:43:20.259Z",
+      "duration": 35092.94,
+      "expected": 28,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0,
+      "scope": "Production Next.js build on loopback, PostgreSQL16 with persisted roles and standard Auth.js decoding of QA-only encrypted sessions"
+    },
+    "nextProcessRestart": {
+      "startTime": "2026-11-18T06:43:55.763Z",
+      "duration": 5212.092000000001,
+      "expected": 4,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0,
+      "checkpoint": "runtime-checkpoint.json",
+      "businessStateUnchanged": true
+    },
+    "computedRuntimeContrast": [
+      {
+        "project": "desktop-light",
+        "checked": 66,
+        "minimum": 6.5427719735711625,
+        "failures": 0
+      },
+      {
+        "project": "desktop-dark",
+        "checked": 66,
+        "minimum": 6.715602754768362,
+        "failures": 0
+      },
+      {
+        "project": "mobile-light",
+        "checked": 66,
+        "minimum": 6.5427719735711625,
+        "failures": 0
+      },
+      {
+        "project": "mobile-dark",
+        "checked": 66,
+        "minimum": 6.715602754768362,
+        "failures": 0
+      }
+    ],
+    "graph500WorkBuildPlusTransitiveImpactMs": 19,
+    "sourceGates": {
+      "lint": "PASS",
+      "typecheck": "PASS",
+      "build": "PASS_NOT_DEPLOYED",
+      "boundaries": "PASS",
+      "contracts": "PASS",
+      "schemaCompatibility": "PASS",
+      "sourceTruth": "PASS",
+      "constitutionAuthoritySet": "1.3.0 unchanged"
+    },
+    "vercelFeatureBranchDeployments": 0
+  },
+  "authorityAndRecoveryAssertions": [
+    "Signed-out, malformed session, missing role and other-project access deny without canonical source serialization.",
+    "Persisted VIEWER, EDITOR, REVIEWER and OWNER project roles read canonical graph without business writes; none grants SystemOwner or reviewer A/B authority.",
+    "Role revocation takes effect for an existing session; regrant restores access.",
+    "Guarded disposable SQL source edits change displayed recordVersion/title; broken evidence references fail closed without fixture fallback or canonical self-repair.",
+    "Real database SELECT revocation produces unavailable state; restored permission plus Retry reuses canonical source.",
+    "Separate Next.js production-server processes read identical persisted business checkpoint after restart.",
+    "The app database role can SELECT business records and upsert QA principals only; admin fixture controls never run from browser requests."
+  ],
+  "limitations": [
+    "QA identities and encrypted sessions test actual Auth.js/session/authority paths; no live external OAuth provider handshake or real human Owner acceptance is asserted.",
+    "A/B review is Owner-handled, NOT_RUN by this author. Separate read-only QA tokens are transport isolation, not independent human reviewers.",
+    "No online Preview/Production deployment, merge, ratification, active Constitution changes, user canonical writes, paid service or archived Neon reactivation.",
+    "Static mechanism nodes describe source contracts. This read-only projection does not assert live domain health, signed dispatch, autonomous execution or cross-project E3 federation.",
+    "The private protected workflow retains its existing nonblocking app-id deprecation warnings; migrating App identifiers requires a separate custody change and is not needed to pass these transport probes."
+  ],
+  "visualInspection": {
+    "agent": "implementing agent only",
+    "files": [
+      "runtime-desktop-light.png",
+      "runtime-mobile-dark.png"
+    ],
+    "independentAcceptance": false
+  },
+  "files": [
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-browser.json",
+      "bytes": 592722,
+      "sha256": "664023a2349014a1631adee94c255e8dae88945dbd887097f6bca3be7060afae"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-checkpoint.json",
+      "bytes": 184,
+      "sha256": "9f547aa10318fc7cfaac74bf8d04869a262760918491eec3a93eae7d9cc81d70"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-ci-jobs.json",
+      "bytes": 17394,
+      "sha256": "0f25b96cc5f5ae9e3ecf17234548fd2482ad004a17dbaf3a516c7272ff19c023"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-desktop-light.png",
+      "bytes": 332160,
+      "sha256": "90e8086d38bd937b1b0076a6b694169dfcfa897746bd1a9c7e49435011eef5a1"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-fixture-browser.json",
+      "bytes": 557991,
+      "sha256": "b847140883bfa35560d0708df5850516919782eb1eaa7e016aba1424be9c25c4"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-immutable-postgres-job.txt",
+      "bytes": 59815,
+      "sha256": "c2e7bda9e0331c6d5466174580fa41b8fcde7db49b3de6d2aa60221d117794b6"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-mobile-dark.png",
+      "bytes": 1038961,
+      "sha256": "65f237ade7d08b077ea7b8cdd9d8c3c06f87bbffd378d062120b45790f222d17"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-node.txt",
+      "bytes": 16140,
+      "sha256": "fef82f008b6f766ee07bc2ee4d5c8d87508d791d9cd70f3f6f6c3dcc6067f06e"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-private-bridge-job.txt",
+      "bytes": 26189,
+      "sha256": "20ab64fa1bb03b7e6c37665617523b5c5a6f5d320f8f62abb4bc4e4356d97daf"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-private-bridge.png",
+      "bytes": 70487,
+      "sha256": "3ff6c086c26054c60aa25f71652c72ef19ec5a17eadcb901914276de53bbe40e"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-private-source-manifest.txt",
+      "bytes": 673,
+      "sha256": "e32a655de6a7f1f306dfe3ba3b14df2a17cabf01975e56016faf30ed1aa4f185"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-public-pinned.json",
+      "bytes": 1121,
+      "sha256": "e46be35c9f9b9313cb2822bf9e104274da5689482c155692539ff500d8ff984a"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-restart.json",
+      "bytes": 543212,
+      "sha256": "dcb2b54f75989507588934ad77462f2e90eab53254afd0dd0ccb12be3ed4f526"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-source-manifest.txt",
+      "bytes": 39469,
+      "sha256": "3e0d8fa2ba227cd0db548cc39333934badf935c330181f80c715117e4fd92676"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-vitest.json",
+      "bytes": 187799,
+      "sha256": "cb8d346f2bdbf75aec44ea9b5d7547944560645ed524e56e912e9c5c8d81710a"
+    }
+  ]
+}

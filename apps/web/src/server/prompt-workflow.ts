@@ -45,6 +45,13 @@ export function registeredWorkflowSummaries(
   return workflowRegistry.workflowsForProject(projectId);
 }
 
+/** Project-scoped source contracts only; caller must first authorize PROJECT_READ. */
+export function registeredWorkflowManifests(projectId: string) {
+  return workflowRegistry.workflowsForProject(projectId).map(summary =>
+    workflowRegistry.workflowForProject(projectId, summary.workflowId)!
+  );
+}
+
 export function isRegisteredGovernedProject(projectId: string): boolean {
   return workflowRegistry.isGovernedProject(projectId);
 }

@@ -1,0 +1,583 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "execution:federated-graph-intelligence",
+  "repository": "BlueDragon33/Software-Blueprint-Hub",
+  "branch": "feat/federated-graph-intelligence-20261117",
+  "goal": "Deliver a source-traceable, project-authorized Graph Intelligence Studio by extending the existing Evidence Graph, with independent domain constraints and deterministic advisory impact/conflict analysis.",
+  "scope": "Existing Hub only; no new control plane, canonical runtime store, autonomous executor, constitutional amendment, mandatory AI provider or online publication.",
+  "constitution": {
+    "version": "1.3.0",
+    "authority": "control/universal-constitution-version.json",
+    "contract": "control/universal-constitution.contract.json",
+    "normative": "docs/UNIVERSAL-CONSTITUTION.md",
+    "checkedAtRevision": "cd01fb3c2178393628ce968af209db082227d2c4"
+  },
+  "baselineHead": "cd01fb3c2178393628ce968af209db082227d2c4",
+  "currentHead": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+  "headSemantics": "currentHead is the last verified implementation commit, not a self-referential ledger commit. Always resolve live HEAD and git status before resuming; later evidence-only commits must not be mistaken for tested code changes.",
+  "ledgerOwnership": "This is the sole development execution ledger for this mission, under the existing projects/blueprint-os owner. Runtime execution journals and governance-registration-ledger own different canonical entities and are not repurposed or duplicated.",
+  "permissions": {
+    "allowed": [
+      "design",
+      "isolated-branch source edits",
+      "local verification",
+      "source commits",
+      "Draft PR",
+      "disposable loopback PostgreSQL QA fixtures and role/failure/recovery probes",
+      "public standard-runner PostgreSQL + actual Next.js/Auth.js QA",
+      "existing protected read-only GitHub App credential QA with unchanged scopes"
+    ],
+    "forbidden": [
+      "merge",
+      "ratification",
+      "modify active Constitution/contracts/templates",
+      "Production or online Preview publication",
+      "canonical runtime writes",
+      "slug/domain changes",
+      "mandatory service spend",
+      "claim independent review from the author"
+    ],
+    "canonicalWriteBoundary": "No writes to user/Preview/Production canonical data. Declared disposable CI databases and test-only principals are authorized QA fixtures."
+  },
+  "audit": [
+    {
+      "area": "Universal Constitution and authority",
+      "status": "EXISTS",
+      "sources": [
+        "control/universal-constitution-version.json",
+        "packages/application/src/constitution-authority.ts",
+        "packages/core/src/authority.ts"
+      ],
+      "observed": "Active source bundle 1.3.0, immutable human decision and separate release boundaries; running adoption is not inferred."
+    },
+    {
+      "area": "Visual Workflow Studio",
+      "status": "PARTIAL",
+      "sources": [
+        "apps/web/app/projects/[projectId]/prompt/workflow/workflow-studio.tsx",
+        "packages/application/src/prompt-workflow-graph.ts"
+      ],
+      "observed": "Interactive manifest DAG and contract details exist; no federated domains, search/filter/zoom or cross-domain impact."
+    },
+    {
+      "area": "Prompt orchestration",
+      "status": "EXISTS",
+      "sources": [
+        "packages/application/src/prompt-workflow-orchestration.ts",
+        "packages/runtime/src/workflow-execution-authority.ts",
+        "apps/web/src/server/prompt-workflow.ts"
+      ],
+      "observed": "Signed receipt/readiness and bounded execution authority are separate; manifest registration is not execution. Reuse, do not add executor."
+    },
+    {
+      "area": "Quality Evidence Graph",
+      "status": "PARTIAL",
+      "sources": [
+        "packages/application/src/quality-evidence-graph.ts",
+        "apps/web/app/projects/[projectId]/evidence-graph/page.tsx",
+        "tests/application/quality-evidence-graph.test.ts"
+      ],
+      "observed": "Read-only canonical work/gate/evidence/release links validate project identities and orphan references. Existing focused tests executed: 11/11 together with workflow layout/UI baseline. No multi-domain analysis or cycle detection here."
+    },
+    {
+      "area": "Constitution Authority Console",
+      "status": "EXISTS",
+      "sources": [
+        "apps/web/app/constitution/constitution-authority-console.tsx",
+        "packages/application/src/constitution-authority.ts"
+      ],
+      "observed": "Existing protected approval path remains owner; graph must link rather than recreate authority."
+    },
+    {
+      "area": "Agent Change Reliability",
+      "status": "PARTIAL",
+      "sources": [
+        "docs/amendments/CONSTITUTION-1.3-AGENT-CHANGE-RELIABILITY.md",
+        "scripts/agent-change-evidence-candidate.mjs",
+        "packages/application/src/ai-copilot.ts"
+      ],
+      "observed": "Candidate evidence checker and bounded AI proposals exist. Not evidence of an executing LLM, independent reviewer service or live agent health."
+    },
+    {
+      "area": "Quality/Release Gates",
+      "status": "EXISTS",
+      "sources": [
+        "packages/application/src/work-quality-service.ts",
+        "packages/core/src/work-quality.ts",
+        "packages/application/src/release-orchestration.ts"
+      ],
+      "observed": "PROJECT_REVIEW controls gate updates. Promotion plan is advisory and requires explicit external confirmation. Graph cannot PASS a gate."
+    },
+    {
+      "area": "Security/Data/Operations",
+      "status": "PARTIAL",
+      "sources": [
+        "packages/application/src/security-threat-model.ts",
+        "packages/application/src/data-lifecycle.ts",
+        "packages/application/src/operational-diagnostics.ts"
+      ],
+      "observed": "Project-scoped checked-in policy models and diagnostics exist. Threat evidence labels and phase9 revisions are not exact runtime evidence."
+    },
+    {
+      "area": "Federated graph analysis",
+      "status": "MISSING",
+      "sources": [
+        "packages/application/src/quality-evidence-graph.ts",
+        "packages/application/src/prompt-workflow-graph.ts"
+      ],
+      "observed": "Need typed multi-domain projection, directional impact paths, independent constraints and explainable revision-sensitive findings."
+    },
+    {
+      "area": "Verification infrastructure",
+      "status": "PARTIAL",
+      "sources": [
+        "vitest.config.mts",
+        "playwright.config.ts",
+        ".github/workflows/ci.yml"
+      ],
+      "observed": "Node24, Vitest5, Chromium available. Baseline lint reproduced two existing unused imports; PostgreSQL tools absent initially. Existing Vercel combined status is failure (build-rate-limit), not a product QA result."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D1",
+      "decision": "Extend /projects/[projectId]/evidence-graph and existing navigation, not a new app/dashboard or graph database."
+    },
+    {
+      "id": "D2",
+      "decision": "Reuse buildQualityEvidenceGraph for canonical identity/reference validation; add an application-layer federated projection with separate dependency, data-flow, control and evidence edges."
+    },
+    {
+      "id": "D3",
+      "decision": "Every node distinguishes contract vs canonical provenance, source revision, recorded execution, verification and approval requirement. A source-contract node never means running, compliant or approved."
+    },
+    {
+      "id": "D4",
+      "decision": "Deterministic diagnostics and directional impact traversal only. No LLM claim, paid API, mutation, dispatch, trust-store or gate fork. Existing workflow and quality services retain their responsibilities."
+    },
+    {
+      "id": "D5",
+      "decision": "Project-authorized canonical reads before manifest/policy metadata. Do not fetch other projects, remote HEADs or arbitrary evidence URLs. Missing sources fail closed with recovery UI."
+    },
+    {
+      "id": "D6",
+      "decision": "Bound graph size and rendering; overview first, details/search/filters on demand; preserve full analysis scope and report hidden records explicitly. Measure actual limits with tests."
+    },
+    {
+      "id": "D7",
+      "decision": "Local Chromium launch is blocked by managed socket policy; standard headless-shell archive also unavailable. Run existing CI on a public standard Ubuntu runner for exact-revision fixture browser QA. No sandbox bypass or paid/private runner."
+    },
+    {
+      "id": "D8",
+      "decision": "Before first push, add branch-specific git.deploymentEnabled=false to both repository and apps/web Vercel roots because connector does not expose rootDirectory. Both configs share one exact branch denial and change no existing live deployment/domain. Source: https://vercel.com/docs/project-configuration/git-configuration."
+    },
+    {
+      "id": "D9",
+      "decision": "Reuse the public standard graph CI runner with two disposable Postgres databases: canonical integration and separate clean Next.js runtime. Existing P2 workflow separately verifies 17 immutable QA/authority tests. Do not combine their one-time owner bootstrap state or reset append-only history."
+    },
+    {
+      "id": "D10",
+      "decision": "Runtime tests use existing Auth.js session decoding with QA-only signed claims and persisted project roles. This is an authenticated local technical path, not proof of a GitHub OAuth handshake or a human Owner/reviewer decision. App database role receives SELECT-only business access and principal upsert permission."
+    }
+  ],
+  "workPackages": [
+    {
+      "id": "FIG-001",
+      "objective": "Verify baseline and record reuse/gaps/authority",
+      "ownerFiles": [
+        "projects/blueprint-os/graph-intelligence.execution.json"
+      ],
+      "dependencies": [],
+      "status": "DONE",
+      "acceptance": "Exact baseline, policy source, audit matrix and forbidden actions recorded",
+      "verification": [
+        "git HEAD/status",
+        "GitHub open PR and permission readback",
+        "11 baseline focused tests PASS"
+      ],
+      "risk": "low",
+      "next": "FIG-002"
+    },
+    {
+      "id": "FIG-002",
+      "objective": "Typed source-traceable federation projection without canonical writes",
+      "ownerFiles": [
+        "packages/application/src/graph-intelligence.ts",
+        "tests/application/graph-intelligence.test.ts"
+      ],
+      "dependencies": [
+        "FIG-001"
+      ],
+      "status": "DONE",
+      "acceptance": "Schema-compatible project isolation, truthful states, typed edges, bounded graph and immutable provenance",
+      "verification": [
+        "contract and hostile-input tests",
+        "typecheck",
+        "existing evidence-graph regression"
+      ],
+      "risk": "medium",
+      "next": "FIG-003"
+    },
+    {
+      "id": "FIG-003",
+      "objective": "Explainable impact, conflict and revision analysis",
+      "ownerFiles": [
+        "packages/application/src/graph-intelligence.ts",
+        "tests/application/graph-intelligence.test.ts"
+      ],
+      "dependencies": [
+        "FIG-002"
+      ],
+      "status": "DONE",
+      "acceptance": "Typed directional impact paths, cycles/broken references, no synthetic PASS, independent owner recommendations and stale evidence findings",
+      "verification": [
+        "adversarial and directionality tests",
+        "determinism and performance checks"
+      ],
+      "risk": "medium",
+      "next": "FIG-004"
+    },
+    {
+      "id": "FIG-004",
+      "objective": "Integrated Graph Intelligence Studio vertical slice",
+      "ownerFiles": [
+        "apps/web/app/projects/[projectId]/evidence-graph/",
+        "apps/web/src/server/graph-intelligence.ts",
+        "tests/web/graph-intelligence.test.tsx"
+      ],
+      "dependencies": [
+        "FIG-002",
+        "FIG-003"
+      ],
+      "status": "DONE",
+      "acceptance": "Integrated source UI and project-authorized loader; controls, truthful states and recovery verified by FIG-006 fixture browser QA and FIG-007 actual Next.js/PostgreSQL/Auth.js role QA.",
+      "verification": [
+        "25 focused tests PASS (projection, hostile inputs, loader authorization, semantic UI and capacity)",
+        "Workspace typecheck PASS",
+        "Next production build PASS (build only, no publication)"
+      ],
+      "risk": "medium",
+      "next": "FIG-005"
+    },
+    {
+      "id": "FIG-005",
+      "objective": "Verify local source gates and record limitations without claiming browser or PostgreSQL acceptance",
+      "ownerFiles": [
+        "tests/",
+        "docs/evidence/graph-intelligence/",
+        "projects/blueprint-os/graph-intelligence.execution.json"
+      ],
+      "dependencies": [
+        "FIG-004"
+      ],
+      "status": "DONE",
+      "acceptance": "Local source/test/build gates are evidenced; browser, authenticated runtime and independent review are reported separately",
+      "verification": [
+        "400 full-suite tests PASS, 60 SKIPPED (PostgreSQL/integration capability absent)",
+        "25 focused tests PASS after adding 500-work capacity test",
+        "lint/typecheck/build/contracts/schema/boundaries/truth PASS; active authority set unchanged"
+      ],
+      "risk": "medium",
+      "next": "FIG-006"
+    },
+    {
+      "id": "FIG-006",
+      "objective": "Deliver source-only Draft PR, run exact-revision public standard-runner browser QA, and save a small executable handoff",
+      "ownerFiles": [
+        "projects/blueprint-os/graph-intelligence.execution.json",
+        "GitHub Draft PR"
+      ],
+      "dependencies": [
+        "FIG-005"
+      ],
+      "status": "DONE",
+      "acceptance": "Remote source/CI readback and fixture browser measurements/screenshots; no online publication. Distinguish synthetic browser QA from authenticated runtime and Owner acceptance.",
+      "verification": [
+        "docs/evidence/graph-intelligence/verified-evidence.json",
+        "3 exact-source CI workflows SUCCESS",
+        "401 Vitest PASS, 60 SKIPPED; 189 native Node PASS; 16 Chromium PASS, no flaky or skipped browser cases",
+        "Artifact bytes verified; code/test/CI source manifest preserved for evidence-only checkpoint"
+      ],
+      "risk": "low",
+      "next": "FIG-007"
+    },
+    {
+      "id": "FIG-007",
+      "objective": "Complete actual PostgreSQL/Next.js/Auth.js technical QA with persisted project roles, revisions, outages, restart and rendered UX",
+      "ownerFiles": [
+        ".github/workflows/ci.yml",
+        "playwright.graph-runtime.config.ts",
+        "tests/e2e/graph-intelligence.pw.ts",
+        "tests/e2e/graph-runtime-support.ts",
+        "tests/fixtures/graph-runtime-roles.sql",
+        "docs/evidence/graph-intelligence/"
+      ],
+      "dependencies": [
+        "FIG-006"
+      ],
+      "status": "DONE",
+      "acceptance": "Delivered read-only Graph technical scope verified on real disposable PostgreSQL16 + Next.js production server + Auth.js session decoding across roles/devices/themes/recovery. A/B and real human acceptance remain external Owner gates.",
+      "verification": [
+        "docs/evidence/graph-intelligence/runtime-verified-evidence.json: exact tested source 2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+        "435 canonical Vitest PASS/26 raw SKIP; 17 immutable Postgres +1 public pinned +8 protected-main unchanged-source credential probes PASS separately; all 461 distinct Vitest cases covered, no combined-run fiction",
+        "189 native Node PASS; 16 fixture Chromium PASS; 28 actual Next.js/Auth.js/PostgreSQL browser cases +4 process-restart cases PASS, 0 skipped/flaky",
+        "Persisted VIEWER/EDITOR/REVIEWER/OWNER roles, signed-out/invalid/unassigned/foreign-project denial, revocation/regrant, source revision, broken references, database permission outage, retry, read-only business digest and restart verified",
+        "264 actual rendered text samples across four device/theme cases PASS, minimum 6.54:1; 500-work build + impact 19ms in this run",
+        "Existing protected main credential workflow kept source/secrets custody; read-only scopes, separate tokens, exact HEAD reads, invalid credential denial and revocation verified; no human reviewer A/B or Quality Gate issued",
+        "All raw reports, representative actual screenshots, job metadata/logs and SHA256/source manifests archived; no online publication"
+      ],
+      "risk": "medium",
+      "next": "Owner A/B and acceptance. Reconcile supplied findings against verified source before any separately authorized merge/release."
+    }
+  ],
+  "knownDefects": [
+    {
+      "id": "BASELINE-LINT",
+      "scope": "pre-existing",
+      "detail": "Unused appSearchKey and canonicalDispatchPayload imports; reproduced before implementation. Existing Draft #162 owns repair; do not silently claim whole-repository lint PASS.",
+      "resolution": "Reused exact four-file source delta from existing Draft #162 HEAD 33b74c43fbe07bebde67a0de5c89e5d2a64213af on this isolated branch; no PR merge. Lint now PASS."
+    },
+    {
+      "id": "BASELINE-CATALOG",
+      "scope": "pre-existing",
+      "detail": "Full suite reproduced two failures: already tracked pending Russian Expert Engine lacked presentation; exact source repair reused from Draft #162. Canonical inventory and registrations unchanged.",
+      "resolution": "Full suite after repair: 400 PASS, 60 SKIPPED, 0 FAIL."
+    },
+    {
+      "id": "CI-NATIVE-RUNNER-MISMATCH",
+      "scope": "verification infrastructure",
+      "resolution": "Bound Vitest to its TS/TSX suites and run Node-native .mjs checks separately; local full suite 401 PASS, 60 SKIPPED."
+    },
+    {
+      "id": "QA-HARNESS-MIDDLEWARE-ORDER",
+      "scope": "isolated fixture harness only",
+      "resolution": "Use Vite configureServer before terminal 404 middleware; local fixture endpoint HTTP200, 19 nodes."
+    },
+    {
+      "id": "QA-EXACT-LABEL-LOCATOR",
+      "scope": "Playwright test locator only",
+      "resolution": "AOM snapshot confirms Relationship combobox. Replace exact label-text lookup with exact combobox accessible-role locator. All behavior assertions and WCAG thresholds preserved; full rerun pending.",
+      "verification": "Resolved at b818406511fb10be16b7cd3d9fbb27224ea4488a: full 16/16 actual Chromium PASS."
+    },
+    {
+      "id": "QA-SHARED-EMPTY-STATE-TITLE",
+      "scope": "New runtime test locator",
+      "resolution": "Corrected title text locator after actual AOM evidence; sign-in link, graph denial and no-source-leak assertions retained.",
+      "verification": "2340adc0bb6119a5acd44bdea35df9fced87c7b6: full 28/28 actual-runtime cases and 4/4 process-restart cases PASS."
+    }
+  ],
+  "blockers": [],
+  "evidence": [
+    {
+      "scope": "baseline",
+      "revision": "cd01fb3c2178393628ce968af209db082227d2c4",
+      "command": "pnpm exec vitest run tests/application/quality-evidence-graph.test.ts tests/application/prompt-workflow-graph.test.ts tests/web/workflow-studio.test.tsx --fileParallelism=false",
+      "result": "PASS: 3 files, 11 tests"
+    },
+    {
+      "scope": "candidate-local",
+      "revision": "WORKTREE_SOURCE_BEFORE_IMPLEMENTATION_COMMIT",
+      "results": {
+        "fullVitest": "400 PASS, 60 SKIPPED, 0 FAIL",
+        "focusedAfterCapacityTest": "25 PASS, 0 FAIL",
+        "lint": "PASS after exact reused baseline repair",
+        "typecheck": "PASS",
+        "build": "PASS, not deployed",
+        "contracts": "PASS",
+        "schemaCompatibility": "PASS",
+        "boundaries": "PASS",
+        "sourceTruth": "PASS",
+        "authoritySet": "PASS, 1.3.0 four-component authority set unchanged",
+        "browser": "BLOCKED: Chromium socket() Operation not permitted; headless-shell archive unavailable",
+        "authenticatedRuntime": "NOT_RUN",
+        "independentReview": "NOT_RUN"
+      }
+    },
+    {
+      "scope": "local-source-only",
+      "path": "docs/evidence/graph-intelligence/local-verification.json",
+      "result": "Source gates PASS, 189 Node checks PASS; browser and authenticated runtime NOT_VERIFIED"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/ci-attempt-1.json",
+      "revision": "1d791be5d5eca47d09918f99cfa084c20b64f0b8",
+      "result": "Source checks PASS; CI failed native-runner mismatch; browser NOT_RUN; local corrections verified"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/ci-attempt-2.json",
+      "revision": "c83d53b2c5dcf46d4b6a95a632be767f19e63029",
+      "result": "Source gates PASS; fixture browser 12 PASS/4 locator failures; computed contrast PASS in all four configurations; overall browser gate NOT_PASS."
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/verified-evidence.json",
+      "revision": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
+      "result": "EXACT SOURCE VERIFIED / SYNTHETIC UI VERIFIED / REAL RUNTIME AND HUMAN ACCEPTANCE PENDING"
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-attempt-1.json",
+      "revision": "3da357532f189792234d9d860aa34bb9b0ca4e8b",
+      "result": "Canonical PostgreSQL 435 PASS/26 SKIP; 24/28 actual-runtime cases PASS; sign-in locator correction pending rerun; restart NOT_RUN."
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/runtime-verified-evidence.json",
+      "revision": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+      "result": "TECHNICAL_NONPRODUCTION_QA_COMPLETE: 461 distinct Vitest coverage across documented scopes, 189 Node, 16 fixture browser, 32 actual-app/restart browser; human gates external."
+    }
+  ],
+  "nextSafeAtomicAction": "Read live PR #166 HEAD and this ledger; FIG-001..FIG-007 technical work is DONE. When Owner supplies real A/B findings or acceptance, bind them to source SHA/manifest, repair evidenced findings on this branch and run targeted/regression gates. Do not generate A/B verdicts, merge or publish under current authority.",
+  "lastVerifiedTimestamp": "2026-11-18T06:48:57Z",
+  "lastVerifiedRevision": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+  "remainingCapabilities": [
+    "No eligible technical QA blocker remains for the delivered project-authorized read-only Graph slice. External OAuth provider handshake and real human Owner acceptance were not simulated as product acceptance.",
+    "Mechanism nodes describe existing source contracts. Live domain health, signed workflow completion, autonomous agent execution and cross-project E3 federation remain outside this read-only projection; no compliance or completion is inferred.",
+    "All delivered recommendations are deterministic. No paid or mandatory LLM provider was introduced; existing bounded execution services remain separate.",
+    "Revision comparison uses canonical recordVersion/content digests and release-evidence revision checks; no new history store or graph database."
+  ],
+  "pr": {
+    "number": 166,
+    "url": "https://github.com/BlueDragon33/Software-Blueprint-Hub/pull/166",
+    "state": "DRAFT"
+  },
+  "sourceManifestSHA256": "3e0d8fa2ba227cd0db548cc39333934badf935c330181f80c715117e4fd92676",
+  "checkpointNote": "Technical runtime gaps closed under Owner direction dated 2026-11-18. Preserve historical limited/failed evidence. This checkpoint updates evidence/ledger only and must keep the exact verified implementation/test/CI/config manifest.",
+  "handoff": {
+    "repository": "BlueDragon33/Software-Blueprint-Hub",
+    "ledgerPath": "projects/blueprint-os/graph-intelligence.execution.json",
+    "branch": "feat/federated-graph-intelligence-20261117",
+    "verifiedCodeHead": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+    "wp": "FIG-007 DONE",
+    "goal": "Reconcile actual Owner-provided A/B findings/acceptance at the verified source; do not repeat completed architecture or valid QA.",
+    "gates": "461 distinct Vitest verified across 435+17+1+8 scopes; 189 Node; 16 fixture Chromium; 28 actual Next/Auth/Postgres +4 restart Chromium PASS. lint/typecheck/build/contracts/schema/boundaries/truth PASS.",
+    "blockers": [],
+    "externalGates": [
+      "A/B handled separately by Owner",
+      "Real human product acceptance and separate merge/publication authority"
+    ],
+    "nextAtomicAction": "Read live PR #166 HEAD and this ledger; FIG-001..FIG-007 technical work is DONE. When Owner supplies real A/B findings or acceptance, bind them to source SHA/manifest, repair evidenced findings on this branch and run targeted/regression gates. Do not generate A/B verdicts, merge or publish under current authority.",
+    "authority": "Branch development + Draft PR only; no merge, constitutional change/ratification, user canonical writes, online publication or mandatory spend."
+  },
+  "resumeReadback": {
+    "date": "2026-11-18",
+    "evidenceClass": "READ_ONLY_PROVIDER_METADATA_AND_EXISTING_EXACT_SOURCE_CI_ONLY",
+    "observedBranchHeadBeforeReadback": "792c5f030076a18b272f038ad213f2ff37914a95",
+    "sourceOnlyVerifiedHead": "b818406511fb10be16b7cd3d9fbb27224ea4488a",
+    "exactSourceUnchangedFromVerifiedHead": true,
+    "sourceComparison": "git tree blob SHA comparison for apps/packages/tests/schemas/control/prompt-workflows/scripts/.github and selected root build/config files: zero differences; intervening 1 commit only evidence/ledger",
+    "confirmedCI": [
+      {
+        "runId": 44169084920,
+        "conclusion": "success",
+        "headSha": "b818406511fb10be16b7cd3d9fbb27224ea4488a"
+      },
+      {
+        "runId": 44169084709,
+        "conclusion": "success",
+        "headSha": "b818406511fb10be16b7cd3d9fbb27224ea4488a"
+      },
+      {
+        "runId": 44169084690,
+        "conclusion": "success",
+        "headSha": "b818406511fb10be16b7cd3d9fbb27224ea4488a"
+      }
+    ],
+    "artifact": {
+      "id": 14367241423,
+      "exists": true,
+      "expired": false,
+      "bytes": 900146,
+      "previouslyVerifiedSHA256": "3046b1ba98ae2ab9d603502308e885ba3cd1693c19eec6b94c3344731979a326",
+      "hashRecomputedThisSession": false
+    },
+    "prReviewsObserved": 0,
+    "runtimeDiscovery": {
+      "vercelConnectedScope": "No linked deployment or deployments for feature branch observed; not a universal account-level negative",
+      "neonConnectedScope": "software-blueprint-hub project found; 7/7 listed branches archived including production and historic QA branches",
+      "authenticatedRoleDeviceQa": "NOT_RUN",
+      "authorizedNonProductionRuntime": "NOT_DEMONSTRATED",
+      "lifecycleActions": "NONE; no branch reactivation, compute start, database write or production data access"
+    },
+    "dependencyDAG": {
+      "ready": [],
+      "done": [
+        "FIG-001",
+        "FIG-002",
+        "FIG-003",
+        "FIG-004",
+        "FIG-005",
+        "FIG-006"
+      ],
+      "blocked": [
+        "FIG-007"
+      ]
+    },
+    "gates": {
+      "realPostgres": "BLOCKED",
+      "independentReviewer": "BLOCKED_SEPARATELY_OWNER_COORDINATED",
+      "ownerAcceptance": "PENDING",
+      "merge": "NOT_AUTHORIZED",
+      "publish": "NOT_AUTHORIZED"
+    },
+    "decision": "Keep FIG-007 BLOCKED. Do not rerun completed WPs or promote fixture-only QA into live acceptance. Await an explicitly authorized non-production runtime and independent/Owner gates; no autonomous merge or publish.",
+    "currentScopeNote": "Historical provider discovery retained. Current Owner instruction authorizes disposable CI technical QA; this does not activate archived Neon branches, access user data or confer human acceptance.",
+    "historicalOnly": true,
+    "supersededTechnicalGateEvidence": "docs/evidence/graph-intelligence/runtime-verified-evidence.json"
+  },
+  "auditScope": "Historical baseline at cd01fb3c2178393628ce968af209db082227d2c4; current capability results are in workPackages and referenced evidence.",
+  "ownerDirection": {
+    "date": "2026-11-18",
+    "request": "Finish outstanding eligible work; independent reviewer A/B handled separately by Owner",
+    "reviewerAB": "OWNER_HANDLED_OUTSIDE_AGENT_SCOPE",
+    "protectedHumanDecisions": "Do not impersonate an Owner, independent reviewer or external OAuth account."
+  },
+  "skipClassificationCorrection": {
+    "priorTotal": 60,
+    "canonicalPostgreSQL": 34,
+    "immutablePostgreSQLInSeparateP2Workflow": 17,
+    "publicPinnedTransport": 1,
+    "privateCredentialBridge": 8,
+    "note": "Previous summaries overgeneralized the 60 skips as PostgreSQL-dependent. This classification corrects that label without changing historical test results. Private transport requires separately scoped executor/QA App credentials; no reviewer A/B verdict is implied by transport tests."
+  },
+  "concurrencyReadback": {
+    "preservedCheckpoint": "efdf2990235db16eb384cad907e4712eee3f7f61",
+    "change": "Additive read-only gate-discovery metadata retained; current runtime QA is layered on top.",
+    "leaseSafety": "Stale expected-head update rejected; no concurrent data overwritten."
+  },
+  "externalGates": {
+    "reviewerAB": "OWNER_HANDLED_OUTSIDE_AGENT_SCOPE_PENDING_ACTUAL_REVIEWS",
+    "humanOwnerProductAcceptance": "PENDING_NO_REAL_HUMAN_SIGNOFF_FABRICATED",
+    "merge": "NOT_AUTHORIZED_NOT_RUN",
+    "activeConstitutionChange": "NOT_AUTHORIZED_NOT_RUN",
+    "onlinePreviewOrProductionPublish": "NOT_AUTHORIZED_NOT_RUN"
+  },
+  "technicalClosure": {
+    "status": "DONE",
+    "verifiedHead": "2340adc0bb6119a5acd44bdea35df9fced87c7b6",
+    "verifiedAt": "2026-11-18T06:48:57Z",
+    "dependencyDAG": {
+      "done": [
+        "FIG-001",
+        "FIG-002",
+        "FIG-003",
+        "FIG-004",
+        "FIG-005",
+        "FIG-006",
+        "FIG-007"
+      ],
+      "active": [],
+      "ready": [],
+      "blocked": []
+    },
+    "acceptanceEvidence": "docs/evidence/graph-intelligence/runtime-verified-evidence.json",
+    "canonicalStateIntegrity": "PASS in declared disposable QA databases; no user/Preview/Production canonical data touched",
+    "remainingRawSkipsResolvedElsewhere": {
+      "immutablePostgres": 17,
+      "publicPinnedTransport": 1,
+      "protectedPrivateCredentialTransport": 8
+    },
+    "reviewerAB": "OWNER_HANDLED_NOT_EXECUTED",
+    "releaseGateJob": "SKIPPED_BY_DESIGN_DEVELOPMENT_BRANCH_NOT_RELEASE_PASS",
+    "actualOAuthProviderLogin": "NOT_RUN_QA_SESSIONS_USED",
+    "publication": "NONE",
+    "vercelFeatureBranchDeployments": 0
+  }
+}
