@@ -375,7 +375,7 @@ export function suggestReviewerLearning(
     if (!terms.some(term => body.includes(term))) continue;
     results.push(Object.freeze({
       recordId: p.id, kind: p.kind,
-      sourceRevisions: Object.freeze(p.evidence.map(x => x.revision).sort()),
+      sourceRevisions: Object.freeze(p.evidence.map((x: PatternEvidenceInput) => x.revision).sort()),
       projectIds: Object.freeze([...p.projectIds].sort()),
       title: p.title, summary: p.summary,
       useStatus: "REVALIDATE_CURRENT_SOURCE",
