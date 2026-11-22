@@ -60,7 +60,7 @@ export function selectUniversalNextAction(snapshot) {
     kind: mayExecute ? "execute-eligible" : "send-guidance",
     projectId,projectName,sourceRevision,checkpointRef,workPackageId:selected.id,
     mayExecute,hostCanSend:capabilities.hostCanSend === true,
-    requiresNativeBatch:capabilities.requiresWindows === true && capabilities.nativeWindows === false,
+    requiresNativeBatch:capabilities.requiresWindows === true && capabilities.nativeWindows !== true,
     stopConditions:Object.freeze(["mandatory-human-gate","unavailable-capability","unapproved-cost-or-risk","scope-complete","environment-limit"]),
     instruction: "Continue authorized READY work for " + selected.id + " in " + projectName +
       ". Revalidate canonical state and authority before each mutation; complete all eligible dependent tasks, test and checkpoint. Do not self-ratify, publish or invent execution. Batch Windows diagnostics only if actually required."
