@@ -18,6 +18,8 @@ import {
   PostgresWorkQualityRepository
 } from "../../packages/persistence/src";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { prepareNextActionIntake } from "../../packages/application/src/next-action-intake.candidate.mjs";
+
 
 const databaseUrl = process.env.DATABASE_URL;
 const describePostgres = databaseUrl ? describe : describe.skip;
@@ -292,5 +294,108 @@ describePostgres("FND-007 Work Package + Quality Gate integration", () => {
       source: "github-actions:36130000000",
       revision: "revision-fnd007-integration"
     });
+  });
+
+  // Next Action source-only business logic runs through the existing canonical
+  // WorkQuality service; no second DB/table/authorization path is introduced.
+  const nextActionRevision = "sha256:" + "a".repeat(64);
+  function nextActionPlan(requestId: string, content: string) {
+    const input = {
+      projectId, requestId, sourceRevision: nextActionRevision,
+      kind: "other" as const, content, selectedWorkPackageId: null
+    };
+    const context = {
+      authorizedProjectId: projectId,
+      currentSourceRevision: nextActionRevision,
+      existingWorkPackages: [] as WorkPackage[],
+      now: "2026-11-22T00:00:00.000Z"
+    };
+    const plan = prepareNextActionIntake(input, context);
+    if (plan.kind !== "create-planned") throw new Error("Test precondition: expected PLANNED candidate");
+    return { input, context, plan };
+  }
+
+  it("concurrent replay of the same Next Action request creates precisely one canonical record", async () => {
+    const actor = await ownerActor();
+    const { input, context, plan } = nextActionPlan(
+      "12345678-1234-4123-9123-123456789abc", "One canonical requested change"
+    );
+    const writes = await Promise.allSettled(
+      Array.from({ length: 8 }, () => service.createWorkPackage(actor, plan.workPackage))
+    );
+    expect(writes.filter(x => x.status === "fulfilled")).toHaveLength(1);
+    expect(writes.filter(x => x.status === "rejected")).toHaveLength(7);
+    const persisted = await service.listWorkPackages(actor, projectId);
+    expect(persisted).toHaveLength(1);
+    expect(persisted[0]).toMatchObject({
+      id: plan.workPackageId, status: "planned",
+      purpose: input.content, projectId
+    });
+    const replay = prepareNextActionIntake(input, {
+      ...context, existingWorkPackages: [...persisted]
+    });
+    expect(replay).toMatchObject({
+      kind: "already-saved", workPackageId: plan.workPackageId,
+      mayDispatch: false
+    });
+  });
+
+  it("conflicting content with the same request ID cannot overwrite the winning WorkPackage", async () => {
+    const actor = await ownerActor();
+    const requestId = "22345678-1234-4123-9123-123456789abc";
+    const left = nextActionPlan(requestId, "Approved scope A");
+    const right = nextActionPlan(requestId, "Different scope B");
+    expect(left.plan.workPackageId).toBe(right.plan.workPackageId);
+    const writes = await Promise.allSettled([
+      service.createWorkPackage(actor, left.plan.workPackage),
+      service.createWorkPackage(actor, right.plan.workPackage)
+    ]);
+    expect(writes.filter(x => x.status === "fulfilled")).toHaveLength(1);
+    const stored = await service.listWorkPackages(actor, projectId);
+    expect(stored).toHaveLength(1);
+    const winner = stored[0]!.purpose;
+    expect(["Approved scope A", "Different scope B"]).toContain(winner);
+    const loser = winner === "Approved scope A" ? right : left;
+    expect(() => prepareNextActionIntake(loser.input, {
+      ...loser.context, existingWorkPackages: [...stored]
+    })).toThrow(/request id conflict/);
+    expect((await service.listWorkPackages(actor, projectId))[0]!.purpose).toBe(winner);
+  });
+
+  it("exposes the UNRESOLVED cross-request source CAS gap without falsely claiming it passed", async () => {
+    const actor = await ownerActor();
+    // Both independent callers prepared against the SAME earlier read.
+    // Unique IDs do not serialize the project-wide Prompt source revision.
+    const a = nextActionPlan("32345678-1234-4123-9123-123456789abc", "Separate scope A");
+    const b = nextActionPlan("42345678-1234-4123-9123-123456789abc", "Separate scope B");
+    const results = await Promise.allSettled([
+      service.createWorkPackage(actor, a.plan.workPackage),
+      service.createWorkPackage(actor, b.plan.workPackage)
+    ]);
+    expect(results.filter(x => x.status === "fulfilled")).toHaveLength(2);
+    const stored = await service.listWorkPackages(actor, projectId);
+    expect(stored.map(x => x.id).sort()).toEqual(
+      [a.plan.workPackageId, b.plan.workPackageId].sort()
+    );
+    // This current behavior demonstrates a missing atomic project-level CAS
+    // requirement, NOT an accepted/verified concurrency safety release gate.
+    expect(stored.every(x => x.status === "planned")).toBe(true);
+  });
+
+  it("keeps per-record version CAS on simultaneous updates", async () => {
+    const actor = await ownerActor();
+    const candidate = wp("work-package:fnd007-concurrent-update", "planned", []);
+    await service.createWorkPackage(actor, candidate);
+    const a = wp(candidate.id, "ready", [], 2);
+    const b = wp(candidate.id, "blocked", [], 2);
+    const results = await Promise.allSettled([
+      service.updateWorkPackage(actor, a, 1),
+      service.updateWorkPackage(actor, b, 1)
+    ]);
+    expect(results.filter(x => x.status === "fulfilled")).toHaveLength(1);
+    expect(results.filter(x => x.status === "rejected")).toHaveLength(1);
+    const saved = await repository.findWorkPackageById(candidate.id);
+    expect(saved?.meta.recordVersion).toBe(2);
+    expect(["ready", "blocked"]).toContain(saved?.status);
   });
 });
