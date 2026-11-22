@@ -28,7 +28,7 @@ function decodeCanonicalProjectId(encodedProjectId) {
   try { projectId = decodeURIComponent(encodedProjectId); }
   catch { return null; }
   if (!projectId || projectId.length > MAX_PROJECT_ID
-    || /[<>\u0000-\u001f\u007f]/.test(projectId)
+    || /[<>%/\\\u0000-\u001f\u007f]/.test(projectId)
     || encodeURIComponent(projectId) !== encodedProjectId) return null;
   return projectId;
 }
