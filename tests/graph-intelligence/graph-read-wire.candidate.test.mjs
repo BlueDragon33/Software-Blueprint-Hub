@@ -100,6 +100,8 @@ test("dangling edges, false relations, duplicate identities and spoofed provenan
   const changes=[
     {edges:[{...graph().edges[0],to:"private-node"}]},
     {edges:[{...graph().edges[0],relation:"self-approved"}]},
+    {edges:[{...graph().edges[0],kind:"requires-gate",relation:"dependency"}]},
+    {edges:[{...graph().edges[0],kind:"self-approved",relation:"dependency"}]},
     {edges:[{...graph().edges[0],provenance:"unsigned"}]},
     {edges:[graph().edges[0],graph().edges[0]]},
     {nodes:[node("wp1"),node("wp1")]},
