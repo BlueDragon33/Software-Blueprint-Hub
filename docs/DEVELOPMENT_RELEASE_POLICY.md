@@ -1,20 +1,20 @@
 # Shared Development / Release Policy
 
-## Default now: Offline-First Development — owner directive 2026-10-16
+## Development default: Offline-First; manual direct-Production release — Owner directives 2026-10-16 and 2026-11-21
 
-**Operational policy (not a new ratification of Universal Constitution 1.3.0).**
+**Owner operational release direction, pending adoption into main (not a new ratification of Universal Constitution 1.3.0).**
 The canonical machine-readable policy is `control/development-runtime-policy.v1.json`.
-The operational rule covers ALL registered and future applications, **except `BlueDragon33/BOIECH_AI` (Bơi Ếch)**, whose existing online handling is left unchanged.
+Offline-runtime obligations cover registered and future applications except the existing `BlueDragon33/BOIECH_AI` (Bơi Ếch) exemption. The new **owner-only manual Production dispatch** release overlay below is intended for all governed applications, including Bơi Ếch; adoption remains per repository and requires existing release gates.
 
 - **The installed application must launch and perform its core functions without internet**, using local files, localhost services and local persistence appropriate to its architecture. An online-hosted website is not an offline app.
 - `main` is a source-code branch, **not an instruction to publish**. Git pushes, successful CI, PR merges and release candidates must never automatically deploy a website, Worker, Pages site, backend or publicly reachable service.
-- During this phase no online Preview, live development, Cloudflare, Vercel, GitHub Pages or Production **publication** occurs for non-exempt apps. Preserve remote release workflows in a manually gated dormant state for potential future activation, without deleting release capabilities.
+- Development remains offline-first and never auto-publishes. A completed, verified application may be released **directly to Production without a Preview deployment** only through the Owner's explicit per-revision PowerShell dispatch of a protected workflow; until that dispatch and all required gates, remote publication remains disabled. Preserve existing release workflows and infrastructure; do not activate blocked deployments by editing this document alone.
 - Downloading dependencies, obtaining source code or running remote CI may use internet at build time. **Offline-runtime tests must disconnect the app from internet after installing it**; distinguish build-time downloads from app runtime network dependencies.
 - Core app navigation, learning or work data, drafts, input and saved progress must remain usable locally and survive restart. Local backups and recovery are required where relevant. Online AI services, speech backends, central authentication, cloud databases, updates and sync are optional adapters: label them honestly when unavailable and do not invent mock success.
 - Application Management may list, organize and launch **local entry points** (localhost, loopback, desktop protocol, local package path) if the underlying platform permits. It must not force an online URL, remote approval, cloud DB or sync merely to open an offline application.
 - App-specific offline packaging/readiness MUST be verified by actual runnable smoke tests. Until verified: `OFFLINE_READINESS=UNVERIFIED`, not PASS. No claim that all apps have become offline merely because this policy is published.
 - Offline does not mean removing internal local security; preserve authorization for sensitive data and actions.
-- **Bơi Ếch exception:** leave `BOIECH_AI` deployment mode untouched, not an implied permission to publish other apps.
+- **Bơi Ếch exception:** preserve its existing offline-runtime exemption and project-specific release safeguards; the common manual-direct-Production rule below extends to other apps but does not authorize publishing any app by itself.
 - Existing deployed public URLs are not deleted or revoked by a GitHub workflow change. Decommissioning them is a distinct reviewed action, not implicit in this instruction.
 
 ## BOIECH_AI operational release profile — OWNER decision 2026-11-21
@@ -24,9 +24,7 @@ waiver of the published Universal Constitution 1.3.0. It is recorded in
 the constitutional authority repository to avoid later agents imposing a
 nonexistent Preview requirement on this single-app Owner workflow.
 
-- Applies **only** to `BlueDragon33/BOIECH_AI`; no other governed repository
-  inherits it by default. Current canonical project policy:
-  `BOIECH_AI/docs/DEVELOPMENT_RELEASE_POLICY.md`.
+- This **project-specific** operating profile applies to `BlueDragon33/BOIECH_AI`; its implementation details do not propagate to other repositories. A separately approved **ecosystem-wide** manual-release preference is proposed below. Current canonical project policy: `BOIECH_AI/docs/DEVELOPMENT_RELEASE_POLICY.md`.
 - Routine BOIECH_AI release is **direct-to-Production**; a separate Cloudflare
   Preview stage is **optional, not mandatory**, at the Owner's request.
 - The mandatory path remains exact-SHA scope → CI/regressions/build/Constitution
@@ -45,6 +43,69 @@ nonexistent Preview requirement on this single-app Owner workflow.
 This is compatible with Universal Constitution 1.3.0 §§ 3, 5–8 and R3/R5/R9/R20.
 Do **not** edit the normative Constitution, machine contract, canonical template,
 version marker or claim constitutional ratification solely for this decision.
+
+## Owner release preference — DIRECT-PRODUCTION-OWNER-001 (decision 2026-11-21)
+
+**Owner instruction:** Once a project is CODE COMPLETE **and the applicable exact-SHA
+quality, security, identity, data migration and recovery gates are satisfied**, do
+not require a separate online Preview promotion just for process ceremony.
+Prepare the protected **Production** release immediately for the Owner to initiate
+**in PowerShell**. This is a release-mode preference, **not** blanket Production
+authority, constitutional ratification, a claim of user acceptance, or permission
+for autonomous CI/Agent deployment.
+
+- Scope: governed current and future projects, with per-repository adoption of
+  actual workflow names, expected inputs, environment and rollback method.
+- Workflow: code and scoped QA -> release candidate at approved immutable SHA ->
+  readiness/read-only inspection as applicable -> **Owner PowerShell dispatch**
+  of the protected Production workflow -> post-deploy live readback, smoke and
+  rollback verification. **Preview is OPTIONAL**, invoked only by Owner request
+  or when a real risk cannot be verified adequately using local/isolated QA.
+- Preserve established **A/B independent review, mandatory human gates, security,
+  accessibility, persistence, migration isolation, restore/rollback and exact-SHA
+  approval**. A failed or missing required gate is BLOCKED/UNVERIFIED, never
+  relabeled PASS because Preview was skipped. If risk is untestable, do not deploy.
+- Never auto-deploy on push, PR merge, green CI, build completion or Agent output.
+  The Owner's actual protected dispatch for a **named repository, environment
+  and approved SHA** is the release action. No Agent may submit that dispatch,
+  bypass the GitHub Environment, or infer it from this policy.
+- Keep existing Preview resources/variables where needed for environment
+  separation or security tests; removing **a Preview deployment stage** does
+  not mean collapsing Preview and Production databases or identities.
+- Every READY_FOR_OWNER_RELEASE handoff MUST show: repository, branch/ref,
+  **40-character exact approved SHA**, environment and protected workflow name,
+  copyable PowerShell command, exact GitHub Actions workflow **tracking page**,
+  actual **run URL** when a run exists, Production URL if verified, and post-release
+  smoke/rollback result or pending state. Do not invent a run ID or URL.
+
+**Verified Application Management workflow example only** (not interchangeable
+with workflows in other apps): after all applicable release gates PASS and the
+approved SHA equals the SHA of the selected ref:
+
+```powershell
+$repo = 'BlueDragon33/Application-Management'
+$workflow = 'deploy-application-management-production.yml'
+$ref = 'main'
+$approvedSha = '<EXACT_APPROVED_40_CHARACTER_SHA>'
+$sourceSha = (gh api "repos/$repo/commits/$ref" --jq .sha).Trim()
+if ($sourceSha -ne $approvedSha) { throw 'RELEASE_SHA_MISMATCH — do not deploy' }
+gh workflow run $workflow -R $repo --ref $ref -f confirm=DEPLOY_PRODUCTION -f release_revision=$approvedSha
+if ($LASTEXITCODE -ne 0) { throw 'PRODUCTION_DISPATCH_FAILED' }
+gh run list -R $repo --workflow $workflow --branch $ref --event workflow_dispatch --limit 10 --json databaseId,headSha,createdAt,status,conclusion,url
+```
+
+**Workflow tracking page** (works even before a run exists):
+https://github.com/BlueDragon33/Application-Management/actions/workflows/deploy-application-management-production.yml
+
+After dispatch, identify the correct new run by exact SHA and dispatch time;
+publish that run's unique GitHub Actions URL, then follow it using
+`gh run watch <RUN_DATABASE_ID> -R BlueDragon33/Application-Management --exit-status`.
+A dispatched/queued run is **not** a deployed release. Record explicit outcome.
+
+This proposed preference does **not** change Constitution 1.3.0 ACTIVE or its
+`productionReleaseAuthority: false`. A constitutional amendment, if required,
+must go through the normal atomic authority-set and authenticated ratification
+process; see `docs/amendments/CONSTITUTION-DIRECT-PRODUCTION-OWNER-20261121-PROPOSAL.md`.
 
 ### Non-exempt deployment release boundary
 
