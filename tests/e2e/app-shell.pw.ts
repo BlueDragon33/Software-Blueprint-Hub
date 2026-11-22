@@ -151,6 +151,20 @@ test("ADR-0003 owner setup requires the deployment-configured identity", async (
   });
 });
 
+/** Locale-neutral, accessible project navigation: the href is versioned by
+ * projectId and view, while visible names legitimately follow VI/EN preferences.
+ * Open the owning disclosure, then exercise a real browser link click. */
+async function navigateBetaWorkspaceView(page: Page, suffix = ""): Promise<void> {
+  const route = "/projects/project%3Ap6-registry-beta" + suffix;
+  const link = page.locator(`nav.project-workspace-nav a.project-workspace-nav-item[href="${route}"]`);
+  const disclosure = link.locator("xpath=ancestor::details[1]");
+  await expect(disclosure).toHaveCount(1);
+  if (!(await disclosure.evaluate(el => el.hasAttribute("open")))) {
+    await disclosure.locator("summary").click();
+  }
+  await link.click();
+}
+
 test("signed-out root protects the canonical project registry", async ({ page }, testInfo) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /^(Trung tâm ứng dụng|Ứng dụng của bạn, trong một nơi\.)$/ })).toBeVisible();
@@ -290,13 +304,13 @@ test("canonical project workspace has stable truthful views", async ({
     "page"
   );
 
-  await workspaceNav.getByRole("link", { name: /^(Hồ sơ dự án|Profile)/ }).click();
+  await navigateBetaWorkspaceView(page, "/profile");
   await expect(
     page.getByRole("heading", { name: "Canonical Project Profile" })
   ).toBeVisible();
   await expect(page.getByText("role-based", { exact: true })).toBeVisible();
 
-  await page.getByRole("link", { name: /^(Thiết kế|Blueprint)/ }).click();
+  await navigateBetaWorkspaceView(page, "/blueprint");
   await expect(
     page.getByRole("heading", { name: "Resolved engineering requirements" })
   ).toBeVisible();
@@ -304,7 +318,7 @@ test("canonical project workspace has stable truthful views", async ({
     page.getByText("gate:platform:compatibility", { exact: true })
   ).toBeVisible();
 
-  await page.getByRole("link", { name: /^(Lộ trình|Roadmap)/ }).click();
+  await navigateBetaWorkspaceView(page, "/roadmap");
   await expect(
     page.getByRole("heading", { name: "Dependency-aware Work Packages" })
   ).toBeVisible();
@@ -312,7 +326,7 @@ test("canonical project workspace has stable truthful views", async ({
     page.getByText("Ship readiness dashboard", { exact: true })
   ).toBeVisible();
 
-  await page.getByRole("link", { name: /^(Chất lượng|Quality)/ }).click();
+  await navigateBetaWorkspaceView(page, "/quality");
   await expect(
     page.getByRole("heading", {
       name: "Quality Gates and revision-specific evidence"
@@ -327,7 +341,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /^(Quy trình & Prompt|Prompt)/ }).click();
+  await navigateBetaWorkspaceView(page, "/prompt");
   await expect(
     page.getByRole("heading", { name: "Derived execution projection" })
   ).toBeVisible();
@@ -365,7 +379,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /^(Quyết định|Decisions)/ }).click();
+  await navigateBetaWorkspaceView(page, "/decisions");
   await expect(
     page.getByRole("heading", { name: "Architecture Decisions" })
   ).toBeVisible();
@@ -384,7 +398,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /^(Rủi ro|Risks & Debt)/ }).click();
+  await navigateBetaWorkspaceView(page, "/risks-debt");
   await expect(
     page.getByRole("heading", { name: "Risks & Technical Debt" })
   ).toBeVisible();
@@ -411,7 +425,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /^(Lịch sử & bài học|Releases & Lessons)/ }).click();
+  await navigateBetaWorkspaceView(page, "/releases-lessons");
   await expect(
     page.getByRole("heading", {
       name: "Exact revisions, rollback history and reusable learning"
@@ -461,7 +475,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /^(Tổng quan|Overview)/ }).click();
+  await navigateBetaWorkspaceView(page);
   await expect(
     page.getByRole("heading", {
       name: "Readiness is blocked by canonical engineering state."
@@ -510,17 +524,9 @@ test("Phase 6 Product UX Gate traverses the canonical product without dead ends"
   ] as const;
 
   for (const [suffix, heading] of journey) {
-    // Navigation labels are localized (VI/EN); exact route + selected-state
-    // are stable semantic contracts, not a language-specific text assertion.
-    const route = "/projects/project%3Ap6-registry-beta" +
-      (suffix === "/" ? "" : suffix);
-    const target = workspaceNav.locator(`a.project-workspace-nav-item[href="${route}"]`);
-    const group = target.locator("xpath=ancestor::details[1]");
-    if (await group.count() && !(await group.evaluate(el => el.hasAttribute("open")))) {
-      await group.locator("summary").click();
-    }
-    await target.click();
+    await navigateBetaWorkspaceView(page, suffix === "/" ? "" : suffix);
     await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+    const route = "/projects/project%3Ap6-registry-beta" + (suffix === "/" ? "" : suffix);
     await expect(
       page.locator(`nav.project-workspace-nav a.project-workspace-nav-item[href="${route}"]`)
     ).toHaveAttribute("aria-current", "page");
