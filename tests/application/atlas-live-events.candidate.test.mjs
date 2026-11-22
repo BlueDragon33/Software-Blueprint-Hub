@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { normalizeCodexEvent as normalize, projectLiveTimeline as project } from './atlas-live-events.candidate.mjs';
+const context={runId:'run:atlas-173',projectId:'project:blueprint-os',sourceRevision:'a'.repeat(40)};
+const wrap=(raw,sequence)=>normalize(raw,{...context,sequence,observedAt:'2026-11-22T07:00:00Z'});
+test('only supported event metadata reaches the timeline',()=>{const v=wrap({type:'item.completed',item:{id:'task-1',type:'command_execution',command:'SECRET',output:'PASSWORD'}},1);assert.equal(v.itemKind,'command_execution');assert.equal(v.command,undefined);assert.equal(JSON.stringify(v).includes('SECRET'),false);});
+test('turn completion does not confer gate or production success',()=>{const result=project([wrap({type:'turn.completed'},1)],context);assert.equal(result.execution,'turn-finished-observed');assert.equal(result.gatePass,false);assert.equal(result.verification,'unverified');});
+test('duplicate replay is idempotent',()=>{const v=wrap({type:'turn.started'},1);const result=project([v,v],context);assert.equal(result.events.length,1);assert.equal(result.duplicates,1);});
+test('out-of-order events become ordered, missing sequence flagged',()=>{const result=project([wrap({type:'item.started'},3),wrap({type:'turn.started'},1)],context);assert.deepEqual(result.events.map(e=>e.sequence),[1,3]);assert.equal(result.execution,'telemetry-incomplete');});
+test('cross-project and stale revision rejected',()=>{const v=wrap({type:'turn.started'},1);assert.throws(()=>project([v],{...context,projectId:'project:other'}),/scope/);assert.throws(()=>project([v],{...context,sourceRevision:'b'.repeat(40)}),/scope/);});
+test('conflicting duplicate sequence rejected',()=>{assert.throws(()=>project([wrap({type:'turn.started'},1),wrap({type:'turn.failed'},1)],context),/conflicting/);});
+test('unknown events rejected rather than shown as real activity',()=>{assert.throws(()=>wrap({type:'made.up',text:'running'},1),/type/);});
+test('invalid collector context blocked',()=>{assert.throws(()=>normalize({type:'turn.started'},{...context,sequence:-1,observedAt:'2026-11-22T07:00:00Z'}),/sequence/);});
+test('empty timeline is not falsely live',()=>{const x=project([],context);assert.equal(x.execution,'no-events');assert.equal(x.mayExecute,false);});
+test('failed turn is only an observation',()=>{const x=project([wrap({type:'turn.failed',error:'secret'},1)],context);assert.equal(x.execution,'failure-observed');assert.equal(JSON.stringify(x).includes('secret'),false);});
