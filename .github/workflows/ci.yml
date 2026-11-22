@@ -76,6 +76,17 @@ jobs:
         run: node scripts/check-prompt-workflows.mjs
       - name: Central prompt workflow adversarial regression
         run: node --test tests/prompt-workflows/workflow.test.mjs
+      - name: Atlas and Next Action candidate negative/regression tests
+        run: |
+          node --test \
+            tests/application/atlas-graph.candidate.test.mjs \
+            tests/application/atlas-live-events.candidate.test.mjs \
+            tests/application/atlas-next-action-adapter.candidate.test.mjs \
+            tests/application/next-action-intake.candidate.test.mjs \
+            tests/application/universal-next-action-frontier.candidate.test.mjs \
+            tests/application/universal-next-action-intervention.candidate.test.mjs \
+            tests/application/universal-next-action-canonical.candidate.test.mjs \
+            tests/web/universal-next-action-v2-surface.candidate.test.mjs
       - name: Development mode
         run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
 
