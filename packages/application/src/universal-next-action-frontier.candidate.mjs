@@ -88,10 +88,10 @@ export function planUniversalUserIntervention(input) {
   const result = (kind, requiresUser, details) => Object.freeze({
     kind, requiresUser, ...details, mayExecute: false, mayPublish: false
   });
-  if (state === 'complete') return result('final-report', false, { nextUserReadback: false });
   if (authorityRequired) return result('human-authority-gate', true, {
     nextUserReadback: false, reason: 'Non-delegable human authority required'
   });
+  if (state === 'complete') return result('final-report', false, { nextUserReadback: false });
   if (nativeWindowsRequired && !nativeWindowsAvailable && !connectedRunnerAvailable) {
     if (!nativeStepLabels.length) return result('capability-blocker', false, {
       nextUserReadback: false, reason: 'Native capability missing; prepare a verified batch before asking'

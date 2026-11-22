@@ -10,3 +10,4 @@ test('human approval boundary cannot be suppressed by runner',()=>{const r=plan(
 test('technical blocker saves checkpoint instead of asking routine question',()=>{const r=plan({state:'blocked'});assert.equal(r.kind,'technical-checkpoint');assert.equal(r.requiresUser,false);});
 test('completion reports once, no PowerShell',()=>{const r=plan({state:'complete',nativeWindowsRequired:true,nativeStepLabels:['Test']});assert.equal(r.kind,'final-report');assert.equal(r.requiresUser,false);});
 test('malformed native labels rejected',()=>assert.throws(()=>plan({state:'working',nativeStepLabels:['']}),/invalid interaction/));
+test('mandatory human gate takes priority over claimed completion',()=>{const r=plan({state:'complete',authorityRequired:true});assert.equal(r.kind,'human-authority-gate');assert.equal(r.requiresUser,true);});
