@@ -1,0 +1,76 @@
+{
+  "scope": "LOCAL_SOURCE_QA_ONLY",
+  "sourceRevision": "Implementation commit containing this initial evidence; resolve with git log -- docs/evidence/graph-intelligence/local-verification.json. Later exact-SHA CI readback is authoritative for final code.",
+  "baseline": "cd01fb3c2178393628ce968af209db082227d2c4",
+  "recordedAt": "2026-11-17T20:09:57.468986+00:00",
+  "runtime": {
+    "node": "24.22.1",
+    "pnpmFrozenInstall": "12.4.0",
+    "vitest": "5.0.0"
+  },
+  "results": {
+    "vitest": {
+      "pass": 400,
+      "fail": 0,
+      "skip": 60,
+      "note": "Before capacity-test addition; focused suite after that addition: 25 PASS. PostgreSQL integration not executed."
+    },
+    "nodeGovernanceSourceWorkflow": {
+      "pass": 189,
+      "fail": 0,
+      "skip": 0
+    },
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "nextBuild": "PASS",
+    "contracts": "PASS",
+    "schema": "PASS",
+    "boundaries": "PASS",
+    "sourceTruth": "PASS",
+    "constitutionAdoption": "PASS",
+    "authoritySet": "1.3.0 unchanged, four-component digest sha256:89a9783e0c521d4f5b7c5e8625f4a818e1ebcd4fc92e166f47a0039320bfb5a7",
+    "browser": "BLOCKED: managed Chromium process_singleton socket() Operation not permitted; headless-shell archive could not be obtained. No rendered contrast, screenshot or interaction PASS asserted.",
+    "authenticatedPostgreSQLRuntime": "NOT_RUN",
+    "independentReview": "NOT_RUN",
+    "ownerAcceptance": "NOT_RUN",
+    "publication": "NOT_AUTHORIZED_NOT_RUN"
+  },
+  "baselineRepair": {
+    "source": "Draft PR #162",
+    "revision": "33b74c43fbe07bebde67a0de5c89e5d2a64213af",
+    "paths": [
+      "apps/web/app/ecosystem/ecosystem-directory.tsx",
+      "scripts/ci-p2-cross-service-smoke.mjs",
+      "apps/web/src/lib/hub-app-directory.ts",
+      "tests/application/hub-app-directory.test.ts"
+    ],
+    "method": "Reused exact four-file delta; no PR merge or inventory mutation."
+  },
+  "files": [
+    {
+      "path": "docs/evidence/graph-intelligence/local-build.txt",
+      "sha256": "326a8946bd076771dd6d82c3bc7dfcf16831f42be30908f86d852c35cb4e17e2",
+      "bytes": 2374
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/local-lint.txt",
+      "sha256": "050c69da23536758722729aeda55a8d0fb9d557495ef6d33d70873a3b64a71c1",
+      "bytes": 11
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/local-node-tests.txt",
+      "sha256": "3d2a4ddf19e656df282b183f2f5c7c0c19c1a1de7bf34a4ca303aa15b56ce9be",
+      "bytes": 16148
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/local-typecheck.txt",
+      "sha256": "546a72b1b7e9eba5ad3e1535bb23201bbe95030b0c4ce16b9a7844c02583c8fd",
+      "bytes": 783
+    },
+    {
+      "path": "docs/evidence/graph-intelligence/local-vitest.json",
+      "sha256": "deda01c457e99d40e3db9c5673c303051f687bc04f57b930d20b9b65cc32bfc9",
+      "bytes": 188596
+    }
+  ]
+}

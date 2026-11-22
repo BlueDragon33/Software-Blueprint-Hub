@@ -1,0 +1,31 @@
+{
+  "head": "c83d53b2c5dcf46d4b6a95a632be767f19e63029",
+  "runId": 44167909576,
+  "jobId": 134338811397,
+  "artifactId": 14365419761,
+  "artifactSHA256": "038fba8d093ba6cf45680fa1cf8a2386251b1208fa20b2f5308b42cfa201a32b",
+  "sourceGates": "PASS: lint/typecheck/contracts/schema/boundaries/Vitest401/Node189/build",
+  "vitestSkipped": 60,
+  "browser": {
+    "passed": 12,
+    "failed": 4,
+    "reason": "One scenario per viewport timed out on exact getByLabel Relationship; browser accessibility snapshot confirms combobox accessible name Relationship. Test locator must use getByRole(combobox), preserving the dependency filter assertions."
+  },
+  "computedContrast": {
+    "scope": "Synthetic fixture, 125 visible text elements in each of desktop/mobile + light/dark. No gradients/unknown opacity compositing accepted. Not authenticated product acceptance.",
+    "light": {
+      "minimumText": 6.5427719735711625,
+      "placeholder": 7.711148365374599,
+      "border": 3.9126090704351313,
+      "focus": 6.970253093923143
+    },
+    "dark": {
+      "minimumText": 6.715602754768362,
+      "placeholder": 10.147680088889732,
+      "border": 4.679058173838422,
+      "focus": 7.730942720262169
+    }
+  },
+  "authorVisualInspection": "Downloaded artifact bytes verified against GitHub SHA256; desktop-light and mobile-dark screenshots inspected by implementing agent. Not independent or Owner acceptance.",
+  "remaining": "Full 16-case rerun pending the corrected role locator; PostgreSQL/real actors/Owner acceptance NOT_RUN."
+}

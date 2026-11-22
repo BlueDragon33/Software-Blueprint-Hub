@@ -1,0 +1,331 @@
+﻿2026-11-18T06:48:27.7239802Z Current runner version: '2.338.2'
+2026-11-18T06:48:27.7257171Z ##[group]Runner Image Provisioner
+2026-11-18T06:48:27.7257998Z Hosted Compute Agent
+2026-11-18T06:48:27.7258563Z Version: 20261103.629
+2026-11-18T06:48:27.7259163Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-18T06:48:27.7259834Z Build Date: 2026-11-03T17:26:59Z
+2026-11-18T06:48:27.7260640Z Worker ID: {a676ffd2-86ae-4533-a37c-c79e60363e61}
+2026-11-18T06:48:27.7261258Z Region: southcentralus
+2026-11-18T06:48:27.7261797Z Cloud: Azure
+2026-11-18T06:48:27.7262365Z ##[endgroup]
+2026-11-18T06:48:27.7263313Z ##[group]Operating System
+2026-11-18T06:48:27.7263869Z Ubuntu
+2026-11-18T06:48:27.7264356Z 24.04.5
+2026-11-18T06:48:27.7264865Z LTS
+2026-11-18T06:48:27.7265388Z ##[endgroup]
+2026-11-18T06:48:27.7265893Z ##[group]Runner Image
+2026-11-18T06:48:27.7266451Z Image: ubuntu-24.04
+2026-11-18T06:48:27.7266982Z Version: 20261111.370.1
+2026-11-18T06:48:27.7267973Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261111.370/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-18T06:48:27.7269104Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261111.370
+2026-11-18T06:48:27.7269821Z ##[endgroup]
+2026-11-18T06:48:27.7270997Z ##[group]GITHUB_TOKEN Permissions
+2026-11-18T06:48:27.7272354Z Contents: read
+2026-11-18T06:48:27.7272919Z Metadata: read
+2026-11-18T06:48:27.7273447Z ##[endgroup]
+2026-11-18T06:48:27.7274847Z Secret source: Actions
+2026-11-18T06:48:27.7275703Z Cache mode: write
+2026-11-18T06:48:27.7276288Z Prepare workflow directory
+2026-11-18T06:48:27.7509821Z Prepare all required actions
+2026-11-18T06:48:27.7540613Z Getting action download info
+2026-11-18T06:48:28.0196387Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-11-18T06:48:28.1094784Z Download action repository 'pnpm/action-setup@v6' (SHA:73e46992e05b19abd31f2f3c20e0e7370d762115)
+2026-11-18T06:48:28.4434542Z Download action repository 'actions/setup-node@v5' (SHA:a0853c24544627f65ddf259abe73b1d18a591444)
+2026-11-18T06:48:28.5828012Z Download action repository 'actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510' (SHA:64ab729a6294000f5aa4a4bc0b73d1f32bc45510)
+2026-11-18T06:48:29.0293036Z Complete job name: private-app-bridge
+2026-11-18T06:48:29.0881040Z ##[group]Run actions/checkout@v5
+2026-11-18T06:48:29.0881596Z with:
+2026-11-18T06:48:29.0881966Z   persist-credentials: false
+2026-11-18T06:48:29.0882414Z   repository: BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:48:29.0884908Z   token: ***
+2026-11-18T06:48:29.0885264Z   ssh-strict: true
+2026-11-18T06:48:29.0885627Z   ssh-user: git
+2026-11-18T06:48:29.0885980Z   clean: true
+2026-11-18T06:48:29.0886348Z   sparse-checkout-cone-mode: true
+2026-11-18T06:48:29.0886762Z   fetch-depth: 1
+2026-11-18T06:48:29.0887126Z   fetch-tags: false
+2026-11-18T06:48:29.0887497Z   show-progress: true
+2026-11-18T06:48:29.0887874Z   lfs: false
+2026-11-18T06:48:29.0888232Z   submodules: false
+2026-11-18T06:48:29.0888605Z   set-safe-directory: true
+2026-11-18T06:48:29.0889028Z   allow-unsafe-pr-checkout: false
+2026-11-18T06:48:29.0889516Z ##[endgroup]
+2026-11-18T06:48:29.2633036Z Syncing repository: BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:48:29.2635212Z ##[group]Getting Git version info
+2026-11-18T06:48:29.2636372Z Working directory is '/home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub'
+2026-11-18T06:48:29.2637725Z [command]/usr/bin/git version
+2026-11-18T06:48:29.2694861Z git version 2.56.1
+2026-11-18T06:48:29.2706020Z ##[endgroup]
+2026-11-18T06:48:29.2715377Z Temporarily overriding HOME='/home/runner/work/_temp/7ac87367-5b43-4e3e-be6f-74e157ba1c92' before making global git config changes
+2026-11-18T06:48:29.2716910Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T06:48:29.2719414Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub
+2026-11-18T06:48:29.2758626Z Deleting the contents of '/home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub'
+2026-11-18T06:48:29.2764536Z ##[group]Initializing the repository
+2026-11-18T06:48:29.2787355Z [command]/usr/bin/git init /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub
+2026-11-18T06:48:29.2860447Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-18T06:48:29.2861502Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-18T06:48:29.2862338Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-18T06:48:29.2863188Z hint: call:
+2026-11-18T06:48:29.2863679Z hint:
+2026-11-18T06:48:29.2864260Z hint: 	git config --global init.defaultBranch <name>
+2026-11-18T06:48:29.2864873Z hint:
+2026-11-18T06:48:29.2865529Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-18T06:48:29.2866607Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-18T06:48:29.2867387Z hint:
+2026-11-18T06:48:29.2867994Z hint: 	git branch -m <name>
+2026-11-18T06:48:29.2868828Z hint:
+2026-11-18T06:48:29.2869800Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-18T06:48:29.2871574Z Initialized empty Git repository in /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub/.git/
+2026-11-18T06:48:29.2875553Z [command]/usr/bin/git remote add origin https://github.com/BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:48:29.2917732Z ##[endgroup]
+2026-11-18T06:48:29.2918749Z ##[group]Disabling automatic garbage collection
+2026-11-18T06:48:29.2920975Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-18T06:48:29.2949360Z ##[endgroup]
+2026-11-18T06:48:29.2950246Z ##[group]Setting up auth
+2026-11-18T06:48:29.2954304Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T06:48:29.2983666Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T06:48:29.3285250Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T06:48:29.3321331Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T06:48:29.3498559Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T06:48:29.3533328Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T06:48:29.3712475Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-18T06:48:29.3750975Z ##[endgroup]
+2026-11-18T06:48:29.3758442Z ##[group]Fetching the repository
+2026-11-18T06:48:29.3759471Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +cd01fb3c2178393628ce968af209db082227d2c4:refs/remotes/origin/main
+2026-11-18T06:48:29.8990671Z From https://github.com/BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:48:29.8992208Z  * [new ref]         cd01fb3c2178393628ce968af209db082227d2c4 -> origin/main
+2026-11-18T06:48:29.8995370Z ##[endgroup]
+2026-11-18T06:48:29.8996815Z ##[group]Determining the checkout info
+2026-11-18T06:48:29.8998391Z ##[endgroup]
+2026-11-18T06:48:29.9001036Z [command]/usr/bin/git sparse-checkout disable
+2026-11-18T06:48:29.9054425Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-18T06:48:29.9089227Z ##[group]Checking out the ref
+2026-11-18T06:48:29.9091375Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-11-18T06:48:29.9373130Z Switched to a new branch 'main'
+2026-11-18T06:48:29.9377358Z branch 'main' set up to track 'origin/main'.
+2026-11-18T06:48:29.9384110Z ##[endgroup]
+2026-11-18T06:48:29.9419714Z [command]/usr/bin/git log -1 --format=%H
+2026-11-18T06:48:29.9447039Z cd01fb3c2178393628ce968af209db082227d2c4
+2026-11-18T06:48:29.9454347Z ##[group]Removing auth
+2026-11-18T06:48:29.9456109Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T06:48:29.9487882Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T06:48:29.9666243Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T06:48:29.9694046Z http.https://github.com/.extraheader
+2026-11-18T06:48:29.9699628Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-18T06:48:29.9734187Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T06:48:29.9907418Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T06:48:29.9938759Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T06:48:30.0138238Z ##[endgroup]
+2026-11-18T06:48:30.0342735Z ##[group]Run pnpm/action-setup@v6
+2026-11-18T06:48:30.0343628Z with:
+2026-11-18T06:48:30.0344331Z   version: 12.4.0
+2026-11-18T06:48:30.0345077Z   run_install: false
+2026-11-18T06:48:30.0345874Z   dest: ~/setup-pnpm
+2026-11-18T06:48:30.0346632Z   cache: false
+2026-11-18T06:48:30.0347402Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-18T06:48:30.0348360Z   package_json_file: package.json
+2026-11-18T06:48:30.0349236Z   standalone: false
+2026-11-18T06:48:30.0350138Z ##[endgroup]
+2026-11-18T06:48:30.1421180Z ##[group]Running self-installer...
+2026-11-18T06:48:32.8697068Z 
+2026-11-18T06:48:32.8697855Z added 2 packages, and audited 3 packages in 2s
+2026-11-18T06:48:32.8701271Z 
+2026-11-18T06:48:32.8701465Z found 0 vulnerabilities
+2026-11-18T06:48:32.9173934Z Checking for updates...
+2026-11-18T06:48:33.2054835Z Switching pnpm from v12.17.0 to v12.4.0...
+2026-11-18T06:48:34.1321972Z Packages are copied from the content-addressable store to the virtual store.
+2026-11-18T06:48:34.1322663Z   Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-18T06:48:34.1323214Z   Virtual store is at:             node_modules/.bin/global/v11/8ca-18e910e7bb04f4b3-0/node_modules/.pnpm
+2026-11-18T06:48:34.1802518Z Downloading @pnpm/exe.linux-x64@12.4.0: 0.00 B/21.01 MB
+2026-11-18T06:48:34.6250630Z .../global/v11/8ca-18e910e7bb04f4b3-0    | Progress: resolved 2, reused 0, downloaded 2, added 2, done
+2026-11-18T06:48:34.8118533Z Successfully updated pnpm to v12.4.0
+2026-11-18T06:48:34.8174403Z ##[endgroup]
+2026-11-18T06:48:34.8180737Z Installation Completed!
+2026-11-18T06:48:34.8323456Z ##[group]Run actions/setup-node@v5
+2026-11-18T06:48:34.8323670Z with:
+2026-11-18T06:48:34.8323841Z   node-version: 24
+2026-11-18T06:48:34.8323998Z   cache: pnpm
+2026-11-18T06:48:34.8324156Z   always-auth: false
+2026-11-18T06:48:34.8324326Z   check-latest: false
+2026-11-18T06:48:34.8325694Z   token: ***
+2026-11-18T06:48:34.8325861Z   package-manager-cache: true
+2026-11-18T06:48:34.8326043Z env:
+2026-11-18T06:48:34.8326228Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:48:34.8326450Z ##[endgroup]
+2026-11-18T06:48:34.9204813Z Found in cache @ /opt/hostedtoolcache/node/24.22.2/x64
+2026-11-18T06:48:34.9207929Z (node:2299) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-18T06:48:34.9208624Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-18T06:48:34.9209796Z ##[group]Environment details
+2026-11-18T06:48:37.2115010Z node: v24.22.2
+2026-11-18T06:48:37.2115600Z npm: 11.19.1
+2026-11-18T06:48:37.2115870Z yarn: 1.22.22
+2026-11-18T06:48:37.2116533Z ##[endgroup]
+2026-11-18T06:48:37.2131215Z [command]/home/runner/setup-pnpm/node_modules/.bin/bin/pnpm store path --silent
+2026-11-18T06:48:37.2258338Z /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-18T06:48:37.3861095Z pnpm cache is not found
+2026-11-18T06:48:37.3990512Z ##[group]Run pnpm install --frozen-lockfile
+2026-11-18T06:48:37.3990827Z [36;1mpnpm install --frozen-lockfile[0m
+2026-11-18T06:48:37.4013597Z shell: /usr/bin/bash -e {0}
+2026-11-18T06:48:37.4013792Z env:
+2026-11-18T06:48:37.4013999Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:48:37.4014232Z ##[endgroup]
+2026-11-18T06:48:37.4194768Z Scope: all 9 workspace projects
+2026-11-18T06:48:37.4355226Z ? Verifying lockfile against supply-chain policies (368 entries)...
+2026-11-18T06:48:37.5953837Z Packages are hard linked from the content-addressable store to the virtual store.
+2026-11-18T06:48:37.5979178Z   Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-18T06:48:37.5979597Z   Virtual store is at:             node_modules/.pnpm
+2026-11-18T06:48:37.6280072Z Downloading @img/sharp-libvips-linux-x64@1.3.3: 0.00 B/8.17 MB
+2026-11-18T06:48:37.6842349Z Downloading @prisma/client@7.10.0: 0.00 B/26.82 MB
+2026-11-18T06:48:37.7542198Z Downloading @rolldown/binding-linux-x64-gnu@1.2.10: 0.00 B/7.93 MB
+2026-11-18T06:48:37.8806800Z Downloading prisma@7.10.0: 0.00 B/14.17 MB
+2026-11-18T06:48:37.9213852Z Downloading @next/swc-linux-x64-gnu@16.3.6: 0.00 B/33.79 MB
+2026-11-18T06:48:38.7516571Z Downloading @electric-sql/pglite@0.4.3: 0.00 B/8.29 MB
+2026-11-18T06:48:38.7853323Z Downloading @prisma/studio-core@0.33.0: 0.00 B/10.12 MB
+2026-11-18T06:48:38.8180686Z Downloading next@16.3.6: 0.00 B/41.74 MB
+2026-11-18T06:48:38.8193875Z Downloading @prisma/dev@0.24.17: 0.00 B/9.16 MB
+2026-11-18T06:48:39.8263754Z Progress: resolved 311, reused 0, downloaded 304, added 288
+2026-11-18T06:48:42.4914925Z ✓ Lockfile passes supply-chain policies (368 entries in 5.1s)
+2026-11-18T06:48:42.4915797Z Lockfile is up to date, resolution step is skipped
+2026-11-18T06:48:42.4972086Z Packages: +311
+2026-11-18T06:48:42.4972517Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-11-18T06:48:42.5242823Z Progress: resolved 311, reused 0, downloaded 311, added 311, done
+2026-11-18T06:48:42.5266079Z .../node_modules/@prisma/engines postinstall$ node scripts/postinstall.js
+2026-11-18T06:48:43.3234095Z .../node_modules/@prisma/engines postinstall: Done
+2026-11-18T06:48:43.3643531Z .../node_modules/prisma preinstall$ node scripts/preinstall-entry.js
+2026-11-18T06:48:43.4800924Z .../node_modules/prisma preinstall: Done
+2026-11-18T06:48:43.6742613Z 
+2026-11-18T06:48:43.6743411Z devDependencies:
+2026-11-18T06:48:43.6743761Z + @playwright/test 1.63.0
+2026-11-18T06:48:43.6744106Z + @types/node 24.13.6
+2026-11-18T06:48:43.6744357Z + eslint 10.11.0
+2026-11-18T06:48:43.6744642Z + json-schema-to-typescript 16.0.0
+2026-11-18T06:48:43.6744928Z + prisma 7.10.0
+2026-11-18T06:48:43.6745171Z + typescript 6.0.3
+2026-11-18T06:48:43.6745496Z + typescript-eslint 8.70.1
+2026-11-18T06:48:43.6745785Z + vitest 5.0.0
+2026-11-18T06:48:43.6745923Z 
+2026-11-18T06:48:43.6862399Z Done in 6.3s using pnpm v12.4.0
+2026-11-18T06:48:43.7554521Z ##[warning]Input 'app-id' has been deprecated with message: Use 'client-id' instead.
+2026-11-18T06:48:43.7580816Z ##[group]Run actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+2026-11-18T06:48:43.7581102Z with:
+2026-11-18T06:48:43.7581276Z   app-id: 5338331
+2026-11-18T06:48:43.7584888Z   private-key: ***
+2026-11-18T06:48:43.7585058Z   owner: BlueDragon33
+2026-11-18T06:48:43.7585444Z   repositories: Software-Blueprint-Hub
+Software-Blueprint-Execution-Gateway
+Software-Blueprint-Execution-Worker
+Software-Blueprint-QA-Worker
+
+2026-11-18T06:48:43.7585856Z   permission-contents: read
+2026-11-18T06:48:43.7586039Z   skip-token-revoke: false
+2026-11-18T06:48:43.7586238Z   github-api-url: https://api.github.com
+2026-11-18T06:48:43.7586450Z env:
+2026-11-18T06:48:43.7586632Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:48:43.7586977Z ##[endgroup]
+2026-11-18T06:48:43.8057819Z Inputs 'owner' and 'repositories' are set. Creating token for the following repositories:
+2026-11-18T06:48:43.8058416Z - BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:48:43.8058867Z - BlueDragon33/Software-Blueprint-Execution-Gateway
+2026-11-18T06:48:43.8059312Z - BlueDragon33/Software-Blueprint-Execution-Worker
+2026-11-18T06:48:43.8059734Z - BlueDragon33/Software-Blueprint-QA-Worker
+2026-11-18T06:48:44.4552026Z ##[warning]Input 'app-id' has been deprecated with message: Use 'client-id' instead.
+2026-11-18T06:48:44.4619607Z ##[group]Run actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
+2026-11-18T06:48:44.4620011Z with:
+2026-11-18T06:48:44.4620187Z   app-id: 5338331
+2026-11-18T06:48:44.4623991Z   private-key: ***
+2026-11-18T06:48:44.4624159Z   owner: BlueDragon33
+2026-11-18T06:48:44.4624547Z   repositories: Software-Blueprint-Hub
+Software-Blueprint-Execution-Gateway
+Software-Blueprint-Execution-Worker
+Software-Blueprint-QA-Worker
+
+2026-11-18T06:48:44.4624971Z   permission-contents: read
+2026-11-18T06:48:44.4625159Z   skip-token-revoke: false
+2026-11-18T06:48:44.4625357Z   github-api-url: https://api.github.com
+2026-11-18T06:48:44.4625570Z env:
+2026-11-18T06:48:44.4625753Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:48:44.4625977Z ##[endgroup]
+2026-11-18T06:48:44.5064263Z Inputs 'owner' and 'repositories' are set. Creating token for the following repositories:
+2026-11-18T06:48:44.5064631Z - BlueDragon33/Software-Blueprint-Hub
+2026-11-18T06:48:44.5064908Z - BlueDragon33/Software-Blueprint-Execution-Gateway
+2026-11-18T06:48:44.5065191Z - BlueDragon33/Software-Blueprint-Execution-Worker
+2026-11-18T06:48:44.5065451Z - BlueDragon33/Software-Blueprint-QA-Worker
+2026-11-18T06:48:44.9570670Z ##[group]Run node --input-type=module <<'JS'
+2026-11-18T06:48:44.9570926Z [36;1mnode --input-type=module <<'JS'[0m
+2026-11-18T06:48:44.9571281Z [36;1mconst { EXPECTED_INSTALLATION: expected, EXECUTION_INSTALLATION: execution, QA_INSTALLATION: qa } = process.env;[0m
+2026-11-18T06:48:44.9571705Z [36;1mif (!/^\d+$/.test(expected ?? '') || expected !== execution || expected !== qa) {[0m
+2026-11-18T06:48:44.9572015Z [36;1m  throw new Error('Unexpected GitHub App installation');[0m
+2026-11-18T06:48:44.9572242Z [36;1m}[0m
+2026-11-18T06:48:44.9572388Z [36;1mJS[0m
+2026-11-18T06:48:44.9588296Z shell: /usr/bin/bash -e {0}
+2026-11-18T06:48:44.9588474Z env:
+2026-11-18T06:48:44.9588662Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:48:44.9588890Z   EXPECTED_INSTALLATION: 171905672
+2026-11-18T06:48:44.9589087Z   EXECUTION_INSTALLATION: 171905672
+2026-11-18T06:48:44.9589281Z   QA_INSTALLATION: 171905672
+2026-11-18T06:48:44.9589454Z ##[endgroup]
+2026-11-18T06:48:44.9853386Z ##[group]Run pnpm exec vitest run tests/application/prompt-workflow-live-private-bridge.test.ts
+2026-11-18T06:48:44.9853820Z [36;1mpnpm exec vitest run tests/application/prompt-workflow-live-private-bridge.test.ts[0m
+2026-11-18T06:48:44.9868593Z shell: /usr/bin/bash -e {0}
+2026-11-18T06:48:44.9868774Z env:
+2026-11-18T06:48:44.9868964Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:48:44.9869199Z   BLUEPRINT_LIVE_PRIVATE_BRIDGE: true
+2026-11-18T06:48:44.9869448Z   BLUEPRINT_LIVE_HUB_SHA: cd01fb3c2178393628ce968af209db082227d2c4
+2026-11-18T06:48:44.9871505Z   BLUEPRINT_EXECUTION_READ_TOKEN: ***
+2026-11-18T06:48:44.9872852Z   BLUEPRINT_QA_READ_TOKEN: ***
+2026-11-18T06:48:44.9873036Z ##[endgroup]
+2026-11-18T06:48:45.2867975Z 
+2026-11-18T06:48:45.2869858Z [1m[30m[46m RUN [49m[39m[22m [36mv5.0.0 [39m[90m/home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub[39m
+2026-11-18T06:48:45.2870336Z 
+2026-11-18T06:48:50.7142736Z  [32m✓[39m tests/application/prompt-workflow-live-private-bridge.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 5279[2mms[22m[39m
+2026-11-18T06:48:50.7143755Z    [32m✓[39m live selected-repository App bridge (not full execution acceptance) [2m(8)[22m
+2026-11-18T06:48:50.7145041Z      [33m[2m✓[22m[39m uses separate App tokens restricted to exactly the four selected repositories[33m 553[2mms[22m[39m
+2026-11-18T06:48:50.7146161Z      [33m[2m✓[22m[39m independently reads README at the exact current SHA: BlueDragon33/Software-Blueprint-Hub[33m 853[2mms[22m[39m
+2026-11-18T06:48:50.7147208Z      [33m[2m✓[22m[39m independently reads README at the exact current SHA: BlueDragon33/Software-Blueprint-Executi…[33m 794[2mms[22m[39m
+2026-11-18T06:48:50.7148237Z      [33m[2m✓[22m[39m independently reads README at the exact current SHA: BlueDragon33/Software-Blueprint-Executi…[33m 1148[2mms[22m[39m
+2026-11-18T06:48:50.7149254Z      [33m[2m✓[22m[39m independently reads README at the exact current SHA: BlueDragon33/Software-Blueprint-QA-Work…[33m 995[2mms[22m[39m
+2026-11-18T06:48:50.7150340Z      [33m[2m✓[22m[39m revokes the execution token and confirms the independent QA token still works[33m 785[2mms[22m[39m
+2026-11-18T06:48:50.7167482Z 
+2026-11-18T06:48:50.7170312Z [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+2026-11-18T06:48:50.7170878Z [2m      Tests [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+2026-11-18T06:48:50.7171431Z [2m   Start at [22m 06:48:45
+2026-11-18T06:48:50.7172918Z [2m   Duration [22m 5.42s[2m (tests 99%, transform 1%)[22m
+2026-11-18T06:48:50.7180904Z 
+2026-11-18T06:48:50.7379595Z ##[group]Run cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+2026-11-18T06:48:50.7379879Z [36;1mcat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'[0m
+2026-11-18T06:48:50.7380846Z [36;1mVERIFIED: scoped GitHub App credentials; independent exact-SHA source reads in Hub and three private service repositories; HEAD checks; invalid credential denial; execution-token revocation with QA token remaining valid.[0m
+2026-11-18T06:48:50.7381361Z [36;1m[0m
+2026-11-18T06:48:50.7382061Z [36;1mUNVERIFIED: signed Hub→Gateway→Worker dispatch, trusted execution issuer custody, durable PostgreSQL evidence for this run, complete P4 acceptance and deployed Preview services. This workflow does not issue a canonical Quality Gate, completion receipt or Production authorization.[0m
+2026-11-18T06:48:50.7382909Z [36;1mSUMMARY[0m
+2026-11-18T06:48:50.7399111Z shell: /usr/bin/bash -e {0}
+2026-11-18T06:48:50.7399292Z env:
+2026-11-18T06:48:50.7399477Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-18T06:48:50.7399716Z ##[endgroup]
+2026-11-18T06:48:50.7517614Z ##[warning]Input 'app-id' has been deprecated with message: Use 'client-id' instead.
+2026-11-18T06:48:50.7537972Z Post job cleanup.
+2026-11-18T06:48:51.0537318Z Token revoked
+2026-11-18T06:48:51.0854293Z ##[warning]Input 'app-id' has been deprecated with message: Use 'client-id' instead.
+2026-11-18T06:48:51.0883248Z Post job cleanup.
+2026-11-18T06:48:51.3502390Z Token revoked
+2026-11-18T06:48:51.3821216Z Post job cleanup.
+2026-11-18T06:48:51.4576626Z (node:2700) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-18T06:48:51.4577194Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-18T06:48:51.4763424Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub --files-from manifest.txt --use-compress-program zstdmt
+2026-11-18T06:48:53.0033564Z (node:2700) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-18T06:48:53.9991107Z Sent 0 of 226574979 (0.0%), 0.0 MBs/sec
+2026-11-18T06:48:54.8818599Z Sent 226574979 of 226574979 (100.0%), 114.6 MBs/sec
+2026-11-18T06:48:55.0971153Z Cache saved with the key: node-cache-Linux-x64-pnpm-77381a78c2540560b483104112501f5a344971055acd787850442a9659582170
+2026-11-18T06:48:55.1104942Z Post job cleanup.
+2026-11-18T06:48:55.1991703Z Pruning is unnecessary.
+2026-11-18T06:48:55.2147024Z Post job cleanup.
+2026-11-18T06:48:55.2739576Z [command]/usr/bin/git version
+2026-11-18T06:48:55.2774711Z git version 2.56.1
+2026-11-18T06:48:55.2800419Z Temporarily overriding HOME='/home/runner/work/_temp/f0c131c4-9c88-4c60-a3d7-9aa99405c82b' before making global git config changes
+2026-11-18T06:48:55.2801235Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-18T06:48:55.2804020Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Software-Blueprint-Hub/Software-Blueprint-Hub
+2026-11-18T06:48:55.2837187Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-18T06:48:55.2867078Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-18T06:48:55.3078271Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-18T06:48:55.3108541Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-18T06:48:55.3316588Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-18T06:48:55.3353937Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-18T06:48:55.3654483Z Cleaning up orphan processes
