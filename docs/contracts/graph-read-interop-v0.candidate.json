@@ -1,0 +1,47 @@
+{
+  "schema": "blueprint-os.graph-read-wire.candidate/v0",
+  "status": "DRAFT_NOT_AUTHORIZED",
+  "ownerRepository": "BlueDragon33/Software-Blueprint-Hub",
+  "consumerRepository": "BlueDragon33/Application-Management",
+  "policyVersionBaseline": "1.3.0",
+  "publicEndpoint": null,
+  "enabled": false,
+  "transport": "internal-server-shape-check-only",
+  "operations": [
+    "READ_PROJECTION_CANDIDATE"
+  ],
+  "canonicalInput": "Hub GraphIntelligenceProjection/1.0.0 from authenticated project-scoped loader",
+  "graphFieldScope": [
+    "projectId",
+    "policyVersion",
+    "fingerprint",
+    "sourceCodeRevision",
+    "nodes",
+    "edges"
+  ],
+  "maxNodes": 256,
+  "maxEdges": 1024,
+  "requiredGates": {
+    "authenticatedHubSession": "NOT_BRIDGED",
+    "projectScopedHubRead": "REQUIRED_AT_CALL_SITE",
+    "independentSignedConsumerIdentity": "NOT_IMPLEMENTED",
+    "boundProjectAudience": "NOT_IMPLEMENTED",
+    "privateCrossProjectRedaction": "NOT_ACCEPTED",
+    "humanReview": "PENDING",
+    "realNodeBrowserQA": "PENDING",
+    "ownerProductionRelease": "NOT_GRANTED"
+  },
+  "forbiddenAuthority": {
+    "canReadGraphExternally": false,
+    "mutation": false,
+    "qualityGatePass": false,
+    "productionRelease": false,
+    "aiAgentDispatch": false
+  },
+  "compatibility": {
+    "replacesActiveAppContract": false,
+    "activeAppContractSchema": "application-management.contract/v1",
+    "allowlistedActiveEndpoints": [],
+    "noImplicitV0ToV1Migration": true
+  }
+}
