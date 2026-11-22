@@ -1354,3 +1354,28 @@ test("System Owner can open the canonical amendment workspace without automated 
     fullPage: true
   });
 });
+
+test("Next Action v2 keeps a blocked B4 project honest and exposes both controls", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/projects/project%3Ap6-registry-beta");
+
+  const panel = page.getByRole("region", { name: "Blueprint OS · Workspace" });
+  await expect(panel.getByText("Bị chặn", { exact: true })).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Mở Workspace · Gỡ nút thắt →" })).toBeVisible();
+  const advanced = panel.getByRole("button", { name: "Xem kế hoạch và bổ sung nhiệm vụ" });
+  await expect(advanced).toHaveAttribute("aria-expanded", "false");
+  await advanced.click();
+  await expect(panel.getByRole("heading", { name: "Luồng 1 · Nhiệm vụ hiện tại" })).toBeVisible();
+  await expect(panel.getByRole("heading", { name: "Luồng 2 · Bổ sung hoặc nhiệm vụ khác" })).toBeVisible();
+  await expect(panel.getByRole("checkbox")).toHaveCount(0);
+  await expect(panel.getByRole("button", { name: "Mở Workspace, không tạo nhiệm vụ mới →" })).toBeEnabled();
+
+  await page.screenshot({
+    path: `artifacts/next-action-v2-blocked-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+  await panel.getByRole("button", { name: "Mở Workspace · Gỡ nút thắt →" }).click();
+  await expect(page.getByRole("heading", { name: "Derived execution projection" })).toBeVisible();
+});
