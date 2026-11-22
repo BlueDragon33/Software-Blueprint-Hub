@@ -3,6 +3,7 @@ import {
   blueprintOsThreatModelV1,
   buildGraphIntelligence
 } from "@blueprint-os/application";
+import { projectCanonicalNextAction } from "../../../../packages/application/src/universal-next-action-canonical.candidate.mjs";
 import { loadProjectWorkspace } from "./project-workspace";
 import { registeredWorkflowManifests } from "./prompt-workflow";
 import { classifyCanonicalReadFailure } from "./runtime-state";
@@ -29,7 +30,18 @@ export async function loadGraphIntelligence(encodedProjectId: string) {
       security: projectId === "project:blueprint-os" ? blueprintOsThreatModelV1 : null,
       dataPolicy: projectId === "project:blueprint-os" ? blueprintOsDataLifecyclePolicyV1 : null
     });
-    return { state: "ready", profile: workspace.project.profile, graph } as const;
+    // Both Graph Intelligence and Next Action reuse this project's canonical
+    // WorkPackages and gates. Neither view issues a runtime/approval token.
+    const canonicalSourceRevision = await runtime.prompts.currentSourceRevisionFromProfile(
+      actor, projectId, workspace.project
+    );
+    const nextAction = projectCanonicalNextAction({
+      projectId, projectName: workspace.project.profile.name,
+      sourceRevision: canonicalSourceRevision, workPackages, gateBundles: bundles,
+      requiredGateIds: workspace.project.blueprint.requiredGates
+    });
+    return { state: "ready", profile: workspace.project.profile, graph,
+      nextAction, canonicalSourceRevision } as const;
   } catch (error) {
     return { state: classifyCanonicalReadFailure(error) } as const;
   }
