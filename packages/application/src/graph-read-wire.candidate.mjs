@@ -21,7 +21,7 @@ const RELATIONS = new Set(["dependency", "data-flow", "control", "evidence"]);
 const MAX_NODES = 256, MAX_EDGES = 1024;
 
 function validId(value) {
-  return typeof value === "string" && ID.test(value);
+  return typeof value === "string" && ID.test(value) && !/[<>\\u0000-\\u001f]/.test(value);
 }
 function validLabel(value) {
   return typeof value === "string" && value.length > 0 && value.length <= 240
