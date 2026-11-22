@@ -366,6 +366,7 @@ jobs:
           mkdir -p artifacts
           pnpm exec vitest run --fileParallelism=false \
             tests/application/graph-intelligence.test.ts \
+            tests/application/graph-external-intelligence-real-graph.test.ts \
             tests/web/graph-intelligence.test.tsx \
             tests/web/graph-intelligence-server.test.ts \
             --reporter=default --reporter=json \
