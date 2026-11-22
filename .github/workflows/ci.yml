@@ -403,3 +403,82 @@ jobs:
             playwright-report/
           if-no-files-found: warn
           retention-days: 14
+
+  # Dedicated exact-revision QA of the real PostgreSQL WorkQuality persistence,
+  # NOT a release gate. Distinguishes unique-ID replay and per-record CAS from
+  # the *unresolved* project-wide Prompt source-revision transaction gap.
+  work-intake-concurrency-qa:
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/foundation/qa-') && contains(github.event.head_commit.message, '[work-intake-qa]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_test
+    steps:
+      - name: Checkout exact QA commit
+        uses: actions/checkout@v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Prisma generate and disposable migration
+        run: |
+          pnpm prisma:generate
+          pnpm db:migrate:deploy
+          pnpm db:migrate:status
+      - name: Typecheck exact-source test contract
+        run: pnpm typecheck
+      - name: Run actual WorkQuality PostgreSQL concurrency regression
+        run: |
+          mkdir -p artifacts
+          pnpm exec vitest run --fileParallelism=false tests/persistence/work-quality-postgres.test.ts \
+            --reporter=default --reporter=json \
+            --outputFile.json=artifacts/work-intake-concurrency.json
+      - name: Verify evidence without pretending project-wide CAS passes
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const j=JSON.parse(fs.readFileSync("artifacts/work-intake-concurrency.json","utf8"));
+            if(j.numPassedTests!==8||j.numFailedTests!==0||j.numPendingTests!==0)
+              throw Error("WorkQuality concurrence test count/failure/skip mismatch");
+            fs.writeFileSync("artifacts/work-intake-scoped-conclusion.json", JSON.stringify({
+              sha:process.env.GITHUB_SHA,
+              postgresTestCases:8,
+              uniqueRequestReplay:"OBSERVED_UNIQUE_INDEX",
+              conflictingRequest:"OBSERVED_FAIL_CLOSED",
+              perRecordUpdateCAS:"OBSERVED_PASS",
+              projectWidePromptSourceCAS:"NOT_IMPLEMENTED_UNVERIFIED",
+              releaseGatePass:false,productionAuthorized:false
+            },null,2)+"\n");
+          '
+      - name: Upload exact QA-only evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: work-intake-qa-${{ github.sha }}
+          path: artifacts/work-intake-*.json
+          if-no-files-found: warn
+          retention-days: 14
