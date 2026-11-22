@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "0.1.0-draft",
+  "proposalId": "AUTH-TIER-001",
+  "classificationStatus": "PROPOSED_NOT_RATIFIED",
+  "sourcePolicy": "blueprint-os:universal-century-grade@1.3.0",
+  "asOf": "2026-11-07",
+  "sourceEvidence": [
+    "BlueDragon33/Software-Blueprint-Hub:control/constitution-governed-repositories.json",
+    "BlueDragon33/Application-Management:app/project-registry.ts",
+    "Repository README.md in applicable projects"
+  ],
+  "taxonomies": {
+    "accountTier": [
+      "AUTH-L1",
+      "AUTH-L2",
+      "AUTH-PLANE",
+      "NOT-APPLICABLE"
+    ],
+    "note": "AUTH-L1/L2 KHÔNG phải Blueprint B1–B5 hoặc topology level của Application Management"
+  },
+  "policyDefaults": {
+    "accountDuration": "APP_CONFIGURED_RENEWABLE",
+    "maxDevicesPerAccount": "APP_CONFIGURED_TARGET_3_WHEN_SUPPORTED",
+    "accountQuota": "PER_APP_NO_CROSS_APP_HARDCODE",
+    "dataSync": "EXPLICIT_CONSENT_ONLY_WHEN_CROSS_DEVICE",
+    "cost": "FREE_OR_EXISTING_ONLY; NO AUTOMATIC_PAID_UPGRADE"
+  },
+  "notInInventory": "Unregistered/new apps and subject modules are excluded until Project Profile + owner confirms registration.",
+  "assignments": [
+    {
+      "repository": "BlueDragon33/Software-Blueprint-Hub",
+      "recommendedAccountTier": "AUTH-PLANE",
+      "mode": "governance-platform",
+      "rationale": "Hiến pháp và cổng phê chuẩn; không đồng nhất vai trò Constitutional/Project/Production với cấp tài khoản người dùng.",
+      "rolloutBoundary": "Không tự thay đổi mô hình đăng nhập và thẩm quyền Hiến pháp.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/Application-Management",
+      "recommendedAccountTier": "AUTH-PLANE",
+      "mode": "control-plane",
+      "rationale": "Quản trị cấp Owner, cấp quyền app-scoped; không phải ứng dụng người dùng thông thường.",
+      "rolloutBoundary": "Chủ sở hữu cấu hình thời hạn/hạn mức/ủy quyền từng app; không thu gom dữ liệu nghiệp vụ.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/Bauman-master-ai-system",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "managed-optional",
+      "rationale": "Học tập cá nhân; các subject là module, chưa có bằng chứng cần quản lý trung gian.",
+      "rolloutBoundary": "Tài khoản người học có hạn; chỉ nâng lên L2 khi xuất hiện lớp/giảng viên quản lý nhiều người.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/BOIECH_AI",
+      "recommendedAccountTier": "AUTH-L2",
+      "mode": "target-implementation",
+      "rationale": "Cán bộ quản lý duyệt và điều phối học viên, giảng viên; nghiệp vụ lớp, chứng nhận.",
+      "rolloutBoundary": "Issue #108 là pilot chưa nghiệm thu: hai lượt duyệt; 5/10/200; 3 thiết bị/tài khoản; đồng bộ xác nhận.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/RU_LIFE",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "managed-optional",
+      "rationale": "PWA cá nhân, hiện dùng HN device/session, chưa có form đăng nhập trực tiếp.",
+      "rolloutBoundary": "Không ép đăng nhập để xem tài liệu offline; nếu bật account-first, hạn truy cập và quản lý thiết bị thuộc RU_LIFE.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/Health_Care",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "managed-optional-sensitive",
+      "rationale": "Hồ sơ sức khỏe trẻ 9–18, chuyên môn và privacy-first; chưa có luồng cơ sở giáo dục quản lý nhiều tài khoản được xác minh.",
+      "rolloutBoundary": "Guardian consent/child data có điều kiện riêng; kiểm tra pháp lý, privacy và không gửi hồ sơ sức khỏe về control plane.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/NC03_Modem",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "optional-managed-only",
+      "rationale": "PWA điều khiển modem local-first, xác thực modem là realm khác account cấp phép sử dụng app.",
+      "rolloutBoundary": "Không buộc cloud login để dùng modem cục bộ, không đưa mật khẩu modem vào account service.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/ROS-1-2",
+      "recommendedAccountTier": "NOT-APPLICABLE",
+      "mode": "library-no-end-user-account",
+      "rationale": "ROS pointcloud_to_grid là mã thư viện/ROS package, không có app người dùng cần cấp tài khoản.",
+      "rolloutBoundary": "Chỉ xét AUTH-L1 nếu phát triển giao diện phân phối có đăng nhập; không áp đặt auth vào ROS core.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/Math_Bauman",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "managed-optional",
+      "rationale": "Công cụ học Toán độc lập/thuộc hệ sinh thái Bauman, không có quản lý trung gian được chứng minh.",
+      "rolloutBoundary": "Dùng account app-scoped khi xuất bản managed, không nhân bản danh tính tùy tiện với Bauman Hub.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/GrowUP_MyChildren",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "managed-optional-sensitive",
+      "rationale": "Nhiều hồ sơ trẻ trên một gia đình, local-first, family-role nội bộ nhưng không phải delegated manager quản trị người dùng kiểu Bơi Ếch.",
+      "rolloutBoundary": "Không buộc cloud login cho core; guardian/child privacy riêng; nâng L2 chỉ khi có tổ chức quản lý gia đình/tài khoản ngoài gia đình.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/Hardware_Simulation",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "optional-managed-only",
+      "rationale": "Phòng lab mô phỏng phần cứng dạng prototype, core offline-local-only.",
+      "rolloutBoundary": "Không thêm account cho engine/prototype; tài khoản có thời hạn chỉ cho dịch vụ managed nếu về sau cần.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/MPC_PID_System",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "optional-managed-only",
+      "rationale": "Control Research Workbench mô phỏng/benchmark, chưa cần quản lý cấp dưới.",
+      "rolloutBoundary": "Không làm hỏng công cụ mô phỏng offline; chỉ auth cho hosted workspace khi có nhu cầu thực.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/CAD_CAM_3D",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "managed-optional",
+      "rationale": "CAD/CAM local-first, quản trị app-scoped có hợp đồng riêng, dữ liệu bản vẽ thuộc client.",
+      "rolloutBoundary": "Chỉ dùng tài khoản thời hạn cho chế độ managed; không áp auth bắt buộc lên lưu/thiết kế/xuất local.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/PriceReport_Tunggiabao",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "managed-optional",
+      "rationale": "Phần mềm báo giá độc lập, local-first; standalone mode mặc định không Device Gate.",
+      "rolloutBoundary": "Xem xét AUTH-L2 tương lai nếu có nhiều nhân viên/chi nhánh và người quản lý phê duyệt tài khoản.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    },
+    {
+      "repository": "BlueDragon33/pc-manager-desktop",
+      "recommendedAccountTier": "AUTH-L1",
+      "mode": "managed-optional",
+      "rationale": "Ứng dụng Windows với entitlement, cập nhật, outbound-only agent, không phải phân quyền quản lý cấp dưới.",
+      "rolloutBoundary": "Không lẫn account user với P-256 device agent; không mở remote shell và không bắt buộc cloud cho chức năng local.",
+      "approval": "PENDING_BLUEPRINT_OS_REVIEW"
+    }
+  ]
+}
