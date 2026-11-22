@@ -15,3 +15,17 @@ test("rejects missing source revision",()=>assert.equal(run({graph:{...graph,sou
 test("rejects invalid atlas",()=>assert.equal(run({atlas:{...atlas,edges:[...atlas.edges,{id:"edge:bad",type:"DEPENDS_ON",from:"goal:atlas",to:"missing",factState:"proposed",provenance:atlas.edges[0].provenance}]}}).state,"blocked"));
 test("rejects cross-project work",()=>assert.equal(run({workSnapshot:{...workSnapshot,workPackages:[{...workSnapshot.workPackages[0],projectId:"project:other"}]}}).state,"blocked"));
 test("traces the synthetic slice without implying production",()=>{const x=run();const ids={Goal:"goal:atlas",WorkPackage:"work:atlas",Gate:"gate:qa",Evidence:"evidence:fixture",Defect:"defect:fixture",Fix:"fix:fixture",Checkpoint:"checkpoint:fixture"};assert.equal(x.traceSlice(ids).valid,true);assert.equal(x.atlas.nodes[0].factState,"proposed");});
+
+test("supports a separately bound canonical Prompt digest and pinned Git source",()=>{
+ const digest="sha256:"+"b".repeat(64);
+ const result=run({graph:{...graph,canonicalSourceRevision:digest},workSnapshot:{...workSnapshot,sourceRevision:digest}});
+ assert.equal(result.state,"ready");
+ assert.equal(result.canonicalSourceRevision,digest);
+ assert.equal(result.nextAction.sourceRevision,digest);
+ assert.equal(result.permissions.canDispatch,false);
+});
+test("rejects unbound or stale canonical Prompt digest",()=>{
+ const digest="sha256:"+"b".repeat(64);
+ assert.equal(run({workSnapshot:{...workSnapshot,sourceRevision:digest}}).state,"blocked");
+ assert.equal(run({graph:{...graph,canonicalSourceRevision:"sha256:"+"c".repeat(64)},workSnapshot:{...workSnapshot,sourceRevision:digest}}).state,"blocked");
+});
