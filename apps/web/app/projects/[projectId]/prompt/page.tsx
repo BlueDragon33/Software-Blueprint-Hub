@@ -1,4 +1,3 @@
-import { NextActionDraftInbox } from "./next-action-draft-inbox.candidate";
 import Link from "next/link";
 import { StatusChip } from "@blueprint-os/ui";
 import {
@@ -44,7 +43,7 @@ export default async function PromptPage({
     return <ProjectWorkspaceState state={workspace.state} />;
   }
 
-  const [historyPage, currentSourceRevision] = await Promise.all([
+  const [historyPage, currentSourceRevision, workPackages] = await Promise.all([
     workspace.runtime.prompts.historyPage(
       workspace.actor,
       workspace.projectId,
@@ -54,8 +53,13 @@ export default async function PromptPage({
       workspace.actor,
       workspace.projectId,
       workspace.project
-    )
+    ),
+    workspace.runtime.workQuality.listWorkPackages(workspace.actor, workspace.projectId)
   ]);
+  const nextActionPackages = [...workPackages]
+    .filter(item => item.id.startsWith("work:next-"))
+    .sort((a, b) => b.meta.createdAt.localeCompare(a.meta.createdAt))
+    .slice(0, 20);
 
   const hubCatalog = workspace.projectId === "project:blueprint-os" &&
     await workspace.runtime.authority.canExerciseConstitutionalAuthority(workspace.actor);
@@ -121,7 +125,36 @@ export default async function PromptPage({
         </section>
       ) : null}
 
-      <NextActionDraftInbox projectId={workspace.projectId} currentSourceRevision={currentSourceRevision} />
+      <section className="workspace-section" aria-label="Next Action canonical work queue">
+        <div className="workspace-section-heading">
+          <div>
+            <p className="section-kicker">Next Action · Canonical Work</p>
+            <h3>Nhiệm vụ được lưu và đồng bộ qua Work Package</h3>
+            <p>Chỉ các nhiệm vụ đã được lưu bằng quyền PROJECT_MUTATE xuất hiện tại đây.
+              PLANNED chưa phải Agent đang chạy, Gate PASS hoặc công việc đã được nghiệm thu.</p>
+          </div>
+          <Link href={"/projects/" + encodeURIComponent(workspace.projectId) + "/roadmap"}>
+            Toàn bộ Work Packages
+          </Link>
+        </div>
+        {nextActionPackages.length === 0
+          ? <p role="status">Chưa có nhiệm vụ bổ sung đã lưu trong dự án này.</p>
+          : <ul className="prompt-history-list">
+              {nextActionPackages.map(item => (
+                <li key={item.id} className="prompt-history-row">
+                  <div>
+                    <strong>{item.title}</strong>
+                    <small>{item.id} · {item.status} · {item.meta.updatedAt}</small>
+                    <details>
+                      <summary>Xem yêu cầu và phụ thuộc</summary>
+                      <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{item.purpose}</p>
+                      <p>Dependencies: {item.dependencies.length ? item.dependencies.join(", ") : "Không có"}</p>
+                    </details>
+                  </div>
+                </li>
+              ))}
+            </ul>}
+      </section>
       <section className="prompt-workspace-summary">
         <div className="prompt-workspace-revision">
           <span>Current canonical source revision</span>

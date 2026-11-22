@@ -17,11 +17,20 @@ export default async function ProjectOverviewPage({ params }: ProjectPageProps) 
     return <ProjectWorkspaceState state={workspace.state} />;
   }
 
-  const readiness = await workspace.runtime.readiness.read(
-    workspace.actor,
-    workspace.projectId,
-    workspace.project.blueprint.requiredGates
-  );
+  const [readiness, canonicalSourceRevision, workPackages] = await Promise.all([
+    workspace.runtime.readiness.read(
+      workspace.actor,
+      workspace.projectId,
+      workspace.project.blueprint.requiredGates
+    ),
+    workspace.runtime.prompts.currentSourceRevisionFromProfile(
+      workspace.actor, workspace.projectId, workspace.project
+    ),
+    workspace.runtime.workQuality.listWorkPackages(workspace.actor, workspace.projectId)
+  ]);
+  const currentWork = [...workPackages]
+    .filter(item => item.status !== "completed" && item.status !== "archived")
+    .sort((a, b) => a.id.localeCompare(b.id))[0] ?? null;
 
   return (
     <ProjectWorkspaceFrame
@@ -39,12 +48,12 @@ export default async function ProjectOverviewPage({ params }: ProjectPageProps) 
       <UniversalNextActionCandidate view={{
         projectId: workspace.projectId,
         projectName: workspace.project.profile.name,
-        workPackageId: null,
-        sourceRevision: null,
+        workPackageId: currentWork?.id ?? null,
+        sourceRevision: canonicalSourceRevision,
         checkpointRef: null,
         state: "unverified",
         verifiedAt: null,
-        reason: "Chưa có Next Action exact-revision được xác minh. Mở Prompt Workspace để xem dữ liệu hiện có; đây không phải nút thực thi.",
+        reason: "Luồng 1 đọc Work Package hiện có. Sau khi duyệt, yêu cầu bổ sung chỉ ghi PLANNED và không kích hoạt Agent khi chưa có runner được xác minh.",
         action: { label: "Mở Prompt Workspace", href: "/projects/" + encodeURIComponent(workspace.projectId) + "/prompt", kind: "internal-navigation" }
       }} />
       <ReadinessOverview readiness={readiness} />

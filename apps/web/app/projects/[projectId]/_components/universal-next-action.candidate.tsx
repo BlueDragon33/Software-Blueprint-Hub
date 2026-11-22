@@ -1,7 +1,8 @@
 "use client";
 /** Candidate universal Next Action UI for existing authenticated Blueprint workspace.
  * All data must be resolved server-side after PROJECT_READ. No host/tab automation. */
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { saveReviewedNextActionAction } from "../prompt/actions";
 import type { ReactNode } from "react";
 import styles from "./universal-next-action.candidate.module.css";
 
@@ -19,6 +20,8 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
  const [supplementKind,setSupplementKind]=useState<"addition"|"other">("addition");
  const [approved,setApproved]=useState(false);
  const [feedback,setFeedback]=useState<string|null>(null);
+ const [submitting,setSubmitting]=useState(false);
+ const requestIdRef=useRef<string|null>(null);
  const safePath=view.action?.kind==="internal-navigation" && /^\/(?!\/)[a-zA-Z0-9/_?=&%.-]*$/.test(view.action.href);
  const external=view.action?.kind==="external-handoff" && /^https:\/\//.test(view.action.href);
  const canNavigate=Boolean(view.action) && Boolean(safePath||external);
@@ -26,6 +29,25 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
  // Navigation to an existing authenticated page is allowed even without exact SHA; execution is not.
  const actionable=canNavigate && (safePath || verified);
  const label=actionable?"Tiếp tục công việc":view.state==="complete"?"Xem kết quả công việc":"Xem trạng thái công việc";
+
+ async function approveAndContinue(){
+   if(!approved || !actionable || !safePath || submitting)return;
+   if(!view.sourceRevision){setFeedback("Nguồn chưa xác minh. Không thể ghi nhiệm vụ đã duyệt.");return;}
+   setSubmitting(true);setFeedback(null);
+   try{
+     if(!requestIdRef.current)requestIdRef.current=window.crypto.randomUUID();
+     const result=await saveReviewedNextActionAction({
+       projectId:view.projectId,requestId:requestIdRef.current,
+       sourceRevision:view.sourceRevision,kind:supplementKind,
+       content:supplement,selectedWorkPackageId:view.workPackageId
+     });
+     if(!result.ok){setFeedback(result.message);return;}
+     window.location.assign(view.action!.href);
+   }catch{
+     setFeedback("Lưu nhiệm vụ hoặc điều hướng thất bại. Không có Agent nào được kích hoạt.");
+   }finally{setSubmitting(false);}
+ }
+
  return <section className={styles.panel} aria-label="Blueprint OS · Workspace" data-state={view.state}>
    <div className={styles.top}><div><p className={styles.kicker}>BLUEPRINT OS · WORKSPACE</p>
      <h2>{view.projectName}</h2></div><span className={styles.state}>{view.state==="ready"?"Sẵn sàng":view.state==="complete"?"Hoàn tất phạm vi":view.state==="blocked"?"Bị chặn":"Chưa xác minh"}</span></div>
@@ -41,30 +63,22 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
        </div>
        <div className={styles.stream}><h3>Luồng 2 · Bổ sung hoặc nhiệm vụ khác</h3>
          <label htmlFor="ana-kind">Loại yêu cầu</label>
-         <select id="ana-kind" value={supplementKind} onChange={e=>{setSupplementKind(e.target.value as "addition"|"other");setApproved(false)}}>
+         <select id="ana-kind" value={supplementKind} onChange={e=>{setSupplementKind(e.target.value as "addition"|"other");setApproved(false);requestIdRef.current=null;setFeedback(null)}}>
            <option value="addition">Bổ sung vào nhiệm vụ hiện tại</option><option value="other">Nhiệm vụ khác cần xếp lịch</option>
          </select>
          <label htmlFor="ana-supplement">Nội dung (không bắt buộc)</label>
-         <textarea id="ana-supplement" maxLength={4000} rows={4} value={supplement}
-           placeholder="Nhập điều chỉnh hoặc yêu cầu mới…" onChange={e=>{setSupplement(e.target.value);setApproved(false)}}/>
-         <p className={styles.note}>Bản nháp chưa được lưu hoặc gửi. Không nhập dữ liệu nhạy cảm. Việc lưu và thực thi cần API Workspace được xác thực.</p>
+         <textarea id="ana-supplement" maxLength={2000} rows={4} value={supplement}
+           placeholder="Nhập điều chỉnh hoặc yêu cầu mới…" onChange={e=>{setSupplement(e.target.value);setApproved(false);requestIdRef.current=null;setFeedback(null)}}/>
+         <p className={styles.note}>Yêu cầu chưa được lưu trước khi duyệt. Sau duyệt sẽ ghi thành Work Package PLANNED trên máy chủ nếu tài khoản có quyền. Không nhập dữ liệu nhạy cảm.</p>
        </div>
        <label className={styles.approval}><input type="checkbox" checked={approved} onChange={e=>setApproved(e.target.checked)}/>
          Tôi đã xem hai luồng và đồng ý chuyển sang Workspace để hoàn tất duyệt.</label>
-       <button className={styles.primary} type="button" disabled={!approved || !actionable || !safePath}
-         onClick={()=>{
-           try {
-             const payload={version:1,projectId:view.projectId,workPackageId:view.workPackageId,
-               sourceRevision:view.sourceRevision,checkpointRef:view.checkpointRef,
-               supplementKind,supplement:supplement.trim(),createdAt:new Date().toISOString()};
-             window.sessionStorage.setItem("blueprint:next-action-draft:"+view.projectId,JSON.stringify(payload));
-             window.location.assign(view.action!.href);
-           } catch {
-             setFeedback("Không thể chuyển bản nháp an toàn. Chưa gửi hoặc chạy nhiệm vụ.");
-           }
-         }}>Duyệt và mở Workspace →</button>
+       <button className={styles.primary} type="button" disabled={!approved || !actionable || !safePath || submitting}
+         onClick={()=>{void approveAndContinue();}} aria-busy={submitting}>
+         {submitting?"Đang đối chiếu và ghi Work Package…":"Duyệt và tiếp tục Workspace →"}
+       </button>
        {feedback&&<p role="alert">{feedback}</p>}
-       <p className={styles.note}>Chỉ chuyển bản nháp trong phiên trình duyệt hiện tại. Chưa tạo Work Package, chưa chạy Agent và chưa ghi checkpoint. Workspace sẽ yêu cầu kiểm tra lại nguồn trước khi thực hiện.</p>
+       <p className={styles.note}>Mọi yêu cầu bổ sung được lưu vào Work Package chuẩn với trạng thái PLANNED sau khi xác thực và kiểm tra phiên bản. Agent không tự chạy khi chưa có runner và quyền thực thi hợp lệ.</p>
        <button className={styles.detailsToggle} type="button" onClick={()=>{setReviewOpen(false);setApproved(false)}}>Đóng · chưa thực hiện</button>
      </div>}
    <button className={styles.detailsToggle} type="button" onClick={()=>setExpanded(x=>!x)} aria-expanded={expanded}>
