@@ -11,6 +11,6 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["tests/web/workflow-studio.test.tsx", "tests/web/hub-launcher.test.tsx"]
+    include: ["tests/web/workflow-studio.test.tsx", "tests/web/hub-launcher.test.tsx", "tests/web/universal-next-action.test.tsx"]
   }
 });

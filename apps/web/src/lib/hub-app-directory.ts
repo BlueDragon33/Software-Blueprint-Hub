@@ -27,6 +27,7 @@ const presentation: Readonly<Record<string, Pick<HubAppPresentation, "group" | "
   "project:software-blueprint-execution-worker": { group: "management", icon: "⚙️", vi: "Bộ máy thực thi", en: "Execution Worker", keywords: "worker nhiệm vụ sửa lỗi CI" },
   "project:software-blueprint-qa-worker": { group: "management", icon: "🔍", vi: "Bộ máy kiểm định", en: "QA Worker", keywords: "qa kiểm thử bằng chứng độc lập" },
   "project:pc-manager-desktop": { group: "management", icon: "🖥️", vi: "Quản lý máy tính", en: "PC Manager", keywords: "desktop pc windows dọn dẹp" },
+  "project:blueprint-russian-expert-engine": { group: "education", icon: "🔤", vi: "Chuyên gia tiếng Nga", en: "Russian Expert Engine", keywords: "tiếng nga RU03 hội đồng chuyên gia tư vấn tham khảo" },
   "project:bauman-master-ai-system": { group: "education", icon: "🎓", vi: "Học tập Bauman", en: "Bauman Learning", keywords: "master tiếng nga kỹ thuật học" },
   "project:math-bauman": { group: "education", icon: "📐", vi: "Toán Bauman", en: "Bauman Mathematics", keywords: "toán math" },
   "project:ru-life": { group: "education", icon: "🇷🇺", vi: "Hòa nhập Nga", en: "Life in Russia", keywords: "nga russian cuộc sống" },
