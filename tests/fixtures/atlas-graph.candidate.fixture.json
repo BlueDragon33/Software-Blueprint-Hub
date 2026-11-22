@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "0.1.0",
+  "projectId": "project:blueprint-os",
+  "sourceRevision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "nodes": [
+    {
+      "id": "goal:atlas",
+      "type": "Goal",
+      "title": "Synthetic Goal",
+      "projectId": "project:blueprint-os",
+      "factState": "proposed",
+      "lifecycle": "planned",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "work:atlas",
+      "type": "WorkPackage",
+      "title": "Synthetic WorkPackage",
+      "projectId": "project:blueprint-os",
+      "factState": "proposed",
+      "lifecycle": "planned",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "gate:qa",
+      "type": "Gate",
+      "title": "Synthetic Gate",
+      "projectId": "project:blueprint-os",
+      "factState": "proposed",
+      "lifecycle": "planned",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "evidence:fixture",
+      "type": "Evidence",
+      "title": "Synthetic Evidence",
+      "projectId": "project:blueprint-os",
+      "factState": "proposed",
+      "lifecycle": "planned",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "defect:fixture",
+      "type": "Defect",
+      "title": "Synthetic Defect",
+      "projectId": "project:blueprint-os",
+      "factState": "proposed",
+      "lifecycle": "planned",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "fix:fixture",
+      "type": "Fix",
+      "title": "Synthetic Fix",
+      "projectId": "project:blueprint-os",
+      "factState": "proposed",
+      "lifecycle": "planned",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "checkpoint:fixture",
+      "type": "Checkpoint",
+      "title": "Synthetic Checkpoint",
+      "projectId": "project:blueprint-os",
+      "factState": "proposed",
+      "lifecycle": "planned",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:work-goal",
+      "type": "TRACES_TO",
+      "from": "work:atlas",
+      "to": "goal:atlas",
+      "factState": "proposed",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "edge:work-gate",
+      "type": "BLOCKED_BY",
+      "from": "work:atlas",
+      "to": "gate:qa",
+      "factState": "proposed",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "edge:gate-evidence",
+      "type": "VERIFIED_BY",
+      "from": "gate:qa",
+      "to": "evidence:fixture",
+      "factState": "proposed",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "edge:defect-evidence",
+      "type": "TRACES_TO",
+      "from": "defect:fixture",
+      "to": "evidence:fixture",
+      "factState": "proposed",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "edge:defect-fix",
+      "type": "FIXED_BY",
+      "from": "defect:fixture",
+      "to": "fix:fixture",
+      "factState": "proposed",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "edge:fix-checkpoint",
+      "type": "PRODUCES",
+      "from": "fix:fixture",
+      "to": "checkpoint:fixture",
+      "factState": "proposed",
+      "provenance": {
+        "source": "synthetic:fixture",
+        "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    }
+  ]
+}
