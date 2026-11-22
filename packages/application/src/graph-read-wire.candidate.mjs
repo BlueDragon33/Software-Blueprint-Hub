@@ -17,7 +17,19 @@ const VERIFICATIONS = new Set(["unverified", "recorded-pass", "recorded-fail"]);
 const APPROVALS = new Set(["separate-human-authority", "not-conferred"]);
 const PROVENANCE = new Set(["canonical", "contract"]);
 const SOURCES = new Set(["canonical-record", "source-contract"]);
-const RELATIONS = new Set(["dependency", "data-flow", "control", "evidence"]);
+/** Exact canonical kind→relation table from graph-intelligence-view.ts. */
+const EDGE_RELATIONS = Object.freeze({
+  "depends-on": "dependency",
+  "requires-gate": "control",
+  "supported-by": "evidence",
+  "release-evidence": "evidence",
+  governs: "control",
+  constrains: "control",
+  feeds: "data-flow",
+  scopes: "control",
+  "requires-approval": "control",
+  "implements-requirement": "evidence",
+});
 const MAX_NODES = 256, MAX_EDGES = 1024;
 
 function validId(value) {
@@ -93,8 +105,8 @@ export function prepareGraphReadWireCandidate(graph, scopedProjectId) {
   const edges = [];
   for (const e of graph.edges) {
     if (!e || typeof e !== "object" || !validId(e.id) || edgeIds.has(e.id)
-      || !ids.has(e.from) || !ids.has(e.to) || !validId(e.kind)
-      || !RELATIONS.has(e.relation) || !PROVENANCE.has(e.provenance)) {
+      || !ids.has(e.from) || !ids.has(e.to) || !Object.hasOwn(EDGE_RELATIONS, e.kind)
+      || EDGE_RELATIONS[e.kind] !== e.relation || !PROVENANCE.has(e.provenance)) {
       return deny("BROKEN_OR_UNTRUSTED_GRAPH_EDGE");
     }
     edgeIds.add(e.id);
