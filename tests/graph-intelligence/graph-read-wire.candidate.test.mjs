@@ -129,7 +129,8 @@ test("output is deep frozen, so consumers cannot accidentally forge a PASS", () 
 });
 
 test("missing graph and unsafe scope ID cannot be interpreted as authorization", () => {
-  for (const g of [null,undefined,[],{},true]) assert.equal(read(g).ok,false);
+  for (const g of [null,undefined,[],{},true])
+    assert.equal(prepareGraphReadWireCandidate(g, "project:blueprint-os").ok,false);
   for (const scope of ["",null,"<script>","project:blueprint-os\n"])
     assert.equal(read(graph(),scope).ok,false);
 });
