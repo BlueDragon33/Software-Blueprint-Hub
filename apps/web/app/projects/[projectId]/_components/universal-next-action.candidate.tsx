@@ -13,7 +13,7 @@ export type NextActionView = Readonly<{
   action: Readonly<{label:string;href:string;kind:"internal-navigation"|"external-handoff"}> | null;
 }>;
 export function UniversalNextActionCandidate({view,children}:{readonly view:NextActionView;readonly children?:ReactNode}) {
- const [expanded,setExpanded]=useState(false);
+ const [expanded,setExpanded]=useState(false);\n const [reviewOpen,setReviewOpen]=useState(false);\n const [supplement,setSupplement]=useState("");\n const [supplementKind,setSupplementKind]=useState<"addition"|"other">("addition");\n const [approved,setApproved]=useState(false);
  const safePath=view.action?.kind==="internal-navigation" && /^\/(?!\/)[a-zA-Z0-9/_?=&%.-]*$/.test(view.action.href);
  const external=view.action?.kind==="external-handoff" && /^https:\/\//.test(view.action.href);
  const canNavigate=Boolean(view.action) && Boolean(safePath||external);
@@ -26,9 +26,34 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
      <h2>{view.projectName}</h2></div><span className={styles.state}>{view.state==="ready"?"Sẵn sàng":view.state==="complete"?"Hoàn tất phạm vi":view.state==="blocked"?"Bị chặn":"Chưa xác minh"}</span></div>
    <div className={styles.summary}><strong>{view.workPackageId??"Chưa xác định Work Package"}</strong>
      <span>{view.checkpointRef?"Checkpoint: "+view.checkpointRef:"Chưa có checkpoint được cung cấp"}</span></div>
-   {actionable ? <a className={styles.primary} href={view.action!.href} rel={external?"noopener noreferrer":undefined}
-     target={external?"_blank":undefined}>{label}<span aria-hidden="true"> →</span></a>
-     : <button className={styles.primary} type="button" onClick={()=>setExpanded(true)} aria-expanded={expanded}>{label}</button>}
+   {!reviewOpen ? <button className={styles.primary} type="button" onClick={()=>setReviewOpen(true)}
+     aria-expanded={false} aria-controls="ana-review">Xem và bổ sung nhiệm vụ →</button>
+     : <div id="ana-review" className={styles.review} aria-label="Duyệt hai luồng nhiệm vụ">
+       <div className={styles.stream}><h3>Luồng 1 · Nhiệm vụ hiện tại</h3>
+         <p><strong>{view.workPackageId??"Chưa xác định Work Package"}</strong></p>
+         <p>Trạng thái: {view.state}. Checkpoint: {view.checkpointRef??"UNVERIFIED"}.</p>
+         <p>{view.reason??"Nội dung chi tiết sẽ được xác nhận trong Workspace từ nguồn dữ liệu có thẩm quyền."}</p>
+       </div>
+       <div className={styles.stream}><h3>Luồng 2 · Bổ sung hoặc nhiệm vụ khác</h3>
+         <label htmlFor="ana-kind">Loại yêu cầu</label>
+         <select id="ana-kind" value={supplementKind} onChange={e=>{setSupplementKind(e.target.value as "addition"|"other");setApproved(false)}}>
+           <option value="addition">Bổ sung vào nhiệm vụ hiện tại</option><option value="other">Nhiệm vụ khác cần xếp lịch</option>
+         </select>
+         <label htmlFor="ana-supplement">Nội dung (không bắt buộc)</label>
+         <textarea id="ana-supplement" maxLength={4000} rows={4} value={supplement}
+           placeholder="Nhập điều chỉnh hoặc yêu cầu mới…" onChange={e=>{setSupplement(e.target.value);setApproved(false)}}/>
+         <p className={styles.note}>Bản nháp chưa được lưu hoặc gửi. Không nhập dữ liệu nhạy cảm. Việc lưu và thực thi cần API Workspace được xác thực.</p>
+       </div>
+       <label className={styles.approval}><input type="checkbox" checked={approved} onChange={e=>setApproved(e.target.checked)}/>
+         Tôi đã xem hai luồng và đồng ý chuyển sang Workspace để hoàn tất duyệt.</label>
+       {actionable && approved && supplement.trim().length===0
+         ? <a className={styles.primary} href={view.action!.href} rel={external?"noopener noreferrer":undefined} target={external?"_blank":undefined}>
+             Duyệt và mở Workspace →</a>
+         : <button className={styles.primary} type="button" disabled={true}>
+             {supplement.trim()?"Cần kết nối API lưu yêu cầu trước khi chạy":!approved?"Duyệt để tiếp tục":"Chưa có Workspace được xác minh"}
+           </button>}
+       <button className={styles.detailsToggle} type="button" onClick={()=>{setReviewOpen(false);setApproved(false)}}>Đóng · chưa thực hiện</button>
+     </div>}
    <button className={styles.detailsToggle} type="button" onClick={()=>setExpanded(x=>!x)} aria-expanded={expanded}>
      {expanded?"Ẩn chi tiết nguồn và giới hạn":"Xem nguồn, quyền và giới hạn"}
    </button>
