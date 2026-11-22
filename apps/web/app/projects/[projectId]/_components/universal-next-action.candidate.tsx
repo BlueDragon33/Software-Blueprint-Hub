@@ -16,9 +16,9 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
  const [expanded,setExpanded]=useState(false);
  const safePath=view.action?.kind==="internal-navigation" && /^\/(?!\/)[a-zA-Z0-9/_?=&%.-]*$/.test(view.action.href);
  const external=view.action?.kind==="external-handoff" && /^https:\/\//.test(view.action.href);
- const canNavigate=view.state==="ready" && Boolean(view.action) && Boolean(safePath||external);
+ const canNavigate=Boolean(view.action) && Boolean(safePath||external);
  const verified=Boolean(view.verifiedAt && /^[a-f0-9]{40}$/.test(view.sourceRevision??""));
- const actionable=canNavigate&&verified;
+ // Navigation to an existing authenticated page is allowed even without exact SHA; execution is not.\n const actionable=canNavigate && (safePath || verified);
  const label=actionable?view.action!.label:view.state==="complete"?"Không còn công việc READY":"Xem nguyên nhân / kiểm tra nguồn";
  return <section className={styles.panel} aria-label="Blueprint OS · Next Action" data-state={view.state}>
    <div className={styles.top}><div><p className={styles.kicker}>BLUEPRINT OS · NEXT ACTION</p>
