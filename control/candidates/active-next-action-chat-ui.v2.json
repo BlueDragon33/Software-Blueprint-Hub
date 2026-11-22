@@ -115,5 +115,19 @@
       171,
       173
     ]
+  },
+  "presentation": {
+    "summaryRequired": true,
+    "observedRevisionMustBeRevalidated": true,
+    "showPrimaryAndSecondaryWhenHostSupports": true,
+    "secondaryOptionalToUse": true,
+    "primaryOnlyDoesNotPassV2UX": true,
+    "currentWorkAndQaStatusGrounded": true,
+    "unknownStateLabel": "UNVERIFIED",
+    "falseLiveProgressForbidden": true,
+    "closeOrPreviewTriggersExecution": false,
+    "advancedModesAffectSubmittedPrompt": true,
+    "mandatoryCheckbox": false,
+    "accessibleKeyboardAndTouch": true
   }
 }
