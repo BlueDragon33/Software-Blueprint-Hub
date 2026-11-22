@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "ui-mockup-command-aliases",
+  "status": "candidate-not-active",
+  "owner": "BlueDragon33/Software-Blueprint-Hub",
+  "normalization": "Unicode NFC + trim + Vietnamese locale case fold + collapse whitespace; no fuzzy intent escalation",
+  "aliases": [
+    {
+      "phrase": "Tạo giao diện mẫu",
+      "intent": "CREATE_MOCKUP",
+      "requires": [
+        "unambiguous-current-app",
+        "unambiguous-current-route-or-surface",
+        "current-app-source"
+      ],
+      "mayInvokeImageGeneration": true,
+      "mustNever": [
+        "modify-app-code",
+        "write-business-data",
+        "self-approve-model",
+        "invent-actions-or-routes"
+      ],
+      "onAmbiguity": "ask-one-scope-question-and-block"
+    },
+    {
+      "phrase": "Duyệt mẫu này",
+      "intent": "APPROVE_MOCKUP",
+      "requires": [
+        "exact-identifiable-draft",
+        "authenticated-authorized-approver",
+        "verified-image-and-spec-digests"
+      ],
+      "mayInvokeImageGeneration": false,
+      "mustNever": [
+        "self-approve",
+        "approve-code",
+        "deploy-production"
+      ],
+      "onAmbiguity": "block-exact-artifact-required"
+    },
+    {
+      "phrase": "Theo mẫu đã có áp dụng vào giao diện",
+      "intent": "APPLY_APPROVED_MOCKUP",
+      "requires": [
+        "unique-approved-current-model",
+        "verified-image-and-spec-digests",
+        "current-source-scope-reconciliation",
+        "scoped-edit-authority"
+      ],
+      "mayInvokeImageGeneration": false,
+      "mustNever": [
+        "generate-new-image",
+        "select-unapproved-draft",
+        "invent-actions-or-data",
+        "edit-schema-or-auth",
+        "merge-without-required-review",
+        "deploy-production"
+      ],
+      "onAmbiguity": "block-no-guess"
+    }
+  ],
+  "resolver": {
+    "app": "current-context-project-or-explicit-appId",
+    "screen": "current-route-or-explicit-surfaceId",
+    "state": "current-explicit-state-or-defined-default",
+    "model": "registry-scoped-one-approved-id-and-exact-content-digests",
+    "fallbackToLastGeneratedImage": false,
+    "requiresPersistentArtifact": true
+  },
+  "designApprovalNotEqual": [
+    "constitutional-ratification",
+    "quality-gate-pass",
+    "code-acceptance",
+    "production-release"
+  ]
+}

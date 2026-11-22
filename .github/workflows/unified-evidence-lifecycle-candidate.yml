@@ -1,0 +1,78 @@
+name: Unified Evidence Lifecycle Candidate CI
+
+on:
+  pull_request:
+    paths:
+      - "control/unified-evidence-lifecycle.v1.json"
+      - "control/execution-department-ownership.v1.json"
+      - "control/ui-mockup-*.json"
+      - "control/execution-continuity-r33*.json"
+      - "docs/UI-MOCKUP-ROUNDTRIP-CONSTITUTION.v1.candidate.md"
+      - "docs/R33-CONNECTION-INTERRUPTION-RECOVERY.proposed.md"
+      - "prompt-workflows/templates/ui-mockup-roundtrip.v1.json"
+      - "scripts/check-unified-evidence-lifecycle.mjs"
+      - "scripts/check-execution-departments.mjs"
+      - "scripts/check-ui-mockup-roundtrip.mjs"
+      - "scripts/check-execution-continuity-r33.mjs"
+      - "scripts/verify-r33-live-github-readback.mjs"
+      - "tests/governance/*evidence-lifecycle*.test.mjs"
+      - "tests/governance/*roundtrip*.test.mjs"
+      - "tests/governance/execution-departments.test.mjs"
+      - "tests/governance/execution-continuity-r33.test.mjs"
+      - "tests/governance/r33-live-github-readback.test.mjs"
+      - ".github/workflows/unified-evidence-lifecycle-candidate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  candidate-integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Validate unchanged Universal Constitution and department boundaries
+        run: |
+          node scripts/check-execution-departments.mjs
+          node scripts/check-ui-mockup-roundtrip.mjs
+          node scripts/check-execution-continuity-r33.mjs
+          node scripts/check-unified-evidence-lifecycle.mjs
+      - name: Adversarial and regression suite for all combined modules
+        run: |
+          node --test tests/governance/execution-departments.test.mjs tests/governance/ui-mockup-roundtrip.test.mjs tests/governance/execution-continuity-r33.test.mjs tests/governance/r33-live-github-readback.test.mjs tests/governance/unified-evidence-lifecycle.test.mjs
+      - name: Clarify gate status
+        run: echo "CANDIDATE ONLY — real app UI/Tester workflow not deployed; no constitutional ratification or user acceptance."
+
+  exact-remote-readback:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: candidate-integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Verify PR and exact SHA with real authenticated GitHub API readback
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/verify-r33-live-github-readback.mjs
+      - name: Store scoped source verification artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: unified-candidate-r33-source-not-product-pass-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/r33-source-readback-evidence.json
+          retention-days: 7
+          if-no-files-found: error

@@ -1,0 +1,538 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "ui-mockup-roundtrip-workflow-template",
+  "workflowId": "ui-mockup-roundtrip",
+  "workflowVersion": "1.0.0",
+  "status": "candidate-not-executable",
+  "owner": "BlueDragon33/Software-Blueprint-Hub",
+  "constitutionMinVersion": "1.3.0",
+  "contract": "control/ui-mockup-roundtrip.contract.v1.json",
+  "aliases": "control/ui-mockup-command-aliases.v1.json",
+  "role": "source-scoped-workflow-template-not-project-instance",
+  "templateGraphOnly": true,
+  "invariant": {
+    "imageGenerationAllowedOnlyFor": "CREATE_MOCKUP",
+    "applyImageGeneration": "FORBIDDEN",
+    "approvalSource": "authenticated-human",
+    "appCodeOwnedBy": "product-repository",
+    "qualityGatePassed": false,
+    "productionAuthorized": false
+  },
+  "flows": [
+    {
+      "intent": "CREATE_MOCKUP",
+      "result": "image+spec+draft-registry-only",
+      "nodes": [
+        {
+          "id": "resolve-scope",
+          "stage": "DISCOVER",
+          "role": "UX Engineer",
+          "dependsOn": [],
+          "goal": "Resolve unambiguous app/surface/state and current exact HEAD; read only relevant product files",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "read-scoped-source",
+            "read-current-HEAD"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "actual-app-head",
+            "grounded-component-inventory"
+          ],
+          "budget": {
+            "maxFiles": 12,
+            "maxAttempts": 2,
+            "maxTokenEstimate": 5000
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        },
+        {
+          "id": "inventory-contracts",
+          "stage": "SPECIFY",
+          "role": "Product Architect",
+          "dependsOn": [
+            "resolve-scope"
+          ],
+          "goal": "Bind each required action/data field to real code and mark prohibited features and synthetic data",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "inspect-route-component-data-contract"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "component-map",
+            "current-user-state"
+          ],
+          "budget": {
+            "maxFiles": 12,
+            "maxAttempts": 2,
+            "maxTokenEstimate": 5000
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        },
+        {
+          "id": "render-mockup",
+          "stage": "DESIGN",
+          "role": "UI/UX Designer",
+          "dependsOn": [
+            "inventory-contracts"
+          ],
+          "goal": "Render exactly one image and separately draft a complete spec with provenance and SHA-256 digests; app code untouched",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "generate-one-image",
+            "write-draft-visual-spec",
+            "compute-sha256"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "mockup-image-bytes",
+            "draft-spec-bytes",
+            "provenance"
+          ],
+          "budget": {
+            "maxFiles": 8,
+            "maxAttempts": 2,
+            "maxTokenEstimate": 7500
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        },
+        {
+          "id": "audit-visual-grounding",
+          "stage": "TEST",
+          "role": "Independent UX Auditor",
+          "dependsOn": [
+            "render-mockup"
+          ],
+          "goal": "Cross-check actual picture labels and controls against spec and existing app; block hallucinations, accessibility and responsive omissions",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "read-image-and-spec",
+            "compare-existing-component-map"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "visual-mapping-report",
+            "discrepancy-list"
+          ],
+          "budget": {
+            "maxFiles": 10,
+            "maxAttempts": 2,
+            "maxTokenEstimate": 7500
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        },
+        {
+          "id": "register-draft",
+          "stage": "REVIEW",
+          "role": "Hub Registry Steward",
+          "dependsOn": [
+            "audit-visual-grounding"
+          ],
+          "goal": "Persist only verified draft pointers in Hub registry without self-approval, app mutation or release claim",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "write-candidate-registry-metadata"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "image-and-spec-digests",
+            "draft-status-evidence"
+          ],
+          "budget": {
+            "maxFiles": 5,
+            "maxAttempts": 1,
+            "maxTokenEstimate": 3000
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        }
+      ]
+    },
+    {
+      "intent": "APPLY_APPROVED_MOCKUP",
+      "result": "UI-diff+real-QA+independent-review;no-image-generation",
+      "nodes": [
+        {
+          "id": "resolve-approved",
+          "stage": "DISCOVER",
+          "role": "Governance Resolver",
+          "dependsOn": [],
+          "goal": "Resolve one authenticated human-approved, immutable, exact-digest mockup for explicit app/surface/state; no image generation",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "read-current-registry",
+            "read-immutable-image",
+            "read-approved-spec"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "approval-audit-reference",
+            "mockup-ids-and-digests"
+          ],
+          "budget": {
+            "maxFiles": 6,
+            "maxAttempts": 2,
+            "maxTokenEstimate": 4500
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        },
+        {
+          "id": "reconcile-source",
+          "stage": "SPECIFY",
+          "role": "Principal UX/Frontend Architect",
+          "dependsOn": [
+            "resolve-approved"
+          ],
+          "goal": "Compare approved original app HEAD and current scoped source; verify mapping and allowed write paths; block stale semantic changes",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "read-current-HEAD-and-targeted-diff",
+            "compare-source-component-map"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "source-reconciliation-matrix",
+            "allowed-write-paths"
+          ],
+          "budget": {
+            "maxFiles": 12,
+            "maxAttempts": 2,
+            "maxTokenEstimate": 6000
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        },
+        {
+          "id": "plan-visual-patch",
+          "stage": "DESIGN",
+          "role": "Frontend Design System Engineer",
+          "dependsOn": [
+            "reconcile-source"
+          ],
+          "goal": "Map exact approved spec to existing components, design tokens and viewports without new routes/actions or interpretation drift",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "prepare-diff-map",
+            "inspect-design-tokens"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "component-to-spec-map",
+            "rollback-plan"
+          ],
+          "budget": {
+            "maxFiles": 8,
+            "maxAttempts": 2,
+            "maxTokenEstimate": 6500
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        },
+        {
+          "id": "apply-scoped-ui",
+          "stage": "IMPLEMENT",
+          "role": "Frontend Engineer",
+          "dependsOn": [
+            "plan-visual-patch"
+          ],
+          "goal": "Edit only scoped presentation code; DO NOT call image generation; preserve app logic, accessibility and data",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "edit-allowlisted-UI-files",
+            "add-narrow-regression-tests"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "exact-commit-SHA",
+            "scoped-diff"
+          ],
+          "budget": {
+            "maxFiles": 16,
+            "maxAttempts": 2,
+            "maxTokenEstimate": 10000
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        },
+        {
+          "id": "verify-real-render",
+          "stage": "TEST",
+          "role": "Independent Browser QA Engineer",
+          "dependsOn": [
+            "apply-scoped-ui"
+          ],
+          "goal": "Run real responsive browser renders and functional/a11y regression; compare with approved artifact, report divergences objectively",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "run-scoped-tests",
+            "capture-real-before-after-screenshots",
+            "check-keyboard-contrast"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "CI-run-IDs",
+            "browser-screenshots-hashes",
+            "visual-deviation-report"
+          ],
+          "budget": {
+            "maxFiles": 14,
+            "maxAttempts": 2,
+            "maxTokenEstimate": 9000
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        },
+        {
+          "id": "human-ux-review",
+          "stage": "REVIEW",
+          "role": "Human UX Reviewer",
+          "dependsOn": [
+            "verify-real-render"
+          ],
+          "goal": "Human evaluates fidelity and critical user journey; report accepted or blocked, never self-PASS",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "read-rendered-comparison",
+            "submit-authenticated-review"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "real-reviewer-identity",
+            "explicit-decision"
+          ],
+          "budget": {
+            "maxFiles": 8,
+            "maxAttempts": 1,
+            "maxTokenEstimate": 3500
+          },
+          "onFailure": "BLOCK",
+          "humanGate": true
+        },
+        {
+          "id": "handoff-not-release",
+          "stage": "LEARN",
+          "role": "Release Coordinator",
+          "dependsOn": [
+            "human-ux-review"
+          ],
+          "goal": "Prepare PR reviewable evidence and rollback; release remains a separate constitutional decision",
+          "inputs": [
+            "verified scoped upstream evidence",
+            "current canonical project/source context"
+          ],
+          "outputs": [
+            "versioned reviewable node result"
+          ],
+          "acceptance": [
+            "source and scope provenance retained",
+            "every unavailable fact remains BLOCKED or UNVERIFIED"
+          ],
+          "allowedActions": [
+            "write-PR-evidence-summary",
+            "record-open-blockers"
+          ],
+          "forbiddenActions": [
+            "invent business features",
+            "self-assert approval or Quality Gate PASS",
+            "make unapproved Production changes"
+          ],
+          "requiredEvidence": [
+            "exact-sha-handoff",
+            "release-status-not-authorized"
+          ],
+          "budget": {
+            "maxFiles": 6,
+            "maxAttempts": 1,
+            "maxTokenEstimate": 3000
+          },
+          "onFailure": "BLOCK",
+          "humanGate": false
+        }
+      ]
+    }
+  ],
+  "approvalTransition": {
+    "intent": "APPROVE_MOCKUP",
+    "separateFromExecution": true,
+    "requiredInputs": [
+      "authenticated-human",
+      "exact-mockup-id",
+      "exact-image-digest",
+      "exact-spec-digest"
+    ],
+    "mutations": [
+      "append-audited-status-transition-only"
+    ],
+    "never": [
+      "self-approve",
+      "alter-product-code",
+      "authorize-release"
+    ]
+  },
+  "limitations": [
+    "No automatic project creation",
+    "No new project registration",
+    "No active Quality Gate changes until ratified",
+    "No runtime executor granted authority by candidate workflow"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "ui-mockup-registry-index",
+  "status": "candidate-not-active",
+  "authority": "read-only-index-no-design-approval-no-qa-pass",
+  "owner": "BlueDragon33/Software-Blueprint-Hub",
+  "policyId": "blueprint-os:ui-mockup-roundtrip",
+  "minimumConstitutionVersion": "1.3.0",
+  "entries": [],
+  "selectionPolicy": {
+    "requires": [
+      "projectId",
+      "surfaceId",
+      "route",
+      "uiState",
+      "status=approved",
+      "imageSha256",
+      "specSha256"
+    ],
+    "exactlyOneApproved": true,
+    "missing": "BLOCK",
+    "multiple": "BLOCK",
+    "stale": "BLOCK"
+  },
+  "sourceOwnership": "each application owns its image/spec/artifact bytes; Hub contains only verified immutable references",
+  "note": "Intentionally empty. No generated or approved mockup exists in the canonical registry until separately created and reviewed."
+}

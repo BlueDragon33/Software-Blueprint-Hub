@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "execution-continuity-r33-aliases",
+  "status": "candidate-not-active",
+  "owner": "BlueDragon33/Software-Blueprint-Hub",
+  "normalization": "Unicode NFC; trim; Vietnamese case-fold; collapse whitespace; exact canonical phrases; explicit project reference may disambiguate",
+  "aliases": [
+    {
+      "phrase": "Khôi phục công việc",
+      "intent": "RESUME_VERIFIED_WORK",
+      "requires": [
+        "one-exact-work-item",
+        "durable-checkpoint",
+        "live-exact-HEAD",
+        "trusted-outcome-readback"
+      ],
+      "onAmbiguity": "BLOCK_AND_REQUEST_TARGET",
+      "mustNever": [
+        "guess-task",
+        "blind-retry-unconfirmed-write",
+        "self-PASS",
+        "unauthorized-merge-or-production"
+      ]
+    },
+    {
+      "phrase": "Tiếp tục từ checkpoint",
+      "intent": "RESUME_VERIFIED_WORK",
+      "requires": [
+        "one-exact-work-item",
+        "durable-checkpoint",
+        "live-exact-HEAD",
+        "trusted-outcome-readback"
+      ],
+      "onAmbiguity": "BLOCK_AND_REQUEST_TARGET",
+      "mustNever": [
+        "guess-task",
+        "blind-retry-unconfirmed-write",
+        "self-PASS",
+        "unauthorized-merge-or-production"
+      ]
+    },
+    {
+      "phrase": "Lưu checkpoint",
+      "intent": "PERSIST_CHECKPOINT",
+      "requires": [
+        "one-exact-work-item",
+        "authorized-existing-issue-PR-or-journal",
+        "verified-evidence"
+      ],
+      "onAmbiguity": "BLOCK_AND_REQUEST_TARGET",
+      "mustNever": [
+        "create-duplicate-status-DB",
+        "claim-saved-before-write-readback",
+        "store-secrets",
+        "self-PASS"
+      ]
+    },
+    {
+      "phrase": "Báo checkpoint",
+      "intent": "REPORT_CHECKPOINT",
+      "requires": [
+        "one-exact-work-item",
+        "scoped-live-status"
+      ],
+      "onAmbiguity": "BLOCK_AND_REQUEST_TARGET",
+      "mustNever": [
+        "write-any-data",
+        "rerun-CI",
+        "trigger-deployment",
+        "self-PASS"
+      ]
+    },
+    {
+      "phrase": "Khôi phục R33",
+      "intent": "RESUME_VERIFIED_WORK",
+      "requires": [
+        "one-exact-work-item",
+        "durable-checkpoint",
+        "live-exact-HEAD",
+        "trusted-outcome-readback"
+      ],
+      "onAmbiguity": "BLOCK_AND_REQUEST_TARGET",
+      "mustNever": [
+        "guess-task",
+        "blind-retry-unconfirmed-write",
+        "self-PASS",
+        "unauthorized-merge-or-production"
+      ]
+    }
+  ],
+  "neverAutoTreatGenericChatMessageAsApprovedAuthority": true,
+  "canonicalWorkItemIdentity": "repository+issue-or-PR-reference"
+}
