@@ -507,10 +507,6 @@ test("Phase 6 Product UX Gate traverses the canonical product without dead ends"
     page.getByRole("heading", { name: registryBetaName })
   ).toBeVisible();
 
-  const workspaceNav = page.getByRole("navigation", {
-    name: /^(Các mục trong dự án|Project workspace views)$/
-  });
-
   const journey = [
     ["/", /Readiness is blocked by canonical engineering state/],
     ["/profile", /Canonical Project Profile/],
