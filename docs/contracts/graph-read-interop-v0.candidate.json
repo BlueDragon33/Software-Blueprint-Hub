@@ -43,5 +43,15 @@
     "activeAppContractSchema": "application-management.contract/v1",
     "allowlistedActiveEndpoints": [],
     "noImplicitV0ToV1Migration": true
+  },
+  "internalComposition": {
+    "status": "SOURCE_PRESENT_RUNTIME_NOT_VERIFIED",
+    "hubLoader": "apps/web/src/server/graph-intelligence.ts",
+    "guardedServerBinding": "apps/web/src/server/graph-read-handoff.candidate.ts",
+    "projectScopeAdmission": "apps/web/src/server/graph-read-admission.candidate.mjs",
+    "executionPrerequisite": "AUTHENTICATED_PROJECT_READ_IN_EXISTING_HUB_LOADER",
+    "fullRuntimeAcceptance": "NOT_RUN",
+    "externalConsumerIdentity": "NOT_VERIFIED",
+    "externalTransportEnabled": false
   }
 }
