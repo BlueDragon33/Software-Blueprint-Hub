@@ -42,7 +42,7 @@
 
 - Browser source evidence **does not equal Human UX acceptance**. Owner screenshot in separate ChatGPT conversation showed only one host-rendered button; PR #174's guidance cannot install a permanent ChatGPT UI control.
 - Native Hub Next Action E2E checks navigation and read-only canonical projection; **real multi-device persisted task intake with simultaneous writes/transactional freshness CAS** is not covered by this E2E slice. Current intake is coded but not independently proven across concurrent authenticated sessions.
-- Graph Intelligence Studio #166 remains an independent Draft with merge conflicts against updated main. Full integrated Graph live view and authorized Codex realtime runner are NOT VERIFIED. Do not cherry-pick 65 files blindly or announce live Agent operation.
+- Graph Intelligence Studio #166 remains an independent Draft; GitHub reported mergeability TRUE at the final readback, but semantic integration and its own independent acceptance remain UNVERIFIED. Full integrated Graph live view and authorized Codex realtime runner are NOT VERIFIED. Do not cherry-pick 65 files blindly or announce live Agent operation.
 - Independent Reviewer A/B identity/verdict, authenticated constitutional ratification and Production authority remain separate human/security gates. Do not merge/publish #173 based merely on ordinary CI checks.
 - `main` currently has only merged non-normative v2 ChatGPT guidance from #174; ACTIVE normative/version/contract/template remains 1.3.0.
 
