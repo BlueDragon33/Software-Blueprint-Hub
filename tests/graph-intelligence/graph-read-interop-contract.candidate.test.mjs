@@ -56,3 +56,25 @@ test("Hub internal loader wiring is SOURCE_PRESENT only, never an auth or transp
   assert.equal(candidate.enabled,false);
   assert.equal(candidate.publicEndpoint,null);
 });
+
+test("C29 ES256 proof source is NOT an approved App identity or Graph release",()=>{
+  const proof=candidate.consumerProofCandidate;
+  assert.equal(proof.status,"SOURCE_PRESENT_NOT_PROVISIONED");
+  assert.equal(proof.module,"apps/web/src/server/graph-consumer-proof.candidate.mjs");
+  assert.equal(proof.algorithm,"ES256/P-256");
+  assert.equal(proof.exactIssuer,"BlueDragon33/Application-Management");
+  assert.equal(proof.exactAudience,"BlueDragon33/Software-Blueprint-Hub");
+  assert.equal(proof.exactScope,"graph:read:project");
+  assert.equal(proof.maxLifetimeSeconds,60);
+  assert.equal(proof.approvedTrustedKeys,"NONE_PROVISIONED");
+  assert.equal(proof.serverSideTrustRegistry,"NOT_IMPLEMENTED");
+  assert.equal(proof.durableAtomicReplayStore,"NOT_IMPLEMENTED");
+  assert.equal(proof.externalAppIdentityAccepted,false);
+  assert.equal(proof.actualSignedProofFromApp,"NOT_TESTED");
+  assert.equal(proof.fullNode24RuntimeAcceptance,"NOT_RUN");
+  assert.equal(proof.enabled,false);
+  assert.equal(proof.externalTransportEnabled,false);
+  assert.equal(candidate.enabled,false);
+  assert.equal(candidate.publicEndpoint,null);
+  assert.deepEqual(active.endpoints,{});
+});
