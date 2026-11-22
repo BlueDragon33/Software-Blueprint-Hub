@@ -53,5 +53,23 @@
     "fullRuntimeAcceptance": "NOT_RUN",
     "externalConsumerIdentity": "NOT_VERIFIED",
     "externalTransportEnabled": false
+  },
+  "consumerProofCandidate": {
+    "status": "SOURCE_PRESENT_NOT_PROVISIONED",
+    "module": "apps/web/src/server/graph-consumer-proof.candidate.mjs",
+    "algorithm": "ES256/P-256",
+    "exactIssuer": "BlueDragon33/Application-Management",
+    "exactAudience": "BlueDragon33/Software-Blueprint-Hub",
+    "exactScope": "graph:read:project",
+    "maxLifetimeSeconds": 60,
+    "approvedTrustedKeys": "NONE_PROVISIONED",
+    "serverSideTrustRegistry": "NOT_IMPLEMENTED",
+    "durableAtomicReplayStore": "NOT_IMPLEMENTED",
+    "externalAppIdentityAccepted": false,
+    "actualSignedProofFromApp": "NOT_TESTED",
+    "independentReviewerApproval": "PENDING",
+    "fullNode24RuntimeAcceptance": "NOT_RUN",
+    "enabled": false,
+    "externalTransportEnabled": false
   }
 }
