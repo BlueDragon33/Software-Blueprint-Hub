@@ -1,3 +1,4 @@
+import { UniversalNextActionCandidate } from "./_components/universal-next-action.candidate";
 import { ProjectWorkspaceFrame, ProjectWorkspaceState } from "./_components/project-workspace";
 import { ReadinessOverview } from "./_components/readiness-overview";
 import { loadProjectWorkspace } from "../../../src/server/project-workspace";
@@ -35,6 +36,17 @@ export default async function ProjectOverviewPage({ params }: ProjectPageProps) 
         <span className="status-chip status-chip-success">Canonical</span>
       </section>
 
+      <UniversalNextActionCandidate view={{
+        projectId: workspace.projectId,
+        projectName: workspace.project.profile.name,
+        workPackageId: null,
+        sourceRevision: null,
+        checkpointRef: null,
+        state: "unverified",
+        verifiedAt: null,
+        reason: "Chưa có Next Action exact-revision được xác minh. Mở Prompt Workspace để xem dữ liệu hiện có; đây không phải nút thực thi.",
+        action: { label: "Mở Prompt Workspace", href: "/projects/" + encodeURIComponent(workspace.projectId) + "/prompt", kind: "internal-navigation" }
+      }} />
       <ReadinessOverview readiness={readiness} />
 
       <section className="workspace-fact-grid" aria-label="Project overview facts">
