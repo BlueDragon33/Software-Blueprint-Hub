@@ -304,3 +304,95 @@ jobs:
           path: artifacts/optin-*.json
           if-no-files-found: warn
           retention-days: 14
+
+  # Authorized project-scoped QA of reused PR166 Graph Studio + PR173 Next Action.
+  # This is NOT release/publish, and never touches Production credentials.
+  graph-next-action-qa:
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/foundation/qa-') && contains(github.event.head_commit.message, '[graph-qa]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_test
+      AUTH_SECRET: p6-e2e-auth-secret-2026-blueprint-os-registry
+      BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER: github
+      BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT: p6-e2e-owner
+      BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH: "true"
+      RELEASE_GATE_REVISION: ${{ github.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma Client
+        run: pnpm prisma:generate
+      - name: Apply disposable PostgreSQL migrations
+        run: pnpm db:migrate:deploy
+      - name: Validate Graph/Workspace TypeScript integration
+        run: pnpm typecheck
+      - name: Verify reused Graph engine, browser components and shared authorized loader
+        run: |
+          mkdir -p artifacts
+          pnpm exec vitest run --fileParallelism=false \
+            tests/application/graph-intelligence.test.ts \
+            tests/web/graph-intelligence.test.tsx \
+            tests/web/graph-intelligence-server.test.ts \
+            --reporter=default --reporter=json \
+            --outputFile.json=artifacts/graph-integration-vitest.json
+      - name: Build exact source for isolated browser E2E
+        run: pnpm build
+      - name: Seed only temporary project/role data
+        run: pnpm exec prisma db execute --config prisma7.config.ts --file scripts/e2e-project-registry.sql
+      - name: Install Chromium QA browser
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Graph Studio + Next Action three-device E2E
+        run: pnpm exec playwright test --grep "Graph Studio shares the authenticated" 
+      - name: Record graph integration QA source without release claim
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const j=JSON.parse(fs.readFileSync("artifacts/graph-integration-vitest.json","utf8"));
+            if(j.numFailedTests!==0||j.numPendingTests!==0||j.numPassedTests<=0) throw Error("Graph Vitest lacks clean proof");
+            const browser=JSON.parse(fs.readFileSync("artifacts/playwright-results.json","utf8"));
+            if(browser.stats.unexpected!==0||browser.stats.skipped!==0||browser.stats.flaky!==0||browser.stats.expected!==3) throw Error("Three device proof incomplete");
+            fs.writeFileSync("artifacts/graph-integration-summary.json", JSON.stringify({
+              revision:process.env.GITHUB_SHA,graphTests:j.numPassedTests,browserPass:3,
+              runtimeSourceScoped:true,agentExecution:false,canonicalMutation:false,
+              releaseGatePass:false,productionAuthorized:false
+            },null,2)+"\n");
+          '
+      - name: Upload scoped QA evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: graph-ana-qa-evidence-${{ github.sha }}
+          path: |
+            artifacts/
+            playwright-report/
+          if-no-files-found: warn
+          retention-days: 14

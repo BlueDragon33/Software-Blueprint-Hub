@@ -63,9 +63,9 @@ export const projectWorkspaceViews: readonly WorkspaceViewDefinition[] =
     },
     {
       id: "evidence-graph",
-      label: "Evidence Graph",
+      label: "Graph Intelligence",
       suffix: "/evidence-graph",
-      description: "Work, gate, evidence and release provenance"
+      description: "Independent constraints, impact and evidence provenance"
     },
     {
       id: "release-orchestration",

@@ -18,7 +18,7 @@ const localized: Readonly<Record<string, { vi: string; en: string; descriptionVi
   blueprint: { vi: "Thiết kế", en: "Blueprint", descriptionVi: "Mô-đun & yêu cầu", descriptionEn: "Modules and requirements" },
   roadmap: { vi: "Lộ trình", en: "Roadmap", descriptionVi: "Giai đoạn & công việc", descriptionEn: "Work packages and stages" },
   quality: { vi: "Chất lượng", en: "Quality", descriptionVi: "Kiểm thử & tiêu chí", descriptionEn: "Tests and gates" },
-  "evidence-graph": { vi: "Bằng chứng", en: "Evidence graph", descriptionVi: "Nguồn gốc kết quả", descriptionEn: "Result provenance" },
+  "evidence-graph": { vi: "Đồ thị kỹ thuật", en: "Graph Intelligence", descriptionVi: "Tác động & bằng chứng", descriptionEn: "Impact and evidence provenance" },
   "release-orchestration": { vi: "Phát hành", en: "Release", descriptionVi: "Điều kiện triển khai", descriptionEn: "Release preconditions" },
   security: { vi: "Bảo mật", en: "Security", descriptionVi: "Quyền & an toàn", descriptionEn: "Access and safety" },
   "data-lifecycle": { vi: "Dữ liệu", en: "Data lifecycle", descriptionVi: "Lưu trữ & vòng đời", descriptionEn: "Storage and lifecycle" },

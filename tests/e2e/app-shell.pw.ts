@@ -1388,3 +1388,22 @@ test("Next Action v2 keeps a blocked B4 project honest and exposes both controls
   await panel.getByRole("button", { name: "Mở Workspace · Gỡ nút thắt →" }).click();
   await expect(page.getByRole("heading", { name: "Derived execution projection" })).toBeVisible();
 });
+
+test("Graph Studio shares the authenticated project's canonical Next Action, without granting Agent authority", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/projects/project%3Ap6-registry-beta/evidence-graph");
+
+  await expect(page.getByRole("heading", { name: "Graph Intelligence Studio" })).toBeVisible();
+  await expect(page.getByText(/Deterministic analysis · not an LLM|Phân tích quy tắc · không phải LLM/)).toBeVisible();
+
+  const workspace = page.getByRole("region", { name: "Blueprint OS · Workspace" });
+  await expect(workspace.getByRole("button", { name: "Xem kế hoạch và bổ sung nhiệm vụ" })).toBeVisible();
+  await expect(workspace.getByRole("button", { name: /^(Mở Workspace|Tiếp tục công việc)/ })).toBeVisible();
+  await expect(workspace.getByText("Agent đang chạy", { exact: true })).toHaveCount(0);
+  await page.screenshot({
+    path: `artifacts/graph-next-action-integration-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
