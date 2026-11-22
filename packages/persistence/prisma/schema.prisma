@@ -24,6 +24,7 @@ model Project {
   promptSnapshots        PromptProjectionSnapshot[]
   workflowExecutionAdoptions WorkflowExecutionAdoptionDecision[]
   workflowExecutionIssuers   WorkflowExecutionIssuerDecision[]
+  nextActionWorkBindings  NextActionWorkBindingDecision[]
 }
 
 model ProjectProfile {
@@ -51,6 +52,7 @@ model WorkPackage {
   updatedAt     DateTime @updatedAt @db.Timestamptz(6)
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  nextActionBindings NextActionWorkBindingDecision[]
 
   @@index([projectId, status])
   @@index([projectId, recordVersion])
@@ -221,6 +223,7 @@ model Principal {
   constitutionPublications ConstitutionPublication[] @relation("ConstitutionPublicationPublisher")
   workflowExecutionAdoptions WorkflowExecutionAdoptionDecision[] @relation("WorkflowExecutionAdoptionDecider")
   workflowExecutionIssuers WorkflowExecutionIssuerDecision[] @relation("WorkflowExecutionIssuerDecider")
+  nextActionWorkBindings NextActionWorkBindingDecision[] @relation("NextActionWorkBindingDecider")
 
   @@unique([provider, providerSubject])
 }
@@ -417,6 +420,33 @@ model WorkflowExecutionAdoptionDecision {
 
   @@index([projectId, workflowId, workflowDigest, decidedAt])
   @@index([decidedByPrincipalId, decidedAt])
+}
+
+
+
+/// Project-scoped append-only WorkPackage ↔ adopted workflow / SHA decisions.
+/// This does not authorize execution, sign grants or release Production.
+model NextActionWorkBindingDecision {
+  id                         String   @id @db.VarChar(160)
+  decisionSequence           BigInt   @unique @default(autoincrement())
+  projectId                  String   @db.VarChar(160)
+  workPackageId              String   @db.VarChar(160)
+  workPackageRecordVersion   Int
+  workflowId                 String   @db.VarChar(80)
+  workflowDigest             String   @db.VarChar(80)
+  appHead                    String   @db.VarChar(40)
+  policyVersion              String   @db.VarChar(32)
+  decision                   String   @db.VarChar(16)
+  decidedByPrincipalId       String   @db.VarChar(160)
+  decidedAt                  DateTime @default(now()) @db.Timestamptz(6)
+  productionReleaseAuthority Boolean @default(false)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  workPackage WorkPackage @relation(fields: [workPackageId], references: [id], onDelete: Restrict)
+  decider Principal @relation("NextActionWorkBindingDecider", fields: [decidedByPrincipalId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, workPackageId, decidedAt])
+  @@index([projectId, workflowId, workflowDigest])
 }
 
 /// Append-only public-key authorization for a bounded workflow issuer.

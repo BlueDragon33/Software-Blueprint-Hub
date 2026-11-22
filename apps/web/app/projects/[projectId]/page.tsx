@@ -6,9 +6,10 @@ export const dynamic = "force-dynamic";
 
 interface ProjectPageProps {
   readonly params: Promise<{ projectId: string }>;
+  readonly searchParams?: Promise<{ nextAction?: string }>;
 }
 
-export default async function ProjectOverviewPage({ params }: ProjectPageProps) {
+export default async function ProjectOverviewPage({ params, searchParams }: ProjectPageProps) {
   const { projectId } = await params;
   const workspace = await loadProjectWorkspace(projectId);
 
@@ -35,7 +36,11 @@ export default async function ProjectOverviewPage({ params }: ProjectPageProps) 
         <span className="status-chip status-chip-success">Canonical</span>
       </section>
 
-      <ReadinessOverview readiness={readiness} />
+      <ReadinessOverview
+        readiness={readiness}
+        profileVersion={workspace.project.profile.meta.recordVersion}
+        actionChanged={(await searchParams)?.nextAction === "changed"}
+      />
 
       <section className="workspace-fact-grid" aria-label="Project overview facts">
         <article className="workspace-fact">

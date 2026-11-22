@@ -104,6 +104,54 @@ suite("P1 workflow execution authority PostgreSQL integrity", () => {
     })).rejects.toThrow(/Ed25519/);
   });
 
+  it("fails closed if same-timestamp revoke would lose to lexicographic adoption UUID", async () => {
+    const workflowId = "p1-adoption-timestamp-tie";
+    const decidedAt = new Date("2026-10-17T00:00:00.000Z");
+    await prisma.workflowExecutionAdoptionDecision.createMany({data:[
+      {
+        id:"workflow-adoption:zz-adopt",projectId,workflowId,
+        workflowDigest:digest,policyVersion,decision:"adopt",
+        decidedAt,decidedByPrincipalId:ownerId,productionReleaseAuthority:false
+      },
+      {
+        id:"workflow-adoption:aa-revoke",projectId,workflowId,
+        workflowDigest:digest,policyVersion,decision:"revoke",
+        decidedAt,decidedByPrincipalId:ownerId,productionReleaseAuthority:false
+      }
+    ]});
+    const unsafeLexicographic = await prisma.workflowExecutionAdoptionDecision.findFirst({
+      where:{projectId,workflowId,workflowDigest:digest},
+      orderBy:[{decidedAt:"desc"},{id:"desc"}]
+    });
+    expect(unsafeLexicographic?.decision).toBe("adopt");
+    expect(await repository.latestAdoption(projectId,workflowId,digest)).toBeNull();
+  });
+
+  it("fails closed on tied issuer allow/revoke for both grant snapshot and live recheck", async () => {
+    const workflowId = "p1-issuer-timestamp-tie";
+    const issuerId = "authorized-tie";
+    const decidedAt = new Date("2026-10-17T00:00:00.000Z");
+    await prisma.workflowExecutionIssuerDecision.createMany({data:[
+      {
+        id:"workflow-issuer:zz-allow",projectId,workflowId,issuerId,
+        publicKeyPem,policyVersion,decision:"allow",
+        decidedAt,decidedByPrincipalId:ownerId,productionReleaseAuthority:false
+      },
+      {
+        id:"workflow-issuer:aa-revoke",projectId,workflowId,issuerId,
+        publicKeyPem,policyVersion,decision:"revoke",
+        decidedAt,decidedByPrincipalId:ownerId,productionReleaseAuthority:false
+      }
+    ]});
+    const unsafeLexicographic=await prisma.workflowExecutionIssuerDecision.findFirst({
+      where:{projectId,workflowId,issuerId},
+      orderBy:[{decidedAt:"desc"},{id:"desc"}]
+    });
+    expect(unsafeLexicographic?.decision).toBe("allow");
+    expect(await repository.latestIssuer(projectId,workflowId,issuerId)).toBeNull();
+    expect((await repository.currentAllowedIssuers(projectId,workflowId)).has(issuerId)).toBe(false);
+  });
+
   it("database rejects update, delete and truncate of authority history", async () => {
     const workflowId = "p1-immutable";
     await repository.recordAdoption({

@@ -194,21 +194,34 @@ export class PostgresWorkflowExecutionAuthorityRepository {
   async latestAdoption(
     projectId: string, workflowId: string, workflowDigest: string
   ): Promise<WorkflowExecutionAdoptionRecord | null> {
-    const row = await this.prisma.workflowExecutionAdoptionDecision.findFirst({
+    // UUID ordering cannot establish which append-only decision wins when
+    // PostgreSQL timestamps collide. Fetch the two most recent rows in ONE
+    // snapshot and fail closed rather than accidentally resurrect adoption.
+    const rows = await this.prisma.workflowExecutionAdoptionDecision.findMany({
       where: { projectId, workflowId, workflowDigest },
-      orderBy: [{ decidedAt: "desc" }, { id: "desc" }]
+      orderBy: [{ decidedAt: "desc" }, { id: "desc" }],
+      take: 2
     });
-    return row ? adoption(row) : null;
+    if (rows.length > 1 &&
+        rows[0]!.decidedAt.getTime() === rows[1]!.decidedAt.getTime()) {
+      return null;
+    }
+    return rows[0] ? adoption(rows[0]) : null;
   }
 
   async latestIssuer(
     projectId: string, workflowId: string, issuerId: string
   ): Promise<WorkflowExecutionIssuerRecord | null> {
-    const row = await this.prisma.workflowExecutionIssuerDecision.findFirst({
+    const rows = await this.prisma.workflowExecutionIssuerDecision.findMany({
       where: { projectId, workflowId, issuerId },
-      orderBy: [{ decidedAt: "desc" }, { id: "desc" }]
+      orderBy: [{ decidedAt: "desc" }, { id: "desc" }],
+      take: 2
     });
-    return row ? issuer(row) : null;
+    if (rows.length > 1 &&
+        rows[0]!.decidedAt.getTime() === rows[1]!.decidedAt.getTime()) {
+      return null;
+    }
+    return rows[0] ? issuer(rows[0]) : null;
   }
 
   async currentAllowedIssuers(
@@ -219,11 +232,20 @@ export class PostgresWorkflowExecutionAuthorityRepository {
       orderBy: [{ decidedAt: "desc" }, { id: "desc" }]
     });
     const current = new Map<string, WorkflowExecutionIssuerRecord>();
-    const seen = new Set<string>();
+    const latestByIssuer = new Map<string, typeof rows[number]>();
+    const ambiguousIssuers = new Set<string>();
     for (const row of rows) {
-      if (seen.has(row.issuerId)) continue;
-      seen.add(row.issuerId);
-      if (row.decision === "allow") current.set(row.issuerId, issuer(row));
+      const previous = latestByIssuer.get(row.issuerId);
+      if (!previous) {
+        latestByIssuer.set(row.issuerId, row);
+      } else if (previous.decidedAt.getTime() === row.decidedAt.getTime()) {
+        ambiguousIssuers.add(row.issuerId);
+      }
+    }
+    for (const [issuerId, row] of latestByIssuer) {
+      if (!ambiguousIssuers.has(issuerId) && row.decision === "allow") {
+        current.set(issuerId, issuer(row));
+      }
     }
     return current;
   }
