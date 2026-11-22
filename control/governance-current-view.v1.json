@@ -10,10 +10,10 @@
     "control/governance-registration-ledger.v1.json",
     "control/universal-constitution-version.json"
   ],
-  "recordedAt": "2026-10-16T05:37:39.804Z",
+  "recordedAt": "2026-10-16T17:22:05.528Z",
   "sealedBaselineCount": 15,
-  "admittedRegistrationCount": 2,
-  "pendingOnboardingCount": 1,
+  "admittedRegistrationCount": 3,
+  "pendingOnboardingCount": 0,
   "trackedCount": 18,
   "repositories": [
     {
@@ -225,10 +225,10 @@
       "branch": "main",
       "projectId": "project:blueprint-russian-expert-engine",
       "blueprintLevel": "B4",
-      "registrationState": "pending-onboarding",
+      "registrationState": "admitted-registration",
       "sourceRevision": "60c544eeafff06e145a3363fef8071f29e51cc86",
-      "observedAt": "2026-10-16T05:37:39.804Z",
-      "sourceFreshness": "historical-reference-not-live-head",
+      "observedAt": "2026-10-16T17:22:05.528Z",
+      "sourceFreshness": "verified-admission-source",
       "complianceState": "UNVERIFIED",
       "productionAuthority": false
     }
