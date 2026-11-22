@@ -20,3 +20,7 @@ test("false verifier rejected",()=>{const g=copy();g.edges[2].to="goal:atlas";as
 test("broken vertical slice rejected",()=>{const g=copy();g.edges.pop();assert.equal(verifyVerticalSlice(g,ids).valid,false);});
 test("unknown node and bad trace direction rejected",()=>{assert.throws(()=>traceAtlas(fixture,"goal:missing"),/UNKNOWN_NODE/);assert.throws(()=>traceAtlas(fixture,"goal:atlas",{direction:"sideways"}),/BAD_TRACE/);});
 test("self edge rejected",()=>{const g=copy();g.edges[0].to=g.edges[0].from;assert.ok(has(g,"SELF_EDGE"));});
+
+test("strict root fields agree with schema",()=>{const g=copy();g.extra="unknown";assert.ok(has(g,"ROOT_FIELDS"));});
+test("schema node/edge patterns match runtime ID contract",()=>{const schema=JSON.parse(fs.readFileSync(new URL("../../packages/application/src/atlas-graph.candidate.schema.json",import.meta.url),"utf8"));const p=schema.$defs.node.properties.id.pattern;assert.equal(p,"^[A-Za-z][A-Za-z0-9:._/-]{1,159}$");assert.equal(schema.$defs.edge.properties.id.pattern,p);assert.equal(schema.$defs.edge.properties.from.pattern,p);assert.equal(schema.$defs.node.properties.title.maxLength,300);assert.equal(schema.$defs.node.properties.title.pattern,"\\S");});
+test("oversized graph is rejected before traversal",()=>{const g=copy();g.edges=new Array(50001);assert.ok(has(g,"LIMIT"));});

@@ -8,11 +8,13 @@ const stages=new Set(["planned","ready","in-progress","testing","review","comple
 const error=(code,subject)=>({code,subject});
 export function validateAtlas(graph){
  const errors=[];if(!graph||typeof graph!=="object"||Array.isArray(graph))return {valid:false,errors:[error("GRAPH","object required")]};
+ const allowedRootFields=new Set(["schemaVersion","projectId","sourceRevision","nodes","edges"]);
+ if(Object.keys(graph).some(k=>!allowedRootFields.has(k)))errors.push(error("ROOT_FIELDS","unknown root field"));
  if(graph.schemaVersion!==ATLAS_VERSION)errors.push(error("VERSION","schemaVersion"));
  if(!id.test(graph.projectId??""))errors.push(error("PROJECT","projectId"));
  if(!sha.test(graph.sourceRevision??""))errors.push(error("REVISION","sourceRevision"));
  if(!Array.isArray(graph.nodes)||!Array.isArray(graph.edges))return {valid:false,errors:[...errors,error("ARRAYS","nodes and edges")]};
- if(graph.nodes.length>10000||graph.edges.length>50000)errors.push(error("LIMIT","graph"));
+ if(graph.nodes.length>10000||graph.edges.length>50000)return {valid:false,errors:[...errors,error("LIMIT","graph")]};
  const nodes=new Map(),edgeIds=new Set(),deps=new Map();
  for(const n of graph.nodes){
   if(!n||typeof n!=="object"){errors.push(error("NODE","malformed"));continue;}

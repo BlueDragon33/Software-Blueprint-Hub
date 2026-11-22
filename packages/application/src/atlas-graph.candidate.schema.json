@@ -68,7 +68,8 @@
       ],
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
         },
         "type": {
           "enum": [
@@ -109,7 +110,9 @@
         },
         "title": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "maxLength": 300,
+          "pattern": "\\S"
         },
         "projectId": {
           "type": "string"
@@ -152,7 +155,8 @@
       ],
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
         },
         "type": {
           "enum": [
@@ -181,10 +185,12 @@
           ]
         },
         "from": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
         },
         "to": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
         },
         "factState": {
           "enum": [
@@ -196,7 +202,8 @@
           ]
         },
         "evidenceRef": {
-          "type": "string"
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
         },
         "provenance": {
           "$ref": "#/$defs/provenance"
