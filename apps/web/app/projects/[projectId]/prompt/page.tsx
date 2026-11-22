@@ -1,3 +1,4 @@
+import { NextActionDraftInbox } from "./next-action-draft-inbox.candidate";
 import Link from "next/link";
 import { StatusChip } from "@blueprint-os/ui";
 import {
@@ -120,6 +121,7 @@ export default async function PromptPage({
         </section>
       ) : null}
 
+      <NextActionDraftInbox projectId={workspace.projectId} currentSourceRevision={currentSourceRevision} />
       <section className="prompt-workspace-summary">
         <div className="prompt-workspace-revision">
           <span>Current canonical source revision</span>
