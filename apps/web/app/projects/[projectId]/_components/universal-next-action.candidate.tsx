@@ -13,7 +13,12 @@ export type NextActionView = Readonly<{
   action: Readonly<{label:string;href:string;kind:"internal-navigation"|"external-handoff"}> | null;
 }>;
 export function UniversalNextActionCandidate({view,children}:{readonly view:NextActionView;readonly children?:ReactNode}) {
- const [expanded,setExpanded]=useState(false);\n const [reviewOpen,setReviewOpen]=useState(false);\n const [supplement,setSupplement]=useState("");\n const [supplementKind,setSupplementKind]=useState<"addition"|"other">("addition");\n const [approved,setApproved]=useState(false);
+ const [expanded,setExpanded]=useState(false);
+ const [reviewOpen,setReviewOpen]=useState(false);
+ const [supplement,setSupplement]=useState("");
+ const [supplementKind,setSupplementKind]=useState<"addition"|"other">("addition");
+ const [approved,setApproved]=useState(false);
+ const [feedback,setFeedback]=useState<string|null>(null);
  const safePath=view.action?.kind==="internal-navigation" && /^\/(?!\/)[a-zA-Z0-9/_?=&%.-]*$/.test(view.action.href);
  const external=view.action?.kind==="external-handoff" && /^https:\/\//.test(view.action.href);
  const canNavigate=Boolean(view.action) && Boolean(safePath||external);
@@ -46,12 +51,20 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
        </div>
        <label className={styles.approval}><input type="checkbox" checked={approved} onChange={e=>setApproved(e.target.checked)}/>
          Tôi đã xem hai luồng và đồng ý chuyển sang Workspace để hoàn tất duyệt.</label>
-       {actionable && approved && supplement.trim().length===0
-         ? <a className={styles.primary} href={view.action!.href} rel={external?"noopener noreferrer":undefined} target={external?"_blank":undefined}>
-             Duyệt và mở Workspace →</a>
-         : <button className={styles.primary} type="button" disabled={true}>
-             {supplement.trim()?"Cần kết nối API lưu yêu cầu trước khi chạy":!approved?"Duyệt để tiếp tục":"Chưa có Workspace được xác minh"}
-           </button>}
+       <button className={styles.primary} type="button" disabled={!approved || !actionable || !safePath}
+         onClick={()=>{
+           try {
+             const payload={version:1,projectId:view.projectId,workPackageId:view.workPackageId,
+               sourceRevision:view.sourceRevision,checkpointRef:view.checkpointRef,
+               supplementKind,supplement:supplement.trim(),createdAt:new Date().toISOString()};
+             window.sessionStorage.setItem("blueprint:next-action-draft:"+view.projectId,JSON.stringify(payload));
+             window.location.assign(view.action!.href);
+           } catch {
+             setFeedback("Không thể chuyển bản nháp an toàn. Chưa gửi hoặc chạy nhiệm vụ.");
+           }
+         }}>Duyệt và mở Workspace →</button>
+       {feedback&&<p role="alert">{feedback}</p>}
+       <p className={styles.note}>Chỉ chuyển bản nháp trong phiên trình duyệt hiện tại. Chưa tạo Work Package, chưa chạy Agent và chưa ghi checkpoint. Workspace sẽ yêu cầu kiểm tra lại nguồn trước khi thực hiện.</p>
        <button className={styles.detailsToggle} type="button" onClick={()=>{setReviewOpen(false);setApproved(false)}}>Đóng · chưa thực hiện</button>
      </div>}
    <button className={styles.detailsToggle} type="button" onClick={()=>setExpanded(x=>!x)} aria-expanded={expanded}>
