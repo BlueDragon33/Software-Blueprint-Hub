@@ -9,3 +9,4 @@ export * from "./professional-review-repository";
 
 export * from "./constitution-authority-repository";
 export * from "./workflow-execution-authority-repository";
+export * from "./continuous-preflight-repository";

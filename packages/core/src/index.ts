@@ -8,6 +8,7 @@ export * from "./authority";
 export * from "./persistence";
 export * from "./work-quality";
 export * from "./project-readiness";
+export * from "./continuous-execution";
 export * from "./governance";
 export * from "./release";
 export * from "./prompt-history";

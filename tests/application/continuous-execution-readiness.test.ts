@@ -1,0 +1,232 @@
+import { describe, expect, it } from "vitest";
+import type { QualityGate, WorkPackage } from "../../packages/contracts/src";
+import {
+  assessCanonicalContinuousReadiness,
+  canOfferContinuousExecution,
+  planContinuousRecovery,
+  type ContinuousProjectSnapshot
+} from "../../packages/core/src/continuous-execution";
+
+const SHA = "a".repeat(40);
+const at = "2026-10-17T00:00:00Z";
+const meta = {schemaVersion:"1.0.0" as const,recordVersion:1,createdAt:at,updatedAt:at};
+
+function work(projectId:string,id:string,
+  status:WorkPackage["status"]="ready",
+  dependencies:string[]=[],
+  qualityGateIds:string[]=[]):WorkPackage {
+  return {id,projectId,title:id,purpose:"Deliver a real product slice",
+    dependencies,acceptanceCriteria:["Functional product evidence"],
+    qualityGateIds,status,meta};
+}
+function gate(projectId:string,id:string,
+  status:QualityGate["status"]="not-ready",
+  evidenceIds:string[]=[]):QualityGate {
+  return {id,projectId,name:id,
+    requirements:["Verified product source"],status,evidenceIds,meta};
+}
+function snapshot(projectId:string):ContinuousProjectSnapshot {
+  const prereq=work(projectId,"work:foundation","completed");
+  const target=work(projectId,"work:offline-prea0","ready",[prereq.id],
+    ["gate:offline-smoke"]);
+  return {projectId,profileVersion:1,canonicalRevision:"canonical-digest-v1",
+    appHead:SHA,canMutate:true,
+    requiredGateIds:["gate:offline-smoke"],
+    workPackages:[prereq,target],
+    gates:[gate(projectId,"gate:offline-smoke","not-ready")]};
+}
+
+describe("authenticated-source continuous readiness projection (no issuer authorization)",()=>{
+  it("pilot A: existing Bauman project has a READY task, never auto-dispatches",()=>{
+    const result=assessCanonicalContinuousReadiness(
+      snapshot("project:bauman-master-ai-system"));
+    expect(result.state).toBe("READY_WORK_FOUND");
+    expect(result.nextWorkId).toBe("work:offline-prea0");
+    expect(result.preflightEvidenceReady).toBe(false);
+    expect(result.canDispatch).toBe(false);
+  });
+  it("pilot B: new project fails closed until it has a canonical HEAD, gate and READY work",()=>{
+    const newApp="project:future-offline-app";
+    const data=snapshot(newApp);
+    expect(assessCanonicalContinuousReadiness({...data,appHead:null}).state)
+      .toBe("UNVERIFIED");
+    expect(assessCanonicalContinuousReadiness({...data,gates:[]}).state)
+      .toBe("BLOCKED");
+    expect(assessCanonicalContinuousReadiness({
+      ...data,workPackages:data.workPackages.map(w=>({...w,status:"planned"}))
+    }).state).toBe("BLOCKED");
+    expect(assessCanonicalContinuousReadiness(data).state)
+      .toBe("READY_WORK_FOUND");
+  });
+  it("a signed-in Viewer can read but never gets an execution authority",()=>{
+    const result=assessCanonicalContinuousReadiness({
+      ...snapshot("project:bauman-master-ai-system"),canMutate:false});
+    expect(result.state).toBe("READ_ONLY");
+    expect(result.canDispatch).toBe(false);
+  });
+  it("a failing required gate blocks, and user-supplied fake PASS is rejected",()=>{
+    const data=snapshot("project:bauman-master-ai-system");
+    expect(assessCanonicalContinuousReadiness({...data,
+      gates:[gate(data.projectId,"gate:offline-smoke","fail")]}).state)
+      .toBe("BLOCKED");
+    const forged=assessCanonicalContinuousReadiness({...data,
+      gates:[gate(data.projectId,"gate:offline-smoke","pass",[])]});
+    expect(forged.state).toBe("BLOCKED");
+    expect(forged.reasons.join(" ")).toMatch(/PASS without linked evidence/);
+  });
+  it("wrong project, duplicates, unknown dependency and cycles are rejected",()=>{
+    const data=snapshot("project:bauman-master-ai-system");
+    expect(assessCanonicalContinuousReadiness({...data,
+      workPackages:[work("project:other","work:alien")]}).state)
+      .toBe("UNVERIFIED");
+    expect(assessCanonicalContinuousReadiness({...data,
+      workPackages:[...data.workPackages,data.workPackages[0]!]}).state)
+      .toBe("UNVERIFIED");
+    expect(assessCanonicalContinuousReadiness({...data,
+      workPackages:[work(data.projectId,"work:unknown","ready",["work:absent"])]}).state)
+      .toBe("UNVERIFIED");
+    expect(assessCanonicalContinuousReadiness({...data,
+      workPackages:[work(data.projectId,"work:a","ready",["work:b"]),
+        work(data.projectId,"work:b","ready",["work:a"])]}).state)
+      .toBe("UNVERIFIED");
+  });
+  it("in-progress work is not misrepresented as a newly READY task",()=>{
+    const data=snapshot("project:bauman-master-ai-system");
+    const updated=data.workPackages.map(w=>w.id==="work:offline-prea0"?
+      {...w,status:"in-progress" as const}:w);
+    const result=assessCanonicalContinuousReadiness({...data,workPackages:updated});
+    expect(result.state).toBe("BLOCKED");
+    expect(result.nextWorkId).toBeNull();
+  });
+});
+
+describe("automatic source remediation + user-confirmed canonical repair guidance",()=>{
+  it("unverified HEAD returns bounded non-mutating automatic readback only",()=>{
+    const input={...snapshot("project:bauman-master-ai-system"),appHead:null};
+    const assessment=assessCanonicalContinuousReadiness(input);
+    const actions=planContinuousRecovery(input,assessment);
+    expect(actions.map(x=>x.kind)).toEqual(["automatic-readback"]);
+    expect(actions[0]?.requiresConfirmation).toBe(false);
+    expect(actions[0]?.canChangeCanonicalState).toBe(false);
+  });
+  it("missing required gate offers explicit NOT_READY creation, never PASS",()=>{
+    const input={...snapshot("project:bauman-master-ai-system"),gates:[]};
+    const assessment=assessCanonicalContinuousReadiness(input);
+    const actions=planContinuousRecovery(input,assessment);
+    expect(assessment.state).toBe("BLOCKED");
+    expect(actions[0]?.kind).toBe("human-confirm-gate");
+    expect(actions[0]?.requiresConfirmation).toBe(true);
+    expect(actions[0]?.explanation).toMatch(/NOT_READY/);
+    expect(actions.some(x=>x.kind==="authority-grant")).toBe(false);
+  });
+  it("READY work only requests a real separate issuer grant, never auto-signs",()=>{
+    const input=snapshot("project:bauman-master-ai-system");
+    const actions=planContinuousRecovery(input,assessCanonicalContinuousReadiness(input));
+    expect(actions.map(x=>x.kind)).toEqual(["authority-grant"]);
+    expect(actions[0]?.canChangeCanonicalState).toBe(false);
+  });
+  it("project Viewer must request authorized access instead of creation form",()=>{
+    const input={...snapshot("project:bauman-master-ai-system"),canMutate:false};
+    const actions=planContinuousRecovery(input,assessCanonicalContinuousReadiness(input));
+    expect(actions.map(x=>x.kind)).toEqual(["human-review"]);
+    expect(actions[0]?.canChangeCanonicalState).toBe(false);
+  });
+  it("failing Gate requires human review and never automatically changes PASS",()=>{
+    const base=snapshot("project:bauman-master-ai-system");
+    const input={...base,gates:[gate(base.projectId,"gate:offline-smoke","fail")]};
+    const actions=planContinuousRecovery(input,assessCanonicalContinuousReadiness(input));
+    expect(actions.map(x=>x.kind)).toEqual(["human-review"]);
+    expect(actions.every(x=>x.requiresConfirmation)).toBe(true);
+  });
+});
+
+describe("fresh project may request PLANNED setup, never instant READY",()=>{
+  it("offers a real human-confirm Work Package input only for an empty project",()=>{
+    const input={...snapshot("project:new-onboarding-app"),workPackages:[]};
+    const assessment=assessCanonicalContinuousReadiness(input);
+    expect(assessment.state).toBe("BLOCKED");
+    const actions=planContinuousRecovery(input,assessment);
+    expect(actions).toHaveLength(1);
+    expect(actions[0]?.kind).toBe("human-confirm-work");
+    expect(actions[0]?.canChangeCanonicalState).toBe(true);
+    expect(actions[0]?.explanation).toContain("PLANNED");
+    const planned=work(input.projectId,"work:initial-product","planned");
+    const after={...input,workPackages:[planned]};
+    const next=planContinuousRecovery(after,assessCanonicalContinuousReadiness(after));
+    expect(next[0]?.kind).toBe("human-confirm-ready");
+    expect(next.every(action=>action.kind!=="authority-grant")).toBe(true);
+  });
+});
+
+describe("least privilege during recovery",()=>{
+  it("Viewer with a missing Gate sees authority referral, not a create form",()=>{
+    const base=snapshot("project:bauman-master-ai-system");
+    const input={...base,canMutate:false,gates:[]};
+    const actions=planContinuousRecovery(
+      input,assessCanonicalContinuousReadiness(input));
+    expect(actions.map(a=>a.kind)).toEqual(["human-review"]);
+    expect(actions.every(a=>!a.canChangeCanonicalState)).toBe(true);
+  });
+});
+
+describe("PASS-linked evidence stays fail-closed",()=>{
+  it("rejects evidence IDs without actual canonical WorkQuality readback",()=>{
+    const base=snapshot("project:bauman-master-ai-system");
+    const g=gate(base.projectId,"gate:offline-smoke","pass",["evidence:offline-1"]);
+    expect(assessCanonicalContinuousReadiness({...base,gates:[g]}).state)
+      .toBe("BLOCKED");
+    expect(assessCanonicalContinuousReadiness({...base,gates:[g],
+      evidence:[{id:"evidence:offline-1",gateId:"gate:other",kind:"test",
+        source:"github:repo@sha",revision:SHA,createdAt:at}]}).state)
+      .toBe("BLOCKED");
+    expect(assessCanonicalContinuousReadiness({...base,gates:[g],
+      evidence:[{id:"evidence:offline-1",gateId:g.id,kind:"test",
+        source:"github:repo@sha",revision:SHA,createdAt:at}]}).state)
+      .toBe("READY_WORK_FOUND");
+  });
+});
+
+describe("human READY promotion is only a candidate if prerequisites hold",()=>{
+  it("never offers READY confirmation for an incomplete dependency chain",()=>{
+    const base=snapshot("project:new-onboarding-app");
+    const a=work(base.projectId,"work:manual-start","planned",["work:unfinished"]);
+    const b=work(base.projectId,"work:unfinished","planned");
+    const input={...base,workPackages:[a,b]};
+    const actions=planContinuousRecovery(input,
+      assessCanonicalContinuousReadiness(input));
+    expect(actions.some(x=>x.id==="work:manual-start" &&
+      x.kind==="human-confirm-ready")).toBe(false);
+  });
+  it("does not offer READY confirmation when a required Gate has FAIL",()=>{
+    const base=snapshot("project:new-onboarding-app");
+    const input={...base,
+      workPackages:[work(base.projectId,"work:manual-start","planned")],
+      gates:[gate(base.projectId,"gate:offline-smoke","fail")]};
+    const actions=planContinuousRecovery(input,
+      assessCanonicalContinuousReadiness(input));
+    expect(actions.some(x=>x.kind==="human-confirm-ready")).toBe(false);
+    expect(actions[0]?.kind).toBe("human-review");
+  });
+});
+
+describe("eight-factor preflight is mandatory even after canonical READY",()=>{
+  it("a READY package is not enough to reveal the execution control",()=>{
+    const a=assessCanonicalContinuousReadiness(
+      snapshot("project:bauman-master-ai-system"));
+    expect(a.state).toBe("READY_WORK_FOUND");
+    expect(a.preflightEvidenceReady).toBe(false);
+    expect(canOfferContinuousExecution(a)).toBe(false);
+  });
+  it("no unsigned or stale/blocked preflight can reveal the execution control",()=>{
+    const a=assessCanonicalContinuousReadiness(
+      snapshot("project:bauman-master-ai-system"));
+    expect(canOfferContinuousExecution({...a,state:"BLOCKED",
+      preflightEvidenceReady:true})).toBe(false);
+    expect(canOfferContinuousExecution({...a,nextWorkId:null,
+      preflightEvidenceReady:true})).toBe(false);
+    // This positive format case is NOT produced by the current canonical
+    // adapter. A real eight-factor signed receipt must precede such state.
+    expect(canOfferContinuousExecution({...a,preflightEvidenceReady:true}))
+      .toBe(true);
+  });
+});

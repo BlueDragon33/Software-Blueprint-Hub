@@ -10,3 +10,12 @@ coverage/
 *.log
 .DS_Store
 packages/persistence/src/generated/prisma/
+
+# Real authenticated E2E session state must stay outside repository.
+playwright/.auth/
+.playwright-auth/
+.local-e2e/
+**/*.storage-state.json
+playwright-report/
+test-results/
+artifacts/playwright-results.json
