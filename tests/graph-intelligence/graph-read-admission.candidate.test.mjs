@@ -64,7 +64,7 @@ test("no loader, malformed input and invalid percent encoding deny before invoki
     "project%3Ablueprint-os%0A","%zz","<svg>","project%253Ablueprint-os",
     "x".repeat(513),
   ]) {
-    const result=await call(loader,bad);
+    const result=await inspectInternalProjectGraphCandidate(bad,loader);
     assert.equal(result.ok,false,JSON.stringify(bad));
   }
   assert.equal(calls,0);
