@@ -153,12 +153,12 @@ test("ADR-0003 owner setup requires the deployment-configured identity", async (
 
 test("signed-out root protects the canonical project registry", async ({ page }, testInfo) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^(Trung tâm ứng dụng|Ứng dụng của bạn, trong một nơi\.)$/ })).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Sign in to open your project registry." })
+    page.getByRole("heading", { name: "Đăng nhập để mở trung tâm ứng dụng." })
   ).toBeVisible();
   await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
-  await expect(page.getByText(/does not expose canonical project names/i)).toBeVisible();
+  await expect(page.getByText(/Dữ liệu dự án được bảo vệ và chỉ hiển thị sau khi xác thực/)).toBeVisible();
   await page.screenshot({
     path: `artifacts/p6-001-registry-signed-out-${testInfo.project.name}.png`,
     fullPage: true
@@ -171,10 +171,10 @@ test("System Owner sees canonical multi-project registry and opens a project", a
   await authenticateRegistryOwner(page);
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Projects", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^(Trung tâm ứng dụng|Ứng dụng của bạn, trong một nơi\.)$/ })).toBeVisible();
   await expect(page.getByText(registryAlphaName, { exact: true })).toBeVisible();
   await expect(page.getByText(registryBetaName, { exact: true })).toBeVisible();
-  await expect(page.getByText("System Owner", { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Hệ sinh thái/ }).first()).toBeVisible();
 
   await page.screenshot({
     path: `artifacts/p6-001-registry-authenticated-${testInfo.project.name}.png`,
@@ -185,7 +185,7 @@ test("System Owner sees canonical multi-project registry and opens a project", a
   await expect(
     page.getByRole("heading", { name: registryBetaName })
   ).toBeVisible();
-  await expect(page.getByText("Canonical", { exact: true })).toBeVisible();
+  await expect(page.getByText("KHÔNG GIAN DỰ ÁN CHUẨN", { exact: true })).toBeVisible();
   await expect(page.getByText("B4", { exact: true }).first()).toBeVisible();
 });
 
@@ -197,12 +197,12 @@ test("P7-004 forbidden project reads stay distinct from runtime outages", async 
 
   await expect(
     page.getByRole("heading", {
-      name: "You do not have access to this project."
+      name: "Bạn không có quyền truy cập dự án này."
     })
   ).toBeVisible();
 
   await expect(
-    page.getByText(/did not expose project metadata/i)
+    page.getByText(/không hiển thị dữ liệu trái quyền hạn/i)
   ).toBeVisible();
 
   await expect(
@@ -214,7 +214,7 @@ test("P7-004 forbidden project reads stay distinct from runtime outages", async 
   ).toHaveCount(0);
 
   await expect(
-    page.getByRole("link", { name: "Back to readable projects" })
+    page.getByRole("link", { name: "Về màn hình ứng dụng" })
   ).toHaveAttribute("href", "/");
 
   await page.screenshot({
@@ -282,21 +282,21 @@ test("canonical project workspace has stable truthful views", async ({
   await page.goto("/projects/project%3Ap6-registry-beta");
 
   const workspaceNav = page.getByRole("navigation", {
-    name: "Project workspace views"
+    name: /^(Các mục trong dự án|Project workspace views)$/
   });
 
-  await expect(workspaceNav.getByRole("link", { name: /Overview/ })).toHaveAttribute(
+  await expect(workspaceNav.getByRole("link", { name: /^(Tổng quan|Overview)/ })).toHaveAttribute(
     "aria-current",
     "page"
   );
 
-  await workspaceNav.getByRole("link", { name: /Profile/ }).click();
+  await workspaceNav.getByRole("link", { name: /^(Hồ sơ dự án|Profile)/ }).click();
   await expect(
     page.getByRole("heading", { name: "Canonical Project Profile" })
   ).toBeVisible();
   await expect(page.getByText("role-based", { exact: true })).toBeVisible();
 
-  await page.getByRole("link", { name: /Blueprint/ }).click();
+  await page.getByRole("link", { name: /^(Thiết kế|Blueprint)/ }).click();
   await expect(
     page.getByRole("heading", { name: "Resolved engineering requirements" })
   ).toBeVisible();
@@ -304,7 +304,7 @@ test("canonical project workspace has stable truthful views", async ({
     page.getByText("gate:platform:compatibility", { exact: true })
   ).toBeVisible();
 
-  await page.getByRole("link", { name: /Roadmap/ }).click();
+  await page.getByRole("link", { name: /^(Lộ trình|Roadmap)/ }).click();
   await expect(
     page.getByRole("heading", { name: "Dependency-aware Work Packages" })
   ).toBeVisible();
@@ -312,7 +312,7 @@ test("canonical project workspace has stable truthful views", async ({
     page.getByText("Ship readiness dashboard", { exact: true })
   ).toBeVisible();
 
-  await page.getByRole("link", { name: /Quality/ }).click();
+  await page.getByRole("link", { name: /^(Chất lượng|Quality)/ }).click();
   await expect(
     page.getByRole("heading", {
       name: "Quality Gates and revision-specific evidence"
@@ -327,7 +327,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /^Prompt/ }).click();
+  await page.getByRole("link", { name: /^(Quy trình & Prompt|Prompt)/ }).click();
   await expect(
     page.getByRole("heading", { name: "Derived execution projection" })
   ).toBeVisible();
@@ -365,7 +365,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /Decisions/ }).click();
+  await page.getByRole("link", { name: /^(Quyết định|Decisions)/ }).click();
   await expect(
     page.getByRole("heading", { name: "Architecture Decisions" })
   ).toBeVisible();
@@ -384,7 +384,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /Risks & Debt/ }).click();
+  await page.getByRole("link", { name: /^(Rủi ro|Risks & Debt)/ }).click();
   await expect(
     page.getByRole("heading", { name: "Risks & Technical Debt" })
   ).toBeVisible();
@@ -411,7 +411,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /Releases & Lessons/ }).click();
+  await page.getByRole("link", { name: /^(Lịch sử & bài học|Releases & Lessons)/ }).click();
   await expect(
     page.getByRole("heading", {
       name: "Exact revisions, rollback history and reusable learning"
@@ -435,8 +435,8 @@ test("canonical project workspace has stable truthful views", async ({
 
   if (testInfo.project.name === "mobile-chromium") {
     const activeReleaseLink = page
-      .getByRole("navigation", { name: "Project workspace views" })
-      .getByRole("link", { name: /Releases & Lessons/ });
+      .getByRole("navigation", { name: /^(Các mục trong dự án|Project workspace views)$/ })
+      .getByRole("link", { name: /^(Lịch sử & bài học|Releases & Lessons)/ });
 
     await expect(activeReleaseLink).toHaveAttribute("aria-current", "page");
 
@@ -461,7 +461,7 @@ test("canonical project workspace has stable truthful views", async ({
     fullPage: true
   });
 
-  await page.getByRole("link", { name: /Overview/ }).click();
+  await page.getByRole("link", { name: /^(Tổng quan|Overview)/ }).click();
   await expect(
     page.getByRole("heading", {
       name: "Readiness is blocked by canonical engineering state."
@@ -485,7 +485,7 @@ test("Phase 6 Product UX Gate traverses the canonical product without dead ends"
 
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Projects", exact: true })
+    page.getByRole("heading", { name: /^(Trung tâm ứng dụng|Ứng dụng của bạn, trong một nơi\.)$/ })
   ).toBeVisible();
 
   await page.getByRole("link", { name: new RegExp(registryBetaName) }).click();
@@ -494,30 +494,37 @@ test("Phase 6 Product UX Gate traverses the canonical product without dead ends"
   ).toBeVisible();
 
   const workspaceNav = page.getByRole("navigation", {
-    name: "Project workspace views"
+    name: /^(Các mục trong dự án|Project workspace views)$/
   });
 
   const journey = [
-    ["Overview", /Readiness is blocked by canonical engineering state/],
-    ["Profile", /Canonical Project Profile/],
-    ["Blueprint", /Resolved engineering requirements/],
-    ["Roadmap", /Dependency-aware Work Packages/],
-    ["Quality", /Quality Gates and revision-specific evidence/],
-    ["Prompt", /Derived execution projection/],
-    ["Decisions", /Architecture Decisions/],
-    ["Risks & Debt", /Risks & Technical Debt/],
-    ["Releases & Lessons", /Exact revisions, rollback history and reusable learning/]
+    ["/", /Readiness is blocked by canonical engineering state/],
+    ["/profile", /Canonical Project Profile/],
+    ["/blueprint", /Resolved engineering requirements/],
+    ["/roadmap", /Dependency-aware Work Packages/],
+    ["/quality", /Quality Gates and revision-specific evidence/],
+    ["/prompt", /Derived execution projection/],
+    ["/decisions", /Architecture Decisions/],
+    ["/risks-debt", /Risks & Technical Debt/],
+    ["/releases-lessons", /Exact revisions, rollback history and reusable learning/]
   ] as const;
 
-  for (const [label, heading] of journey) {
-    const link = workspaceNav.getByRole("link", { name: new RegExp(label) });
-    await link.click();
+  for (const [suffix, heading] of journey) {
+    // Navigation labels are localized (VI/EN); exact route + selected-state
+    // are stable semantic contracts, not a language-specific text assertion.
+    const route = "/projects/project%3Ap6-registry-beta" +
+      (suffix === "/" ? "" : suffix);
+    const target = workspaceNav.locator(`a.project-workspace-nav-item[href="${route}"]`);
+    const group = target.locator("xpath=ancestor::details[1]");
+    if (await group.count() && !(await group.evaluate(el => el.hasAttribute("open")))) {
+      await group.locator("summary").click();
+    }
+    await target.click();
     await expect(page.getByRole("heading", { name: heading })).toBeVisible();
     await expect(
-      page.getByRole("navigation", { name: "Project workspace views" })
-        .getByRole("link", { name: new RegExp(label) })
+      page.locator(`nav.project-workspace-nav a.project-workspace-nav-item[href="${route}"]`)
     ).toHaveAttribute("aria-current", "page");
-    await expect(page.getByText("Project cannot be opened.")).toHaveCount(0);
+    await expect(page.getByText(/^(Project cannot be opened\.|Không thể tải dữ liệu dự án\.)$/)).toHaveCount(0);
   }
 
   await page.goto("/knowledge");
@@ -673,7 +680,7 @@ test("P7-003 critical surfaces provide usable keyboard landmarks and focus", asy
   await page.goto("/knowledge");
 
   await page.keyboard.press("Tab");
-  const skip = page.getByRole("link", { name: "Skip to main content" });
+  const skip = page.getByRole("link", { name: "Bỏ qua menu, đến nội dung chính" });
   await expect(skip).toBeFocused();
   await expect(skip).toBeVisible();
 
@@ -698,14 +705,14 @@ test("P7-003 critical surfaces provide usable keyboard landmarks and focus", asy
   await page.goto("/projects/project%3Ap6-registry-beta/quality");
 
   const workspaceNav = page.getByRole("navigation", {
-    name: "Project workspace views"
+    name: /^(Các mục trong dự án|Project workspace views)$/
   });
   await expect(workspaceNav).toBeVisible();
 
-  const qualityLink = workspaceNav.getByRole("link", { name: /Quality/ });
+  const qualityLink = workspaceNav.getByRole("link", { name: /^(Chất lượng|Quality)/ });
   await expect(qualityLink).toHaveAttribute("aria-current", "page");
 
-  const qualitySkip = page.getByRole("link", { name: "Skip to main content" });
+  const qualitySkip = page.getByRole("link", { name: "Bỏ qua menu, đến nội dung chính" });
   await qualitySkip.focus();
   await expect(qualitySkip).toBeFocused();
   await page.keyboard.press("Enter");
@@ -982,8 +989,8 @@ test("P9-016 adaptive audit covers current workspace without overflow and honors
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/projects/project%3Ap6-registry-beta/data-lifecycle");
 
-  const nav = page.getByRole("navigation", { name: "Project workspace views" });
-  const lifecycle = nav.getByRole("link", { name: /Data Lifecycle/ });
+  const nav = page.getByRole("navigation", { name: /^(Các mục trong dự án|Project workspace views)$/ });
+  const lifecycle = nav.getByRole("link", { name: /^(Dữ liệu|Data Lifecycle)/ });
   await expect(lifecycle).toHaveAttribute("aria-current", "page");
 
   const pageHasOverflow = await page.evaluate(
