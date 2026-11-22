@@ -23,12 +23,8 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
  const [submitting,setSubmitting]=useState(false);
  const requestIdRef=useRef<string|null>(null);
  const safePath=view.action?.kind==="internal-navigation" && /^\/(?!\/)[a-zA-Z0-9/_?=&%.-]*$/.test(view.action.href);
- const external=view.action?.kind==="external-handoff" && /^https:\/\//.test(view.action.href);
- const canNavigate=Boolean(view.action) && Boolean(safePath||external);
- const verified=Boolean(view.verifiedAt && /^[a-f0-9]{40}$/.test(view.sourceRevision??""));
- // Navigation to an existing authenticated page is allowed even without exact SHA; execution is not.
- const actionable=canNavigate && (safePath || verified);
- const label=actionable?"Tiếp tục công việc":view.state==="complete"?"Xem kết quả công việc":"Xem trạng thái công việc";
+ // One safe internal navigation action. A Git SHA is not the canonical Prompt source digest.
+ const actionable=Boolean(safePath);
 
  async function approveAndContinue(){
    if(!approved || !actionable || !safePath || submitting)return;
