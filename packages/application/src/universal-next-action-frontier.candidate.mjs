@@ -66,3 +66,44 @@ export function selectUniversalNextAction(snapshot) {
       ". Revalidate canonical state and authority before each mutation; complete all eligible dependent tasks, test and checkpoint. Do not self-ratify, publish or invent execution. Batch Windows diagnostics only if actually required."
   });
 }
+
+/** R19–R22 implementation: a single interruption boundary, never per-step polling.
+ * Pure planning only; no shell execution, privilege grant or background operation.
+ * Trusted callers must authenticate project and source before displaying the plan.
+ */
+export function planUniversalUserIntervention(input) {
+  if (!input || typeof input !== 'object') throw new TypeError('ANA_BLOCKED: interaction context');
+  const { state, authorityRequired = false, nativeWindowsRequired = false,
+    nativeWindowsAvailable = false, connectedRunnerAvailable = false,
+    nativeStepLabels = [] } = input;
+  if (!['ready','working','blocked','complete'].includes(state) ||
+      typeof authorityRequired !== 'boolean' ||
+      typeof nativeWindowsRequired !== 'boolean' ||
+      typeof nativeWindowsAvailable !== 'boolean' ||
+      typeof connectedRunnerAvailable !== 'boolean' ||
+      !Array.isArray(nativeStepLabels) || nativeStepLabels.length > 20 ||
+      nativeStepLabels.some(s => typeof s !== 'string' || !s.trim() || s.length > 180)) {
+    throw new TypeError('ANA_BLOCKED: invalid interaction plan');
+  }
+  const result = (kind, requiresUser, details) => Object.freeze({
+    kind, requiresUser, ...details, mayExecute: false, mayPublish: false
+  });
+  if (state === 'complete') return result('final-report', false, { nextUserReadback: false });
+  if (authorityRequired) return result('human-authority-gate', true, {
+    nextUserReadback: false, reason: 'Non-delegable human authority required'
+  });
+  if (nativeWindowsRequired && !nativeWindowsAvailable && !connectedRunnerAvailable) {
+    if (!nativeStepLabels.length) return result('capability-blocker', false, {
+      nextUserReadback: false, reason: 'Native capability missing; prepare a verified batch before asking'
+    });
+    return result('one-native-batch', true, {
+      nextUserReadback: true,
+      steps: Object.freeze([...nativeStepLabels]),
+      reason: 'One PowerShell batch and one readback after preflight; not repeated command prompts'
+    });
+  }
+  if (state === 'blocked') return result('technical-checkpoint', false, {
+    nextUserReadback: false, reason: 'Record blocker and diagnose; do not solicit routine input'
+  });
+  return result('continue-autonomously', false, { nextUserReadback: false });
+}
