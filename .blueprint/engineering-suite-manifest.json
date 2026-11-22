@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0.0",
+  "suiteId": "blue-dragon-engineering-suite",
+  "constitution": {
+    "repository": "BlueDragon33/Software-Blueprint-Hub",
+    "policyId": "blueprint-os:universal-century-grade",
+    "policyVersion": "1.2.0",
+    "revision": "efa7ea02a49d31e18305452813f502dd8ce6ce25"
+  },
+  "blueprintLevel": "B4",
+  "governanceMode": "federated-independent-repositories",
+  "members": [
+    {
+      "id": "cad-cam-3d",
+      "repository": "BlueDragon33/CAD_CAM_3D",
+      "status": "active",
+      "canonicalOwner": "mechanical-parametric-cad-and-additive-manufacturing",
+      "managementDeviceNamespace": "CAD-"
+    },
+    {
+      "id": "ecad-design",
+      "repository": "BlueDragon33/ECAD_Design",
+      "status": "foundation-active",
+      "canonicalOwner": "schematic-pcb-electrical-design",
+      "managementDeviceNamespace": "ECAD-",
+      "repositoryId": "1408712256",
+      "foundationBranch": "foundation/general-system",
+      "foundationPr": 1
+    },
+    {
+      "id": "cae-simulation",
+      "repository": "BlueDragon33/CAE_Simulation",
+      "status": "foundation-active",
+      "canonicalOwner": "engineering-simulation-studies-and-results",
+      "managementDeviceNamespace": "CAE-",
+      "repositoryId": "1408713006",
+      "foundationBranch": "foundation/general-system",
+      "foundationPr": 1
+    }
+  ],
+  "sharedCorePolicy": {
+    "repositoryAllowedNow": false,
+    "extractionRule": "Only extract shared packages after at least two real consumers depend on a stable contract with an identified owner and versioning need."
+  },
+  "controlPlane": {
+    "repository": "BlueDragon33/Application-Management",
+    "role": "operational-policy-and-device-control-only",
+    "mayOwnEngineeringArtifacts": false
+  },
+  "productionAuthority": "separate-explicit-human-release-gate"
+}
