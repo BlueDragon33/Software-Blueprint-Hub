@@ -5,7 +5,8 @@
 export const UNIVERSAL_NEXT_ACTION_VERSION = "ana-universal:candidate-v1";
 
 const statuses = new Set(["planned","ready","in-progress","testing","review","blocked","completed","archived"]);
-const sha40 = /^[a-f0-9]{40}$/;
+// A Git commit SHA and a canonical Prompt digest are distinct pinned revision forms.
+const sourceRevisionPattern = /^(?:[a-f0-9]{40}|sha256:[a-f0-9]{64})$/;
 const idPattern = /^[A-Za-z0-9][A-Za-z0-9:._/-]{1,159}$/;
 function invariant(ok, reason) { if (!ok) throw new TypeError("ANA_BLOCKED: " + reason); }
 function freezeResult(o) { return Object.freeze(o); }
@@ -16,7 +17,7 @@ export function selectUniversalNextAction(snapshot) {
   const { projectId, sourceRevision, projectName, workPackages, capabilities = {}, checkpointRef = null } = snapshot;
   invariant(typeof projectId === "string" && /^project:[a-z0-9][a-z0-9-]{0,158}$/.test(projectId), "project identity");
   invariant(typeof projectName === "string" && projectName.trim().length > 0 && projectName.length < 160, "project name");
-  invariant(typeof sourceRevision === "string" && sha40.test(sourceRevision), "exact source revision");
+  invariant(typeof sourceRevision === "string" && sourceRevisionPattern.test(sourceRevision), "exact source revision");
   invariant(Array.isArray(workPackages) && workPackages.length <= 500, "work list");
   invariant(checkpointRef === null || (typeof checkpointRef === "string" && checkpointRef.length > 0 && checkpointRef.length <= 300), "checkpoint");
   const byId = new Map();
