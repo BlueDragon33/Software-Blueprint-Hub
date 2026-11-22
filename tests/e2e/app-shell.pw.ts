@@ -197,7 +197,7 @@ test("System Owner sees canonical multi-project registry and opens a project", a
 
   await page.getByRole("link", { name: new RegExp(registryBetaName) }).click();
   await expect(
-    page.getByRole("heading", { name: registryBetaName })
+    page.getByRole("heading", { name: registryBetaName, level: 1 })
   ).toBeVisible();
   await expect(page.getByText("KHÔNG GIAN DỰ ÁN CHUẨN", { exact: true })).toBeVisible();
   await expect(page.getByText("B4", { exact: true }).first()).toBeVisible();
@@ -312,7 +312,7 @@ test("canonical project workspace has stable truthful views", async ({
 
   await navigateBetaWorkspaceView(page, "/blueprint");
   await expect(
-    page.getByRole("heading", { name: "Resolved engineering requirements" })
+    page.getByRole("heading", { name: "Yêu cầu kỹ thuật của dự án" })
   ).toBeVisible();
   await expect(
     page.getByText("gate:platform:compatibility", { exact: true })
@@ -504,13 +504,13 @@ test("Phase 6 Product UX Gate traverses the canonical product without dead ends"
 
   await page.getByRole("link", { name: new RegExp(registryBetaName) }).click();
   await expect(
-    page.getByRole("heading", { name: registryBetaName })
+    page.getByRole("heading", { name: registryBetaName, level: 1 })
   ).toBeVisible();
 
   const journey = [
     ["/", /Readiness is blocked by canonical engineering state/],
     ["/profile", /Canonical Project Profile/],
-    ["/blueprint", /Resolved engineering requirements/],
+    ["/blueprint", /Yêu cầu kỹ thuật của dự án/],
     ["/roadmap", /Dependency-aware Work Packages/],
     ["/quality", /Quality Gates and revision-specific evidence/],
     ["/prompt", /Derived execution projection/],
