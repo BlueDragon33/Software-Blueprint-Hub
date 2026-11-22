@@ -31,7 +31,7 @@ for (const [name, expected] of Object.entries(pins)) {
   if (actual !== expected) blocked(name + " checkout revision drift");
 }
 const moduleAt = async (name, file) => import(pathToFileURL(resolve(root, name, "src", file)).href);
-const [{authorizeInspectionGrant,canonicalDispatchPayload},
+const [{authorizeInspectionGrant},
  {executeInspection},
  {independentlyVerifyInspection}] = await Promise.all([
   moduleAt("gateway", "gateway.mjs"),
