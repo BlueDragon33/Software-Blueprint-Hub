@@ -216,3 +216,91 @@ jobs:
             playwright-report/
           if-no-files-found: warn
           retention-days: 14
+
+  # QA-only isolated suite; deliberately NOT a Production or constitutional gate.
+  # Enables exactly the 17 opt-in DB tests + one public pinned read that are
+  # otherwise SKIPPED in the normal default Vitest suite. The eight restricted
+  # GitHub App bridge tests still need distinct authorized App identities.
+  optin-evidence-qa:
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/foundation/qa-') && contains(github.event.head_commit.message, '[optin-qa]') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_qa_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_qa_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_qa_test
+      BLUEPRINT_QA_DB_INTEGRATION: "true"
+      BLUEPRINT_LIVE_PINNED_SMOKE: "true"
+      BLUEPRINT_LIVE_SOURCE_SHA: ${{ github.sha }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout exact QA-only commit
+        uses: actions/checkout@v5
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma Client
+        run: pnpm prisma:generate
+      - name: Migrate disposable QA-only PostgreSQL
+        run: pnpm db:migrate:deploy
+      - name: Verify disposable QA migrations
+        run: pnpm db:migrate:status
+      - name: Run 17 immutable-postgres and authority opt-in cases
+        run: |
+          mkdir -p artifacts
+          pnpm exec vitest run --fileParallelism=false \
+            tests/application/prompt-workflow-qa-pg-integration.test.ts \
+            tests/application/prompt-workflow-authority-pg-integration.test.ts \
+            --reporter=default --reporter=json \
+            --outputFile.json=artifacts/optin-postgres-results.json
+      - name: Run separate read-only public pinned GitHub byte QA
+        run: |
+          pnpm exec vitest run --fileParallelism=false \
+            tests/application/prompt-workflow-live-inspection.test.ts \
+            --reporter=default --reporter=json \
+            --outputFile.json=artifacts/optin-github-inspection-results.json
+      - name: Record exact QA provenance, without conferring Release PASS
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const paths=["artifacts/optin-postgres-results.json","artifacts/optin-github-inspection-results.json"];
+            const counts=paths.map(p=>JSON.parse(fs.readFileSync(p,"utf8")));
+            if(counts[0].numPassedTests!==17||counts[1].numPassedTests!==1)throw Error("Unexpected test count: independent cases were not verified");
+            if(counts.some(v=>v.numFailedTests!==0||v.numPendingTests!==0))throw Error("QA opt-in fail/skip");
+            fs.writeFileSync("artifacts/optin-qa-summary.json", JSON.stringify({
+              revision:process.env.GITHUB_SHA,treeClaim:"SAME_SOURCE_ONLY_IF_GIT_TREE_COMPARED",
+              postgres:17,pinnedPublicGitHubRead:1,privateAppBridge: "BLOCKED_8_NOT_RUN",
+              scopedSuccess:true,releaseGatePass:false,productionAuthorized:false
+            },null,2)+"\n");
+          '
+      - name: Upload QA-only evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: optin-qa-evidence-${{ github.sha }}
+          path: artifacts/optin-*.json
+          if-no-files-found: warn
+          retention-days: 14
