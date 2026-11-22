@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { graphFixture } from "../fixtures/graph-intelligence";
 
-const ports = vi.hoisted(() => ({ workspace: vi.fn(), manifests: vi.fn(), work: vi.fn(), gates: vi.fn(), releases: vi.fn() }));
+const ports = vi.hoisted(() => ({ workspace: vi.fn(), manifests: vi.fn(), work: vi.fn(), gates: vi.fn(), releases: vi.fn(), promptRevision: vi.fn() }));
 vi.mock("../../apps/web/src/server/project-workspace", () => ({ loadProjectWorkspace: ports.workspace }));
 vi.mock("../../apps/web/src/server/prompt-workflow", () => ({ registeredWorkflowManifests: ports.manifests }));
 import { loadGraphIntelligence } from "../../apps/web/src/server/graph-intelligence";
@@ -13,9 +13,10 @@ beforeEach(() => {
   ports.work.mockResolvedValue(f.workPackages);
   ports.gates.mockResolvedValue(f.qualityGates.map(gate => ({ gate, evidence: f.evidence })));
   ports.releases.mockResolvedValue(f.releases);
+  ports.promptRevision.mockResolvedValue("sha256:" + "a".repeat(64));
   ports.workspace.mockResolvedValue({ state: "ready", projectId: f.projectId, actor: { principalId: "principal:reader" },
     project: { profile: f.profile, blueprint: f.blueprint },
-    runtime: { workQuality: { listWorkPackages: ports.work, listQualityGates: ports.gates }, releases: { listReleases: ports.releases } } });
+    runtime: { workQuality: { listWorkPackages: ports.work, listQualityGates: ports.gates }, releases: { listReleases: ports.releases }, prompts: { currentSourceRevisionFromProfile: ports.promptRevision } } });
 });
 
 describe("Graph source loader authorization and failure isolation", () => {
@@ -32,6 +33,9 @@ describe("Graph source loader authorization and failure isolation", () => {
     for (const read of [ports.work, ports.gates, ports.releases]) expect(read).toHaveBeenCalledWith({ principalId: "principal:reader" }, "project:graph");
     if (result.state === "ready") {
       expect(result.graph.projectId).toBe("project:graph");
+      expect(result.nextAction.mayExecute).toBe(false);
+      expect(result.nextAction.canDispatch).toBe(false);
+      expect(result.canonicalSourceRevision).toBe("sha256:" + "a".repeat(64));
       expect(result.graph.nodes.find(n => n.domain === "security")!.details.join(" ")).not.toContain("phase9");
     }
   });
