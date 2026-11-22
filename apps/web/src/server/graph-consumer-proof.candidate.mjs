@@ -71,7 +71,8 @@ export async function verifyGraphConsumerProofCandidate({
   consumeReplayNonce, nowSeconds,
 } = {}) {
   if (typeof compactJws !== "string" || compactJws.length > MAX_TOKEN
-    || !PROJECT_ID.test(expectedProjectId ?? "")
+    || typeof expectedProjectId !== "string" || !PROJECT_ID.test(expectedProjectId)
+    || /[^A-Za-z0-9:._-]/.test(expectedProjectId)
     || !Number.isSafeInteger(nowSeconds) || nowSeconds < 0
     || !(trustedPublicKeys instanceof Map)
     || typeof consumeReplayNonce !== "function") return denied();
