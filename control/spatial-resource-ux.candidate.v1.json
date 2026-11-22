@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "1.0.0",
+  "amendmentId": "SPATIAL-RESOURCE-UX-001",
+  "stage": "DRAFT",
+  "status": "PROPOSED_ONLY_NOT_RATIFIED",
+  "activePolicy": {
+    "id": "blueprint-os:universal-century-grade",
+    "version": "1.3.0"
+  },
+  "proposalPath": "docs/amendments/CONSTITUTION-SPATIAL-RESOURCE-UX-20261115-PROPOSAL.md",
+  "scope": {
+    "applicability": "task-justified-spatial-resource-navigation-and-reusable-resource-templates",
+    "spatialOrIsometricVisuals": "optional-user-value-driven-not-universal",
+    "nonSpatialProducts": "no-forced-3d-or-building-hierarchy",
+    "canonicalResourceOwner": "owning-application",
+    "enterpriseUIOwner": "existing-design-system-and-project-specific-component-owner"
+  },
+  "existingRequirements": [
+    "module:data:source-of-truth",
+    "module:ux:product-elegance",
+    "module:ux:premium-usability",
+    "gate:ux:commercial-quality",
+    "gate:quality:evidence",
+    "gate:security:authority"
+  ],
+  "templateLifecycle": {
+    "previewStatus": "NOT_CREATED",
+    "excludedFromPersistedCounts": true,
+    "createMode": "explicit-authorized-write-only",
+    "preventDuplicateIdentity": true,
+    "resilientToPartialCreate": true,
+    "requiresReadback": true,
+    "unknownCapacity": "CONFIGURATION_REQUIRED",
+    "scheduleBeforeVerifiedActivation": "BLOCKED",
+    "permissionEnforcement": "server"
+  },
+  "presentation": {
+    "dataDriven": true,
+    "searchableAndKeyboardAccessible": true,
+    "nonvisualLabelsRequired": true,
+    "mobileAndContrastEvidenceRequired": true,
+    "existingContrastThresholds": "inherit-published-section-11-without-overrides",
+    "measuredCriticalJourney": true
+  },
+  "verification": {
+    "statuses": [
+      "CODED",
+      "STATIC-TESTED",
+      "INTEGRATION-VERIFIED",
+      "REAL-UX-VERIFIED",
+      "MERGED",
+      "DEPLOYED",
+      "OBSERVED"
+    ],
+    "exactRevisionRequired": true,
+    "ciAloneDoesNotMeanProductPass": true,
+    "mergeDoesNotMeanDeploy": true
+  },
+  "evidenceReference": {
+    "repository": "BlueDragon33/BOIECH_AI",
+    "prUrl": "https://github.com/BlueDragon33/BOIECH_AI/pull/164",
+    "mergedMainSha": "8f4531f6788c84020c3851ec669d963e3b7bbadb",
+    "classification": "MERGED_SOURCE_NOT_PRODUCTION_OR_UX_ACCEPTANCE"
+  },
+  "existingContractRetained": true,
+  "independentImpactReview": "PENDING",
+  "independentUxReview": "PENDING",
+  "collisionReviewWithContentFirst": "PENDING",
+  "humanRatification": false,
+  "published": false,
+  "productionReleaseAuthority": false,
+  "automaticCrossProjectAdoption": false
+}
