@@ -18,10 +18,11 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
  const external=view.action?.kind==="external-handoff" && /^https:\/\//.test(view.action.href);
  const canNavigate=Boolean(view.action) && Boolean(safePath||external);
  const verified=Boolean(view.verifiedAt && /^[a-f0-9]{40}$/.test(view.sourceRevision??""));
- // Navigation to an existing authenticated page is allowed even without exact SHA; execution is not.\n const actionable=canNavigate && (safePath || verified);
- const label=actionable?view.action!.label:view.state==="complete"?"Không còn công việc READY":"Xem nguyên nhân / kiểm tra nguồn";
- return <section className={styles.panel} aria-label="Blueprint OS · Next Action" data-state={view.state}>
-   <div className={styles.top}><div><p className={styles.kicker}>BLUEPRINT OS · NEXT ACTION</p>
+ // Navigation to an existing authenticated page is allowed even without exact SHA; execution is not.
+ const actionable=canNavigate && (safePath || verified);
+ const label=actionable?"Tiếp tục công việc":view.state==="complete"?"Xem kết quả công việc":"Xem trạng thái công việc";
+ return <section className={styles.panel} aria-label="Blueprint OS · Workspace" data-state={view.state}>
+   <div className={styles.top}><div><p className={styles.kicker}>BLUEPRINT OS · WORKSPACE</p>
      <h2>{view.projectName}</h2></div><span className={styles.state}>{view.state==="ready"?"Sẵn sàng":view.state==="complete"?"Hoàn tất phạm vi":view.state==="blocked"?"Bị chặn":"Chưa xác minh"}</span></div>
    <div className={styles.summary}><strong>{view.workPackageId??"Chưa xác định Work Package"}</strong>
      <span>{view.checkpointRef?"Checkpoint: "+view.checkpointRef:"Chưa có checkpoint được cung cấp"}</span></div>
@@ -38,7 +39,7 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
        <dt>Checkpoint</dt><dd>{view.checkpointRef??"UNVERIFIED"}</dd>
        <dt>Nguyên nhân</dt><dd>{view.reason??(actionable?"Điều hướng nội bộ; không tự thực thi":"Thiếu quyền, nguồn hoặc hành động được hỗ trợ")}</dd>
        <dt>Hành động</dt><dd>{view.action?.kind??"Không có"}</dd></dl>
-     <p>Điều hướng không tương đương thực thi. Không cấp quyền reviewer, merge, ratify hay Production.</p>
+     <p>Workspace là nơi thống nhất công việc, prompt và Agent khi có runner được xác thực. Nút hiện tại chỉ mở Workspace; không tự thực thi hay cấp quyền reviewer, merge, ratify hoặc Production.</p>
      {children}
    </div>}
  </section>;
