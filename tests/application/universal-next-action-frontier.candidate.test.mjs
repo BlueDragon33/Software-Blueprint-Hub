@@ -24,3 +24,14 @@ test("does not invent work or shell capability",()=>{
   assert.equal(select(s([])).kind,"none");
   assert.equal(select({...s([wp("WP-A")]),capabilities:{requiresWindows:true}}).requiresNativeBatch,true);
 });
+
+test("accepts canonical sha256 Prompt source revision without asserting Git SHA",()=>{
+  const canonical="sha256:"+"b".repeat(64);
+  const result=select({...s([wp("WP-A")]),sourceRevision:canonical});
+  assert.equal(result.sourceRevision,canonical);
+  assert.equal(result.mayExecute,false);
+});
+test("rejects unpinned and malformed source revisions",()=>{
+  assert.throws(()=>select({...s([wp("WP-A")]),sourceRevision:"sha256:"+"b".repeat(63)}),/source revision/);
+  assert.throws(()=>select({...s([wp("WP-A")]),sourceRevision:"UNVERIFIED"}),/source revision/);
+});
