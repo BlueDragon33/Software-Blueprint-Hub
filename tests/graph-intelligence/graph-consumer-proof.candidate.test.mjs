@@ -110,7 +110,7 @@ test("no unsigned extra payload fields can elevate roles or claimed approvals",a
 test("expiry, far future, malformed times and excessive validity duration are rejected",async()=>{
   for(const changes of [
     {exp:NOW},{exp:NOW-1},{iat:NOW+8},{nbf:NOW+8},
-    {iat:NOW-1000,exp:NOW+40},{nbf:NOW-300},
+    {iat:NOW-1000,exp:NOW+40},{nbf:NOW+6},
     {exp:"tomorrow"},{iat:1.2},{iat:-1},
   ])assert.equal((await verify({compactJws:token(header(),{...payload(),...changes})})).ok,false);
 });
