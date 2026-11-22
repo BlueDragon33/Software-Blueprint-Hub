@@ -15,6 +15,7 @@ import {
   universalConstitutionTemplateV1,
   WorkQualityApplicationService
 } from "@blueprint-os/application";
+export { admitIssue115FromRuntime, admitIssue115Candidate, validateIssue115Candidate } from "./issue-115-intake";
 import { GitHubConstitutionPublicationVerifier } from "./constitution-publication";
 import { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { PostgresWorkflowExecutionAuthority } from "./workflow-execution-authority";

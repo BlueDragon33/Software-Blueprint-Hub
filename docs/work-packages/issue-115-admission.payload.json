@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "1.0.0",
+  "authority": "draft-proposal-only-not-approved",
+  "sourceDocument": "docs/work-packages/ISSUE-115-SIGNED-SOURCE-INSPECTION-CANDIDATE.md",
+  "workPackage": {
+    "id": "work:p2-115-blueprint-signed-source-inspection",
+    "projectId": "project:blueprint-os",
+    "title": "P2-115: one authenticated source-pinned Gateway → Worker → independent QA inspection",
+    "purpose": "Prove one genuinely authorized inspect-scoped GitHub source-read for Blueprint OS with signed grant, separately re-fetched independent QA and durable PostgreSQL audit, without changing product code or promoting candidate workflow/test fixtures to canonical approval.",
+    "dependencies": [],
+    "acceptanceCriteria": [
+      "A separately authenticated Project Authority has created this package via WorkQualityApplicationService.createWorkPackage; the canonical readback identifies this exact Work Package and its recordVersion.",
+      "A reviewed Blueprint OS-owned central workflow is actually approved and its exact manifest digest adopted by the System Owner; an independently authorized Ed25519 issuer is allowed for the same project/workflow.",
+      "A single signed inspect-scoped grant for BlueDragon33/Software-Blueprint-Hub@<fresh-main-SHA> reads only README.md, maxAttempts=1, maxFiles=1, maxTokenEstimate=1000, <=300 seconds valid; stale HEAD or missing permission fails closed.",
+      "Execution Worker performs zero writes and journal.read confirms one source-pinned observed attempt; QA Worker independently reads the same SHA and the QA record is durably persisted/read back in a disposable isolated PostgreSQL target.",
+      "Replay, wrong project/issuer, tampered evidence, missing key, expired grant and unavailable journal fail closed; no fabricated completion receipt, auto Quality Gate PASS, merge or Production action."
+    ],
+    "qualityGateIds": [
+      "gate:p2-115-authority",
+      "gate:p2-115-inspection",
+      "gate:p2-115-independent-qa",
+      "gate:p2-115-receipt"
+    ],
+    "status": "blocked",
+    "meta": {
+      "schemaVersion": "1.0.0",
+      "recordVersion": 1,
+      "createdAt": "2026-10-16T17:18:31.028Z",
+      "updatedAt": "2026-10-16T17:18:31.028Z"
+    }
+  },
+  "qualityGates": [
+    {
+      "id": "gate:p2-115-authority",
+      "projectId": "project:blueprint-os",
+      "name": "Authenticated canonical authority & adopted workflow",
+      "requirements": [
+        "ProjectProfile profile:blueprint-os and Project Authority must be fetched through authenticated runtime; PROJECT_MUTATE is required to record the Work Package, and a separately authorized reviewer must review the gate.",
+        "A Blueprint-OS-owned central workflow manifest with a single DISCOVER/inspect-scoped node must be actually reviewed and approved; the current Application-Management candidate cannot authorize this project's grant.",
+        "System Owner must record a valid exact-digest workflow adoption and Ed25519 issuer allow decision through guarded application/repository services; no fixture identity, self-approval, forged digest or private key in Git."
+      ],
+      "status": "not-ready",
+      "evidenceIds": [],
+      "meta": {
+        "schemaVersion": "1.0.0",
+        "recordVersion": 1,
+        "createdAt": "2026-10-16T17:18:31.028Z",
+        "updatedAt": "2026-10-16T17:18:31.028Z"
+      }
+    },
+    {
+      "id": "gate:p2-115-inspection",
+      "projectId": "project:blueprint-os",
+      "name": "Signed single-file source inspection with durable execution audit",
+      "requirements": [
+        "One signed, short-lived (at most 300 seconds) inspect-scoped grant binds project:blueprint-os, BlueDragon33/Software-Blueprint-Hub and a freshly read exact main SHA; only README.md is allowlisted.",
+        "Enforced grant budgets: maxAttempts=1, maxFiles=1, maxTokenEstimate=1000; no source edit, shell, deployment, broad scan, endpoint or secret disclosure.",
+        "Gateway and Worker prove fresh canonical source, issuer scope, replay denial and observed source digest; an immutable PostgreSQL execution claim and observation are read back."
+      ],
+      "status": "not-ready",
+      "evidenceIds": [],
+      "meta": {
+        "schemaVersion": "1.0.0",
+        "recordVersion": 1,
+        "createdAt": "2026-10-16T17:18:31.028Z",
+        "updatedAt": "2026-10-16T17:18:31.028Z"
+      }
+    },
+    {
+      "id": "gate:p2-115-independent-qa",
+      "projectId": "project:blueprint-os",
+      "name": "Independent SHA-pinned QA and immutable PostgreSQL readback",
+      "requirements": [
+        "QA obtains a separately constrained read identity and fetches README.md from the exact same immutable source SHA independently of the Worker response.",
+        "Independent digest equals the persisted observation; QA proof is appended to a separate immutable PostgreSQL record and read back after storage.",
+        "Negative evidence covers stale SHA, missing adoption, wrong issuer/project, tampering, replay and unavailable persistence; release and Quality Gate PASS stay false."
+      ],
+      "status": "not-ready",
+      "evidenceIds": [],
+      "meta": {
+        "schemaVersion": "1.0.0",
+        "recordVersion": 1,
+        "createdAt": "2026-10-16T17:18:31.028Z",
+        "updatedAt": "2026-10-16T17:18:31.028Z"
+      }
+    },
+    {
+      "id": "gate:p2-115-receipt",
+      "projectId": "project:blueprint-os",
+      "name": "Trusted completion receipt and authorized Quality Gate review",
+      "requirements": [
+        "A genuine source-pinned, authority-signed completion receipt (if and only if the existing trusted receipt mechanism supports this source/actor) references the matching persisted inspection and independent QA record; otherwise this gate remains NOT_READY.",
+        "A separately authorized PROJECT_REVIEW actor validates immutable GateEvidence provenance and explicitly decides each Quality Gate; executor/QA success cannot self-promote to PASS.",
+        "No Constitution ratification, Production approval, PR merge, public deployment or RU03 content approval is implied by a read-only source inspection."
+      ],
+      "status": "not-ready",
+      "evidenceIds": [],
+      "meta": {
+        "schemaVersion": "1.0.0",
+        "recordVersion": 1,
+        "createdAt": "2026-10-16T17:18:31.028Z",
+        "updatedAt": "2026-10-16T17:18:31.028Z"
+      }
+    }
+  ]
+}

@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/p2-provider-neutral-integration.yml"
       - "scripts/ci-p2-cross-service-smoke.mjs"
+      - "tests/application/prompt-workflow-authority-pg-integration.test.ts"
       - "tests/governance/p2-provider-neutral-ci.test.mjs"
       - "control/execution-service-protocol.v1.json"
       - "control/private-execution-service-onboarding.v1.json"
@@ -82,6 +83,9 @@ jobs:
           pnpm exec prisma validate --config prisma7.config.ts
           pnpm db:migrate:deploy
           pnpm db:migrate:status
+      # Includes one real SHA-pinned source and independent readback under a
+      # disposable test Owner and PostgreSQL. This is NOT authenticated
+      # canonical Work Package authority or a completion receipt.
       - name: Real PostgreSQL immutable journal, roles and independent QA negatives
         run: pnpm exec vitest run tests/application/prompt-workflow-qa-pg-integration.test.ts tests/application/prompt-workflow-authority-pg-integration.test.ts
 
