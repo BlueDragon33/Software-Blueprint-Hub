@@ -108,3 +108,28 @@ L. Optional direct Owner Production workflow is separate from merge and from Cha
 **STOP / authority:** no PR auto-close, private metadata replication, new service/database, new normative active version, reviewer self-PASS, paid resources, merge or Production. The publicly posted audit is a read-only evidence snapshot; Owner and independent reviewers retain their distinct authority.
 
 **C12 is more complete than C10's two-ledger count, but it does not claim semantic review of every one of 146 diffs.**
+
+## 7. Complete first-pass actual changed-file triage for all 26 open Hub PRs
+
+Method: individually fetched **all 26 live GitHub PR changed-filename lists** against their current heads; not merely their titles. #173 has 70 changed files and #166 has 65; #153 (45), #154 (53), #147 (37), #94 (33), #167 (20) also contain significant overlapping runtime/contract paths. These are **source-overlap dispositions only**, not full byte-semantic diff, legal/independent review or authority to close a PR. **Every currently open PR appears in exactly one primary classification below.**
+
+| Primary classification | PRs | Count | Bounded next action |
+|---|---|---:|---|
+| ACTIVE_CANDIDATE | #173 | 1 | Primary integrated Graph + UANA candidate, **not** published; 70 changed files. Needs exact tree no-skip gate and independent B. |
+| PARTIALLY_REUSED_SOURCE | #166, #168, #162 | 3 | #166 Graph code/UI/tests, #168 Dual reference wire/adapter, #162 catalog/lint fixes have source overlap reused in #173; **not** proof each original diff/evidence migrated or that original PR may close. |
+| NEXT_ACTION_RECONCILE | #147, #151, #152, #153, #155, #156, #161 | 7 | Older Goal/UANA/Next Action workflows, mutations/Prisma schema and constitutional drafts. Need typed behavioral + migration comparison with #173 and merged non-normative #174 guidance; no blind schema cherry-pick or host-button promise. |
+| REVIEWER_AND_LEARNING_GATE | #149, #154, #163, #167, #171, #172 | 6 | Distinct issuer/reviewer A/B, signed source/digest, public/private SHA scope, advisory learning and proposed constitutional 1.4. Actual B independent credentials/semantic results and ratification are missing; keep drafts. |
+| CONSTITUTION_PROPOSALS | #158, #164, #165, #170 | 4 | AUTH-L1/L2; content contrast; optional spatial UX; optional Preview vs Owner direct Production. All proposal-only, target-version collision/review unresolved; ACTIVE remains 1.3.0. |
+| LEGACY_OPS_AND_FOUNDATION | #94, #101, #141, #150, #157 | 5 | Engineering suite historical bootstrap (#94 now stale due existing ECAD/CAE); Compass truthful blockers; R33/tester lifecycle; governance operational view; hub-app-directory/source QA. Reconcile against current main/PR173 and historical evidence before any close/merge. |
+| **TOTAL OPEN HUB PRs** | All distinct and explicitly assigned | **26** | No auto-merge, close, false PASS or expanded scope |
+
+### Actual file collision targets to reconcile
+
+- **Project navigation/catalog**: `apps/web/src/lib/hub-app-directory.ts` touched in #173, #166, #162, #157, #154, #153, #152, #151, #149, #147, #141 and more. Keep current source-of-truth mapping; test requested semantics rather than copying whole files.
+- **Project Prompt Workspace**: `apps/web/app/projects/[projectId]/prompt/actions.ts` and `page.tsx` overlap #161 and #173; #152/#153 additionally define separate runtime bindings and persistence. Confirm idempotency/version-gate semantics before choosing a single canonical path.
+- **Graph Studio**: #166 and #173 share native Graph application server/UI/code and tests. #166 includes many **runtime QA artifacts and browser harness assets not in #173**, so #166 is only *partially reused*, not automatically superseded.
+- **Dual**: #168 original 11-file architecture includes five exact source/schema/test blobs reused into #173, plus architecture/profiles/offline verification/ledger remaining in #168. P3 private trust and P4 still pending.
+- **Reviewer**: #163→#167 is stacked; #154 touches authorizer, SSO, workflow and multi-worker boundary. Source overlap plus distinct credential principals must be explicitly reviewed before rebasing or merging.
+- **Governance**: proposals #155/#156/#158/#164/#165/#170/#171 conflict in *policy scope/version timing*, even when diff paths do not overlap; no parallel "ACTIVE 1.4" claim.
+
+**Reasonable next sequence:** (1) detailed source-equivalence and regression plan for #173 vs #166/#168/#162; (2) separate protected A/B bridge; (3) consolidate old UANA branches after exact behavior/data migration check; (4) finish Phase 9; (5) process constitutional proposals individually; (6) per-app portfolio waves. No new dashboard or second task ledger is authorized.
