@@ -87,6 +87,12 @@ jobs:
             tests/application/universal-next-action-intervention.candidate.test.mjs \
             tests/application/universal-next-action-canonical.candidate.test.mjs \
             tests/web/universal-next-action-v2-surface.candidate.test.mjs
+      - name: Dual Intelligence reference contract and source-only Graph read overlay
+        run: |
+          node --test \
+            tests/contracts/intelligence-exchange.test.mjs \
+            tests/governance/intelligence-reference.test.mjs \
+            tests/application/graph-external-intelligence.candidate.test.mjs
       - name: Development mode
         run: echo "PostgreSQL integration, Prisma migration, build and Playwright suites are deferred to manual release checks."
 
@@ -360,6 +366,7 @@ jobs:
           mkdir -p artifacts
           pnpm exec vitest run --fileParallelism=false \
             tests/application/graph-intelligence.test.ts \
+            tests/application/graph-external-intelligence-real-graph.test.ts \
             tests/web/graph-intelligence.test.tsx \
             tests/web/graph-intelligence-server.test.ts \
             --reporter=default --reporter=json \
