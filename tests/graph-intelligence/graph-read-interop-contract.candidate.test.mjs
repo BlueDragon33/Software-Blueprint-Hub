@@ -43,3 +43,16 @@ test("schema scope is bounded; no cross-project or executable endpoint is implie
   assert.equal(candidate.requiredGates.privateCrossProjectRedaction,"NOT_ACCEPTED");
   assert.equal(candidate.compatibility.noImplicitV0ToV1Migration,true);
 });
+
+test("Hub internal loader wiring is SOURCE_PRESENT only, never an auth or transport PASS", () => {
+  const c=candidate.internalComposition;
+  assert.equal(c.status,"SOURCE_PRESENT_RUNTIME_NOT_VERIFIED");
+  assert.equal(c.fullRuntimeAcceptance,"NOT_RUN");
+  assert.equal(c.externalConsumerIdentity,"NOT_VERIFIED");
+  assert.equal(c.externalTransportEnabled,false);
+  assert.equal(c.executionPrerequisite,"AUTHENTICATED_PROJECT_READ_IN_EXISTING_HUB_LOADER");
+  assert.equal(c.hubLoader,"apps/web/src/server/graph-intelligence.ts");
+  assert.equal(c.guardedServerBinding,"apps/web/src/server/graph-read-handoff.candidate.ts");
+  assert.equal(candidate.enabled,false);
+  assert.equal(candidate.publicEndpoint,null);
+});
