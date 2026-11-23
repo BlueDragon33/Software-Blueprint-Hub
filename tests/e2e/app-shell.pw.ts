@@ -1404,6 +1404,13 @@ test("P9-005 app-builder prompt controls and Constitution are usable", async ({ 
   await approve.click();
   await expect(copy).toBeEnabled();
 
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"], {
+    origin: "http://127.0.0.1:3000"
+  });
+  await copy.click();
+  await expect.poll(async () => page.evaluate(() => navigator.clipboard.readText()))
+    .toContain("No external database");
+
   for (const width of [800, 390]) {
     await page.setViewportSize({ width, height: 840 });
     await expect(generate).toBeVisible();
