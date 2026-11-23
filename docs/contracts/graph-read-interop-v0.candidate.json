@@ -105,5 +105,26 @@
     "authenticatedCandidateBrowserQa": "NOT_RUN",
     "reviewers": "PENDING",
     "enabled": false
+  },
+  "c32KeyLifecycle": {
+    "status": "SOURCE_ONLY_NOT_PROVISIONED",
+    "selectorModule": "apps/web/src/server/graph-consumer-lifecycle.candidate.mjs",
+    "wrapperModule": "apps/web/src/server/graph-read-lifecycle.candidate.mjs",
+    "activeKeyPolicy": "EXACTLY_ONE_PER_PROJECT",
+    "overlapKeyPolicy": "AT_MOST_ONE_FOR_MAX_120_SECONDS",
+    "revokedKeyPolicy": "DENY_IMMEDIATELY",
+    "retiredKeyPolicy": "DENY",
+    "rejectDuplicateSpkiAliases": true,
+    "keyPinning": "SPKI_SHA256_INJECTED_SERVER_ONLY",
+    "trustedServerRegistry": "NOT_PROVISIONED",
+    "independentHumanReview": "PENDING",
+    "signedRegistryProvenance": "NOT_IMPLEMENTED",
+    "revocationAuditPersistence": "NOT_IMPLEMENTED",
+    "historicalKidReuseProtection": "NOT_IMPLEMENTED",
+    "actualPostgreSqlReplayAndRotationQA": "NOT_RUN",
+    "actualAppIdentity": "NOT_VERIFIED",
+    "externalTransportEnabled": false,
+    "endpoint": null,
+    "enabled": false
   }
 }
