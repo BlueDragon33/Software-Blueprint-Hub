@@ -32,3 +32,40 @@ test('policy cannot quietly claim runtime verification or production authority',
  assert.equal(policy.release.onlinePublicationUnauthorizedByThisPolicy,true);
  assert.equal(policy.evidence.legacyLiveDeployments,'NOT_REVOKED');
 });
+
+test('github-first engineering applies to all projects including the offline runtime exception',()=>{
+ const workflow=policy.deliveryWorkflow;
+ assert.equal(workflow.appliesTo,'all-governed-and-future-projects-including-runtime-exceptions');
+ assert.equal(workflow.primaryEngineeringSurface,'github');
+ assert.match(workflow.preferredAutomation,/github-actions/);
+ assert.equal(workflow.workMode,'optional-only-when-existing-github-runtime-cannot-perform-the-task');
+ assert.equal(workflow.windowsPowerShell,'last-resort-one-batched-check-after-github-work-is-consolidated');
+ assert.equal(workflow.adHocPowerShellBetweenGitHubChanges,false);
+ assert.equal(workflow.productionFromGreenCI,false);
+ assert.equal(workflow.productionFromMerge,false);
+ assert.equal(workflow.releaseRequiresNamedAppExactShaAndHumanAuthority,true);
+ assert.equal(workflow.zeroSpendDefault,true);
+ assert.ok(workflow.changeSequence.indexOf('run-scoped-tests-and-inspect-failure-logs') <
+           workflow.changeSequence.indexOf('request-human-release-approval-if-applicable'));
+ assert.ok(workflow.changeSequence.indexOf('request-human-release-approval-if-applicable') <
+           workflow.changeSequence.indexOf('publish-only-through-authorized-manual-release'));
+ assert.deepEqual(policy.exceptionRepositories,[exception],'Bơi Ếch online runtime exception remains explicit');
+});
+
+test('offline-first is designed and measured, never granted by a policy declaration',()=>{
+ const design=policy.offlineFirstDesign;
+ assert.equal(design.localCorePreferred,true);
+ assert.equal(design.offlineWhenTechnicallyFeasible,true);
+ assert.equal(design.noFakeOfflineOnHostedWeb,true);
+ assert.equal(design.localDurableStateAndRestartRecoveryRequired,true);
+ assert.equal(design.offlineMutationRequiresVersionedQueueAndConflictHandling,true);
+ assert.equal(design.authorityActionsFailClosedWhileOfflineUnlessExplicitlyAuthorizedLocalTrustExists,true);
+ assert.equal(design.onlineOnlyCapabilityMustDeclareNecessityAndDisconnectedFallback,true);
+ assert.equal(design.onlineTrafficBaselineAndAfterEvidenceRequiredBeforeClaimingLoadReduction,true);
+ assert.equal(design.networkBudgetAndRetryBackoffRequiredForOnlineAdapters,true);
+ assert.equal(design.syncRequiresReconciliationIdempotencyAndExplicitStatus,true);
+ assert.match(design.offlineStatus,/UNVERIFIED/);
+ assert.equal(design.noMassOfflineComplianceFromPolicyAdoption,true);
+ assert.equal(policy.universalConstitutionVersion,'1.3.0');
+ assert.equal(policy.release.onlinePublicationUnauthorizedByThisPolicy,true);
+});
