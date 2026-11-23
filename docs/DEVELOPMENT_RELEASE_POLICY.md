@@ -1,5 +1,72 @@
 # Shared Development / Release Policy
 
+## Addendum 2026-11-23 — GitHub-primary delivery + practical offline-first capacity (all projects)
+
+**Status:** operational Blueprint implementation guidance, **not** a constitutional amendment,
+ratification, app compliance attestation, merge or release authority. Applies to every current
+and future governed project, **including Bơi Ếch for the engineering workflow**. The
+machine-readable source is the existing `control/development-runtime-policy.v1.json`
+(`deliveryWorkflow` and `offlineFirstDesign`). This addendum does not change the
+ACTIVE Constitution 1.3.0, any sealed registry or the canonical owner of app data.
+
+### A. Work primarily in GitHub; minimize paid/remote execution and Owner interruptions
+
+1. Read the active law, verified repository HEAD, existing work queue and risk constraints.
+   Reuse the existing Draft PR/branch, source-of-truth, CI and issue ledger; no duplicate
+   app, helper system, monitoring daemon or parallel approval queue just to run a task.
+2. Complete code and documents on GitHub; run existing Actions for Node, TypeScript,
+   contract/unit/security/integration/browser checks where available and free within quota.
+   Investigate failed job logs, fix the smallest causal defect, retest **the new exact SHA**.
+   Fast CI and a merge are neither full product QA nor publication.
+3. Consolidate all remotely solvable issues first. **Do not switch reflexively to
+   ChatGPT Work or request intermittent PowerShell commands.** Work is optional only
+   for a task that GitHub cannot reasonably perform, and must use an authorized runtime.
+4. Where Windows/physical devices are genuinely required (local drives, peripheral
+   access, installer, device protocol, signing), prepare **one final bounded, idempotent
+   PowerShell/Windows QA package** after GitHub work is complete. Document prerequisite
+   paths, allowed changes, rollback, captured evidence and a single blocker on failure.
+   Never ask the Owner to shuttle between GitHub and one-line shell snippets.
+5. Freeze and check the release artifact SHA; use the **existing** protected
+   project-specific publish path only following the Owner's explicit authorization and
+   the applicable Quality Gates. A publish succeeds only with post-deploy readback.
+   The non-exempt apps' existing offline-development publication hold remains in force
+   unless the Owner explicitly opts a **named app/environment** into release.
+   BOIECH_AI retains its previously authorized **direct-to-Production, manually gated**
+   profile, not automatic push/merge publication.
+
+### B. Offline-first is the preferred app experience, not a claim of completed offline QA
+
+- Prefer **local processing, local assets, durable on-device data and an installable or
+  cached app shell** for core workflows when practical (learning, drafting, calculation,
+  simulation, personal records). A hosted website without a tested offline shell is
+  **not** an offline-capable product.
+- Remote identity, collaboration, device sync, secure owner approval and live data that
+  intrinsically require a trusted server remain online boundaries. Do **not** emulate
+  authoritative server approval offline or accept privileged mutations from a stale token.
+- For offline writes, design a versioned local queue, idempotent sync, conflict
+  detection, explicit resolution and recoverable migration/backup. Label states
+  **local**, **pending sync**, **synced**, **conflict** or **offline unavailable**
+  truthfully. Protect sensitive data, secrets and cached records according to risk;
+  do not cache private information indiscriminately.
+- Keep online AI, media, telemetry, indexing and other resource-intensive features as
+  optional/on-demand adapters where the product purpose allows. Use network budgets,
+  bounded backoff and explicit reconnection—not infinite polling, invisible retries or
+  unrestricted background sync. Reducing server usage must be measured, not assumed.
+- Acceptance must include a real **install/cold-start disconnected → core journey →
+  local save/restart → reconnect/conflict handling** sequence at the candidate SHA,
+  alongside normal browser/mobile/keyboard checks. Report online requests, retry
+  behavior and measurable before/after network/load metrics when claiming reduced
+  online load. Offline readiness remains **UNVERIFIED** without app-specific results.
+- Existing `BOIECH_AI` online-operation exception is preserved. It is **not exempt**
+  from GitHub-primary development, protected release and truthful offline capability
+  declarations. Offline conversion of its current online product is a separate,
+  evidence-gated app decision, not an automatic change under this addendum.
+
+**Rollout:** treat this central policy as a shared *target* across the governed portfolio.
+Audit each app's existing behavior and app-specific ownership before making changes.
+The central control does **not** silently change every deployed app, activate
+service workers, claim offline compliance, rewrite adoption manifests or publish sites.
+
 ## Default now: Offline-First Development — owner directive 2026-10-16
 
 **Operational policy (not a new ratification of Universal Constitution 1.3.0).**
