@@ -78,3 +78,28 @@ test("C29 ES256 proof source is NOT an approved App identity or Graph release",(
   assert.equal(candidate.publicEndpoint,null);
   assert.deepEqual(active.endpoints,{});
 });
+
+test("C30 trust pinning and nonce have no real provisioning or Graph grant", () => {
+  const candidateSecurity = candidate.c30TrustPinAndReplay;
+  assert.equal(candidateSecurity.status, "SOURCE_ONLY_NOT_PROVISIONED");
+  assert.equal(candidateSecurity.publicKeyPinningModule,
+    "apps/web/src/server/graph-consumer-trust.candidate.mjs");
+  assert.equal(candidateSecurity.pinAlgorithm, "SPKI-SHA256");
+  assert.equal(candidateSecurity.pinTrustRoot, "NO_APPROVED_KEYS");
+  assert.equal(candidateSecurity.pinRotationPolicy, "HUMAN_REVIEW_REQUIRED");
+  assert.equal(candidateSecurity.nonceInsertModule,
+    "apps/web/src/server/graph-consumer-nonce.candidate.mjs");
+  assert.equal(candidateSecurity.nonceSqlSchema,
+    "docs/contracts/graph-consumer-nonce-schema.candidate.sql");
+  assert.equal(candidateSecurity.dbSchemaApplied, false);
+  assert.equal(candidateSecurity.postgresConcurrencyAcceptance, "NOT_RUN");
+  assert.equal(candidateSecurity.durableAtomicNonceStore, "NOT_PROVISIONED");
+  assert.equal(candidateSecurity.sourceOnlyCryptoTests, "SCOPED_NODE22");
+  assert.equal(candidateSecurity.identityAccepted, false);
+  assert.equal(candidateSecurity.enabled, false);
+  assert.equal(candidateSecurity.activeGraphTransport, false);
+  assert.equal(candidateSecurity.gateApproval, "PENDING");
+  assert.equal(candidate.enabled, false);
+  assert.equal(candidate.publicEndpoint, null);
+  assert.deepEqual(active.endpoints, {});
+});
