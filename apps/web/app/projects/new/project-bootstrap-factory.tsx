@@ -22,10 +22,10 @@ const levelLabels = {
 } as const;
 
 const defaultIntent: ProjectBootstrapIntent = {
-  name: "New software project",
+  name: "",
   projectType: "web-application",
-  primaryUsers: ["operator"],
-  jobsToBeDone: ["Complete the critical workflow safely and clearly."],
+  primaryUsers: [],
+  jobsToBeDone: [],
   dataSensitivity: "internal",
   persistence: "server",
   authentication: "required",
@@ -35,7 +35,7 @@ const defaultIntent: ProjectBootstrapIntent = {
   aiUse: "assistive",
   extensibilityRequirement: "configuration",
   expectedLifetime: "years",
-  deploymentTarget: "managed web platform",
+  deploymentTarget: "",
   criticality: "standard",
   expectedScale: "project-defined",
   availabilityRequirement: "recoverable web service",
@@ -185,12 +185,16 @@ export function ProjectBootstrapFactory() {
               This preview proposes a starting slice and its checks; it is not
               finished product content, Quality Gate PASS, or release approval.
             </p>
+            <a className="secondary-button registry-action" href="/constitution#constitution-authority-set-title">
+              Theo Hiến pháp 1.3.0
+            </a>
           </div>
 
           <div className="field-grid">
             <label>
               <span>Project name</span>
               <input
+                placeholder="e.g. Class attendance tracker"
                 value={intent.name}
                 onChange={(event) => patch("name", event.target.value)}
               />
@@ -210,6 +214,7 @@ export function ProjectBootstrapFactory() {
               <span>Primary users · one per line</span>
               <textarea
                 rows={3}
+                placeholder="e.g. Teacher who records daily attendance"
                 value={primaryUsersText}
                 onChange={(event) => {
                   setPrimaryUsersText(event.target.value);
@@ -223,6 +228,7 @@ export function ProjectBootstrapFactory() {
               <span>Jobs to be done · one per line</span>
               <textarea
                 rows={3}
+                placeholder="e.g. Record attendance and verify a saved class summary"
                 value={jobsText}
                 onChange={(event) => {
                   setJobsText(event.target.value);
@@ -422,13 +428,14 @@ export function ProjectBootstrapFactory() {
                   setPlan(null);
                   setFeedback(null);
                 }}
-                placeholder={"GitHub\nVercel\nERP"}
+                placeholder={"Existing service API (only if justified)"}
               />
             </label>
 
             <label className="field-span">
               <span>Deployment target</span>
               <input
+                placeholder="e.g. Local desktop, offline browser or existing web host"
                 value={intent.deploymentTarget}
                 onChange={(event) =>
                   patch("deploymentTarget", event.target.value)
