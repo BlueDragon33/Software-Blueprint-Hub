@@ -15,7 +15,7 @@ const P3_DATABASE = "ep-dawn-band-b3r8ahco.c-4.ap-southeast-1.aws.neon.tech";
 const SHA = /^[a-f0-9]{40}$/;
 const candidates = [
   { role: "Hub", repository: "BlueDragon33/Software-Blueprint-Hub", number: 167, shaVar: "BLUEPRINT_AB_P3_HUB_SHA" },
-  { role: "A", repository: "BlueDragon33/Software-Blueprint-Reviewer-A", number: 6, shaVar: "BLUEPRINT_AB_P3_A_SHA" },
+  { role: "A", repository: "BlueDragon33/Software-Blueprint-Reviewer-A", number: 8, shaVar: "BLUEPRINT_AB_P3_A_SHA" },
   { role: "B", repository: "BlueDragon33/Software-Blueprint-QA-Worker", number: 10, shaVar: "BLUEPRINT_AB_P3_B_SHA" }
 ] as const;
 

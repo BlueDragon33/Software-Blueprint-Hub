@@ -1354,3 +1354,102 @@ test("System Owner can open the canonical amendment workspace without automated 
     fullPage: true
   });
 });
+
+
+test("P9-005 app-builder prompt controls and Constitution are usable", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/projects/new");
+
+  const constitution = page.getByRole("link", { name: "Theo Hiến pháp 1.3.0" });
+  await expect(constitution).toBeVisible();
+  await expect(constitution).toHaveAttribute("href", "/constitution#constitution-authority-set-title");
+  const generate = page.getByRole("button", { name: "Tạo prompt công việc tiếp theo" });
+  await expect(generate).toBeEnabled();
+  await expect(page.getByLabel("Project name")).toHaveValue("");
+  await expect(page.getByLabel("Primary users · one per line")).toHaveValue("");
+  await expect(page.getByLabel("Jobs to be done · one per line")).toHaveValue("");
+
+  for (let tab = 0; tab < 40; tab += 1) {
+    const focused = await constitution.evaluate((link) => document.activeElement === link);
+    if (focused) break;
+    await page.keyboard.press("Tab");
+  }
+  await expect(constitution).toBeFocused();
+  const focus = await constitution.evaluate((link) => getComputedStyle(link).outlineStyle);
+  expect(focus).not.toBe("none");
+
+  await page.getByLabel("Project name").fill("Class attendance MVP");
+  await page.getByLabel("Primary users · one per line").fill("Teacher");
+  await page.getByLabel("Jobs to be done · one per line").fill("Record attendance and verify the saved summary");
+  await page.getByLabel("Deployment target").fill("Existing local-first web application");
+  // A single click must resolve the plan and generate the prompt.
+  await page.getByLabel("Yêu cầu riêng (có thể nhập trước khi tạo prompt)")
+    .fill("Keep offline attendance edits recoverable");
+  await generate.click();
+
+  const prompt = page.getByLabel(/Xem trước prompt/);
+  await expect(prompt).toBeVisible();
+  await expect(prompt).toHaveValue(/Blueprint OS Execution Prompt/);
+  await expect(prompt).toHaveValue(/Class attendance MVP/);
+  await expect(prompt).toHaveValue(/NEXT READY WORK:/);
+  const approve = page.getByRole("button", { name: "Duyệt nội dung prompt" });
+  const copy = page.getByRole("button", { name: "Sao chép prompt đã duyệt" });
+  await expect(copy).toBeDisabled();
+
+  await expect(prompt).toHaveValue(/Keep offline attendance edits recoverable/);
+  await approve.click();
+  await expect(copy).toBeEnabled();
+  await page.getByLabel("Yêu cầu riêng (có thể nhập trước khi tạo prompt)").fill("No external database");
+  await expect(copy).toBeDisabled();
+  await approve.click();
+  await expect(copy).toBeEnabled();
+
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"], {
+    origin: "http://127.0.0.1:3000"
+  });
+  await copy.click();
+  await expect.poll(async () => page.evaluate(() => navigator.clipboard.readText()))
+    .toContain("No external database");
+
+  for (const width of [800, 390]) {
+    await page.setViewportSize({ width, height: 840 });
+    await expect(generate).toBeVisible();
+    await expect(constitution).toBeVisible();
+    await expect(approve).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+  }
+
+  // Actual computed colors, not just token existence: text must pass normal-text AA.
+  const ratio = await page.locator(".bootstrap-helper-info").first().evaluate((node) => {
+    function rgb(css: string): number[] {
+      const numbers = css.match(/[0-9.]+/g)?.map(Number) ?? [];
+      return numbers.slice(0, 3);
+    }
+    function luminance(parts: number[]): number {
+      const normalized = parts.map((v) => {
+        const c = v / 255;
+        return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+      });
+      return normalized[0]! * 0.2126 + normalized[1]! * 0.7152 + normalized[2]! * 0.0722;
+    }
+    const fg = luminance(rgb(getComputedStyle(node).color));
+    const surface = node.closest(".bootstrap-builder-assistant");
+    if (!surface) throw new Error("Missing styled form surface");
+    const bg = luminance(rgb(getComputedStyle(surface).backgroundColor));
+    return (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05);
+  });
+  expect(ratio).toBeGreaterThanOrEqual(4.5);
+
+  // Changing the project invalidates the approved prompt and stale plan.
+  await page.getByLabel("Project name").fill("Class attendance revised");
+  await expect(prompt).toHaveCount(0);
+  await expect(copy).toBeDisabled();
+  await expect(approve).toBeDisabled();
+
+  await constitution.click();
+  await expect(page).toHaveURL(/\/constitution#constitution-authority-set-title$/);
+  await expect(page.getByRole("heading", { name: "Constitution Center" })).toBeVisible();
+});

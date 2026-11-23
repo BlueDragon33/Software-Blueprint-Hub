@@ -30,7 +30,7 @@ try {
   }
   const pins = {
     BLUEPRINT_AB_P3_HUB_SHA: checkedHead(root, "BlueDragon33/Software-Blueprint-Hub", 167),
-    BLUEPRINT_AB_P3_A_SHA: checkedHead(resolve(pathA), "BlueDragon33/Software-Blueprint-Reviewer-A", 6),
+    BLUEPRINT_AB_P3_A_SHA: checkedHead(resolve(pathA), "BlueDragon33/Software-Blueprint-Reviewer-A", 8),
     BLUEPRINT_AB_P3_B_SHA: checkedHead(resolve(pathB), "BlueDragon33/Software-Blueprint-QA-Worker", 10)
   };
   const env = { ...process.env, ...pins,

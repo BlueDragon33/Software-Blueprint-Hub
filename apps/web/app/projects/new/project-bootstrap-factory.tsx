@@ -5,11 +5,12 @@ import type {
   ProjectBootstrapPlan
 } from "@blueprint-os/application";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 
 import {
   createCanonicalProjectFromBootstrapAction,
-  createProjectBootstrapPreviewAction
+  createProjectBootstrapPreviewAction,
+  generatePromptPreviewAction
 } from "../../actions";
 
 const levelLabels = {
@@ -22,10 +23,10 @@ const levelLabels = {
 } as const;
 
 const defaultIntent: ProjectBootstrapIntent = {
-  name: "New software project",
+  name: "",
   projectType: "web-application",
-  primaryUsers: ["operator"],
-  jobsToBeDone: ["Complete the critical workflow safely and clearly."],
+  primaryUsers: [],
+  jobsToBeDone: [],
   dataSensitivity: "internal",
   persistence: "server",
   authentication: "required",
@@ -35,7 +36,7 @@ const defaultIntent: ProjectBootstrapIntent = {
   aiUse: "assistive",
   extensibilityRequirement: "configuration",
   expectedLifetime: "years",
-  deploymentTarget: "managed web platform",
+  deploymentTarget: "",
   criticality: "standard",
   expectedScale: "project-defined",
   availabilityRequirement: "recoverable web service",
@@ -62,6 +63,52 @@ function humanize(id: string): string {
     .replaceAll("-", " ");
 }
 
+interface BuilderPromptPreview {
+  readonly content: string;
+  readonly sourceRevision: string;
+  readonly planFingerprint: string;
+  readonly nextWorkId: string;
+}
+
+// This is an execution draft from the existing PromptProjection path, not a canonical work order.
+function composeBuilderPrompt(
+  source: BuilderPromptPreview,
+  plan: ProjectBootstrapPlan,
+  extraRequirements: string
+): string {
+  const next = plan.roadmap.find((item) => item.id === source.nextWorkId);
+  if (source.planFingerprint !== plan.intentFingerprint || !next) {
+    return "";
+  }
+
+  const lines = [
+    source.content.trimEnd(),
+    "",
+    "## Initial app-builder context (BOOTSTRAP PREVIEW ONLY)",
+    "Constitution: ACTIVE 1.3.0; verify live authority and repository HEAD before executing.",
+    "This project's canonical Git revision is NOT VERIFIED in this preview.",
+    `Project intent fingerprint: ${plan.intentFingerprint}`,
+    `Primary users: ${plan.profile.primaryUsers.join("; ")}`,
+    `User jobs: ${plan.profile.jobsToBeDone.join("; ")}`,
+    `Data sensitivity: ${plan.profile.dataSensitivity}; persistence: ${plan.profile.persistence}`,
+    `Offline requirement: ${plan.profile.offlineRequirement ?? "not declared"}`,
+    `Deployment target: ${plan.profile.deploymentTarget}`,
+    `NEXT READY WORK: ${next.title} (${next.sourceRequirementId})`,
+    `Purpose: ${next.purpose}`,
+    `Dependencies: ${next.dependsOn.join(", ") || "none"}`,
+    `Relevant quality gates: ${next.qualityGateIds.join(", ") || "see required Blueprint gates"}`,
+    "Deliver only this bounded slice. Verify behavior with focused regressions,",
+    "report exact tested revision, unresolved blockers and ONE next safe action.",
+    "Do not automatically create canonical state, approve a Quality Gate, merge,",
+    "ratify or deploy from this text. Human prompt approval is not release authority."
+  ];
+  const notes = extraRequirements.trim();
+  if (notes) {
+    lines.push("", "## Additional requirements entered by the builder (UNVERIFIED)", notes);
+  }
+  return lines.join("\n") + "\n";
+}
+
 export function ProjectBootstrapFactory() {
   const router = useRouter();
   const [intent, setIntent] = useState<ProjectBootstrapIntent>(defaultIntent);
@@ -75,19 +122,39 @@ export function ProjectBootstrapFactory() {
   const [plan, setPlan] = useState<ProjectBootstrapPlan | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const intentEpoch = useRef(0);
+  const [builderDraft, setBuilderDraft] = useState<BuilderPromptPreview | null>(null);
+  const [extraRequirements, setExtraRequirements] = useState("");
+  const [approvedPrompt, setApprovedPrompt] = useState<string | null>(null);
+  const [builderStatus, setBuilderStatus] = useState<string | null>(null);
 
   const roadmapPreview = useMemo(
     () => plan?.roadmap.slice(0, 12) ?? [],
     [plan]
   );
 
+  const nextReadyWork = plan?.roadmap.find(
+    (item) => item.status === "ready" && item.kind === "module"
+  ) ?? plan?.roadmap.find((item) => item.status === "ready") ?? null;
+  const builderPrompt = builderDraft && plan
+    ? composeBuilderPrompt(builderDraft, plan, extraRequirements)
+    : "";
+
+  function invalidatePreview(): void {
+    intentEpoch.current += 1;
+    setPlan(null);
+    setBuilderDraft(null);
+    setApprovedPrompt(null);
+    setBuilderStatus(null);
+    setFeedback(null);
+  }
+
   function patch<K extends keyof ProjectBootstrapIntent>(
     key: K,
     value: ProjectBootstrapIntent[K]
   ): void {
     setIntent((current) => ({ ...current, [key]: value }));
-    setPlan(null);
-    setFeedback(null);
+    invalidatePreview();
   }
 
   function currentIntent(): ProjectBootstrapIntent {
@@ -100,19 +167,110 @@ export function ProjectBootstrapFactory() {
   }
 
   function preview(): void {
+    const version = ++intentEpoch.current;
+    const request = currentIntent();
+    setPlan(null);
+    setBuilderDraft(null);
+    setApprovedPrompt(null);
+    setBuilderStatus(null);
     setFeedback(null);
     startTransition(async () => {
-      const result = await createProjectBootstrapPreviewAction(currentIntent());
-      if (!result.ok) {
-        setPlan(null);
-        setFeedback(result.message);
-        return;
+      try {
+        const result = await createProjectBootstrapPreviewAction(request);
+        if (version !== intentEpoch.current) return;
+        if (!result.ok) {
+          setFeedback(result.message);
+          return;
+        }
+        setPlan(result.plan);
+        setFeedback(
+          "Bootstrap Plan resolved. Review the recommendation and roadmap before creating canonical state."
+        );
+      } catch {
+        if (version === intentEpoch.current) {
+          setFeedback("Cannot generate Bootstrap Plan. No project state was created; check the runtime.");
+        }
       }
-      setPlan(result.plan);
-      setFeedback(
-        "Bootstrap Plan resolved. Review the recommendation and roadmap before creating canonical state."
-      );
     });
+  }
+
+  function generateNextPrompt(): void {
+    if (isPending) return;
+    const version = ++intentEpoch.current;
+    const request = currentIntent();
+    setBuilderDraft(null);
+    setApprovedPrompt(null);
+    setBuilderStatus("Đang lập kế hoạch và tạo prompt công việc tiếp theo…");
+    setFeedback(null);
+    startTransition(async () => {
+      try {
+        // One explicit click: resolve the read-only Bootstrap Plan if needed,
+        // then project the first READY Work item using the canonical prompt builder.
+        const resolved = plan ?? await createProjectBootstrapPreviewAction(request).then(
+          (result) => {
+            if (!result.ok) throw new Error(result.message);
+            return result.plan;
+          }
+        );
+        if (version !== intentEpoch.current) return;
+        if (!resolved) {
+          throw new Error("Không tạo được Bootstrap Plan. Không có dữ liệu để tạo prompt.");
+        }
+        setPlan(resolved);
+        const next = resolved.roadmap.find(
+          (item) => item.status === "ready" && item.kind === "module"
+        ) ?? resolved.roadmap.find((item) => item.status === "ready");
+        if (!next) {
+          setBuilderStatus("Không có công việc READY. Cần xử lý các phụ thuộc trước khi lập prompt.");
+          return;
+        }
+        const result = await generatePromptPreviewAction({
+          profile: resolved.profile,
+          blueprint: resolved.blueprint,
+          templateVersions: resolved.activatedTemplates.map(
+            ({ id, version }) => ({ id, version })
+          ),
+          workTitle: next.title,
+          gateReady: false
+        });
+        if (version !== intentEpoch.current) return;
+        if (!result.ok) {
+          setBuilderStatus(result.message);
+          return;
+        }
+        setBuilderDraft({
+          content: result.projection.content,
+          sourceRevision: result.projection.sourceRevision,
+          planFingerprint: resolved.intentFingerprint,
+          nextWorkId: next.id
+        });
+        setBuilderStatus("Đã tạo prompt. Xem lại, bổ sung yêu cầu nếu cần và bấm duyệt nội dung.");
+      } catch (error) {
+        if (version === intentEpoch.current) {
+          setBuilderStatus(
+            error instanceof Error && error.message
+              ? error.message
+              : "Không tạo được prompt. Chưa ghi dữ liệu dự án hoặc cấp quyền phê duyệt."
+          );
+        }
+      }
+    });
+  }
+
+  function approveBuilderPrompt(): void {
+    if (!builderPrompt || isPending) return;
+    setApprovedPrompt(builderPrompt);
+    setBuilderStatus("Prompt text approved for manual use only. No canonical gate or release approved.");
+  }
+
+  async function copyApprovedPrompt(): Promise<void> {
+    if (!approvedPrompt || approvedPrompt !== builderPrompt) return;
+    try {
+      await navigator.clipboard.writeText(approvedPrompt);
+      setBuilderStatus("Approved prompt copied. Paste it into your chosen coding assistant.");
+    } catch {
+      setBuilderStatus("Clipboard access blocked. Select the prompt text and copy manually.");
+    }
   }
 
   function confirmCanonical(): void {
@@ -156,8 +314,94 @@ export function ProjectBootstrapFactory() {
             Nothing here writes canonical project state until you explicitly
             confirm the reviewed Bootstrap Plan.
           </span>
+          <a className="secondary-button registry-action" href="/constitution#constitution-authority-set-title">
+            Theo Hiến pháp 1.3.0
+          </a>
         </div>
       </header>
+
+          <section className="bootstrap-builder-assistant" aria-labelledby="builder-assistant-title">
+            <div>
+              <p className="section-kicker">03 · Lập trình viên</p>
+              <h3 id="builder-assistant-title">Hỗ trợ lập trình theo Hiến pháp</h3>
+              <p className="bootstrap-helper-info">
+                Một lần bấm để tự lập Bootstrap Plan và sinh prompt công việc READY
+                tiếp theo. Thêm yêu cầu riêng, xem trước và duyệt nội dung trước khi dùng.
+              </p>
+            </div>
+            <div className="bootstrap-actions">
+              <button
+                type="button"
+                className="primary-button"
+                disabled={isPending}
+                onClick={generateNextPrompt}
+              >
+                Tạo prompt công việc tiếp theo
+              </button>
+            </div>
+            {!plan ? (
+              <p className="bootstrap-helper-info" role="status">
+                Điền tên dự án, người dùng, nhiệm vụ và nơi chạy ở biểu mẫu phía dưới, rồi bấm nút tạo prompt ở đây. Không cần bấm Generate Bootstrap Plan riêng.
+              </p>
+            ) : nextReadyWork ? (
+              <p className="bootstrap-helper-info">
+                Công việc có thể bắt đầu: <strong>{nextReadyWork.title}</strong>
+              </p>
+            ) : (
+              <p role="status">Không có công việc READY; cần kiểm tra các phụ thuộc trước.</p>
+            )}
+            <label className="stacked-field" htmlFor="bootstrap-extra-requirements">
+              Yêu cầu riêng (có thể nhập trước khi tạo prompt)
+            </label>
+            <textarea
+              id="bootstrap-extra-requirements"
+              value={extraRequirements}
+              rows={3}
+              placeholder="Thêm tiêu chí, phạm vi, thiết bị cần hỗ trợ, yêu cầu không được thay đổi..."
+              onChange={(event) => {
+                setExtraRequirements(event.target.value);
+                setApprovedPrompt(null);
+                setBuilderStatus("Yêu cầu đã thay đổi. Hãy xem và duyệt lại prompt nếu đã tạo.");
+              }}
+            />
+            {builderDraft && builderPrompt ? (
+              <>
+                <label className="stacked-field" htmlFor="bootstrap-prompt-review">
+                  Xem trước prompt — nguồn {builderDraft.sourceRevision.slice(0, 20)}…
+                </label>
+                <textarea
+                  id="bootstrap-prompt-review"
+                  className="bootstrap-prompt-output"
+                  readOnly
+                  rows={12}
+                  value={builderPrompt}
+                />
+              </>
+            ) : null}
+            <div className="bootstrap-actions">
+              <button
+                type="button"
+                className="primary-button"
+                disabled={!builderPrompt || isPending || approvedPrompt === builderPrompt}
+                onClick={approveBuilderPrompt}
+              >
+                Duyệt nội dung prompt
+              </button>
+              <button
+                type="button"
+                className="secondary-button"
+                disabled={!approvedPrompt || approvedPrompt !== builderPrompt}
+                onClick={() => { void copyApprovedPrompt(); }}
+              >
+                Sao chép prompt đã duyệt
+              </button>
+            </div>
+            {builderStatus ? <p role="status" className="bootstrap-helper-info">{builderStatus}</p> : null}
+            <small className="bootstrap-helper-info">
+              Duyệt ở đây chỉ xác nhận văn bản để sử dụng; không thay thế Owner,
+              Reviewer A/B, Quality Gate hoặc quyền Production.
+            </small>
+          </section>
 
       <section className="bootstrap-layout">
         <div className="bootstrap-form-card">
@@ -171,10 +415,27 @@ export function ProjectBootstrapFactory() {
             </span>
           </div>
 
+          <div className="context-note" role="note">
+            <strong>Start with one real user journey</strong>
+            <p>
+              Identify who needs the app, one specific task they must finish,
+              and the observable result that proves it works. Confirm where
+              their data belongs, whether offline use matters, and which
+              integrations are genuinely necessary. An unfamiliar risk or
+              permission is not automatically safe.
+            </p>
+            <p>
+              Reuse an existing governed product when its owner fits the need.
+              This preview proposes a starting slice and its checks; it is not
+              finished product content, Quality Gate PASS, or release approval.
+            </p>
+          </div>
+
           <div className="field-grid">
             <label>
               <span>Project name</span>
               <input
+                placeholder="e.g. Class attendance tracker"
                 value={intent.name}
                 onChange={(event) => patch("name", event.target.value)}
               />
@@ -194,11 +455,11 @@ export function ProjectBootstrapFactory() {
               <span>Primary users · one per line</span>
               <textarea
                 rows={3}
+                placeholder="e.g. Teacher who records daily attendance"
                 value={primaryUsersText}
                 onChange={(event) => {
                   setPrimaryUsersText(event.target.value);
-                  setPlan(null);
-                  setFeedback(null);
+                  invalidatePreview();
                 }}
               />
             </label>
@@ -207,11 +468,11 @@ export function ProjectBootstrapFactory() {
               <span>Jobs to be done · one per line</span>
               <textarea
                 rows={3}
+                placeholder="e.g. Record attendance and verify a saved class summary"
                 value={jobsText}
                 onChange={(event) => {
                   setJobsText(event.target.value);
-                  setPlan(null);
-                  setFeedback(null);
+                  invalidatePreview();
                 }}
               />
             </label>
@@ -403,16 +664,16 @@ export function ProjectBootstrapFactory() {
                 value={integrationsText}
                 onChange={(event) => {
                   setIntegrationsText(event.target.value);
-                  setPlan(null);
-                  setFeedback(null);
+                  invalidatePreview();
                 }}
-                placeholder={"GitHub\nVercel\nERP"}
+                placeholder={"Existing service API (only if justified)"}
               />
             </label>
 
             <label className="field-span">
               <span>Deployment target</span>
               <input
+                placeholder="e.g. Local desktop, offline browser or existing web host"
                 value={intent.deploymentTarget}
                 onChange={(event) =>
                   patch("deploymentTarget", event.target.value)
@@ -448,6 +709,7 @@ export function ProjectBootstrapFactory() {
               <p>{feedback}</p>
             </div>
           ) : null}
+
         </div>
 
         <aside className="bootstrap-plan-card" aria-live="polite">

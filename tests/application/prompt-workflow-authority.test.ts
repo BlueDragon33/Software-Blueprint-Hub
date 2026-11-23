@@ -124,6 +124,12 @@ describe("Reviewer A/B initial Preview P3 binding", () => {
 
   it("binds exact candidate revisions, workflow projection and issuer to planned work", () => {
     const binding = prepareReviewerAbP3Binding(manifest, env)!;
+    expect(binding.revisions).toContainEqual({
+      role: "A",
+      repository: "BlueDragon33/Software-Blueprint-Reviewer-A",
+      number: 8,
+      sha: env.BLUEPRINT_AB_P3_A_SHA
+    });
     expect(binding.workflowDigest).not.toBe(binding.candidateDigest);
     expect(manifest.status).toBe("candidate");
     expect(makeReviewerAbP3WorkPackage(binding, new Date().toISOString())).toMatchObject({
@@ -149,17 +155,18 @@ describe("Reviewer A/B initial Preview P3 binding", () => {
 
   it("requires all authenticated Draft metadata to match the configured scope and SHA", async () => {
     const { revisions } = prepareReviewerAbP3Binding(manifest, env)!;
-    const read = (stale: boolean): typeof fetch => async (url, init) => {
+    const read = (stale: "A" | "B" | null): typeof fetch => async (url, init) => {
       expect(new URL(String(url)).origin).toBe("https://api.github.com");
       expect(init?.redirect).toBe("error");
       const item = revisions.find(({ repository }) => String(url).includes(repository + "/pulls/"))!;
       return Response.json({
-        number: item.number, state: "open", draft: true,
+        number: stale === "A" && item.role === "A" ? 6 : item.number, state: "open", draft: true,
         base: { repo: { full_name: item.repository } },
-        head: { repo: { full_name: item.repository }, sha: stale && item.role === "B" ? "e".repeat(40) : item.sha }
+        head: { repo: { full_name: item.repository }, sha: stale === "B" && item.role === "B" ? "e".repeat(40) : item.sha }
       });
     };
-    await expect(verifyReviewerAbP3DraftHeads(revisions, null, read(false))).resolves.toBeUndefined();
-    await expect(verifyReviewerAbP3DraftHeads(revisions, null, read(true))).rejects.toThrow(/HEAD changed/);
+    await expect(verifyReviewerAbP3DraftHeads(revisions, null, read(null))).resolves.toBeUndefined();
+    await expect(verifyReviewerAbP3DraftHeads(revisions, null, read("B"))).rejects.toThrow(/HEAD changed/);
+    await expect(verifyReviewerAbP3DraftHeads(revisions, null, read("A"))).rejects.toThrow(/HEAD changed/);
   });
 });
