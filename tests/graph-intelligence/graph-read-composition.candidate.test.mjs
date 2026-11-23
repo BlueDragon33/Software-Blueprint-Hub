@@ -151,3 +151,23 @@ test("no public route, network request or auto-granted App role in candidate sou
   assert.match(source, /consumeGraphProofNonceCandidate/);
   assert.match(source, /inspectInternalProjectGraphCandidate/);
 });
+
+test("nonce is scoped to issuer/key globally, so another project cannot replay the same jti", async () => {
+  const sql = nonceDb();
+  let hubCalls = 0;
+  const loader = async encoded => {
+    hubCalls++;
+    return ready(decodeURIComponent(encoded));
+  };
+  const audience = new Set([PROJECT, OTHER]);
+  const first = await inspectSignedInternalHubGraphCandidate(fixture({
+    executeNonceSql: sql, loadTrustedGraph: loader, projectAudience: audience,
+  }));
+  const second = await inspectSignedInternalHubGraphCandidate(fixture({
+    compactJws: signed(claims(OTHER)), projectId: OTHER,
+    executeNonceSql: sql, loadTrustedGraph: loader, projectAudience: audience,
+  }));
+  assert.equal(first.ok, true);
+  assert.equal(second.ok, false);
+  assert.equal(hubCalls, 1);
+});
