@@ -31,5 +31,48 @@
     "localInstallArtifact": "PROJECT_SPECIFIC"
   },
   "inventoryPolicy": "control/constitution-governed-repositories.json + admitted registrations and onboarding queue; do not alter sealed constitutional register",
-  "notes": "GitHub CI/git synchronization may use Internet for development; installed application core must not. Existing live URLs require separate takedown authorization."
+  "notes": "GitHub CI/git synchronization may use Internet for development; installed application core must not. Existing live URLs require separate takedown authorization.",
+  "directiveAddendum": "owner-direction-2026-11-23: github-primary, batched-local-intervention, offline-first-capacity",
+  "deliveryWorkflow": {
+    "appliesTo": "all-governed-and-future-projects-including-runtime-exceptions",
+    "primaryEngineeringSurface": "github",
+    "primarySourceOfTruth": "exact-git-revision-with-canonical-work-and-gate-state-kept-separate",
+    "preferredAutomation": "existing-github-actions-ci-and-scoped-tests",
+    "changeSequence": [
+      "verify-active-policy-and-exact-head",
+      "implement-on-existing-branch-or-draft-pr",
+      "run-scoped-tests-and-inspect-failure-logs",
+      "fix-root-cause-and-retest-exact-head",
+      "run-required-build-integration-browser-offline-and-gate-checks",
+      "request-human-release-approval-if-applicable",
+      "publish-only-through-authorized-manual-release",
+      "post-release-readback-and-recovery"
+    ],
+    "workMode": "optional-only-when-existing-github-runtime-cannot-perform-the-task",
+    "windowsPowerShell": "last-resort-one-batched-check-after-github-work-is-consolidated",
+    "adHocPowerShellBetweenGitHubChanges": false,
+    "productionFromGreenCI": false,
+    "productionFromMerge": false,
+    "releaseRequiresNamedAppExactShaAndHumanAuthority": true,
+    "zeroSpendDefault": true
+  },
+  "offlineFirstDesign": {
+    "scope": "non-exempt-local-core-and-new-offline-capable-slices; existing-boi-ech-online-mode-preserved",
+    "intendedOutcome": "avoid-unnecessary-online-runtime-load-without-sacrificing-product-truth-or-security",
+    "localCorePreferred": true,
+    "offlineWhenTechnicallyFeasible": true,
+    "noFakeOfflineOnHostedWeb": true,
+    "localInstallOrCachedShellRequiredWhenApplicable": true,
+    "localDurableStateAndRestartRecoveryRequired": true,
+    "sensitiveDataStorageRequiresThreatAppropriateProtection": true,
+    "remoteAIAndSyncOptionalUnlessIntrinsicAndOwnerAccepted": true,
+    "onlineOnlyCapabilityMustDeclareNecessityAndDisconnectedFallback": true,
+    "offlineMutationRequiresVersionedQueueAndConflictHandling": true,
+    "authorityActionsFailClosedWhileOfflineUnlessExplicitlyAuthorizedLocalTrustExists": true,
+    "onlineTrafficBaselineAndAfterEvidenceRequiredBeforeClaimingLoadReduction": true,
+    "networkBudgetAndRetryBackoffRequiredForOnlineAdapters": true,
+    "syncRequiresReconciliationIdempotencyAndExplicitStatus": true,
+    "offlineStatus": "UNVERIFIED_UNTIL_EXACT_REVISION_DISCONNECTED_TEST",
+    "noMassOfflineComplianceFromPolicyAdoption": true
+  }
 }
