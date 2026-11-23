@@ -213,6 +213,9 @@ export function ProjectBootstrapFactory() {
           }
         );
         if (version !== intentEpoch.current) return;
+        if (!resolved) {
+          throw new Error("Không tạo được Bootstrap Plan. Không có dữ liệu để tạo prompt.");
+        }
         setPlan(resolved);
         const next = resolved.roadmap.find(
           (item) => item.status === "ready" && item.kind === "module"
