@@ -103,3 +103,23 @@ test("C30 trust pinning and nonce have no real provisioning or Graph grant", () 
   assert.equal(candidate.publicEndpoint, null);
   assert.deepEqual(active.endpoints, {});
 });
+
+test("C31 internal composition is no external identity or release grant", () => {
+  const c = candidate.c31Composition;
+  assert.equal(c.status, "INTERNAL_COMPOSITION_SOURCE_ONLY");
+  assert.equal(c.module, "apps/web/src/server/graph-read-composition.candidate.mjs");
+  assert.equal(c.authorization, "EXISTING_HUB_PROJECT_READ_LOADER_REQUIRED");
+  assert.equal(c.audience, "INJECTED_PROJECT_AUDIENCE_NOT_APPROVED");
+  assert.equal(c.returnsRawNodes, false);
+  assert.equal(c.returnsOnlyProjectCountsAndFingerprint, true);
+  assert.equal(c.canReadGraphExternally, false);
+  assert.equal(c.publicRoute, null);
+  assert.equal(c.identityAccepted, false);
+  assert.equal(c.actualPgConcurrencyQa, "NOT_RUN");
+  assert.equal(c.authenticatedCandidateBrowserQa, "NOT_RUN");
+  assert.equal(c.reviewers, "PENDING");
+  assert.equal(c.enabled, false);
+  assert.equal(candidate.enabled, false);
+  assert.equal(candidate.publicEndpoint, null);
+  assert.deepEqual(active.endpoints, {});
+});
