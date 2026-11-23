@@ -123,3 +123,27 @@ test("C31 internal composition is no external identity or release grant", () => 
   assert.equal(candidate.publicEndpoint, null);
   assert.deepEqual(active.endpoints, {});
 });
+
+test("C32 key lifecycle cannot authorize external Graph or claim provisioned revocation", () => {
+  const lifecycle = candidate.c32KeyLifecycle;
+  assert.equal(lifecycle.status, "SOURCE_ONLY_NOT_PROVISIONED");
+  assert.equal(lifecycle.activeKeyPolicy, "EXACTLY_ONE_PER_PROJECT");
+  assert.equal(lifecycle.overlapKeyPolicy, "AT_MOST_ONE_FOR_MAX_120_SECONDS");
+  assert.equal(lifecycle.revokedKeyPolicy, "DENY_IMMEDIATELY");
+  assert.equal(lifecycle.retiredKeyPolicy, "DENY");
+  assert.equal(lifecycle.rejectDuplicateSpkiAliases, true);
+  assert.equal(lifecycle.keyPinning, "SPKI_SHA256_INJECTED_SERVER_ONLY");
+  assert.equal(lifecycle.trustedServerRegistry, "NOT_PROVISIONED");
+  assert.equal(lifecycle.independentHumanReview, "PENDING");
+  assert.equal(lifecycle.signedRegistryProvenance, "NOT_IMPLEMENTED");
+  assert.equal(lifecycle.revocationAuditPersistence, "NOT_IMPLEMENTED");
+  assert.equal(lifecycle.historicalKidReuseProtection, "NOT_IMPLEMENTED");
+  assert.equal(lifecycle.actualPostgreSqlReplayAndRotationQA, "NOT_RUN");
+  assert.equal(lifecycle.actualAppIdentity, "NOT_VERIFIED");
+  assert.equal(lifecycle.externalTransportEnabled, false);
+  assert.equal(lifecycle.endpoint, null);
+  assert.equal(lifecycle.enabled, false);
+  assert.equal(candidate.enabled, false);
+  assert.equal(candidate.publicEndpoint, null);
+  assert.deepEqual(active.endpoints, {});
+});
