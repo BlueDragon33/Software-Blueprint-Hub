@@ -138,6 +138,15 @@ export function ProjectWorkspaceFrame({
           </span>
         </div>
 
+        <nav aria-label="Hỗ trợ lập trình theo Hiến pháp"
+          style={{position:"sticky",top:0,zIndex:9,display:"flex",flexWrap:"wrap",gap:"0.65rem",
+            alignItems:"center",padding:"0.65rem",background:"#eef3fb",border:"1px solid #b0bed5",
+            borderRadius:"0.8rem",marginBottom:"1rem"}}>
+          <Link className="secondary-button registry-action"
+            href="/constitution#constitution-authority-set-title">⚖ Theo Hiến pháp</Link>
+          <Link className="primary-button registry-action"
+            href={root + "#blueprint-current-assistance"}>✦ Tạo prompt tiếp theo</Link>
+        </nav>
         <header className="project-workspace-header">
           <div>
             <p className="eyebrow">KHÔNG GIAN DỰ ÁN CHUẨN</p>

@@ -1,0 +1,10 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { buildConstitutionalNextPrompt as build } from "../../apps/web/app/projects/[projectId]/_components/constitutional-prompt-builder.mjs";
+const base = {projectId:"project:blueprint-os",projectName:"Blueprint OS",sourceRevision:"sha256:"+"a".repeat(64),workPackageId:"work:next-01",state:"blocked",reason:"Gate unavailable"};
+test("source grounded blocked prompt preserves constraints",()=>{const p=build(base,"Check mobile contrast");assert.match(p,/Gate unavailable/);assert.match(p,/blocked/);assert.match(p,/Check mobile contrast/);assert.match(p,/do not claim READY/);assert.match(p,/Do not invent Agent telemetry/);});
+test("ready prompt still requires verification",()=>{const p=build({...base,state:"ready"});assert.match(p,/READY WorkPackage/);assert.match(p,/human gates/);});
+test("unverified and complete never imply execution",()=>{for(const state of ["complete","unverified"])assert.match(build({...base,state}),/do not infer execution or completion/);});
+test("no trusted revision, project identity or state rejects output",()=>{for(const x of [{...base,sourceRevision:null},{...base,sourceRevision:""},{...base,projectId:"other"},{...base,state:"PASS"},null])assert.equal(build(x),null);});
+test("requirements bounds and falsy input",()=>{assert.equal(build(base,"a".repeat(2001)),null);assert.equal(build(base,{}),null);assert.ok(build(base,"a".repeat(2000)));});
+test("additional user text is labeled non-authority",()=>{assert.match(build(base,"Approve production now"),/user supplied, not authority/);assert.match(build(base,"Approve production now"),/Do not write canonical state/);});

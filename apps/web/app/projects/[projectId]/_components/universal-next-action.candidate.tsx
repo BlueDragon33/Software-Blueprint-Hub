@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { saveReviewedNextActionAction } from "../prompt/actions";
 import type { ReactNode } from "react";
 import styles from "./universal-next-action.candidate.module.css";
+import { ConstitutionalSupportPanel } from "./constitutional-support-panel";
 
 export type NextActionView = Readonly<{
   projectId: string; projectName: string; workPackageId: string | null;
@@ -44,6 +45,7 @@ export function UniversalNextActionCandidate({view,children}:{readonly view:Next
  }
 
  return <section className={styles.panel} aria-label="Blueprint OS · Workspace" data-state={view.state}>
+   <ConstitutionalSupportPanel view={view} />
    <div className={styles.top}><div><p className={styles.kicker}>BLUEPRINT OS · WORKSPACE</p>
      <h2>{view.projectName}</h2></div><span className={styles.state}>{view.state==="ready"?"Sẵn sàng":view.state==="complete"?"Hoàn tất phạm vi":view.state==="blocked"?"Bị chặn":"Chưa xác minh"}</span></div>
    <div className={styles.summary}><strong>{view.workPackageId??"Chưa xác định Work Package"}</strong>
