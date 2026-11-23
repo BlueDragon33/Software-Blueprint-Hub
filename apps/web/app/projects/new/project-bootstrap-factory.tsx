@@ -171,6 +171,22 @@ export function ProjectBootstrapFactory() {
             </span>
           </div>
 
+          <div className="context-note" role="note">
+            <strong>Start with one real user journey</strong>
+            <p>
+              Identify who needs the app, one specific task they must finish,
+              and the observable result that proves it works. Confirm where
+              their data belongs, whether offline use matters, and which
+              integrations are genuinely necessary. An unfamiliar risk or
+              permission is not automatically safe.
+            </p>
+            <p>
+              Reuse an existing governed product when its owner fits the need.
+              This preview proposes a starting slice and its checks; it is not
+              finished product content, Quality Gate PASS, or release approval.
+            </p>
+          </div>
+
           <div className="field-grid">
             <label>
               <span>Project name</span>
