@@ -147,3 +147,23 @@ test("C32 key lifecycle cannot authorize external Graph or claim provisioned rev
   assert.equal(candidate.publicEndpoint, null);
   assert.deepEqual(active.endpoints, {});
 });
+
+test("C33 independently reproduced trust-history blockers keep Graph disabled", () => {
+  const audit = candidate.c33IndependentSecurityAudit;
+  assert.equal(audit.status, "OPEN_BLOCKING");
+  assert.equal(audit.auditedSourceGitBlob, "5761170c84f193570a0fd68b026785eb6230a23f");
+  assert.equal(audit.staleRevocationSnapshot, "REPRODUCED");
+  assert.equal(audit.historicalKidReuseDifferentSpki, "REPRODUCED");
+  assert.equal(audit.monotonicRevocationRevisionAndFreshness, "REQUIRED_NOT_IMPLEMENTED");
+  assert.equal(audit.durableEverUsedKidLedger, "REQUIRED_NOT_IMPLEMENTED");
+  assert.equal(audit.signedTrustRegistryProvenance, "REQUIRED_NOT_PROVISIONED");
+  assert.equal(audit.productionExploitClaim, false);
+  assert.equal(audit.activeExternalGraphRouteExists, false);
+  assert.equal(audit.remediationAccepted, false);
+  assert.equal(audit.independentReviewer, "PENDING");
+  assert.equal(audit.canEnableExternalTransport, false);
+  assert.equal(audit.canClaimRealAppIdentity, false);
+  assert.equal(candidate.enabled, false);
+  assert.equal(candidate.publicEndpoint, null);
+  assert.deepEqual(active.endpoints, {});
+});
