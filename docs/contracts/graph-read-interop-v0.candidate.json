@@ -71,5 +71,22 @@
     "fullNode24RuntimeAcceptance": "NOT_RUN",
     "enabled": false,
     "externalTransportEnabled": false
+  },
+  "c30TrustPinAndReplay": {
+    "status": "SOURCE_ONLY_NOT_PROVISIONED",
+    "publicKeyPinningModule": "apps/web/src/server/graph-consumer-trust.candidate.mjs",
+    "pinAlgorithm": "SPKI-SHA256",
+    "pinTrustRoot": "NO_APPROVED_KEYS",
+    "pinRotationPolicy": "HUMAN_REVIEW_REQUIRED",
+    "nonceInsertModule": "apps/web/src/server/graph-consumer-nonce.candidate.mjs",
+    "nonceSqlSchema": "docs/contracts/graph-consumer-nonce-schema.candidate.sql",
+    "dbSchemaApplied": false,
+    "postgresConcurrencyAcceptance": "NOT_RUN",
+    "durableAtomicNonceStore": "NOT_PROVISIONED",
+    "sourceOnlyCryptoTests": "SCOPED_NODE22",
+    "identityAccepted": false,
+    "enabled": false,
+    "activeGraphTransport": false,
+    "gateApproval": "PENDING"
   }
 }
