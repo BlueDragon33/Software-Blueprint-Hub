@@ -482,3 +482,81 @@ jobs:
           path: artifacts/work-intake-*.json
           if-no-files-found: warn
           retention-days: 14
+
+  # C40: public-runner, source-pinned QA only for the constitutional assistant
+  # on the existing Draft PR173 branch. No release or Production authority.
+  constitutional-assistant-qa:
+    if: ${{ github.event_name == 'pull_request' && github.head_ref == 'proposal/constitutional-graph-integration-20261122' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: blueprint
+          POSTGRES_PASSWORD: blueprint
+          POSTGRES_DB: blueprint_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U blueprint -d blueprint_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_test
+      AUTH_SECRET: p6-e2e-auth-secret-2026-blueprint-os-registry
+      BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER: github
+      BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT: p6-e2e-owner
+      BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH: "true"
+    steps:
+      - name: Check out exact proposed PR HEAD
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Assert exact tested source
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          echo "CONSTITUTIONAL_SUPPORT_QA_SOURCE=$(git rev-parse HEAD)"
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma Client and migrate disposable PostgreSQL
+        run: |
+          pnpm prisma:generate
+          pnpm db:migrate:deploy
+      - name: Run canonical source prompt builder and component SSR tests
+        run: |
+          node --test tests/web/constitutional-prompt-builder.candidate.test.mjs
+          pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts tests/web/universal-next-action-v2.test.tsx
+      - name: Typecheck and build Next.js from exact source
+        run: |
+          pnpm --filter @blueprint-os/web typecheck
+          pnpm build
+      - name: Seed disposable canonical role/project fixtures
+        run: pnpm exec prisma db execute --config prisma7.config.ts --file scripts/e2e-project-registry.sql
+      - name: Install Playwright Chromium on free standard runner
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Authenticated desktop/tablet/mobile prompt panel acceptance
+        run: |
+          mkdir -p artifacts
+          pnpm exec playwright test --grep "Pinned constitutional prompt support supports review-only flow"
+      - name: Verify three-device QA and no release authority
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const p=JSON.parse(fs.readFileSync("artifacts/playwright-results.json","utf8"));
+            if(p.stats.unexpected!==0 || p.stats.skipped!==0 || p.stats.flaky!==0 || p.stats.expected!==3) throw Error("Expected exact 3-device Chromium pass, no skips/failures");
+            console.log(JSON.stringify({head:process.env.GITHUB_SHA,chromiumPassed:3,releaseAuthorized:false,productionChanged:false}));
+          '
