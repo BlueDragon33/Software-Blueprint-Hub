@@ -126,5 +126,22 @@
     "externalTransportEnabled": false,
     "endpoint": null,
     "enabled": false
+  },
+  "c33IndependentSecurityAudit": {
+    "status": "OPEN_BLOCKING",
+    "auditedSourceGitBlob": "5761170c84f193570a0fd68b026785eb6230a23f",
+    "method": "NODE22_EXACT_SOURCE_EPHEMERAL_KEYS",
+    "staleRevocationSnapshot": "REPRODUCED",
+    "historicalKidReuseDifferentSpki": "REPRODUCED",
+    "productionExploitClaim": false,
+    "activeExternalGraphRouteExists": false,
+    "remediationAccepted": false,
+    "signedTrustRegistryProvenance": "REQUIRED_NOT_PROVISIONED",
+    "monotonicRevocationRevisionAndFreshness": "REQUIRED_NOT_IMPLEMENTED",
+    "durableEverUsedKidLedger": "REQUIRED_NOT_IMPLEMENTED",
+    "independentReviewer": "PENDING",
+    "realRuntimeNegativeTests": "NOT_RUN",
+    "canEnableExternalTransport": false,
+    "canClaimRealAppIdentity": false
   }
 }
