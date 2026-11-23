@@ -1364,7 +1364,7 @@ test("P9-005 app-builder prompt controls and Constitution are usable", async ({ 
   await expect(constitution).toBeVisible();
   await expect(constitution).toHaveAttribute("href", "/constitution#constitution-authority-set-title");
   const generate = page.getByRole("button", { name: "Tạo prompt công việc tiếp theo" });
-  await expect(generate).toBeDisabled();
+  await expect(generate).toBeEnabled();
   await expect(page.getByLabel("Project name")).toHaveValue("");
   await expect(page.getByLabel("Primary users · one per line")).toHaveValue("");
   await expect(page.getByLabel("Jobs to be done · one per line")).toHaveValue("");
@@ -1382,8 +1382,9 @@ test("P9-005 app-builder prompt controls and Constitution are usable", async ({ 
   await page.getByLabel("Primary users · one per line").fill("Teacher");
   await page.getByLabel("Jobs to be done · one per line").fill("Record attendance and verify the saved summary");
   await page.getByLabel("Deployment target").fill("Existing local-first web application");
-  await page.getByRole("button", { name: "Generate Bootstrap Plan" }).click();
-  await expect(generate).toBeEnabled();
+  // A single click must resolve the plan and generate the prompt.
+  await page.getByLabel("Yêu cầu riêng (có thể nhập trước khi tạo prompt)")
+    .fill("Keep offline attendance edits recoverable");
   await generate.click();
 
   const prompt = page.getByLabel(/Xem trước prompt/);
@@ -1395,11 +1396,10 @@ test("P9-005 app-builder prompt controls and Constitution are usable", async ({ 
   const copy = page.getByRole("button", { name: "Sao chép prompt đã duyệt" });
   await expect(copy).toBeDisabled();
 
-  await page.getByLabel("Yêu cầu riêng để thêm vào prompt").fill("Keep offline attendance edits recoverable");
   await expect(prompt).toHaveValue(/Keep offline attendance edits recoverable/);
   await approve.click();
   await expect(copy).toBeEnabled();
-  await page.getByLabel("Yêu cầu riêng để thêm vào prompt").fill("No external database");
+  await page.getByLabel("Yêu cầu riêng (có thể nhập trước khi tạo prompt)").fill("No external database");
   await expect(copy).toBeDisabled();
   await approve.click();
   await expect(copy).toBeEnabled();
@@ -1436,12 +1436,18 @@ test("P9-005 app-builder prompt controls and Constitution are usable", async ({ 
       return normalized[0]! * 0.2126 + normalized[1]! * 0.7152 + normalized[2]! * 0.0722;
     }
     const fg = luminance(rgb(getComputedStyle(node).color));
-    const surface = node.closest(".bootstrap-form-card");
+    const surface = node.closest(".bootstrap-builder-assistant");
     if (!surface) throw new Error("Missing styled form surface");
     const bg = luminance(rgb(getComputedStyle(surface).backgroundColor));
     return (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05);
   });
   expect(ratio).toBeGreaterThanOrEqual(4.5);
+
+  // Changing the project invalidates the approved prompt and stale plan.
+  await page.getByLabel("Project name").fill("Class attendance revised");
+  await expect(prompt).toHaveCount(0);
+  await expect(copy).toBeDisabled();
+  await expect(approve).toBeDisabled();
 
   await constitution.click();
   await expect(page).toHaveURL(/\/constitution#constitution-authority-set-title$/);
