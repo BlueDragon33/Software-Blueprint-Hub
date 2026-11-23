@@ -31,6 +31,24 @@ const render = (state: "ready" | "blocked" | "unverified") =>
   renderToStaticMarkup(createElement(UniversalNextActionCandidate, { view: { ...base, state } }));
 
 describe("Universal Next Action v2 visible controls, honest read-only SSR", () => {
+  it("renders pinned constitutional support with editable requirements but no fake approval", () => {
+    const html = render("ready");
+    expect(html).toContain("Bảng nút dùng ngay cho công việc hiện tại");
+    expect(html).toContain("Theo Hiến pháp");
+    expect(html).toContain("Tạo prompt tiếp theo");
+    expect(html).toContain("Thêm yêu cầu riêng");
+    expect(html).toContain("constitutional-assistance-extra");
+    expect(html).toContain('maxLength="2000"');
+    expect(html).not.toContain("Duyệt nội dung prompt");
+    expect(html).not.toContain("Agent đang chạy");
+  });
+  it("disables prompt generation without a verified canonical source", () => {
+    const html = renderToStaticMarkup(createElement(UniversalNextActionCandidate, {
+      view: { ...base, state: "unverified", sourceRevision: null }
+    }));
+    expect(html).toMatch(/disabled=""[^>]*>✦ Tạo prompt tiếp theo/);
+    expect(html).toContain("Bảng nút dùng ngay cho công việc hiện tại");
+  });
   it("shows primary immediate navigation and a secondary optional advanced control", () => {
     const html = render("ready");
     expect(html).toContain("Tiếp tục công việc");

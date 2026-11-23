@@ -1407,3 +1407,47 @@ test("Graph Studio shares the authenticated project's canonical Next Action, wit
     fullPage: true
   });
 });
+
+test("Pinned constitutional prompt support supports review-only flow and viewport navigation", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/projects/project%3Ap6-registry-beta");
+  const support = page.getByRole("region", { name: "Bảng nút dùng ngay cho công việc hiện tại" });
+  await expect(support).toBeVisible();
+  await expect(support.getByRole("link", { name: /Theo Hiến pháp/ })).toHaveAttribute(
+    "href", "/constitution#constitution-authority-set-title"
+  );
+  const generate = support.getByRole("button", { name: /Tạo prompt tiếp theo/ });
+  await expect(generate).toBeEnabled();
+  const requirements = support.getByLabel("Thêm yêu cầu riêng");
+  await requirements.fill("Kiểm tra desktop, tablet, mobile; không cấp quyền Production.");
+  await generate.click();
+  const draft = support.getByLabel(/Bản nháp — có thể chỉnh sửa trước khi duyệt/);
+  await expect(draft).toHaveValue(/không cấp quyền Production/);
+  const approve = support.getByRole("button", { name: "Duyệt nội dung prompt" });
+  const copy = support.getByRole("button", { name: "Sao chép prompt đã duyệt" });
+  await expect(copy).toBeDisabled();
+  await approve.click();
+  await expect(copy).toBeEnabled();
+  await draft.fill((await draft.inputValue()) + "\nBổ sung kiểm tra tương phản.");
+  await expect(copy).toBeDisabled();
+  await approve.click();
+  await expect(copy).toBeEnabled();
+  await requirements.fill("Yêu cầu đã thay đổi — phải tạo và duyệt lại.");
+  await expect(copy).toHaveCount(0);
+  for (const width of [1440, 800, 390]) {
+    await page.setViewportSize({ width, height: 820 });
+    await expect(page.getByRole("link", { name: /Tạo prompt tiếp theo/ }).first()).toBeVisible();
+    await expect(support).toBeVisible();
+    const noPanelOverflow = await support.evaluate(
+      el => el.scrollWidth <= el.clientWidth + 1
+    );
+    expect(noPanelOverflow).toBe(true);
+    await page.screenshot({
+      path: `artifacts/constitutional-support-${width}-${testInfo.project.name}.png`,
+      fullPage: true
+    });
+  }
+  await expect(page.getByText(/Agent đang chạy/)).toHaveCount(0);
+});

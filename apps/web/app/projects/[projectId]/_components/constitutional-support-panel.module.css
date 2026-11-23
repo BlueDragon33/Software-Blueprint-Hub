@@ -9,3 +9,7 @@
 .note{margin:0}@media(max-width:520px){.panel{top:4px;max-height:65vh;padding:12px}.actions{display:grid;grid-template-columns:1fr}.actions a,.actions button{width:100%}}
 @media(prefers-color-scheme:light){.panel{background:#edf3fc;color:#142946;border-color:#59759b}.panel textarea{background:#fff;color:#173356;border-color:#6583a9}.heading small,.message,.note{color:#3a5273}.actions a,.actions button{background:#153967;color:#fff}}
 @media(prefers-reduced-motion:reduce){.panel *{transition:none!important;scroll-behavior:auto!important}}
+
+/* Keep the target visible below sticky project navigation. */
+.panel{scroll-margin-block-start:6rem}
+.panel:target{outline:2px solid #f8d36c;outline-offset:2px}
