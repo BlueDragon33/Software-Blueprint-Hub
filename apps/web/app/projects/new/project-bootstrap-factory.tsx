@@ -195,22 +195,36 @@ export function ProjectBootstrapFactory() {
   }
 
   function generateNextPrompt(): void {
-    if (!plan || !nextReadyWork || isPending) {
-      setBuilderStatus("Create a valid Bootstrap Plan before generating an execution prompt.");
-      return;
-    }
-    const activePlan = plan;
-    const next = nextReadyWork;
-    const version = intentEpoch.current;
+    if (isPending) return;
+    const version = ++intentEpoch.current;
+    const request = currentIntent();
     setBuilderDraft(null);
     setApprovedPrompt(null);
-    setBuilderStatus("Generating a read-only prompt projection...");
+    setBuilderStatus("Đang lập kế hoạch và tạo prompt công việc tiếp theo…");
+    setFeedback(null);
     startTransition(async () => {
       try {
+        // One explicit click: resolve the read-only Bootstrap Plan if needed,
+        // then project the first READY Work item using the canonical prompt builder.
+        const resolved = plan ?? await createProjectBootstrapPreviewAction(request).then(
+          (result) => {
+            if (!result.ok) throw new Error(result.message);
+            return result.plan;
+          }
+        );
+        if (version !== intentEpoch.current) return;
+        setPlan(resolved);
+        const next = resolved.roadmap.find(
+          (item) => item.status === "ready" && item.kind === "module"
+        ) ?? resolved.roadmap.find((item) => item.status === "ready");
+        if (!next) {
+          setBuilderStatus("Không có công việc READY. Cần xử lý các phụ thuộc trước khi lập prompt.");
+          return;
+        }
         const result = await generatePromptPreviewAction({
-          profile: activePlan.profile,
-          blueprint: activePlan.blueprint,
-          templateVersions: activePlan.activatedTemplates.map(
+          profile: resolved.profile,
+          blueprint: resolved.blueprint,
+          templateVersions: resolved.activatedTemplates.map(
             ({ id, version }) => ({ id, version })
           ),
           workTitle: next.title,
@@ -224,13 +238,17 @@ export function ProjectBootstrapFactory() {
         setBuilderDraft({
           content: result.projection.content,
           sourceRevision: result.projection.sourceRevision,
-          planFingerprint: activePlan.intentFingerprint,
+          planFingerprint: resolved.intentFingerprint,
           nextWorkId: next.id
         });
-        setBuilderStatus("Prompt preview generated. Add requirements, review, then approve its text.");
-      } catch {
+        setBuilderStatus("Đã tạo prompt. Xem lại, bổ sung yêu cầu nếu cần và bấm duyệt nội dung.");
+      } catch (error) {
         if (version === intentEpoch.current) {
-          setBuilderStatus("Prompt preview failed. No approval or canonical mutation occurred.");
+          setBuilderStatus(
+            error instanceof Error && error.message
+              ? error.message
+              : "Không tạo được prompt. Chưa ghi dữ liệu dự án hoặc cấp quyền phê duyệt."
+          );
         }
       }
     });
@@ -298,6 +316,89 @@ export function ProjectBootstrapFactory() {
           </a>
         </div>
       </header>
+
+          <section className="bootstrap-builder-assistant" aria-labelledby="builder-assistant-title">
+            <div>
+              <p className="section-kicker">03 · Lập trình viên</p>
+              <h3 id="builder-assistant-title">Hỗ trợ lập trình theo Hiến pháp</h3>
+              <p className="bootstrap-helper-info">
+                Một lần bấm để tự lập Bootstrap Plan và sinh prompt công việc READY
+                tiếp theo. Thêm yêu cầu riêng, xem trước và duyệt nội dung trước khi dùng.
+              </p>
+            </div>
+            <div className="bootstrap-actions">
+              <button
+                type="button"
+                className="primary-button"
+                disabled={isPending}
+                onClick={generateNextPrompt}
+              >
+                Tạo prompt công việc tiếp theo
+              </button>
+            </div>
+            {!plan ? (
+              <p className="bootstrap-helper-info" role="status">
+                Điền tên dự án, người dùng, nhiệm vụ và nơi chạy ở biểu mẫu phía dưới, rồi bấm nút tạo prompt ở đây. Không cần bấm Generate Bootstrap Plan riêng.
+              </p>
+            ) : nextReadyWork ? (
+              <p className="bootstrap-helper-info">
+                Công việc có thể bắt đầu: <strong>{nextReadyWork.title}</strong>
+              </p>
+            ) : (
+              <p role="status">Không có công việc READY; cần kiểm tra các phụ thuộc trước.</p>
+            )}
+            <label className="stacked-field" htmlFor="bootstrap-extra-requirements">
+              Yêu cầu riêng (có thể nhập trước khi tạo prompt)
+            </label>
+            <textarea
+              id="bootstrap-extra-requirements"
+              value={extraRequirements}
+              rows={3}
+              placeholder="Thêm tiêu chí, phạm vi, thiết bị cần hỗ trợ, yêu cầu không được thay đổi..."
+              onChange={(event) => {
+                setExtraRequirements(event.target.value);
+                setApprovedPrompt(null);
+                setBuilderStatus("Yêu cầu đã thay đổi. Hãy xem và duyệt lại prompt nếu đã tạo.");
+              }}
+            />
+            {builderDraft && builderPrompt ? (
+              <>
+                <label className="stacked-field" htmlFor="bootstrap-prompt-review">
+                  Xem trước prompt — nguồn {builderDraft.sourceRevision.slice(0, 20)}…
+                </label>
+                <textarea
+                  id="bootstrap-prompt-review"
+                  className="bootstrap-prompt-output"
+                  readOnly
+                  rows={12}
+                  value={builderPrompt}
+                />
+              </>
+            ) : null}
+            <div className="bootstrap-actions">
+              <button
+                type="button"
+                className="primary-button"
+                disabled={!builderPrompt || isPending || approvedPrompt === builderPrompt}
+                onClick={approveBuilderPrompt}
+              >
+                Duyệt nội dung prompt
+              </button>
+              <button
+                type="button"
+                className="secondary-button"
+                disabled={!approvedPrompt || approvedPrompt !== builderPrompt}
+                onClick={() => { void copyApprovedPrompt(); }}
+              >
+                Sao chép prompt đã duyệt
+              </button>
+            </div>
+            {builderStatus ? <p role="status" className="bootstrap-helper-info">{builderStatus}</p> : null}
+            <small className="bootstrap-helper-info">
+              Duyệt ở đây chỉ xác nhận văn bản để sử dụng; không thay thế Owner,
+              Reviewer A/B, Quality Gate hoặc quyền Production.
+            </small>
+          </section>
 
       <section className="bootstrap-layout">
         <div className="bootstrap-form-card">
@@ -606,88 +707,6 @@ export function ProjectBootstrapFactory() {
             </div>
           ) : null}
 
-          <section className="bootstrap-builder-assistant" aria-labelledby="builder-assistant-title">
-            <div>
-              <p className="section-kicker">03 · Lập trình viên</p>
-              <h3 id="builder-assistant-title">Hỗ trợ lập trình theo Hiến pháp</h3>
-              <p className="bootstrap-helper-info">
-                Tạo prompt từ Blueprint và công việc READY đầu tiên. Có thể thêm yêu cầu,
-                duyệt nội dung và sao chép mà không cần ghi WorkPackage hay duyệt phát hành.
-              </p>
-            </div>
-            <div className="bootstrap-actions">
-              <button
-                type="button"
-                className="primary-button"
-                disabled={!plan || !nextReadyWork || isPending}
-                onClick={generateNextPrompt}
-              >
-                Tạo prompt công việc tiếp theo
-              </button>
-            </div>
-            {!plan ? (
-              <p className="bootstrap-helper-info" role="status">
-                Điền nhu cầu thật và chọn “Generate Bootstrap Plan” để mở chức năng tạo prompt.
-              </p>
-            ) : nextReadyWork ? (
-              <p className="bootstrap-helper-info">
-                Công việc có thể bắt đầu: <strong>{nextReadyWork.title}</strong>
-              </p>
-            ) : (
-              <p role="status">Không có công việc READY; cần kiểm tra các phụ thuộc trước.</p>
-            )}
-            {builderDraft && builderPrompt ? (
-              <>
-                <label className="stacked-field" htmlFor="bootstrap-extra-requirements">
-                  Yêu cầu riêng để thêm vào prompt
-                </label>
-                <textarea
-                  id="bootstrap-extra-requirements"
-                  value={extraRequirements}
-                  rows={4}
-                  placeholder="Bổ sung tiêu chí, phạm vi, thiết bị cần hỗ trợ hoặc những điều không được thay đổi..."
-                  onChange={(event) => {
-                    setExtraRequirements(event.target.value);
-                    setApprovedPrompt(null);
-                    setBuilderStatus("Requirements changed. Review and approve the updated prompt again.");
-                  }}
-                />
-                <label className="stacked-field" htmlFor="bootstrap-prompt-review">
-                  Xem trước prompt — nguồn {builderDraft.sourceRevision.slice(0, 20)}…
-                </label>
-                <textarea
-                  id="bootstrap-prompt-review"
-                  className="bootstrap-prompt-output"
-                  readOnly
-                  rows={16}
-                  value={builderPrompt}
-                />
-                <div className="bootstrap-actions">
-                  <button
-                    type="button"
-                    className="primary-button"
-                    disabled={isPending || approvedPrompt === builderPrompt}
-                    onClick={approveBuilderPrompt}
-                  >
-                    Duyệt nội dung prompt
-                  </button>
-                  <button
-                    type="button"
-                    className="secondary-button"
-                    disabled={!approvedPrompt || approvedPrompt !== builderPrompt}
-                    onClick={() => { void copyApprovedPrompt(); }}
-                  >
-                    Sao chép prompt đã duyệt
-                  </button>
-                </div>
-              </>
-            ) : null}
-            {builderStatus ? <p role="status" className="bootstrap-helper-info">{builderStatus}</p> : null}
-            <small className="bootstrap-helper-info">
-              Duyệt ở đây chỉ xác nhận văn bản để sử dụng; không thay thế Owner,
-              Reviewer A/B, Quality Gate hoặc quyền Production.
-            </small>
-          </section>
         </div>
 
         <aside className="bootstrap-plan-card" aria-live="polite">
