@@ -1369,7 +1369,11 @@ test("P9-005 app-builder prompt controls and Constitution are usable", async ({ 
   await expect(page.getByLabel("Primary users · one per line")).toHaveValue("");
   await expect(page.getByLabel("Jobs to be done · one per line")).toHaveValue("");
 
-  await constitution.focus();
+  for (let tab = 0; tab < 40; tab += 1) {
+    const focused = await constitution.evaluate((link) => document.activeElement === link);
+    if (focused) break;
+    await page.keyboard.press("Tab");
+  }
   await expect(constitution).toBeFocused();
   const focus = await constitution.evaluate((link) => getComputedStyle(link).outlineStyle);
   expect(focus).not.toBe("none");
@@ -1384,15 +1388,15 @@ test("P9-005 app-builder prompt controls and Constitution are usable", async ({ 
 
   const prompt = page.getByLabel(/Xem trước prompt/);
   await expect(prompt).toBeVisible();
-  await expect(prompt).toContainText("Blueprint OS Execution Prompt");
-  await expect(prompt).toContainText("Class attendance MVP");
-  await expect(prompt).toContainText("NEXT READY WORK:");
+  await expect(prompt).toHaveValue(/Blueprint OS Execution Prompt/);
+  await expect(prompt).toHaveValue(/Class attendance MVP/);
+  await expect(prompt).toHaveValue(/NEXT READY WORK:/);
   const approve = page.getByRole("button", { name: "Duyệt nội dung prompt" });
   const copy = page.getByRole("button", { name: "Sao chép prompt đã duyệt" });
   await expect(copy).toBeDisabled();
 
   await page.getByLabel("Yêu cầu riêng để thêm vào prompt").fill("Keep offline attendance edits recoverable");
-  await expect(prompt).toContainText("Keep offline attendance edits recoverable");
+  await expect(prompt).toHaveValue(/Keep offline attendance edits recoverable/);
   await approve.click();
   await expect(copy).toBeEnabled();
   await page.getByLabel("Yêu cầu riêng để thêm vào prompt").fill("No external database");
