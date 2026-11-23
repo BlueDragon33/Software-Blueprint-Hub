@@ -88,5 +88,22 @@
     "enabled": false,
     "activeGraphTransport": false,
     "gateApproval": "PENDING"
+  },
+  "c31Composition": {
+    "status": "INTERNAL_COMPOSITION_SOURCE_ONLY",
+    "module": "apps/web/src/server/graph-read-composition.candidate.mjs",
+    "proof": "P256_ES256_WITH_INJECTED_SPki_PINS",
+    "nonce": "INJECTED_ATOMIC_SQL_CANDIDATE_NOT_MIGRATED",
+    "authorization": "EXISTING_HUB_PROJECT_READ_LOADER_REQUIRED",
+    "audience": "INJECTED_PROJECT_AUDIENCE_NOT_APPROVED",
+    "returnsRawNodes": false,
+    "returnsOnlyProjectCountsAndFingerprint": true,
+    "canReadGraphExternally": false,
+    "publicRoute": null,
+    "identityAccepted": false,
+    "actualPgConcurrencyQa": "NOT_RUN",
+    "authenticatedCandidateBrowserQa": "NOT_RUN",
+    "reviewers": "PENDING",
+    "enabled": false
   }
 }
