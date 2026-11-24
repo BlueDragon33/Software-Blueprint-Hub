@@ -1475,7 +1475,12 @@ test("Pinned constitutional prompt support follows owner P0/P1 direction with re
       path: `artifacts/constitutional-support-${width}-top-${testInfo.project.name}.png`,
       fullPage: true
     });
-    await support.evaluate(el => { el.scrollTop = el.scrollHeight; });
+    const noNestedScroll = await support.evaluate(
+      el => el.scrollHeight <= el.clientHeight + 1
+    );
+    expect(noNestedScroll).toBe(true);
+    await next.scrollIntoViewIfNeeded();
+    await expect(next).toBeInViewport();
     await page.screenshot({
       path: `artifacts/constitutional-support-${width}-prompt-${testInfo.project.name}.png`,
       fullPage: true
