@@ -4,7 +4,10 @@ const exactRevision = /^[a-f0-9]{40}$/;
 
 /** Only a fresh, clean local production build may supply this provenance. */
 export function localPublicationBuildRevision(cwd: string): string {
-  const gitEnv = Object.fromEntries(Object.entries(process.env).filter(([name]) => !/^GIT_/i.test(name)));
+  const gitEnv = { ...process.env };
+  for (const name of Object.keys(gitEnv)) {
+    if (/^GIT_/i.test(name)) delete gitEnv[name];
+  }
   const git = (...args: string[]) => execFileSync("git", args, {
     cwd, encoding: "utf8", timeout: 10000, windowsHide: true,
     env: { ...gitEnv, GIT_OPTIONAL_LOCKS: "0" }
