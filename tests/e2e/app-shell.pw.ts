@@ -504,7 +504,7 @@ test("canonical project workspace has stable truthful views", async ({
   ).toBeVisible();
 
   await expect(
-    page.getByRole("link", { name: "Guided project setup" })
+    page.getByRole("link", { name: "Tạo dự án" })
   ).toHaveAttribute("href", "/projects/new");
 
   await page.screenshot({
