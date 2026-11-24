@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "candidateId": "active-next-action-chat-001",
-  "contractVersion": "2.6.1-candidate",
+  "contractVersion": "2.6.2-candidate",
   "status": "PROPOSED_ONLY",
   "authority": {
     "policyId": "blueprint-os:universal-century-grade",
@@ -203,7 +203,9 @@
         "requestedChange",
         "constraints",
         "acceptanceEvidence"
-      ]
+      ],
+      "unsupportedUploadUI": "NO_REFERENCE_NAME_FIELD_OR_FAKE_UPLOAD_CONTROL",
+      "nativeUploadFallback": "HOST_COMPOSER_WITH_ACTUAL_FILE_CONTEXT"
     },
     "inputStability": {
       "compositionSafe": true,
@@ -224,6 +226,15 @@
         "treatAsUntrustedData": true,
         "neverExecutePastedOutput": true,
         "reviewBindingRequired": true
+      },
+      "inlineGuidance": {
+        "placement": "REQUIREMENTS_PLACEHOLDER",
+        "source": "CURRENT_CHECKPOINT_AND_UNRESOLVED_WORK",
+        "placeholderIsInput": false,
+        "defaultValueEmpty": true,
+        "hideOnTyping": true,
+        "noSeparateSuggestionControls": true,
+        "stableDuringEditing": true
       }
     }
   },
