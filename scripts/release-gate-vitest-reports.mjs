@@ -21,7 +21,11 @@ function counts(report) {
 }
 export function combineReleaseVitestReports(publicReport, privateReport) {
   const pub = counts(publicReport);
-  if (privateReport === undefined) return pub;
+  if (privateReport === undefined) {
+    const suites = publicReport.testResults.filter(file => isPrivate(file.name));
+    if (suites.length !== 1 || suites[0].assertionResults.length !== 8) throw new Error("Unpartitioned gate requires all eight private bridge test records");
+    return pub;
+  }
   if (publicReport.testResults.some(file => isPrivate(file.name))) throw new Error("Private suite already present in public partition");
   const priv = counts(privateReport);
   if (privateReport.testResults.length !== 1 || !isPrivate(privateReport.testResults[0].name) || privateReport.numTotalTests !== 8 || priv.passed !== 8 || priv.failed !== 0 || priv.skipped !== 0) throw new Error("Exact eight private bridge tests did not pass");
