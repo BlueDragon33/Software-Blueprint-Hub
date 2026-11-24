@@ -4,12 +4,18 @@ const exactRevision = /^[a-f0-9]{40}$/;
 
 /** Only a fresh, clean local production build may supply this provenance. */
 export function localPublicationBuildRevision(cwd: string): string {
+  const gitEnv = Object.fromEntries(Object.entries(process.env).filter(([name]) => !/^GIT_/i.test(name)));
   const git = (...args: string[]) => execFileSync("git", args, {
     cwd, encoding: "utf8", timeout: 10000, windowsHide: true,
-    env: { ...process.env, GIT_OPTIONAL_LOCKS: "0" }
+    env: { ...gitEnv, GIT_OPTIONAL_LOCKS: "0" }
   }).trim();
-  const revision = git("rev-parse", "--verify", "HEAD^{commit}");
-  if (!exactRevision.test(revision) || git("status", "--porcelain=v1", "--untracked-files=all") !== "") {
+  const root = git("rev-parse", "--show-toplevel");
+  const index = git("-C", root, "ls-files", "-v", "-z");
+  if (index.split("\0").some(entry => /^[a-zS] /.test(entry))) {
+    throw new Error("Local constitution publication requires a complete visible Git index");
+  }
+  const revision = git("-C", root, "rev-parse", "--verify", "HEAD^{commit}");
+  if (!exactRevision.test(revision) || git("-C", root, "-c", "core.fsmonitor=false", "status", "--porcelain=v1", "--untracked-files=all") !== "") {
     throw new Error("Local constitution publication requires a clean exact Git checkout");
   }
   return revision;

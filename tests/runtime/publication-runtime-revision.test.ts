@@ -38,6 +38,26 @@ describe("provider-neutral local publication provenance", () => {
       expect(() => localPublicationBuildRevision(dir)).toThrow(/clean exact Git checkout/);
       rmSync(join(dir, "untracked.txt"));
       expect(localPublicationBuildRevision(dir)).toBe(sha);
+      git("update-index", "--assume-unchanged", "app/source.txt");
+      writeFileSync(join(dir, "app", "source.txt"), "hidden change\n");
+      expect(git("status", "--porcelain=v1")).toBe("");
+      expect(() => localPublicationBuildRevision(join(dir, "app"))).toThrow(/complete visible Git index/);
+      git("update-index", "--no-assume-unchanged", "app/source.txt");
+      git("restore", "app/source.txt");
+      git("update-index", "--skip-worktree", "app/source.txt");
+      expect(() => localPublicationBuildRevision(dir)).toThrow(/complete visible Git index/);
+      git("update-index", "--no-skip-worktree", "app/source.txt");
+      const previous = { GIT_DIR: process.env.GIT_DIR, GIT_WORK_TREE: process.env.GIT_WORK_TREE };
+      try {
+        process.env.GIT_DIR = join(dir, "nonexistent.git");
+        process.env.GIT_WORK_TREE = join(dir, "nonexistent");
+        expect(localPublicationBuildRevision(dir)).toBe(sha);
+      } finally {
+        for (const [key, value] of Object.entries(previous)) {
+          if (value === undefined) delete process.env[key];
+          else process.env[key] = value;
+        }
+      }
     } finally { rmSync(dir, { recursive: true, force: true }); }
   });
 });
