@@ -1454,7 +1454,9 @@ test("Pinned constitutional prompt support follows owner P0/P1 direction with re
   for (const width of [1440, 800, 390]) {
     await page.setViewportSize({ width, height: 820 });
     const title = support.getByRole("heading", { name: "Bảng hỗ trợ điều hướng" });
-    await title.scrollIntoViewIfNeeded();
+    // Center the heading before testing occlusion: a top-aligned scroll can
+    // land beneath the global sticky navbar without the control being defective.
+    await title.evaluate(el => el.scrollIntoView({ block: "center", inline: "nearest" }));
     await expect(title).toBeVisible();
     const unobscuredHeading = await title.evaluate(el => {
       const rect = el.getBoundingClientRect();
