@@ -125,7 +125,7 @@ test("cross-project repeated defect proposes tests but never self-trains weights
   assert.equal(r.automaticTraining,false);
   assert.equal(r.qualityThresholdModified,false);
   assert.equal(r.trend.firstAttemptFixPct.state,"INSUFFICIENT_SAMPLE");
-  const one={...data,events:data.events.map(x=>({...x,repository:"BlueDragon33/RU_LIFE"}))};
+  const one={...data,events:data.events.map(x=>({...x,repository:"BlueDragon33/RU_LIFE",evidenceUrl:"https://github.com/BlueDragon33/RU_LIFE/issues/159"}))};
   assert.deepEqual(learnFromFeedback(policy,one,"2026-11-24").proposedImprovements,[]);
 });
 test("feedback is append-only in intent: reject duplicates, future timestamps and invented source",()=>{
