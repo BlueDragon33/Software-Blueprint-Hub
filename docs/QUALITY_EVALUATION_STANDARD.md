@@ -60,7 +60,29 @@ node scripts/evaluate-quality-evidence.mjs learn path/to/feedback.json --at 2026
 - Compare real p50/p95, memory/CPU, online request volume and accessibility before/after in applicable project-specific QA. The p95 gate requires matched baseline/candidate samples; don't claim online load reduction without counted requests.
 - Reviewer can accept/reject proposed regression patterns. After bounded verified fixes, update the canonical incident, add tests in its correct owning repo and record the versioned revision. Evaluate each proposal's *future* false-negative/reopen rate before adopting any threshold change through the existing Constitution/QualityGate change process.
 
-**This is deterministic experience-based improvement**, not model-weight retraining, automatic threshold drift or a claim that software can become error-free. Zero defects is a goal, never a guarantee.
+**This is deterministic experience-based improvement**, not model-weight retraining, automatic threshold drift or a claim that software can become error-free.
+
+### GitHub intake with no new database, bot or background service
+
+[Hub Issue #159](https://github.com/BlueDragon33/Software-Blueprint-Hub/issues/159#issuecomment-7133943160) now contains four **source-linked open incidents** in explicit \`BLUEPRINT_QUALITY_FEEDBACK_V1\` JSON comment blocks (three recurring evidence-scope mistakes across Bauman/RU_LIFE/Health, plus one hidden Chromium exception). These are initial historical signals, not closure approvals or fabricated model training. The read-only intake \`scripts/collect-quality-feedback-from-github.mjs\` reads the one canonical issue through the GitHub REST API, validates each event and returns advisory proposals:
+
+\`\`\`sh
+node scripts/collect-quality-feedback-from-github.mjs --at 2026-11-24
+\`\`\`
+
+When the proposed workflow is approved into the Hub's main branch, **new properly structured comments on Issue #159** (or an authorized manual workflow run) will trigger a short GitHub Actions read-only recalculation. Draft PR CI additionally runs this on the exact candidate SHA so this ingestion is exercised against the real canonical source before adoption. No cron daemon, paid external connector, project-mirror database or automatic source write is introduced. GitHub token receives **read-only contents/issues** permissions; it never creates a GitHub review or publishes a package. The event must include a source-appropriate repository URL, exact SHA and truthful \`closed\` state; unresolved Draft fixes are excluded from closed-issue success rates.
+
+Example authorized feedback marker to add as an **existing Issue #159 comment** after a real finding is evidenced:
+
+\`\`\`text
+<!-- BLUEPRINT_QUALITY_FEEDBACK_V1
+{"id":"20261124-example-01","repository":"BlueDragon33/RU_LIFE","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","date":"2026-11-24","category":"qa-evidence-scope-mismatch","evidenceUrl":"https://github.com/BlueDragon33/RU_LIFE/issues/1","closed":false,"firstAttemptFixed":false,"reopened":false,"regressionIntroduced":false}
+-->
+\`\`\`
+
+This example is **synthetic**; do not post it as an actual incident. Only provenance-backed facts enter the real journal. A pattern proposal needs human change control and held-out regression confirmation before gaining a new mandatory rule.
+
+ Zero defects is a goal, never a guarantee.
 
 ## Bauman #372 example — limit cannot be overridden
 
