@@ -1,0 +1,184 @@
+{
+  "schemaVersion": "1.0.0",
+  "standardId": "blueprint-quality-evidence-scorecard-v1",
+  "constitutionalSource": "BlueDragon33/Software-Blueprint-Hub@ACTIVE-1.3.0",
+  "adoption": "PROPOSAL_ONLY_UNTIL_GOVERNED_APPROVAL",
+  "scope": "all-current-and-future-governed-projects; project-specific applicability with explicit N/A reasons",
+  "relationship": "additional evidence analysis for existing WorkPackage/QualityGate/GateEvidence; never independent reviewer, ratification or release authority",
+  "candidateScoreThreshold": 90,
+  "scoreIsNotReviewOrReleaseAuthorization": true,
+  "requiredSourceRevision": "40-character SHA equals expected GitHub PR head at execution; no synthetic merge HEAD",
+  "applicableScopes": [
+    "source",
+    "browser_local",
+    "offline_full",
+    "release_candidate"
+  ],
+  "scopeMustEnable": {
+    "browser_local": [
+      "browser"
+    ],
+    "offline_full": [
+      "browser",
+      "offlineFull",
+      "persistence"
+    ],
+    "release_candidate": [
+      "releaseCandidate"
+    ]
+  },
+  "featureFlags": [
+    "browser",
+    "performance",
+    "offlineFull",
+    "persistence",
+    "releaseCandidate"
+  ],
+  "metrics": [
+    {
+      "id": "traceable_evidence_ratio",
+      "weight": 10,
+      "when": "always",
+      "test": "min",
+      "limit": 1,
+      "critical": true
+    },
+    {
+      "id": "required_ci_pass_ratio",
+      "weight": 12,
+      "when": "always",
+      "test": "min",
+      "limit": 1,
+      "critical": true
+    },
+    {
+      "id": "p0_p1_open_count",
+      "weight": 12,
+      "when": "always",
+      "test": "max",
+      "limit": 0,
+      "critical": true
+    },
+    {
+      "id": "critical_security_open_count",
+      "weight": 12,
+      "when": "always",
+      "test": "max",
+      "limit": 0,
+      "critical": true
+    },
+    {
+      "id": "regression_failure_count",
+      "weight": 12,
+      "when": "always",
+      "test": "max",
+      "limit": 0,
+      "critical": true
+    },
+    {
+      "id": "new_duplicate_logic_count",
+      "weight": 6,
+      "when": "always",
+      "test": "max",
+      "limit": 0,
+      "critical": true
+    },
+    {
+      "id": "uncaught_browser_errors",
+      "weight": 6,
+      "when": "browser",
+      "test": "max",
+      "limit": 0,
+      "critical": true
+    },
+    {
+      "id": "critical_journey_pass_ratio",
+      "weight": 6,
+      "when": "browser",
+      "test": "min",
+      "limit": 1,
+      "critical": true
+    },
+    {
+      "id": "critical_a11y_findings",
+      "weight": 5,
+      "when": "browser",
+      "test": "max",
+      "limit": 0,
+      "critical": true
+    },
+    {
+      "id": "p95_latency_regression_pct",
+      "weight": 5,
+      "when": "performance",
+      "test": "max",
+      "limit": 10,
+      "critical": true,
+      "minSamples": 10
+    },
+    {
+      "id": "offline_cold_start_pass_ratio",
+      "weight": 5,
+      "when": "offlineFull",
+      "test": "min",
+      "limit": 1,
+      "critical": true
+    },
+    {
+      "id": "local_save_restart_restore_pass_ratio",
+      "weight": 5,
+      "when": "persistence",
+      "test": "min",
+      "limit": 1,
+      "critical": true
+    },
+    {
+      "id": "rollback_recovery_pass_ratio",
+      "weight": 4,
+      "when": "releaseCandidate",
+      "test": "min",
+      "limit": 1,
+      "critical": true
+    }
+  ],
+  "trendTargets": {
+    "firstAttemptFixPct": {
+      "min": 85,
+      "minClosed": 20
+    },
+    "reopenedIssuePct": {
+      "max": 5,
+      "minClosed": 20
+    },
+    "regressionsPer100ClosedChanges": {
+      "max": 2,
+      "minClosed": 30
+    },
+    "p95LatencyRegressionPct": {
+      "max": 10,
+      "minComparableSamples": 10
+    }
+  },
+  "learningPolicy": {
+    "windowDays": 90,
+    "minimumEventsForRecurringPattern": 3,
+    "minimumIndependentRepositories": 2,
+    "requireExactRevisionAndEvidenceUrl": true,
+    "proposalOnly": true,
+    "feedbackMustNotChangeConstitutionOrThresholds": true,
+    "noAutomaticApprovalsOrCodeEdits": true,
+    "noLLMWeightTrainingOrClaimsOfModelRetraining": true,
+    "recommendedOutput": "draft test/regression improvement with source-linked evidence and independent evaluation"
+  },
+  "failClosed": {
+    "rejectMissingRequiredEvidence": true,
+    "rejectUnjustifiedNotApplicable": true,
+    "rejectUnknownMetricIds": true,
+    "rejectSyntheticMergeShaWhenExpectedHeadProvided": true,
+    "rejectUnverifiedSampleCount": true,
+    "blockAnyFailedCriticalMetric": true,
+    "neverIssueCanonicalQualityGatePass": true,
+    "neverIssueIndependentReviewPass": true,
+    "neverIssueProductionApproval": true
+  }
+}
