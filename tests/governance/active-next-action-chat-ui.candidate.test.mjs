@@ -22,3 +22,45 @@ test("mainline R15–R22 retain original obligations",()=>{for(let n=15;n<=22;n+
 test("v2 visual controls cannot regress to a primary-only CTA",()=>{assert.equal(contract.presentation.summaryRequired,true);assert.equal(contract.presentation.showPrimaryAndSecondaryWhenHostSupports,true);assert.equal(contract.presentation.secondaryOptionalToUse,true);assert.equal(contract.presentation.primaryOnlyDoesNotPassV2UX,true);assert.match(instructions,/Always show both controls/);assert.match(proposal,/single primary-only button/);});
 test("observed revision and UX truth are mandatory",()=>{assert.equal(contract.presentation.observedRevisionMustBeRevalidated,true);assert.equal(contract.presentation.currentWorkAndQaStatusGrounded,true);assert.equal(contract.presentation.falseLiveProgressForbidden,true);assert.equal(contract.presentation.unknownStateLabel,"UNVERIFIED");});
 test("preview, close, advanced mode and user supplement remain honest",()=>{assert.equal(contract.presentation.closeOrPreviewTriggersExecution,false);assert.equal(contract.presentation.advancedModesAffectSubmittedPrompt,true);assert.equal(contract.presentation.mandatoryCheckbox,false);assert.equal(contract.presentation.accessibleKeyboardAndTouch,true);});
+
+const deliveryPlan=readFileSync(new URL("../../projects/blueprint-os/END_TO_END_COMPLETION_PROGRAM.v1.md",import.meta.url),"utf8");
+test("each substantive project response must retain BOTH main support actions, not only first reply",()=>{
+  assert.equal(contract.status,"PROPOSED_ONLY");
+  assert.equal(contract.presentation.perSubstantiveProjectResponse,true);
+  assert.deepEqual(contract.presentation.requiredVisibleActionsWhenHostSupports,["Theo Hiến pháp","Tạo prompt tiếp theo"]);
+  assert.equal(contract.presentation.repeatTurnRegressionMinimum>=3,true);
+  assert.equal(contract.presentation.singlePrimaryActionInsufficient,true);
+  assert.equal(contract.presentation.missingNativeHostControlRequiresHonestFallback,true);
+  assert.match(instructions,/after EVERY substantive project response/);
+  assert.match(instructions,/after the third reply/);
+});
+test("copy versus execute are not confused with background execution or approval",()=>{
+  assert.deepEqual(contract.presentation.conditionalPromptActions,["Sao chép","Thực hiện tiếp"]);
+  assert.equal(contract.presentation.continuationRequiresExplicitGesture,true);
+  assert.equal(contract.presentation.promptApprovalNotProtectedAuthority,true);
+  assert.equal(contract.presentation.requestSupplementMustAffectResult,true);
+  assert.equal(contract.scope.hostButtonInstallationByRepository,false);
+  assert.equal(contract.scope.externalHubCanSendChatTurn,false);
+  assert.match(instructions,/copies/);
+  assert.match(instructions,/submits/);
+});
+test("two independent rubrics A and B represent product quality rather than reviewers",()=>{
+  assert.deepEqual(contract.presentation.twoIndependentQualityAxes,["technical","user_value"]);
+  assert.equal(contract.presentation.twoQualityAxesAreNotTwoReviewPeople,true);
+  assert.match(instructions,/two evaluation axes, NOT two reviewer people/);
+  assert.match(deliveryPlan,/A = engineering durability/);
+  assert.match(deliveryPlan,/B = real user value/);
+});
+test("end-to-end program has one continuous critical path and evidence-controlled stages",()=>{
+  for(let i=0;i<10;i++)assert.match(deliveryPlan,new RegExp("\\| M"+i+" \\|"));
+  for(const word of ["ACTIVE","BLOCKED","UNVERIFIED","QualityGate","Issue #159","P0","P1","exact SHA","user","offline"])assert.ok(deliveryPlan.includes(word),word);
+  assert.match(deliveryPlan,/not DONE until/);
+  assert.equal(contract.presentation.noProgressPercentWithoutWeightedAcceptedEvidence,true);
+  assert.equal(contract.authority.productionAuthority,false);
+});
+test("response guidance disallows overclaiming native host UI installation",()=>{
+  assert.match(instructions,/A GitHub commit cannot install persistent ChatGPT host buttons/);
+  assert.match(instructions,/real user turn/);
+  assert.match(instructions,/No.*fake|not.*installed|host cannot/i);
+  assert.equal(contract.presentation.missingNativeHostControlRequiresHonestFallback,true);
+});
