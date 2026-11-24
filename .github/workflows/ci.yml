@@ -521,6 +521,7 @@ jobs:
         shell: bash
         run: |
           test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+          echo "CONSTITUTIONAL_SUPPORT_QA_SOURCE=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "CONSTITUTIONAL_SUPPORT_QA_SOURCE=$(git rev-parse HEAD)"
       - uses: pnpm/action-setup@v6
         with:
@@ -538,7 +539,7 @@ jobs:
           pnpm db:migrate:deploy
       - name: Run canonical source prompt builder and component SSR tests
         run: |
-          node --test tests/web/constitutional-prompt-builder.candidate.test.mjs
+          node --test tests/web/constitutional-prompt-builder.candidate.test.mjs tests/web/constitutional-navigation-support.standard.test.mjs
           pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts tests/web/universal-next-action-v2.test.tsx
       - name: Typecheck and build Next.js from exact source
         run: |
@@ -551,12 +552,20 @@ jobs:
       - name: Authenticated desktop/tablet/mobile prompt panel acceptance
         run: |
           mkdir -p artifacts
-          pnpm exec playwright test --grep "Pinned constitutional prompt support supports review-only flow"
+          pnpm exec playwright test --grep "Pinned constitutional prompt support follows owner P0/P1 direction"
       - name: Verify three-device QA and no release authority
         run: |
           node --input-type=module -e '
             import fs from "node:fs";
             const p=JSON.parse(fs.readFileSync("artifacts/playwright-results.json","utf8"));
             if(p.stats.unexpected!==0 || p.stats.skipped!==0 || p.stats.flaky!==0 || p.stats.expected!==3) throw Error("Expected exact 3-device Chromium pass, no skips/failures");
-            console.log(JSON.stringify({head:process.env.GITHUB_SHA,chromiumPassed:3,releaseAuthorized:false,productionChanged:false}));
+            console.log(JSON.stringify({sourceHead:process.env.CONSTITUTIONAL_SUPPORT_QA_SOURCE,chromiumPassed:3,releaseAuthorized:false,productionChanged:false}));
           '
+      - name: Upload synthetic constitutional support screenshots (QA only)
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: constitutional-support-screenshots-${{ github.event.pull_request.head.sha }}
+          path: artifacts/constitutional-support-*.png
+          if-no-files-found: warn
+          retention-days: 1

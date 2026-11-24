@@ -1408,34 +1408,48 @@ test("Graph Studio shares the authenticated project's canonical Next Action, wit
   });
 });
 
-test("Pinned constitutional prompt support supports review-only flow and viewport navigation", async ({
+test("Pinned constitutional prompt support follows owner P0/P1 direction with review-only gating", async ({
   page
 }, testInfo) => {
   await authenticateRegistryOwner(page);
   await page.goto("/projects/project%3Ap6-registry-beta");
-  const support = page.getByRole("region", { name: "Bảng nút dùng ngay cho công việc hiện tại" });
+  const support = page.getByRole("region", { name: "Bảng hỗ trợ điều hướng" });
   await expect(support).toBeVisible();
   await expect(support.getByRole("link", { name: /Theo Hiến pháp/ })).toHaveAttribute(
     "href", "/constitution#constitution-authority-set-title"
   );
+  const choices = support.getByRole("radio");
+  await expect(choices).toHaveCount(3);
+  await expect(support.getByRole("radio", { name: /Chưa nghiệm thu/ })).toBeChecked();
   const generate = support.getByRole("button", { name: /Tạo prompt tiếp theo/ });
   await expect(generate).toBeEnabled();
-  const requirements = support.getByLabel("Thêm yêu cầu riêng");
+  const requirements = support.getByLabel("Yêu cầu riêng");
   await requirements.fill("Kiểm tra desktop, tablet, mobile; không cấp quyền Production.");
   await generate.click();
-  const draft = support.getByLabel(/Bản nháp — có thể chỉnh sửa trước khi duyệt/);
+  const draft = support.getByLabel(/Prompt được tạo/);
   await expect(draft).toHaveValue(/không cấp quyền Production/);
-  const approve = support.getByRole("button", { name: "Duyệt nội dung prompt" });
-  const copy = support.getByRole("button", { name: "Sao chép prompt đã duyệt" });
+  await expect(draft).toHaveValue(/USER DIRECTION.*Chưa nghiệm thu/);
+  const approve = support.getByRole("button", { name: /duyệt prompt/i });
+  const copy = support.getByRole("button", { name: /Sao chép/ });
+  const next = support.getByRole("button", { name: /Thực hiện tiếp/ });
   await expect(copy).toBeDisabled();
+  await expect(next).toBeDisabled();
   await approve.click();
   await expect(copy).toBeEnabled();
+  await expect(next).toBeEnabled();
   await draft.fill((await draft.inputValue()) + "\nBổ sung kiểm tra tương phản.");
   await expect(copy).toBeDisabled();
+  await expect(next).toBeDisabled();
   await approve.click();
   await expect(copy).toBeEnabled();
-  await requirements.fill("Yêu cầu đã thay đổi — phải tạo và duyệt lại.");
+  // Changing direction invalidates approval and the generated draft.
+  await support.getByRole("radio", { name: /Ưu tiên độ chân thực P1/ }).check();
   await expect(copy).toHaveCount(0);
+  await generate.click();
+  await expect(draft).toHaveValue(/Ưu tiên độ chân thực P1 sau khi P0 được xác minh/);
+  await expect(copy).toBeDisabled();
+  await approve.click();
+  await expect(copy).toBeEnabled();
   for (const width of [1440, 800, 390]) {
     await page.setViewportSize({ width, height: 820 });
     await expect(page.getByRole("link", { name: /Tạo prompt tiếp theo/ }).first()).toBeVisible();
@@ -1444,10 +1458,18 @@ test("Pinned constitutional prompt support supports review-only flow and viewpor
       el => el.scrollWidth <= el.clientWidth + 1
     );
     expect(noPanelOverflow).toBe(true);
+    await support.evaluate(el => { el.scrollTop = 0; });
     await page.screenshot({
-      path: `artifacts/constitutional-support-${width}-${testInfo.project.name}.png`,
+      path: `artifacts/constitutional-support-${width}-top-${testInfo.project.name}.png`,
+      fullPage: true
+    });
+    await support.evaluate(el => { el.scrollTop = el.scrollHeight; });
+    await page.screenshot({
+      path: `artifacts/constitutional-support-${width}-prompt-${testInfo.project.name}.png`,
       fullPage: true
     });
   }
+  await requirements.fill("Yêu cầu đã thay đổi — phải tạo và duyệt lại.");
+  await expect(copy).toHaveCount(0);
   await expect(page.getByText(/Agent đang chạy/)).toHaveCount(0);
 });
