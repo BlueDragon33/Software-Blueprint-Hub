@@ -42,7 +42,7 @@ test("copy versus execute are not confused with background execution or approval
   assert.equal(contract.scope.hostButtonInstallationByRepository,false);
   assert.equal(contract.scope.externalHubCanSendChatTurn,false);
   assert.match(instructions,/copies/);
-  assert.match(instructions,/submits/);
+  assert.match(instructions,/submit a real user turn/);
 });
 test("two independent rubrics A and B represent product quality rather than reviewers",()=>{
   assert.deepEqual(contract.presentation.twoIndependentQualityAxes,["technical","user_value"]);
