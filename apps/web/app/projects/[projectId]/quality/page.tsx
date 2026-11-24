@@ -4,6 +4,8 @@ import {
 } from "../_components/project-workspace";
 import { loadProjectWorkspace } from "../../../../src/server/project-workspace";
 import { QualityGateRegister } from "./quality-gate-register";
+import { readProjectQualityReview } from "../../../../src/server/project-quality-review";
+import { classifyCanonicalReadFailure } from "../../../../src/server/runtime-state";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +23,14 @@ export default async function ProjectQualityPage({
     return <ProjectWorkspaceState state={workspace.state} />;
   }
 
-  const gateModels = await workspace.runtime.workQuality.listQualityGates(
-    workspace.actor,
-    workspace.projectId
-  );
+  let review: Awaited<ReturnType<typeof readProjectQualityReview>>;
+  try {
+    review = await readProjectQualityReview(workspace.runtime, workspace.actor, workspace.projectId);
+  } catch (error) {
+    return <ProjectWorkspaceState state={classifyCanonicalReadFailure(error)} />;
+  }
+  const { gateModels, canReview } = review;
+  const requiredTemplates = workspace.project.blueprint.requiredGates;
 
   const pass = gateModels.filter((item) => item.gate.status === "pass").length;
   const candidate = gateModels.filter(
@@ -50,6 +56,26 @@ export default async function ProjectQualityPage({
           </p>
         </div>
         <span className="status-chip status-chip-success">Canonical</span>
+      </section>
+
+      <section className="workspace-section" aria-label="Project review access">
+        <div className="workspace-section-heading">
+          <div>
+            <p className="section-kicker">Review access</p>
+            <h3>{canReview ? "PROJECT_REVIEW verified for this read" : "Read only — PROJECT_REVIEW not granted"}</h3>
+            <p>Project: <code>{workspace.projectId}</code></p>
+            <p>Permission is checked on the server for this session. This is not acceptance, evidence verification or release authority.</p>
+          </div>
+          <span className={"status-chip " + (canReview ? "status-chip-info" : "status-chip-neutral")}>
+            {canReview ? "Review permission" : "Read only"}
+          </span>
+        </div>
+        <p>{gateModels.length ? "Canonical instance IDs and record versions are shown below." : "No canonical gate instances recorded. Do not substitute template IDs."}</p>
+        <details className="canonical-disclosure quality-disclosure">
+          <summary>Required blueprint gate keys ({requiredTemplates.length}) — not instance IDs</summary>
+          <ul>{requiredTemplates.map((id) => <li key={id}><code>{id}</code></li>)}</ul>
+          <p>Repository binding, template-to-instance mapping and revision coverage require separate verification. No review submission is enabled in this read-only slice.</p>
+        </details>
       </section>
 
       <section className="workspace-fact-grid" aria-label="Quality summary">

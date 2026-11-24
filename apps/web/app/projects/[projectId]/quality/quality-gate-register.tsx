@@ -92,7 +92,7 @@ export function QualityGateRegister({
               <div className="workspace-work-card-heading">
                 <div>
                   <h4>{gate.name}</h4>
-                  <span>{gate.id}</span>
+                  <span>{gate.id} · record version {gate.meta.recordVersion}</span>
                 </div>
                 <span className={"status-chip " + statusClass(gate.status)}>
                   {statusLabel(gate.status)}
