@@ -1,91 +1,102 @@
-# Blueprint OS — Evidence Quality Scorecard v1 (Cross-Project)
+# Blueprint OS — Two Independent Quality Evaluation Standards (A/B) v1
 
-**Status:** PROPOSED operational quality evaluator on a Draft PR. **Constitution ACTIVE 1.3.0 remains normative**. This is a measurable supplement to the existing canonical **WorkPackage → QualityGate → GateEvidence** chain, not a new constitution, review authority, quality database or second governance ledger. The portfolio journal remains [Hub Issue #159](https://github.com/BlueDragon33/Software-Blueprint-Hub/issues/159). Source: \`control/quality-evaluation-standard.v1.json\`.
+**Status: DRAFT operational proposal; NOT ACTIVE, NOT RATIFIED.** The ACTIVE 1.3.0 Constitution and the existing WorkPackage / QualityGate / GateEvidence system remain the only normative implementation/release owners. This document specifies **TWO INDEPENDENT RUBRICS**, **NOT two human reviewers**. “A/B” here always refers to two distinct dimensions of what makes a product worth building. A technical engineer or a human user can supply evidence in their domain; nobody's job title substitutes for measurable success.
 
-## Objective: progressively fewer real defects, stronger proof — not easier green labels
+- **A = Technical Excellence & Century-Scale Design**: Is it correct, cohesive, stable, maintainable, reproducible, safe, recoverable and efficient through upgrades, faults and changing dependencies?
+- **B = User Value & Problem Resolution**: Why does it exist? Whose real problem does it solve? Does it actually improve their task, accuracy, time, cost, clarity and experience, based on observed use rather than a developer's assumption?
 
-The user's engineering goal is increasingly reliable, fast, comprehensible and offline-capable applications. A candidate must be measured, not judged by vague appearance or a model saying "looks fine". Evidence belongs to an exact SHA, defined scope, reproducible run and truthful unresolved blockers. Each project has its own features and risks, but shared rules must not be quietly relaxed.
+**Acceptance requires both A and B independently meeting their own standards.** No average of A+B, no “beautiful but broken”, no “perfect engineering but nobody needs it”. The scorecard cannot confer constitutional review, merge or Production authority.
 
-### 13 measurable controls (100 baseline points)
+## A — Technical Quality (12 controls; 100 points)
 
-| Criterion | Weight | Passing threshold | Applicability |
+| Criterion | Weight | PASS threshold | Proof required |
 |---|---:|---|---|
-| Evidence with identifiable source & test coverage | 10 | 100% | All |
-| Required CI checks successful | 12 | 100% | All |
-| Open P0/P1 defects | 12 | 0 | All |
-| Open critical security findings | 12 | 0 | All |
-| Regression test failures | 12 | 0 | All |
-| Newly duplicated business logic | 6 | 0 | All |
-| Unhandled browser errors | 6 | 0 | Browser |
-| Critical user journeys verified | 6 | 100% | Browser |
-| Critical accessibility failures | 5 | 0 | Browser |
-| p95 latency change versus matched baseline | 5 | <= +10%, >=10 comparable samples each | Performance-affected |
-| Real disconnected cold-start journey | 5 | 100% | Full-offline claim |
-| Local save + restart + restore | 5 | 100% | Persistence claim |
-| Rollback/recovery drill | 4 | 100% | Release candidate |
+| Specification and contract coverage | 10 | 100% of in-scope requirements have executable or verifiable checks | Requirement-to-test matrix; versioned SHA |
+| Conflicting sources of truth | 8 | 0 active contradictory canonical values/rules | Ownership map; cross-module negative tests |
+| Critical regression tests | 12 | 100% pass at candidate SHA | Reproduction + before/after CI; no test suppression |
+| Open P0/P1 defects | 12 | 0 | Issue/incident ledger cross-check |
+| Open critical security findings | 10 | 0 | Security/negative authorization evidence |
+| State consistency, sync/concurrency invariants | 10 | 0 violations | CAS/idempotency/replay/version/conflict tests |
+| Restart/crash recovery | 10 | 100% of declared critical recovery journeys pass | Fault -> restart -> recover same state |
+| Migration, backup and restore | 10 | 100% of applicable source-critical paths pass | Versioned migration, rollback, restore, corruption cases |
+| Fault-injection endurance | 6 | 100% pass across ≥30 trials | Network loss, stale cache, retries, quota, partial failure; no forced manual reset |
+| Matched p95 performance regression | 5 | ≤+10% latency, ≥10 baseline + ≥10 candidate samples | Repeatable requests/render, same fixture and environment |
+| Incident observability | 4 | 100% of critical faults traceable with sanitized logs/status | Actual event/operation log with no secret exposure |
+| Offline core journeys **if claimed** | 3 | 100% of in-scope journeys pass disconnected | Genuine offline test; app-specific boundaries |
 
-**Score:** \`100 × sum(weight of applicable passed criteria) / sum(applicable weights)\`; passing candidate threshold **>=90**. All applicable **critical criteria must independently pass**; a 96-point score *never* cancels a P0, security finding, accessibility failure, unknown provenance or skipped gate. Insufficient sample, missing criterion, invalid SHA, untraceable evidence or unjustified N/A = **BLOCKED**. The scoring engine does not query GitHub links or attest that submitter evidence is real: its output is explicitly **SELF_REPORTED_CRITERIA_MET**, not independently verified QualityGate PASS.
+Total = 100. A must score ≥90; **every critical control also must pass independently**. Missing evidence, false N/A and incorrect SHA block the result even if nominal score ≥90. All percentages use an explicit numerator/denominator; claims without matched baseline or required sample size are unverified.
 
-**Scope choices:** \`source\`, \`browser_local\`, \`offline_full\`, \`release_candidate\`. A project supplies truthful applicability flags and a specific reason for each nonapplicable metric. Scope \`browser_local\` requires browser tests. \`offline_full\` requires browser, offline cold-start and persistence tests; localhost-with-server PASS cannot fill them. Online-by-design parts such as remote identity, server-issued authority and the existing BOIECH_AI online exception are declared by feature, not faked as offline. Desktop/robotics/hardware use relevant native tests; this policy does not impose identical app architecture.
+**“100 years without reset” is an architectural direction, not a claim of 100 years of demonstrated uptime.** It means no routine user reset or destructive clean-slate operation to keep functioning: forward-compatible data, schema migrations with reversibility, portable formats and dependency replacement, crash-recoverable writes, backup and integrity checks, observability, bounded retries and reproducible releases. Test faults and migrations regularly; do not invent century-long operating evidence. A bug-free guarantee is not scientifically credible.
 
-### Example usage (GitHub or Node24, no external service)
+## B — User Value & Outcome (10 controls; 100 points)
 
-The evaluator is dependency-free and reads a JSON evidence bundle with:
-- \`schemaVersion\`, \`repository\`, \`scope\`, \`sourceRevision\` (full Git SHA).
-- \`features\`: explicit boolean flags \`browser\`, \`performance\`, \`offlineFull\`, \`persistence\`, \`releaseCandidate\`.
-- \`metrics\`: keyed metric IDs, each with numeric \`value\`, source-bound \`sourceRevision\`, \`sourceUrl\` (GitHub run/artifact/PR/issue), and \`evidenceKind\`. For performance measurements also \`sampleCount\`, \`baselineSampleCount\` (>=10 each).
-- \`notApplicable\`: meaningful reason for every feature-disabled metric, not an empty waiver.
+| Criterion | Weight | PASS threshold | Proof required |
+|---|---:|---|---|
+| Real user problem and baseline validated | 10 | 100% of stated top problems traceable to real user observations; ≥5 | Actual target audience, current workaround and pain, before-building evidence |
+| Essential user task completion | 20 | ≥95% success; ≥10 observed task attempts | Realistic task scripts; observed results, not only buttons rendering |
+| User time/effort improvement | 15 | ≥20% improvement from matched baseline; ≥10 before & after | Time, steps, rework or error effort measured on the same representative task |
+| Output solves task correctly | 15 | ≥99% correctness; ≥10 observations | Useful result checked against trusted task oracle |
+| First use without instructions | 10 | ≥90% unassisted success; ≥5 sessions | Fresh-user onboarding and first task |
+| Accessible user task completion | 8 | ≥95%; ≥5 sessions | Keyboard, screen reader and appropriate assistive pathways |
+| User-visible task error rate | 8 | ≤2%; ≥10 observed attempts | Errors blocking or misleading a user, separate from console errors |
+| Repeat-use usefulness | 7 | ≥65% continuing value; ≥10 observations | Actual repeat sessions/returning useful outcomes, not vanity views |
+| Truthful status comprehension | 5 | ≥95%; ≥5 user tests | Can users distinguish “saved locally”, “pending sync”, “offline”, “done”, “error”? |
+| Cost/friction regression | 2 | ≤0% worse vs matched baseline; ≥10 before & after | Cost, permissions, clicks, unwanted network use or support burden |
+
+Total = 100. B must score ≥90 with all critical criteria passed. **B evidence must come from actual or structured user-oriented observation**: \`user-study\`, \`field-observation\` or \`structured-user-feedback\`, linked to a source record at the same candidate SHA. A green build, CI screenshot, engineer assertion or hypothetical persona **cannot** stand in for a real user outcome. Personal details must remain private; only anonymized aggregated measures and safe evidence references may appear in GitHub.
+
+**A pilot / prelaunch product may have an A technical score but B remains NOT VERIFIED**, not automatically 100 or “not applicable”. User validation may be staged with few people, then expand; the published criteria must not be bypassed by choosing an empty sample. When representative users are not yet available, record the precise unmet condition and collect data later. Avoid turning “user-value” into opinions about colors or visual beauty.
+
+## Independent completion and impact
+
+A candidate passes these *declared threshold checks* only when both separate axis scores reach ≥90 and all mandatory applicable criteria have exact-source traceable evidence. The evaluator returns \`technicalScore\`, \`userValueScore\` and \`aggregateScore=null\`. Each axis carries its **own blockers**; the combined result can only be \`BOTH_AXES_DECLARED_MET_ONLY\` or \`BLOCKED\`. A failed axis cannot be rescued by a higher score in the other one.
+
+**Authority and truthful verification limits:** the deterministic CLI checks numeric values, evidence type, URL format, minimum sample and the expected 40-character source SHA. It does **not** automatically fetch and verify that a linked CI run or user study actually proves the asserted number. This must be checked through the canonical QualityGate evidence process. It does not produce a reviewer identity, automatic GitHub APPROVE, merge, ratification or publish. This separates *what success means* from *who can authorize release*, without requiring two people merely to have two sets of criteria.
+
+Apps are diverse: web, local desktop, hardware controller, learning software, personal health data and online-specific service have different critical journeys. Offline applicability is **declared honestly** (\`context.offlineClaim\`), not forced into identical technology. Every app must demonstrate its real stated capability and its real nonapplicable boundaries.
+
+## GitHub-first deterministic scoring
+
+The source policy is \`control/quality-evaluation-standard.v1.json\`. The evaluator is \`scripts/evaluate-quality-evidence.mjs\` (Node24, no external service). A candidate JSON has:
+
+- \`schemaVersion: "2.0.0"\`, \`repository\`, full \`sourceRevision\`, \`context: {offlineClaim: boolean}\`;
+- \`axes.technical.metrics\` and \`axes.user_value.metrics\` keyed by the published metric IDs. Each record supplies numeric \`value\`, exact \`sourceRevision\`, \`sourceUrl\` in the same GitHub repository, appropriate \`evidenceKind\`, \`sampleCount\` and \`baselineSampleCount\` where relevant;
+- \`axes.*.notApplicable\` with a truthful reason of 20+ characters for metrics *explicitly conditional* on the capability not claimed. Core A and all B metrics are never waived by N/A.
+
+Run against the actual GitHub PR head, NOT a synthetic merge commit:
+
+\`\`\`sh
+node scripts/evaluate-quality-evidence.mjs assess path/to/evidence.json --expected-sha EXACT_40_CHAR_PR_HEAD
+\`\`\`
+
+Exit 2 means invalid or blocked evidence; exit 0 means merely **declared thresholds met**, not verified independent QualityGate or authorization. This tool **must not** be fed fabricated perfect scores just to turn CI green. Automated unit tests use intentionally synthetic fixtures strictly to test evaluator logic; those fixtures are not product evidence.
+
+## Continuous improvement — each axis learns separately
+
+The durable source of learning is the existing [canonical Hub Issue #159](https://github.com/BlueDragon33/Software-Blueprint-Hub/issues/159), not another reviewer repo or new approval ledger. Each recorded error/observation has a project, exact SHA, date, **axis** (\`technical\` or \`user_value\`), category, evidence link and truthful closed / first-attempt-fixed / reopened / regression flags. Previously observed four technical incidents are tagged **technical**, remain \`closed=false\` until merged/accepted and do not inflate first-fix completion.
+
+The read-only \`scripts/collect-quality-feedback-from-github.mjs\` extracts explicitly marked \`BLUEPRINT_QUALITY_FEEDBACK_V1\` JSON blocks from Issue #159. The GitHub Action may recalculate when such comments are submitted after adoption, or on a PR for proof of behavior; read-only \`issues\` and \`contents\` permissions, no mutation. The assessor's \`learn\` function groups observations into two separate feedback channels and only proposes a targeted improvement once ≥3 similar, evidence-linked incidents occur across ≥2 repositories **within the same axis** in a rolling 90-day window. A technical incident suggests a missing regression/invariant test; a B failure suggests a missing realistic user-task or outcome experiment. Mixed A+B signals **are not falsely conflated**.
+
+Trends (per axis) include first-attempt correct fix target ≥85%, reopened rate ≤5%, introduced regressions ≤2 per 100 closed changes, with a minimum of 20 closed events before trend percentage is interpreted. Additional per-project before/after outcome metrics can be added via versioned QualityGate proposals, not automatic changes to this policy. Every accepted lesson should be tested on subsequent projects and revised if it causes false positives or misses real defects.
+
+**Self-training ≠ model weight retraining.** This is evidence-based feedback calibration: keep a history of error modes, improve checks, run new negative cases, compare later defects and update proposals only after a review. **No automatic threshold relaxation, zero-defect guarantee, source-code patching, silent data collection, or Product PASS.**
 
 Run:
-
 \`\`\`sh
-node scripts/evaluate-quality-evidence.mjs assess path/to/qa-evidence.json --expected-sha FULL_40_CHAR_HEAD
-\`\`\`
-
-Exit 0 means *declared criteria met*; exit 2 means blocked/untrusted input. The expected SHA must be supplied from the actual PR head, **never** the synthetic GitHub PR merge checkout. A self-supplied GitHub URL is a pointer for a separate verifier; it cannot serve as cryptographic issuer identity, human reviewer signature, authority proof or release permission.
-
-**Authority separation:** score = engineering triage; preexisting QualityGate = canonical evidence authority; genuinely distinct independent reviewer = separate gate; human Owner approval = separate protected gate; Production publish = separate exact-SHA release authority. No gate is automatically approved by any number.
-
-## Feedback learning — calibrated by completed defects, not secret self-modification
-
-Keep the underlying original findings, SHA, test runs and decisions in the existing source project and canonical Hub ledger. Export structured **non-sensitive** feedback observations to a temporary input JSON file as needed; do not create another parallel ledger. Each observation has \`id\`, \`repository\`, \`revision\`, \`date\`, \`category\`, \`evidenceUrl\`, \`closed\`, \`firstAttemptFixed\`, \`reopened\`, \`regressionIntroduced\`. Draft PR fixes are **not** marked closed just because CI is green.
-
-\`\`\`sh
-node scripts/evaluate-quality-evidence.mjs learn path/to/feedback.json --at 2026-11-24
-\`\`\`
-
-- Rolling **90-day** window. Do not invent events or mark outcomes closed without actual source/QA evidence.
-- **Recurring pattern trigger:** at least 3 issue observations across at least 2 different repositories. Emit source-linked proposal: add a scoped regression test and inspect root cause. Do not write source code, reweight the rubric, weaken thresholds or grant PASS.
-- **Measured trends:** first-attempt fix rate (target >=85%, minimum 20 closed), reopened rate (target <=5%, minimum 20 closed), regressions per 100 closed changes (target <=2%, minimum 30 closed). Under the minimum sample report **INSUFFICIENT_SAMPLE**, not a percent masquerading as confidence.
-- Compare real p50/p95, memory/CPU, online request volume and accessibility before/after in applicable project-specific QA. The p95 gate requires matched baseline/candidate samples; don't claim online load reduction without counted requests.
-- Reviewer can accept/reject proposed regression patterns. After bounded verified fixes, update the canonical incident, add tests in its correct owning repo and record the versioned revision. Evaluate each proposal's *future* false-negative/reopen rate before adopting any threshold change through the existing Constitution/QualityGate change process.
-
-**This is deterministic experience-based improvement**, not model-weight retraining, automatic threshold drift or a claim that software can become error-free.
-
-### GitHub intake with no new database, bot or background service
-
-[Hub Issue #159](https://github.com/BlueDragon33/Software-Blueprint-Hub/issues/159#issuecomment-7133943160) now contains four **source-linked open incidents** in explicit \`BLUEPRINT_QUALITY_FEEDBACK_V1\` JSON comment blocks (three recurring evidence-scope mistakes across Bauman/RU_LIFE/Health, plus one hidden Chromium exception). These are initial historical signals, not closure approvals or fabricated model training. The read-only intake \`scripts/collect-quality-feedback-from-github.mjs\` reads the one canonical issue through the GitHub REST API, validates each event and returns advisory proposals:
-
-\`\`\`sh
+node scripts/evaluate-quality-evidence.mjs learn path/to/structured-feedback.json --at 2026-11-24
 node scripts/collect-quality-feedback-from-github.mjs --at 2026-11-24
 \`\`\`
 
-When the proposed workflow is approved into the Hub's main branch, **new properly structured comments on Issue #159** (or an authorized manual workflow run) will trigger a short GitHub Actions read-only recalculation. Draft PR CI additionally runs this on the exact candidate SHA so this ingestion is exercised against the real canonical source before adoption. No cron daemon, paid external connector, project-mirror database or automatic source write is introduced. GitHub token receives **read-only contents/issues** permissions; it never creates a GitHub review or publishes a package. The event must include a source-appropriate repository URL, exact SHA and truthful \`closed\` state; unresolved Draft fixes are excluded from closed-issue success rates.
-
-Example authorized feedback marker to add as an **existing Issue #159 comment** after a real finding is evidenced:
+Example marker format (synthetic illustration, **do not post as a real incident**):
 
 \`\`\`text
 <!-- BLUEPRINT_QUALITY_FEEDBACK_V1
-{"id":"20261124-example-01","repository":"BlueDragon33/RU_LIFE","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","date":"2026-11-24","category":"qa-evidence-scope-mismatch","evidenceUrl":"https://github.com/BlueDragon33/RU_LIFE/issues/1","closed":false,"firstAttemptFixed":false,"reopened":false,"regressionIntroduced":false}
+{"id":"example-001","axis":"user_value","repository":"BlueDragon33/Bauman-master-ai-system","revision":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","date":"2026-11-24","category":"unhelpful-task","evidenceUrl":"https://github.com/BlueDragon33/Bauman-master-ai-system/issues/373","closed":false,"firstAttemptFixed":false,"reopened":false,"regressionIntroduced":false}
 -->
 \`\`\`
 
-This example is **synthetic**; do not post it as an actual incident. Only provenance-backed facts enter the real journal. A pattern proposal needs human change control and held-out regression confirmation before gaining a new mandatory rule.
+## PR #372 example — two axes tell the truth
 
- Zero defects is a goal, never a guarantee.
+[Bauman #372](https://github.com/BlueDragon33/Bauman-master-ai-system/pull/372) candidate \`1e0cb233f4fef2be6f759c175acaa7aa7a394762\` has 4/4 CI and 16/16 tested localhost-only browser routes, 0 observed uncaught browser exceptions. **A has partial real technical evidence**; crash recovery and full data migration/restore for the entire app, security, p95 and fault-injection evidence remain separate. **B has no representative end-user task-outcome dataset in this scoped PR**, so B remains NOT VERIFIED. These are not the same kind of quality, and no reviewer disagreement can turn these missing metrics into PASS. Full disconnected cold-start and backup/restore remain in [Bauman Plan #373](https://github.com/BlueDragon33/Bauman-master-ai-system/issues/373).
 
-## Bauman #372 example — limit cannot be overridden
-
-[Bauman PR #372](https://github.com/BlueDragon33/Bauman-master-ai-system/pull/372) at exact \`1e0cb233f4fef2be6f759c175acaa7aa7a394762\` has 4/4 source/Chromium CI success and 16/16 tested local-only routes, no recorded browser page errors; those **do not by themselves supply accessibility, security, performance or independent reviewer proof**. Therefore a complete high-confidence scorecard must mark missing controls **BLOCKED** until documented, not fabricate 100 points. Independent review identity remains \`REVIEWER_IDENTITY_BLOCKED\`. [Offline plan #373](https://github.com/BlueDragon33/Bauman-master-ai-system/issues/373) stays separately \`NOT_RUN\`; true PWA cold-start without a local server and save/restart/restore aren't inherited from localhost tests.
-
-**Promotion rule:** proposed evaluation standard can be adopted only through an explicitly authorized, scoped, exact-head reviewed change. No review/merge/ratification/Production follows from creating this document or CI.
+**Release and amendment boundary:** Constitution ACTIVE 1.3.0 unchanged. This Dual-Axis Quality Evaluation is proposed as an operational adjunct to existing gates, not a new independent human-review mandate nor a grant to remove existing ones. PR #177 stays Draft until approved through existing governance. No merge, ratification, paid service, PowerShell/Work or Production change from this proposal.
