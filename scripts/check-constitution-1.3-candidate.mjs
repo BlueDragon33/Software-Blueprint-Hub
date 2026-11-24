@@ -7,6 +7,8 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { readNavigationBaseline } from "./check-constitution-1.4-candidate.mjs";
+
 const DRAFT = "docs/amendments/CONSTITUTION-1.3-AGENT-CHANGE-RELIABILITY.md";
 const CONTRAST = "docs/amendments/CONSTITUTION-UI-CONTRAST-20261008-PROPOSAL.md";
 const PROJECTIONS = [".blueprint/constitution-adoption.json", "control/constitution-ecosystem-snapshot.json",
@@ -40,6 +42,15 @@ const owners = [
 export function buildConstitutionCandidate(root = process.cwd()) {
   const manifestPath = "control/universal-constitution-version.json";
   const manifest = JSON.parse(read(root, manifestPath));
+  if (manifest.policyVersion === "1.4.0" && manifest.productionReleaseAuthority === false) {
+    const historical = mkdtempSync(join(tmpdir(), "constitution-1.3-historical-"));
+    try {
+      const {originals}=readNavigationBaseline(root);
+      for(const [path,bytes] of Object.entries(originals))write(historical,path,bytes);
+      for(const path of [DRAFT,CONTRAST,PATCH])write(historical,path,read(root,path));
+      return {...buildConstitutionCandidate(historical),activePolicyVersion:"1.4.0"};
+    } finally {rmSync(historical,{recursive:true,force:true});}
+  }
   if (manifest.policyVersion === "1.3.0" && manifest.productionReleaseAuthority === false) {
     // Reconstruct the sealed baseline in scratch; never rewrite active files.
     const baseline = mkdtempSync(join(tmpdir(), "constitution-sealed-baseline-"));
@@ -250,7 +261,7 @@ function main() {
     if (checked.status !== 0) throw new Error("Candidate authority-set check failed: " + checked.stderr);
     const attestation = JSON.parse(checked.stdout);
     const result = {
-      status: candidate.activePolicyVersion === "1.2.0" ? "INACTIVE_CANDIDATE_VERIFIED" : "ACTIVE_AUTHORITY_SET_VERIFIED",
+      status: candidate.activePolicyVersion === "1.2.0" ? "INACTIVE_CANDIDATE_VERIFIED" : candidate.activePolicyVersion === "1.4.0" ? "HISTORICAL_AUTHORITY_SET_VERIFIED" : "ACTIVE_AUTHORITY_SET_VERIFIED",
       activePolicyVersion: candidate.activePolicyVersion,
       candidatePolicyVersion: "1.3.0", ruleCount: candidate.rules.length,
       contrastIncluded: true, componentCount: attestation.components.length,
@@ -265,7 +276,7 @@ function main() {
       write(root, "artifacts/constitution-1.3-authority-set.json", json(attestation));
       write(root, "artifacts/constitution-1.3-candidate.json", json({ ...result,
         sourceRevision: process.env.GITHUB_SHA, ciRunId: process.env.GITHUB_RUN_ID,
-        source: candidate.activePolicyVersion === "1.2.0" ? "inactive-publication-candidate-ci-evidence" : "active-authority-set-integrity-ci-evidence",
+        source: candidate.activePolicyVersion === "1.2.0" ? "inactive-publication-candidate-ci-evidence" : candidate.activePolicyVersion === "1.4.0" ? "historical-authority-set-integrity-ci-evidence" : "active-authority-set-integrity-ci-evidence",
         ratification: "NOT_ASSERTED", publication: "NOT_ASSERTED" }));
     }
     console.log(args.includes("--json") ? json(result).trimEnd() :

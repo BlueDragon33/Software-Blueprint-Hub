@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
-  appSearchKey, groupLabels, groupOrder, matchesApp,
+  groupLabels, groupOrder, matchesApp,
   type HubTrackedAppPresentation, type HubGroup
 } from "../../src/lib/hub-app-directory";
 import { useHubPreferences } from "../_components/hub-preferences";

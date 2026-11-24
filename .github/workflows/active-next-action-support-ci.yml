@@ -1,0 +1,49 @@
+name: Navigation Support isolated contract
+on:
+  pull_request:
+    paths:
+      - 'docs/design/constitutional-navigation-support-standard.v1.candidate.md'
+      - 'control/candidates/active-next-action-chat-ui.v2.json'
+      - 'tests/governance/active-next-action-chat-ui.candidate.test.mjs'
+      - 'scripts/navigation-support-execution.candidate.mjs'
+      - '.github/workflows/active-next-action-support-ci.yml'
+      - 'docs/amendments/CONSTITUTION-1.4-NAV-SUPPORT-PUBLICATION.patch'
+      - 'scripts/check-constitution-1.4-candidate.mjs'
+      - 'packages/application/src/constitution-publication-sources.ts'
+      - 'packages/runtime/src/constitution-publication.ts'
+      - 'packages/runtime/src/constitution-artifact.ts'
+      - 'tests/runtime/constitution-publication.test.ts'
+      - 'tests/runtime/constitution-artifact.test.ts'
+permissions:
+  contents: read
+jobs:
+  support-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/governance/active-next-action-chat-ui.candidate.test.mjs
+      - run: node scripts/check-constitution-1.4-candidate.mjs
+  publication-runtime-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec vitest run tests/runtime/constitution-publication.test.ts tests/runtime/constitution-artifact.test.ts --fileParallelism=false

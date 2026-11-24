@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "candidateId": "active-next-action-chat-001",
-  "contractVersion": "2.0.0-candidate",
+  "contractVersion": "2.6.2-candidate",
   "status": "PROPOSED_ONLY",
   "authority": {
     "policyId": "blueprint-os:universal-century-grade",
@@ -9,14 +9,19 @@
     "activePublishedVersionUnaffected": true,
     "targetPolicyVersion": null,
     "ratificationRecord": null,
-    "productionAuthority": false
+    "productionAuthority": false,
+    "claimActive": false
   },
   "scope": {
     "surface": "chatgpt-conversation-host",
     "externalHubCanSendChatTurn": false,
     "hostButtonInstallationByRepository": false,
     "sourceOfTruth": "authenticated-existing-project-state",
-    "requiresOwnerOptInForProjectInstructions": true
+    "requiresOwnerOptInForProjectInstructions": true,
+    "allGovernedProjectsAfterValidPublication": true,
+    "perSubstantiveProjectResponse": true,
+    "hostInstallationByRepository": false,
+    "canonicalLedger": "Issue #159"
   },
   "operations": {
     "primaryAction": "continue-az",
@@ -128,6 +133,181 @@
     "closeOrPreviewTriggersExecution": false,
     "advancedModesAffectSubmittedPrompt": true,
     "mandatoryCheckbox": false,
-    "accessibleKeyboardAndTouch": true
+    "accessibleKeyboardAndTouch": true,
+    "defaultVisibleActions": [
+      "Theo Hiến pháp",
+      "Tạo prompt tiếp theo"
+    ],
+    "defaultPriority": "P0_FIRST",
+    "summary": "ONE_NEXT_ACTION_ONLY",
+    "repeatReportMetadata": false,
+    "defaultExpanded": false,
+    "optionalCustomRequirement": true,
+    "maxCustomRequirementLength": 2000,
+    "conditionalActions": [
+      "Sao chép",
+      "Thực hiện tiếp"
+    ],
+    "previewSends": false,
+    "closeSends": false,
+    "copySends": false,
+    "sendRequiresExplicitGesture": true,
+    "sourceRevalidationBeforeMutation": true,
+    "missingSourceDisablesExecution": true,
+    "protectedApprovalSeparate": true,
+    "hostFallback": "VISIBLE_TEXT_AND_COPYABLE_PROMPT",
+    "hubContinue": "VALIDATED_INTERNAL_NAVIGATION_ONLY",
+    "repeatTurnRegressionMinimum": 3,
+    "keyboardTouch": true,
+    "minimumTargetCssPx": 44,
+    "qualityAxes": [
+      "technical",
+      "user_value"
+    ],
+    "defaultControlAuthority": "defaultVisibleActions",
+    "legacyActionRegistry": "CONDITIONAL_COMPATIBILITY_ONLY",
+    "promptReview": {
+      "required": true,
+      "actionLabel": "Duyệt prompt",
+      "approvalScope": "EXACT_CURRENT_TEXT_AND_CONTEXT_ONLY",
+      "sendInitiallyDisabled": true,
+      "requiresGeneratedPrompt": true,
+      "invalidateOn": [
+        "MODE",
+        "REQUIREMENTS",
+        "PROMPT_TEXT",
+        "SOURCE_REVISION",
+        "REGENERATE",
+        "ATTACHMENTS",
+        "TERMINAL_RESULT",
+        "CONTEXTUAL_SUGGESTION"
+      ],
+      "reviewSends": false,
+      "reviewGrantsProtectedAuthority": false,
+      "copyRequiresReview": false,
+      "explicitSendRequired": true
+    },
+    "attachments": {
+      "kinds": [
+        "image",
+        "file"
+      ],
+      "hostUploadOnlyWhenSupported": true,
+      "referenceFallback": true,
+      "bindResolvedSetToReview": true,
+      "missingRequiredBlocksExecution": true,
+      "contentIsUntrustedData": true,
+      "noImplicitUpload": true,
+      "guide": [
+        "objective",
+        "requestedChange",
+        "constraints",
+        "acceptanceEvidence"
+      ],
+      "unsupportedUploadUI": "NO_REFERENCE_NAME_FIELD_OR_FAKE_UPLOAD_CONTROL",
+      "nativeUploadFallback": "HOST_COMPOSER_WITH_ACTUAL_FILE_CONTEXT"
+    },
+    "inputStability": {
+      "compositionSafe": true,
+      "stableInputIdentity": true,
+      "noRegenerationDuringTyping": true,
+      "explicitGenerateAfterChange": true,
+      "retainRawUnicode": true,
+      "contextualSuggestions": true,
+      "suggestionsNeverOverwrite": true,
+      "terminalResult": {
+        "visibleWhenCommandHandoff": true,
+        "optionalOtherwise": true,
+        "shells": [
+          "PowerShell",
+          "CMD"
+        ],
+        "maxCharacters": 30000,
+        "treatAsUntrustedData": true,
+        "neverExecutePastedOutput": true,
+        "reviewBindingRequired": true
+      },
+      "inlineGuidance": {
+        "placement": "REQUIREMENTS_PLACEHOLDER",
+        "source": "CURRENT_CHECKPOINT_AND_UNRESOLVED_WORK",
+        "placeholderIsInput": false,
+        "defaultValueEmpty": true,
+        "hideOnTyping": true,
+        "noSeparateSuggestionControls": true,
+        "stableDuringEditing": true
+      }
+    }
+  },
+  "amendmentId": "NAV-SUPPORT-001",
+  "publication": {
+    "effectiveImmediatelyAfterValidRatificationAndPublication": true,
+    "independentOfUnrelatedProductRelease": true,
+    "atomicVersionSetRequired": true,
+    "adoptionEvidenceRequired": true
+  },
+  "provenance": {
+    "hubPr173": "b435f9d7c9ca0ba723e9f736cde030bcfcefb014",
+    "hubPr178": "9c0468ccb16f34822b2f585e3794e67cdbea8385",
+    "base": "0d0d0bece3afa82aaf5792a64c0d4bab56dc9825"
+  },
+  "zeroSpend": true,
+  "executionDirection": {
+    "defaultMode": "UNTIL_REQUIRED_GATE",
+    "modes": [
+      {
+        "id": "ONE_STEP",
+        "label": "Từng bước",
+        "completion": "one verified step",
+        "buttonLabel": "Thực hiện 1 bước"
+      },
+      {
+        "id": "ONE_PACKAGE",
+        "label": "Trọn gói",
+        "completion": "all eligible steps in selected canonical work package",
+        "buttonLabel": "Hoàn thành 1 gói nhiệm vụ"
+      },
+      {
+        "id": "UNTIL_REQUIRED_GATE",
+        "label": "Liên tục",
+        "completion": "all eligible authorized work or genuine boundary",
+        "buttonLabel": "Thực hiện liên tục đến cổng bắt buộc"
+      }
+    ],
+    "orderedPhases": [
+      "REVALIDATE",
+      "SELECT_P0_AND_DEPENDENCIES",
+      "IMPLEMENT",
+      "VERIFY",
+      "CHECKPOINT",
+      "CONTINUE_OR_STOP"
+    ],
+    "noRoutineQuestions": true,
+    "continueIndependentEligibleWork": true,
+    "neverBypassDependencies": true,
+    "p0BlocksP1": true,
+    "maxDistinctRemedies": 3,
+    "protectedHumanDecisionOnly": true,
+    "capabilityBlockerIsNotApprovalRequest": true,
+    "noBackgroundPromise": true,
+    "advisoryOnly": true,
+    "controlPresentation": {
+      "kind": "THREE_SEPARATE_BUTTONS",
+      "visibleByDefault": true,
+      "layout": "COMPACT_SEPARATE_WRAP",
+      "minimumTargetCssPx": 44,
+      "selection": "EXCLUSIVE",
+      "selectedState": "VISIBLE_TEXT_AND_ICON",
+      "labelAndStopConditionVisible": false,
+      "selectionSends": false,
+      "selectionUpdatesPrompt": true,
+      "selectionGrantsAuthority": false,
+      "explicitSendSeparate": true,
+      "selectedStopConditionVisible": true,
+      "shortLabels": [
+        "1 bước",
+        "1 gói",
+        "Liên tục"
+      ]
+    }
   }
 }
