@@ -114,7 +114,9 @@
       166,
       171,
       173
-    ]
+    ],
+    "deliveryProgram": "projects/blueprint-os/END_TO_END_COMPLETION_PROGRAM.v1.md",
+    "assistanceGuidance": "docs/UANA-CHATGPT-PROJECT-INSTRUCTIONS.v2.md"
   },
   "presentation": {
     "summaryRequired": true,
@@ -128,6 +130,27 @@
     "closeOrPreviewTriggersExecution": false,
     "advancedModesAffectSubmittedPrompt": true,
     "mandatoryCheckbox": false,
-    "accessibleKeyboardAndTouch": true
+    "accessibleKeyboardAndTouch": true,
+    "perSubstantiveProjectResponse": true,
+    "requiredVisibleActionsWhenHostSupports": [
+      "Theo Hiến pháp",
+      "Tạo prompt tiếp theo"
+    ],
+    "conditionalPromptActions": [
+      "Sao chép",
+      "Thực hiện tiếp"
+    ],
+    "continuationRequiresExplicitGesture": true,
+    "missingNativeHostControlRequiresHonestFallback": true,
+    "promptApprovalNotProtectedAuthority": true,
+    "requestSupplementMustAffectResult": true,
+    "repeatTurnRegressionMinimum": 3,
+    "singlePrimaryActionInsufficient": true,
+    "twoIndependentQualityAxes": [
+      "technical",
+      "user_value"
+    ],
+    "twoQualityAxesAreNotTwoReviewPeople": true,
+    "noProgressPercentWithoutWeightedAcceptedEvidence": true
   }
 }
