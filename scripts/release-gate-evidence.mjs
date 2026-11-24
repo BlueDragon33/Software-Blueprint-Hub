@@ -1,5 +1,6 @@
 import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { dirname } from "node:path";
+import { combineReleaseVitestReports } from "./release-gate-vitest-reports.mjs";
 
 function required(name) {
   const value = process.env[name]?.trim();
@@ -36,9 +37,12 @@ const [candidate, truth, vitest, playwright] = await Promise.all([
   nodeReport("artifacts/constitution-node-tests.xml"), nodeReport("artifacts/source-truth-tests.xml"),
   jsonReport("artifacts/vitest-results.json"), jsonReport("artifacts/playwright-results.json")
 ]);
+const privateReportPath = process.env.RELEASE_GATE_PRIVATE_BRIDGE_REPORT;
+if (privateReportPath !== undefined && (privateReportPath !== "artifacts/vitest-private-bridge-results.json" || process.env.GITHUB_EVENT_NAME !== "workflow_dispatch" || process.env.GITHUB_REF !== "refs/heads/main")) throw new Error("Private report requires the protected main manual gate");
+const privateReport = privateReportPath === undefined ? undefined : await jsonReport(privateReportPath);
 const testResults = {
   node: { passed: candidate.passed + truth.passed, failed: candidate.failed + truth.failed, skipped: candidate.skipped + truth.skipped },
-  vitest: { passed: vitest.numPassedTests, failed: vitest.numFailedTests, skipped: vitest.numPendingTests },
+  vitest: combineReleaseVitestReports(vitest, privateReport),
   browser: { passed: playwright.stats.expected, failed: playwright.stats.unexpected, skipped: playwright.stats.skipped, flaky: playwright.stats.flaky }
 };
 for (const result of Object.values(testResults)) {
@@ -70,6 +74,8 @@ const manifest = Object.freeze({
     "source-of-truth-contradiction",
     "source-of-truth-detector-self-test",
     "inactive-constitution-1.3-authority-set",
+    "constitution-1.4-authority-set",
+    ...(privateReport ? ["private-app-bridge-eight-exact-tests"] : []),
     "constitution-agent-adversarial-self-tests",
     "computed-contrast-negative-fixtures",
     "generated-contract-drift",
