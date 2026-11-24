@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "candidateId": "active-next-action-chat-001",
   "amendmentId": "NAV-SUPPORT-001",
-  "contractVersion": "2.2.0-candidate",
+  "contractVersion": "2.3.0-candidate",
   "status": "PROPOSED_ONLY",
   "authority": {
     "basePolicyVersion": "1.3.0",
@@ -63,5 +63,42 @@
     "hubPr178": "9c0468ccb16f34822b2f585e3794e67cdbea8385",
     "base": "0d0d0bece3afa82aaf5792a64c0d4bab56dc9825"
   },
-  "zeroSpend": true
+  "zeroSpend": true,
+  "executionDirection": {
+    "defaultMode": "UNTIL_REQUIRED_GATE",
+    "modes": [
+      {
+        "id": "ONE_STEP",
+        "label": "Từng bước",
+        "completion": "one verified step"
+      },
+      {
+        "id": "ONE_PACKAGE",
+        "label": "Trọn gói",
+        "completion": "all eligible steps in selected canonical work package"
+      },
+      {
+        "id": "UNTIL_REQUIRED_GATE",
+        "label": "Liên tục",
+        "completion": "all eligible authorized work or genuine boundary"
+      }
+    ],
+    "orderedPhases": [
+      "REVALIDATE",
+      "SELECT_P0_AND_DEPENDENCIES",
+      "IMPLEMENT",
+      "VERIFY",
+      "CHECKPOINT",
+      "CONTINUE_OR_STOP"
+    ],
+    "noRoutineQuestions": true,
+    "continueIndependentEligibleWork": true,
+    "neverBypassDependencies": true,
+    "p0BlocksP1": true,
+    "maxDistinctRemedies": 3,
+    "protectedHumanDecisionOnly": true,
+    "capabilityBlockerIsNotApprovalRequest": true,
+    "noBackgroundPromise": true,
+    "advisoryOnly": true
+  }
 }
