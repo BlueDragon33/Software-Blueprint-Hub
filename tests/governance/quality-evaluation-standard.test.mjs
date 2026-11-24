@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { assessQuality, learnFromFeedback, validateStandard } from "../../scripts/evaluate-quality-evidence.mjs";
+import { extractLedgerEvents, readCanonicalFeedback, summarizeCanonicalFeedback } from "../../scripts/collect-quality-feedback-from-github.mjs";
 
 const policy = JSON.parse(readFileSync(new URL("../../control/quality-evaluation-standard.v1.json", import.meta.url),"utf8"));
 const HEAD = "1e0cb233f4fef2be6f759c175acaa7aa7a394762";
@@ -37,7 +38,7 @@ function example(scope="browser_local") {
   return input;
 }
 function event(id,repository,category="hidden-browser-error",date="2026-11-22") {
-  return {id,repository,revision:HEAD,category,date,evidenceUrl:RUN_URL,
+  return {id,repository,revision:HEAD,category,date,evidenceUrl:"https://github.com/"+repository+"/issues/159",
     closed:true,firstAttemptFixed:true,reopened:false,regressionIntroduced:false};
 }
 test("rubric is versioned 100 points and cannot silently loosen core gate constraints",()=>{
@@ -157,4 +158,35 @@ test("actual CLI mode rejects unpinned SHA and works with explicit source head",
     assert.equal(no.status,2);
     assert.match(no.stderr,/MISSING_EXACT_SHA/);
   }finally{rmSync(temp,{recursive:true,force:true});}
+});
+
+test("negative browser errors or accessibility findings cannot game threshold",()=>{
+  const x=example();x.metrics.uncaught_browser_errors.value=-1;
+  assert.ok(assessQuality(policy,x,HEAD).blockers.includes("COUNT_OUT_OF_RANGE:uncaught_browser_errors"));
+  const y=example();y.metrics.critical_a11y_findings.value=-10;
+  assert.ok(assessQuality(policy,y,HEAD).blockers.includes("COUNT_OUT_OF_RANGE:critical_a11y_findings"));
+});
+test("canonical Hub issue comments are parsed read-only, never scored as approver",async()=>{
+  const rawEvent=event("defect-one","BlueDragon33/RU_LIFE");
+  const marker="<!-- BLUEPRINT_QUALITY_FEEDBACK_V1\n"+JSON.stringify(rawEvent)+"\n-->";
+  const issueComment={id:123,body:"Reproduced defect (DRAFT)\n"+marker};
+  const feedback=extractLedgerEvents([issueComment]);
+  assert.equal(feedback.events.length,1);
+  assert.equal(feedback.events[0].ledgerIssue,159);
+  assert.equal(feedback.events[0].ledgerCommentId,123);
+  const mock=async(url,opts)=>{
+    assert.match(url,/Software-Blueprint-Hub\/issues\/159\/comments/);
+    assert.equal(opts.method,"GET");
+    return {ok:true,status:200,json:async()=>[issueComment]};
+  };
+  const fetched=await readCanonicalFeedback(mock);
+  assert.equal(fetched.events[0].id,"defect-one");
+  const summary=await summarizeCanonicalFeedback({fetchImpl:mock,asOf:"2026-11-24"});
+  assert.equal(summary.automaticTraining,false);
+  assert.equal(summary.sourceAuthenticatedForReview,false);
+  assert.equal(summary.reviewAndReleaseStatus,"NOT_AUTHORIZED");
+});
+test("malformed or unparseable feedback markers block rather than silently disappearing",()=>{
+  assert.throws(()=>extractLedgerEvents([{id:123,body:"<!-- BLUEPRINT_QUALITY_FEEDBACK_V1 broken -->"}]),/MALFORMED_FEEDBACK_MARKER/);
+  assert.throws(()=>extractLedgerEvents([{id:123,body:"<!-- BLUEPRINT_QUALITY_FEEDBACK_V1\nnot json\n-->"}]),/UNPARSEABLE_FEEDBACK_JSON/);
 });
