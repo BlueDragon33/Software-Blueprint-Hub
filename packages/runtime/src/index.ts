@@ -16,6 +16,7 @@ import {
   WorkQualityApplicationService
 } from "@blueprint-os/application";
 import { GitHubConstitutionPublicationVerifier } from "./constitution-publication";
+import { publicationRuntimeRevision } from "./publication-runtime-revision";
 import { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { PostgresWorkflowExecutionAuthority } from "./workflow-execution-authority";
 export { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
@@ -70,13 +71,14 @@ export function createBlueprintServerRuntime(
   const authority = new AuthorityService(authorityRepository);
   const constitutionAuthorityRepository =
     new PostgresConstitutionAuthorityRepository(prisma);
+  const runtimeRevision = publicationRuntimeRevision(process.env.BLUEPRINT_LOCAL_RUNTIME_REVISION, process.env.VERCEL_GIT_COMMIT_SHA);
   const constitutionAuthority = new ConstitutionAuthorityApplicationService(
     constitutionAuthorityRepository,
     authority,
     new GitHubConstitutionPublicationVerifier({
       runtimePolicyVersion: CONSTITUTION_POLICY_VERSION,
       ...(publicationTokenProvider ? { tokenProvider: publicationTokenProvider } : {}),
-      ...(process.env.VERCEL_GIT_COMMIT_SHA ? { runtimeRevision: process.env.VERCEL_GIT_COMMIT_SHA } : {}),
+      ...(runtimeRevision ? { runtimeRevision } : {}),
       ...(process.env.CONSTITUTION_GITHUB_READ_TOKEN ? { token: process.env.CONSTITUTION_GITHUB_READ_TOKEN } : {})
     })
   );
