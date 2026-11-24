@@ -8,6 +8,14 @@ export const constitutionPublicationPaths = Object.freeze([
   "control/constitution-ecosystem-snapshot.json", "control/constitution-compliance-snapshot.json"
 ]);
 export const constitutionPublicationPatchPath = "docs/amendments/CONSTITUTION-1.3-PUBLICATION.patch";
+
+// Fixed, reviewed transitions only. No caller-controlled paths or inferred arbitrary semver.
+export function constitutionPublicationProfile(baseVersion: string) {
+  if (baseVersion === "1.2.0") return Object.freeze({ targetVersion: "1.3.0", patchPath: constitutionPublicationPatchPath, descriptorPath: "artifacts/constitution-1.3-candidate.json", attestationPath: "artifacts/constitution-1.3-authority-set.json" });
+  if (baseVersion === "1.3.0") return Object.freeze({ targetVersion: "1.4.0", patchPath: "docs/amendments/CONSTITUTION-1.4-NAV-SUPPORT-PUBLICATION.patch", descriptorPath: "artifacts/constitution-1.4-candidate.json", attestationPath: "artifacts/constitution-1.4-authority-set.json" });
+  throw new TypeError("Unsupported Constitution publication transition");
+}
+
 export type ConstitutionSourceFiles = Readonly<Record<string, string>>;
 export const constitutionSourceDigest = (bytes: string) =>
   "sha256:" + createHash("sha256").update(bytes).digest("hex");

@@ -7,6 +7,10 @@ on:
       - 'tests/governance/active-next-action-chat-ui.candidate.test.mjs'
       - 'scripts/navigation-support-execution.candidate.mjs'
       - '.github/workflows/active-next-action-support-ci.yml'
+      - 'docs/amendments/CONSTITUTION-1.4-NAV-SUPPORT-PUBLICATION.patch'
+      - 'scripts/check-constitution-1.4-candidate.mjs'
+      - 'packages/application/src/constitution-publication-sources.ts'
+      - 'packages/runtime/src/constitution-publication.ts'
 permissions:
   contents: read
 jobs:
@@ -22,3 +26,4 @@ jobs:
         with:
           node-version: '24'
       - run: node --test tests/governance/active-next-action-chat-ui.candidate.test.mjs
+      - run: node scripts/check-constitution-1.4-candidate.mjs

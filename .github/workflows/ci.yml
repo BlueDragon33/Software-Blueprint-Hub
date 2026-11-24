@@ -165,8 +165,9 @@ jobs:
 
       - name: Inactive constitutional candidate and adversarial tests
         run: |
-          node --test --test-reporter=spec --test-reporter=junit --test-reporter-destination=stdout --test-reporter-destination=artifacts/constitution-node-tests.xml tests/source-truth/agent-change-evidence-candidate.test.mjs tests/source-truth/constitution-1.3-candidate.test.mjs tests/source-truth/constitution-contrast.test.mjs
+          node --test --test-reporter=spec --test-reporter=junit --test-reporter-destination=stdout --test-reporter-destination=artifacts/constitution-node-tests.xml tests/source-truth/agent-change-evidence-candidate.test.mjs tests/source-truth/constitution-1.3-candidate.test.mjs tests/source-truth/constitution-contrast.test.mjs tests/governance/active-next-action-chat-ui.candidate.test.mjs
           node scripts/check-constitution-1.3-candidate.mjs --write-evidence
+          node scripts/check-constitution-1.4-candidate.mjs --write-evidence
 
       - name: Lint
         run: pnpm lint

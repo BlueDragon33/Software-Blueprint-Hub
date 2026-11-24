@@ -1,6 +1,6 @@
 import {
   applyConstitutionPublicationPatch, attestConstitutionAuthoritySources,
-  constitutionPublicationPaths, constitutionPublicationPatchPath, constitutionSourceDigest,
+  constitutionPublicationPaths, constitutionPublicationProfile, constitutionSourceDigest,
   validateConstitutionAuthoritySetAttestation,
   type ConstitutionPublicationAttestationVerifier, type ConstitutionPublicationCandidate,
   type ConstitutionSourceFiles
@@ -80,10 +80,10 @@ export class GitHubConstitutionPublicationVerifier implements ConstitutionPublic
         run.repository?.full_name !== repository || !["push", "workflow_dispatch"].includes(run.event) ||
         ![".github/workflows/ci.yml", ".github/workflows/release-gate.yml"].includes(run.path) ||
         !Number.isInteger(run.run_attempt) || run.run_attempt < 1) throw new TypeError("Full Gate provenance mismatch");
-    const [{ jobs }, { artifacts }, patch, originals, workflow, trustedWorkflow] = await Promise.all([
+    const [{ jobs }, { artifacts }, originals, workflow, trustedWorkflow] = await Promise.all([
       this.api<{ jobs: ProviderJob[] }>(`actions/runs/${runId}/attempts/${run.run_attempt}/jobs?per_page=100`),
       this.api<{ artifacts: ProviderArtifact[] }>(`actions/runs/${runId}/artifacts?per_page=100`),
-      this.raw(revision, constitutionPublicationPatchPath), this.files(revision),
+      this.files(revision),
       this.raw(revision, run.path), this.raw(this.options.runtimeRevision!, run.path)
     ]);
     if (workflow !== trustedWorkflow) throw new TypeError("Full Gate workflow differs from trusted deployment");
@@ -95,13 +95,16 @@ export class GitHubConstitutionPublicationVerifier implements ConstitutionPublic
     const artifact = artifacts.filter(item => Number.isInteger(item.id) && item.id > 0 && item.name === `release-gate-evidence-${revision}` && item.expired === false &&
       item.workflow_run?.id === Number(runId) && item.workflow_run.head_sha === revision && /^sha256:[a-f0-9]{64}$/.test(item.digest)).sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))[0];
     if (!artifact) throw new TypeError("Full Gate artifact missing/expired");
+    const expectedBaseline = attestConstitutionAuthoritySources(originals, revision, runId);
+    const profile = constitutionPublicationProfile(expectedBaseline.policyVersion);
+    const patch = await this.raw(revision, profile.patchPath);
     const files = applyConstitutionPublicationPatch(originals, patch);
     const attestation = validateConstitutionAuthoritySetAttestation(attestConstitutionAuthoritySources(files, revision, runId));
+    if (attestation.policyVersion !== profile.targetVersion) throw new TypeError("Publication transition target mismatch");
     const evidence = await this.archive(artifact.id, artifact.digest);
-    const recorded = evidence["artifacts/constitution-1.3-authority-set.json"] as ConstitutionAuthoritySetAttestation;
+    const recorded = evidence[profile.attestationPath] as ConstitutionAuthoritySetAttestation;
     const recordedBaseline = evidence["artifacts/constitution-authority-set.json"] as ConstitutionAuthoritySetAttestation;
-    const expectedBaseline = attestConstitutionAuthoritySources(originals, revision, runId);
-    const descriptor = evidence["artifacts/constitution-1.3-candidate.json"] as Record<string, unknown>;
+    const descriptor = evidence[profile.descriptorPath] as Record<string, unknown>;
     const manifest = evidence["artifacts/release-gate-evidence.json"] as Record<string, unknown>;
     if (JSON.stringify(validateConstitutionAuthoritySetAttestation(recorded)) !== JSON.stringify(attestation) ||
         JSON.stringify(validateConstitutionAuthoritySetAttestation(recordedBaseline)) !== JSON.stringify(expectedBaseline) ||
