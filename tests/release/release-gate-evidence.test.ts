@@ -11,13 +11,23 @@ const execFileAsync = promisify(execFile);
 const tempDirs: string[] = [];
 const script = fileURLToPath(new URL("../../scripts/release-gate-evidence.mjs", import.meta.url));
 
+const privateSuite = "tests/application/prompt-workflow-live-private-bridge.test.ts";
+function report(skipped = false) {
+  const publicResults = Array.from({ length: 3 }, () => ({ status: "passed" }));
+  const privateResults = Array.from({ length: 8 }, (_, i) => ({ status: skipped && i === 7 ? "pending" : "passed" }));
+  return { numTotalTests: 11, numPassedTests: skipped ? 10 : 11, numFailedTests: 0, numPendingTests: skipped ? 1 : 0, numTodoTests: 0,
+    testResults: [
+      { name: "tests/unit/example.test.ts", assertionResults: publicResults },
+      { name: privateSuite, assertionResults: privateResults }
+    ] };
+}
 async function reportFixture(output: string) {
   const dir = join(output, "..", "artifacts");
   await mkdir(dir);
   await Promise.all([
     writeFile(join(dir, "constitution-node-tests.xml"), '<testsuites><testsuite><testcase name="candidate" /></testsuite></testsuites>'),
     writeFile(join(dir, "source-truth-tests.xml"), '<testsuites><testsuite><testcase name="truth" /></testsuite></testsuites>'),
-    writeFile(join(dir, "vitest-results.json"), JSON.stringify({ numPassedTests: 3, numFailedTests: 0, numPendingTests: 0 })),
+    writeFile(join(dir, "vitest-results.json"), JSON.stringify(report())),
     writeFile(join(dir, "playwright-results.json"), JSON.stringify({ stats: { expected: 4, unexpected: 0, skipped: 0, flaky: 0 } }))
   ]);
   return dir;
@@ -65,7 +75,7 @@ describe("Release Gate evidence manifest", () => {
       productionDeploymentAuthorized: false,
       testResults: {
         node: { passed: 2, failed: 0, skipped: 0 },
-        vitest: { passed: 3, failed: 0, skipped: 0 },
+        vitest: { passed: 11, failed: 0, skipped: 0 },
         browser: { passed: 4, failed: 0, skipped: 0, flaky: 0 }
       }
     });
@@ -97,7 +107,8 @@ describe("Release Gate evidence manifest", () => {
     expect(workflow).toContain("--test-reporter=junit");
     expect(workflow).toContain("artifacts/source-truth-tests.xml");
     expect(workflow).toContain("--outputFile.json=artifacts/vitest-results.json");
-    expect(workflow).toContain("pnpm exec vitest run --passWithNoTests --fileParallelism=false");
+    expect(workflow).toContain("pnpm exec vitest run --exclude tests/application/prompt-workflow-live-private-bridge.test.ts --fileParallelism=false");
+    expect(workflow).toContain("artifacts/vitest-private-bridge-results.json");
   });
 
   it("rejects a non-exact revision instead of producing ambiguous evidence", async () => {
@@ -111,7 +122,7 @@ describe("Release Gate evidence manifest", () => {
     const reports = await reportFixture(output);
     if (defect === "missing") await rm(join(reports, "constitution-node-tests.xml"));
     if (defect === "failed") await writeFile(join(reports, "source-truth-tests.xml"), '<testsuites><testcase><failure /></testcase></testsuites>');
-    if (defect === "skipped") await writeFile(join(reports, "vitest-results.json"), JSON.stringify({ numPassedTests: 3, numFailedTests: 0, numPendingTests: 1 }));
+    if (defect === "skipped") await writeFile(join(reports, "vitest-results.json"), JSON.stringify(report(true)));
     if (defect === "flaky") await writeFile(join(reports, "playwright-results.json"), JSON.stringify({ stats: { expected: 4, unexpected: 0, skipped: 0, flaky: 1 } }));
     await expect(runEvidence(output)).rejects.toThrow();
     await expect(readFile(output)).rejects.toThrow(/ENOENT/);
