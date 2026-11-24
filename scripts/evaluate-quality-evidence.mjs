@@ -106,8 +106,14 @@ export function assessQuality(standard, input, expectedSha) {
       criteria.push({ id: metric.id, status: "INVALID" });
       continue;
     }
-    if (metric.id.endsWith("_count") && (!Number.isInteger(item.value) || item.value < 0)) {
+    if ((metric.id.endsWith("_count") || metric.id.endsWith("_errors") || metric.id.endsWith("_findings")) &&
+      (!Number.isInteger(item.value) || item.value < 0)) {
       blockers.push("COUNT_OUT_OF_RANGE:" + metric.id);
+      criteria.push({ id: metric.id, status: "INVALID" });
+      continue;
+    }
+    if (metric.id === "p95_latency_regression_pct" && item.value < -100) {
+      blockers.push("INVALID_PERFORMANCE_IMPROVEMENT:" + metric.id);
       criteria.push({ id: metric.id, status: "INVALID" });
       continue;
     }
