@@ -1,0 +1,23 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {projectCanonicalNextAction as project} from "../../packages/application/src/universal-next-action-canonical.candidate.mjs";
+const projectId="project:blueprint-os",revision="sha256:"+"a".repeat(64);
+const work=(id,status="ready",dependencies=[],qualityGateIds=["gate:required"])=>({id,projectId,title:id,status,dependencies,qualityGateIds});
+const ev=(id="evidence:one",gateId="gate:required")=>({id,gateId,source:"qa://fixture",revision:"a".repeat(40)});
+const gate=(status="pass",evidenceIds=["evidence:one"],evidence=[ev()])=>({gate:{id:"gate:required",projectId,status,evidenceIds},evidence});
+const input=(works=[work("work:one")],gates=[gate()],requiredGateIds=["gate:required"])=>
+ ({projectId,projectName:"Blueprint OS",sourceRevision:revision,workPackages:works,gateBundles:gates,requiredGateIds});
+test("canonical READY is advisory, never Agent authority",()=>{const x=project(input());assert.equal(x.state,"ready");assert.equal(x.workPackageId,"work:one");assert.equal(x.mayExecute,false);assert.equal(x.gatePass,false);});
+test("missing global gate blocks work",()=>assert.equal(project(input([work("work:one","ready",[],[])],[],["gate:required"])).state,"blocked"));
+test("no real gate evidence blocks nominal PASS",()=>assert.equal(project(input([work("work:one")],[gate("pass",["evidence:one"],[])])).state,"blocked"));
+test("cross-project gates rejected",()=>{const g=gate();g.gate.projectId="project:other";assert.equal(project(input([work("work:one")],[g])).state,"unverified");});
+test("foreign evidence rejected",()=>assert.equal(project(input([work("work:one")],[gate("pass",["evidence:one"],[ev("evidence:one","gate:other")])])).state,"unverified"));
+test("pending dependency blocks work",()=>assert.equal(project(input([work("work:a","ready",["work:b"]),work("work:b","planned")])).state,"blocked"));
+test("completed dependency allows next ready",()=>{const x=project(input([work("work:a","ready",["work:b"]),work("work:b","completed")]));assert.equal(x.state,"ready");assert.equal(x.workPackageId,"work:a");});
+test("duplicate work ID is unverified",()=>assert.equal(project(input([work("work:a"),work("work:a")])).state,"unverified"));
+test("invalid revision cannot confer READY",()=>assert.equal(project({...input(),sourceRevision:"UNVERIFIED"}).state,"unverified"));
+test("no outstanding work never proves product done",()=>assert.equal(project(input([work("work:a","completed")])).state,"unverified"));
+test("active eligible work outranks planned work",()=>assert.equal(project(input([work("work:a","ready"),work("work:z","in-progress")])).workPackageId,"work:z"));
+test("blocked task is review-only",()=>{const x=project(input([work("work:a","blocked"),work("work:b","planned")]));assert.equal(x.state,"blocked");assert.equal(x.workPackageId,"work:a");});
+test("duplicate evidence id cannot confer PASS",()=>assert.equal(project(input([work("work:a")],[gate("pass",["evidence:one","evidence:one"],[ev()])])).state,"blocked"));
+test("candidate gate is never PASS",()=>assert.equal(project(input([work("work:a")],[gate("candidate")])).state,"blocked"));

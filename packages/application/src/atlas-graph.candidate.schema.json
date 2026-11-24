@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Blueprint OS Master Atlas candidate graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "projectId",
+    "sourceRevision",
+    "nodes",
+    "edges"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "0.1.0"
+    },
+    "projectId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
+    },
+    "sourceRevision": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "nodes": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "maxItems": 50000,
+      "items": {
+        "$ref": "#/$defs/edge"
+      }
+    }
+  },
+  "$defs": {
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source",
+        "revision"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "title",
+        "projectId",
+        "factState",
+        "lifecycle",
+        "provenance"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
+        },
+        "type": {
+          "enum": [
+            "Vision",
+            "Principle",
+            "ConstitutionClause",
+            "Amendment",
+            "Authority",
+            "Project",
+            "Repository",
+            "Module",
+            "Interface",
+            "Contract",
+            "Requirement",
+            "Goal",
+            "WorkPackage",
+            "Step",
+            "Algorithm",
+            "Formula",
+            "Dataset",
+            "Model",
+            "TrainingRun",
+            "Experiment",
+            "Test",
+            "Gate",
+            "Evidence",
+            "Defect",
+            "Incident",
+            "Decision",
+            "Release",
+            "Runtime",
+            "Device",
+            "Capability",
+            "Checkpoint",
+            "FutureCandidate",
+            "Fix"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300,
+          "pattern": "\\S"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "factState": {
+          "enum": [
+            "observed",
+            "verified",
+            "proposed",
+            "blocked",
+            "superseded"
+          ]
+        },
+        "lifecycle": {
+          "enum": [
+            "planned",
+            "ready",
+            "in-progress",
+            "testing",
+            "review",
+            "completed",
+            "archived",
+            "blocked"
+          ]
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "from",
+        "to",
+        "factState",
+        "provenance"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
+        },
+        "type": {
+          "enum": [
+            "REFINES",
+            "INHERITS",
+            "SUPERSEDES",
+            "DEPENDS_ON",
+            "IMPLEMENTS",
+            "CALLS",
+            "READS",
+            "WRITES",
+            "PRODUCES",
+            "CONSUMES",
+            "VERIFIED_BY",
+            "GOVERNED_BY",
+            "AUTHORIZED_BY",
+            "BLOCKED_BY",
+            "CAUSES_VERIFIED",
+            "SUSPECTED_CAUSE",
+            "FIXED_BY",
+            "REGRESSED_BY",
+            "MIGRATES_TO",
+            "COMPATIBLE_WITH",
+            "DEPLOYED_AS",
+            "TRACES_TO"
+          ]
+        },
+        "from": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
+        },
+        "to": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
+        },
+        "factState": {
+          "enum": [
+            "observed",
+            "verified",
+            "proposed",
+            "blocked",
+            "superseded"
+          ]
+        },
+        "evidenceRef": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9:._/-]{1,159}$"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        }
+      }
+    }
+  }
+}

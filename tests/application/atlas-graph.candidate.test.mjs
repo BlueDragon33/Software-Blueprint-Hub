@@ -1,0 +1,26 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import {validateAtlas,traceAtlas,verifyVerticalSlice} from "../../packages/application/src/atlas-graph.candidate.mjs";
+const fixture=JSON.parse(fs.readFileSync(new URL("../fixtures/atlas-graph.candidate.fixture.json",import.meta.url),"utf8"));
+const copy=()=>structuredClone(fixture);
+const ids={Goal:"goal:atlas",WorkPackage:"work:atlas",Gate:"gate:qa",Evidence:"evidence:fixture",Defect:"defect:fixture",Fix:"fix:fixture",Checkpoint:"checkpoint:fixture"};
+const has=(g,code)=>validateAtlas(g).errors.some(e=>e.code===code);
+test("fixture is structurally valid but only proposed",()=>{assert.equal(validateAtlas(fixture).valid,true);assert.ok(fixture.nodes.every(n=>n.factState==="proposed"));});
+test("Goal Work Gate Evidence Defect Fix Checkpoint vertical slice",()=>{const r=verifyVerticalSlice(fixture,ids);assert.equal(r.valid,true);assert.ok(r.trace.visited.includes("checkpoint:fixture"));});
+test("directional bounded trace",()=>{assert.deepEqual(traceAtlas(fixture,"fix:fixture",{direction:"forward"}).visited,["fix:fixture","checkpoint:fixture"]);assert.equal(traceAtlas(fixture,"fix:fixture",{maxDepth:0}).visited.length,1);});
+test("duplicate ID rejected",()=>{const g=copy();g.nodes.push(g.nodes[0]);assert.ok(has(g,"NODE_ID"));});
+test("dangling edge rejected",()=>{const g=copy();g.edges[0].to="goal:missing";assert.ok(has(g,"DANGLING_EDGE"));});
+test("cross-project node rejected",()=>{const g=copy();g.nodes[0].projectId="project:other";assert.ok(has(g,"NODE_SCOPE"));});
+test("missing provenance rejected",()=>{const g=copy();delete g.nodes[0].provenance;assert.ok(has(g,"PROVENANCE"));});
+test("source revision rejected",()=>{const g=copy();g.sourceRevision="abc";assert.ok(has(g,"REVISION"));});
+test("hard dependency cycle rejected",()=>{const g=copy();for(const [id,from,to] of [["edge:dep1","goal:atlas","work:atlas"],["edge:dep2","work:atlas","goal:atlas"]])g.edges.push({id,from,to,type:"DEPENDS_ON",factState:"proposed",provenance:g.edges[0].provenance});assert.ok(has(g,"DEPENDENCY_CYCLE"));});
+test("unverified causal claim rejected",()=>{const g=copy();g.edges.push({id:"edge:cause",from:"defect:fixture",to:"fix:fixture",type:"CAUSES_VERIFIED",factState:"verified",evidenceRef:"evidence:fixture",provenance:g.edges[0].provenance});assert.ok(has(g,"FALSE_CAUSAL_CLAIM"));});
+test("false verifier rejected",()=>{const g=copy();g.edges[2].to="goal:atlas";assert.ok(has(g,"INVALID_VERIFIER"));});
+test("broken vertical slice rejected",()=>{const g=copy();g.edges.pop();assert.equal(verifyVerticalSlice(g,ids).valid,false);});
+test("unknown node and bad trace direction rejected",()=>{assert.throws(()=>traceAtlas(fixture,"goal:missing"),/UNKNOWN_NODE/);assert.throws(()=>traceAtlas(fixture,"goal:atlas",{direction:"sideways"}),/BAD_TRACE/);});
+test("self edge rejected",()=>{const g=copy();g.edges[0].to=g.edges[0].from;assert.ok(has(g,"SELF_EDGE"));});
+
+test("strict root fields agree with schema",()=>{const g=copy();g.extra="unknown";assert.ok(has(g,"ROOT_FIELDS"));});
+test("schema node/edge patterns match runtime ID contract",()=>{const schema=JSON.parse(fs.readFileSync(new URL("../../packages/application/src/atlas-graph.candidate.schema.json",import.meta.url),"utf8"));const p=schema.$defs.node.properties.id.pattern;assert.equal(p,"^[A-Za-z][A-Za-z0-9:._/-]{1,159}$");assert.equal(schema.$defs.edge.properties.id.pattern,p);assert.equal(schema.$defs.edge.properties.from.pattern,p);assert.equal(schema.$defs.node.properties.title.maxLength,300);assert.equal(schema.$defs.node.properties.title.pattern,"\\S");});
+test("oversized graph is rejected before traversal",()=>{const g=copy();g.edges=new Array(50001);assert.ok(has(g,"LIMIT"));});

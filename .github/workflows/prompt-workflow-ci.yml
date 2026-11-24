@@ -80,6 +80,8 @@ jobs:
         run: pnpm --filter @blueprint-os/application typecheck
       - name: Typecheck Next.js project workspace
         run: pnpm --filter @blueprint-os/web typecheck
+      - name: Build Next.js project workspace (source-only, no Production release)
+        run: pnpm --filter @blueprint-os/web build
       - name: Candidate projection authorization and drift tests
         run: pnpm exec vitest run tests/application/prompt-workflow-projection.test.ts tests/application/prompt-workflow-registry.test.ts tests/application/prompt-workflow-graph.test.ts tests/application/prompt-workflow-orchestration.test.ts tests/application/prompt-workflow-execution.test.ts tests/application/prompt-workflow-authority.test.ts tests/application/prompt-workflow-journal.test.ts tests/application/prompt-workflow-github-executor.test.ts tests/application/prompt-workflow-operational-e2e.test.ts tests/application/prompt-workflow-observation-qa.test.ts tests/application/prompt-workflow-inspection-pipeline.test.ts tests/application/prompt-workflow-qa-journal.test.ts tests/application/prompt-workflow-qa-journal.test.ts
       - name: Visual Workflow Studio semantic SSR tests

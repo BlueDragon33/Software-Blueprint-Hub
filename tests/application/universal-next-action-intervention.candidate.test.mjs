@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {planUniversalUserIntervention as plan} from '../../packages/application/src/universal-next-action-frontier.candidate.mjs';
+test('ordinary READY work never asks for readback',()=>{const r=plan({state:'ready'});assert.equal(r.requiresUser,false);assert.equal(r.kind,'continue-autonomously');});
+test('active task continues without interruptions',()=>assert.equal(plan({state:'working',connectedRunnerAvailable:true}).nextUserReadback,false));
+test('Windows batch only if Windows capability unavailable and no runner',()=>{const r=plan({state:'ready',nativeWindowsRequired:true,nativeWindowsAvailable:false,connectedRunnerAvailable:false,nativeStepLabels:['Check exact HEAD','Run Node tests','Return consolidated log']});assert.equal(r.kind,'one-native-batch');assert.equal(r.requiresUser,true);assert.equal(r.steps.length,3);});
+test('available runner suppresses PowerShell request',()=>assert.equal(plan({state:'ready',nativeWindowsRequired:true,connectedRunnerAvailable:true,nativeStepLabels:['Check HEAD']}).requiresUser,false));
+test('no preflight batch means no arbitrary repeated human ask',()=>assert.equal(plan({state:'ready',nativeWindowsRequired:true}).requiresUser,false));
+test('human approval boundary cannot be suppressed by runner',()=>{const r=plan({state:'ready',authorityRequired:true,connectedRunnerAvailable:true});assert.equal(r.kind,'human-authority-gate');assert.equal(r.requiresUser,true);});
+test('technical blocker saves checkpoint instead of asking routine question',()=>{const r=plan({state:'blocked'});assert.equal(r.kind,'technical-checkpoint');assert.equal(r.requiresUser,false);});
+test('completion reports once, no PowerShell',()=>{const r=plan({state:'complete',nativeWindowsRequired:true,nativeStepLabels:['Test']});assert.equal(r.kind,'final-report');assert.equal(r.requiresUser,false);});
+test('malformed native labels rejected',()=>assert.throws(()=>plan({state:'working',nativeStepLabels:['']}),/invalid interaction/));
+test('mandatory human gate takes priority over claimed completion',()=>{const r=plan({state:'complete',authorityRequired:true});assert.equal(r.kind,'human-authority-gate');assert.equal(r.requiresUser,true);});
