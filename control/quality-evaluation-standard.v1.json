@@ -1,184 +1,304 @@
 {
-  "schemaVersion": "1.0.0",
-  "standardId": "blueprint-quality-evidence-scorecard-v1",
-  "constitutionalSource": "BlueDragon33/Software-Blueprint-Hub@ACTIVE-1.3.0",
-  "adoption": "PROPOSAL_ONLY_UNTIL_GOVERNED_APPROVAL",
-  "scope": "all-current-and-future-governed-projects; project-specific applicability with explicit N/A reasons",
-  "relationship": "additional evidence analysis for existing WorkPackage/QualityGate/GateEvidence; never independent reviewer, ratification or release authority",
-  "candidateScoreThreshold": 90,
-  "scoreIsNotReviewOrReleaseAuthorization": true,
-  "requiredSourceRevision": "40-character SHA equals expected GitHub PR head at execution; no synthetic merge HEAD",
-  "applicableScopes": [
-    "source",
-    "browser_local",
-    "offline_full",
-    "release_candidate"
-  ],
-  "scopeMustEnable": {
-    "browser_local": [
-      "browser"
-    ],
-    "offline_full": [
-      "browser",
-      "offlineFull",
-      "persistence"
-    ],
-    "release_candidate": [
-      "releaseCandidate"
-    ]
-  },
-  "featureFlags": [
-    "browser",
-    "performance",
-    "offlineFull",
-    "persistence",
-    "releaseCandidate"
-  ],
-  "metrics": [
+  "schemaVersion": "2.0.0",
+  "standardId": "blueprint-two-independent-evaluation-axes-v1",
+  "status": "DRAFT_PROPOSAL_NOT_ACTIVE_LAW",
+  "constitutionalBaseline": "Blueprint OS ACTIVE 1.3.0",
+  "scope": "all-current-and-future-governed-applications",
+  "purpose": "two independent evaluation rubrics: engineering durability and user-value effectiveness; not two human reviewers",
+  "relationship": "supplements existing WorkPackage / QualityGate / GateEvidence; does not change reviewer authorities, ratification or release",
+  "noCompositePass": true,
+  "scoreSufficiency": "DECLARED_EVIDENCE_ONLY_NEVER_CANONICAL_GATE_PASS",
+  "candidateThresholdPerAxis": 90,
+  "axes": [
     {
-      "id": "traceable_evidence_ratio",
-      "weight": 10,
-      "when": "always",
-      "test": "min",
-      "limit": 1,
-      "critical": true
+      "id": "technical",
+      "name": "A — Kỹ thuật bền vững, thống nhất, tự phục hồi",
+      "threshold": 90,
+      "scoreWeightTotal": 100,
+      "metrics": [
+        {
+          "id": "spec_contract_coverage_ratio",
+          "weight": 10,
+          "op": "min",
+          "threshold": 1,
+          "critical": true,
+          "when": "always",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "conflicting_source_of_truth_count",
+          "weight": 8,
+          "op": "max",
+          "threshold": 0,
+          "critical": true,
+          "when": "always",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "critical_regression_pass_ratio",
+          "weight": 12,
+          "op": "min",
+          "threshold": 1,
+          "critical": true,
+          "when": "always",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "open_p0_p1_count",
+          "weight": 12,
+          "op": "max",
+          "threshold": 0,
+          "critical": true,
+          "when": "always",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "open_critical_security_count",
+          "weight": 10,
+          "op": "max",
+          "threshold": 0,
+          "critical": true,
+          "when": "always",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "state_consistency_invariant_failures",
+          "weight": 10,
+          "op": "max",
+          "threshold": 0,
+          "critical": true,
+          "when": "always",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "restart_recovery_pass_ratio",
+          "weight": 10,
+          "op": "min",
+          "threshold": 1,
+          "critical": true,
+          "when": "always",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "migration_backup_restore_pass_ratio",
+          "weight": 10,
+          "op": "min",
+          "threshold": 1,
+          "critical": true,
+          "when": "always",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "fault_injection_pass_ratio",
+          "weight": 6,
+          "op": "min",
+          "threshold": 1,
+          "critical": true,
+          "when": "always",
+          "minSamples": 30,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "p95_latency_regression_pct",
+          "weight": 5,
+          "op": "max",
+          "threshold": 10,
+          "critical": false,
+          "when": "always",
+          "minSamples": 10,
+          "minBaselineSamples": 10,
+          "evidence": "source"
+        },
+        {
+          "id": "incident_observability_ratio",
+          "weight": 4,
+          "op": "min",
+          "threshold": 1,
+          "critical": false,
+          "when": "always",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        },
+        {
+          "id": "offline_core_journey_pass_ratio",
+          "weight": 3,
+          "op": "min",
+          "threshold": 1,
+          "critical": true,
+          "when": "offlineClaim",
+          "minSamples": 0,
+          "minBaselineSamples": 0,
+          "evidence": "source"
+        }
+      ]
     },
     {
-      "id": "required_ci_pass_ratio",
-      "weight": 12,
-      "when": "always",
-      "test": "min",
-      "limit": 1,
-      "critical": true
-    },
-    {
-      "id": "p0_p1_open_count",
-      "weight": 12,
-      "when": "always",
-      "test": "max",
-      "limit": 0,
-      "critical": true
-    },
-    {
-      "id": "critical_security_open_count",
-      "weight": 12,
-      "when": "always",
-      "test": "max",
-      "limit": 0,
-      "critical": true
-    },
-    {
-      "id": "regression_failure_count",
-      "weight": 12,
-      "when": "always",
-      "test": "max",
-      "limit": 0,
-      "critical": true
-    },
-    {
-      "id": "new_duplicate_logic_count",
-      "weight": 6,
-      "when": "always",
-      "test": "max",
-      "limit": 0,
-      "critical": true
-    },
-    {
-      "id": "uncaught_browser_errors",
-      "weight": 6,
-      "when": "browser",
-      "test": "max",
-      "limit": 0,
-      "critical": true
-    },
-    {
-      "id": "critical_journey_pass_ratio",
-      "weight": 6,
-      "when": "browser",
-      "test": "min",
-      "limit": 1,
-      "critical": true
-    },
-    {
-      "id": "critical_a11y_findings",
-      "weight": 5,
-      "when": "browser",
-      "test": "max",
-      "limit": 0,
-      "critical": true
-    },
-    {
-      "id": "p95_latency_regression_pct",
-      "weight": 5,
-      "when": "performance",
-      "test": "max",
-      "limit": 10,
-      "critical": true,
-      "minSamples": 10
-    },
-    {
-      "id": "offline_cold_start_pass_ratio",
-      "weight": 5,
-      "when": "offlineFull",
-      "test": "min",
-      "limit": 1,
-      "critical": true
-    },
-    {
-      "id": "local_save_restart_restore_pass_ratio",
-      "weight": 5,
-      "when": "persistence",
-      "test": "min",
-      "limit": 1,
-      "critical": true
-    },
-    {
-      "id": "rollback_recovery_pass_ratio",
-      "weight": 4,
-      "when": "releaseCandidate",
-      "test": "min",
-      "limit": 1,
-      "critical": true
+      "id": "user_value",
+      "name": "B — Giá trị người dùng, giải quyết vấn đề thực tế",
+      "threshold": 90,
+      "scoreWeightTotal": 100,
+      "metrics": [
+        {
+          "id": "user_problem_evidence_ratio",
+          "weight": 10,
+          "op": "min",
+          "threshold": 1,
+          "critical": true,
+          "when": "always",
+          "minSamples": 5,
+          "minBaselineSamples": 0,
+          "evidence": "user"
+        },
+        {
+          "id": "essential_task_success_ratio",
+          "weight": 20,
+          "op": "min",
+          "threshold": 0.95,
+          "critical": true,
+          "when": "always",
+          "minSamples": 10,
+          "minBaselineSamples": 0,
+          "evidence": "user"
+        },
+        {
+          "id": "measured_user_effort_improvement_pct",
+          "weight": 15,
+          "op": "min",
+          "threshold": 20,
+          "critical": true,
+          "when": "always",
+          "minSamples": 10,
+          "minBaselineSamples": 10,
+          "evidence": "user"
+        },
+        {
+          "id": "user_output_correctness_ratio",
+          "weight": 15,
+          "op": "min",
+          "threshold": 0.99,
+          "critical": true,
+          "when": "always",
+          "minSamples": 10,
+          "minBaselineSamples": 0,
+          "evidence": "user"
+        },
+        {
+          "id": "first_use_unassisted_success_ratio",
+          "weight": 10,
+          "op": "min",
+          "threshold": 0.9,
+          "critical": true,
+          "when": "always",
+          "minSamples": 5,
+          "minBaselineSamples": 0,
+          "evidence": "user"
+        },
+        {
+          "id": "accessible_user_task_success_ratio",
+          "weight": 8,
+          "op": "min",
+          "threshold": 0.95,
+          "critical": true,
+          "when": "always",
+          "minSamples": 5,
+          "minBaselineSamples": 0,
+          "evidence": "user"
+        },
+        {
+          "id": "user_visible_error_ratio",
+          "weight": 8,
+          "op": "max",
+          "threshold": 0.02,
+          "critical": true,
+          "when": "always",
+          "minSamples": 10,
+          "minBaselineSamples": 0,
+          "evidence": "user"
+        },
+        {
+          "id": "repeat_use_usefulness_ratio",
+          "weight": 7,
+          "op": "min",
+          "threshold": 0.65,
+          "critical": true,
+          "when": "always",
+          "minSamples": 10,
+          "minBaselineSamples": 0,
+          "evidence": "user"
+        },
+        {
+          "id": "state_truth_comprehension_ratio",
+          "weight": 5,
+          "op": "min",
+          "threshold": 0.95,
+          "critical": true,
+          "when": "always",
+          "minSamples": 5,
+          "minBaselineSamples": 0,
+          "evidence": "user"
+        },
+        {
+          "id": "user_cost_friction_regression_pct",
+          "weight": 2,
+          "op": "max",
+          "threshold": 0,
+          "critical": false,
+          "when": "always",
+          "minSamples": 10,
+          "minBaselineSamples": 10,
+          "evidence": "user"
+        }
+      ]
     }
   ],
-  "trendTargets": {
-    "firstAttemptFixPct": {
-      "min": 85,
-      "minClosed": 20
-    },
-    "reopenedIssuePct": {
-      "max": 5,
-      "minClosed": 20
-    },
-    "regressionsPer100ClosedChanges": {
-      "max": 2,
-      "minClosed": 30
-    },
-    "p95LatencyRegressionPct": {
-      "max": 10,
-      "minComparableSamples": 10
-    }
+  "optionalContext": {
+    "offlineClaim": "requires a real offline-capable core when true; online-only exceptions must be explicit",
+    "remoteSync": "project-specific, assessed in technical consistency invariants",
+    "sensitiveData": "project-specific data safety acceptance"
   },
-  "learningPolicy": {
+  "feedbackLearning": {
     "windowDays": 90,
-    "minimumEventsForRecurringPattern": 3,
-    "minimumIndependentRepositories": 2,
-    "requireExactRevisionAndEvidenceUrl": true,
-    "proposalOnly": true,
-    "feedbackMustNotChangeConstitutionOrThresholds": true,
-    "noAutomaticApprovalsOrCodeEdits": true,
-    "noLLMWeightTrainingOrClaimsOfModelRetraining": true,
-    "recommendedOutput": "draft test/regression improvement with source-linked evidence and independent evaluation"
+    "recurrenceMinimum": 3,
+    "distinctRepositoriesMinimum": 2,
+    "separateTrendByAxis": true,
+    "firstAttemptFixRateTargetPct": 85,
+    "reopenRateTargetPct": 5,
+    "regressionsPer100ChangesTarget": 2,
+    "minClosedSample": 20,
+    "userValueOutcomeTrendRequiresRealUserEvidence": true,
+    "eventIntake": "BlueDragon33/Software-Blueprint-Hub Issue #159 only",
+    "proposalsRequireIndependentEvaluationOfEvidenceNotSecondPerson": true,
+    "doNotAutoReweight": true,
+    "doNotAutoPatch": true,
+    "doNotRetrainModelWeights": true
   },
-  "failClosed": {
-    "rejectMissingRequiredEvidence": true,
-    "rejectUnjustifiedNotApplicable": true,
-    "rejectUnknownMetricIds": true,
-    "rejectSyntheticMergeShaWhenExpectedHeadProvided": true,
-    "rejectUnverifiedSampleCount": true,
-    "blockAnyFailedCriticalMetric": true,
-    "neverIssueCanonicalQualityGatePass": true,
-    "neverIssueIndependentReviewPass": true,
-    "neverIssueProductionApproval": true
+  "hardBoundaries": {
+    "strictExpectedFullPrHead": true,
+    "perMetricSourceAndEvidenceLink": true,
+    "noSkippingRequiredMetric": true,
+    "noUserScoreFromCIAlone": true,
+    "noCrossAxisCompensation": true,
+    "noScoreImpliedIndependentPerson": true,
+    "noScoreImpliedCanonicalQualityGate": true,
+    "noScoreImpliedMergeRatificationOrProduction": true,
+    "centuryScaleMeansDesignForPortabilityMigrationRecoveryNotVerified100YearsUptime": true
   }
 }
