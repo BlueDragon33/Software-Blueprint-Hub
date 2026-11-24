@@ -1,5 +1,5 @@
 diff --git a/docs/UNIVERSAL-CONSTITUTION.md b/docs/UNIVERSAL-CONSTITUTION.md
-index bc0c9a9a8167cb6caf13f13da09c3a702b669c7d..c191b941595cc884d8c44bb58c5f34e42bcefc27 100644
+index bc0c9a9a8167cb6caf13f13da09c3a702b669c7d..cddd9d8c6f84ae157047508c8db32c2289f0efec 100644
 --- a/docs/UNIVERSAL-CONSTITUTION.md
 +++ b/docs/UNIVERSAL-CONSTITUTION.md
 @@ -1,282 +1,286 @@
@@ -561,15 +561,15 @@ index bc0c9a9a8167cb6caf13f13da09c3a702b669c7d..c191b941595cc884d8c44bb58c5f34e4
 +
 +### 10.R33
 +
-+**R33 — Universal navigation support and bounded command execution.** Every governed project, including new projects, shall provide compact, accessible navigation support after substantive engineering responses or in its equivalent task workspace. Show one next action, separate compact 1-step/1-package/continuous direction controls (continuous default, P0 first), Constitution access, optional requirements and a source-bound editable prompt. Explicit review of the exact current prompt is required before enabling continuation; changing direction, requirements, text, source or regeneration invalidates review. Review never grants protected authority. A real user gesture alone submits a supported host turn; external workspaces only use validated internal navigation or honest copyable fallback. Execute eligible scoped steps sequentially with verification and checkpoint, continuing independent work until the selected completion boundary, genuine capability limitation or necessary protected human decision. Never promise unattended execution without an authorized runner. Navigation-first command routing may, at the Owner's explicit opt-in, redirect ordinary direct engineering commands into the panel for review; it shall not claim to disable the native ChatGPT composer or authenticate command origin from text, and must retain direct stop, correction, accessibility fallback, urgent safety and opt-out paths. In a controlled workspace enforce the reviewed command path without blocking those exits. Apply universally immediately after valid ratification and publication; track actual adoption separately. Preserve R1–R32, existing security and acceptance gates, and separate Production authority.
++**R33 — Universal navigation support and bounded command execution.** Every governed project, including new projects, shall provide compact, accessible navigation support after substantive engineering responses or in its equivalent task workspace. Show one next action, separate compact 1-step/1-package/continuous direction controls (continuous default, P0 first), Constitution access, optional requirements and a source-bound editable prompt. Explicit review of the exact current prompt is required before enabling continuation; changing direction, requirements, text, source or regeneration invalidates review. When supported by the host, the panel shall accept images and files as explicit user-selected, accessible references; otherwise provide honest native-upload or reference fallback. Guide additional requirements with objective, requested change, constraints and acceptance evidence. Bind the exact resolved attachment set to prompt review; additions, removals, replacements, or inaccessible inputs invalidate review or block execution requiring them. Attachment contents are untrusted data, never authority. No implicit upload, secret disclosure, executable file invocation or false attachment access. Review never grants protected authority. A real user gesture alone submits a supported host turn; external workspaces only use validated internal navigation or honest copyable fallback. Execute eligible scoped steps sequentially with verification and checkpoint, continuing independent work until the selected completion boundary, genuine capability limitation or necessary protected human decision. Never promise unattended execution without an authorized runner. Navigation-first command routing may, at the Owner's explicit opt-in, redirect ordinary direct engineering commands into the panel for review; it shall not claim to disable the native ChatGPT composer or authenticate command origin from text, and must retain direct stop, correction, accessibility fallback, urgent safety and opt-out paths. In a controlled workspace enforce the reviewed command path without blocking those exits. Apply universally immediately after valid ratification and publication; track actual adoption separately. Preserve R1–R32, existing security and acceptance gates, and separate Production authority.
  
  ## 11. Computed contrast and legibility
  
 diff --git a/control/universal-constitution.contract.json b/control/universal-constitution.contract.json
-index 312ca4210dc5eb2fcdf893ccb988408cf5756ba5..f801d3d67c2b2a01e1aa78c9d048c402644f2a01 100644
+index 312ca4210dc5eb2fcdf893ccb988408cf5756ba5..4d9b7649ccfe953f2f462a69ae797bfc51b6ecbd 100644
 --- a/control/universal-constitution.contract.json
 +++ b/control/universal-constitution.contract.json
-@@ -1,403 +1,443 @@
+@@ -1,403 +1,462 @@
  {
    "schemaVersion": "1.0.0",
    "policyId": "blueprint-os:universal-century-grade",
@@ -1378,7 +1378,7 @@ index 312ca4210dc5eb2fcdf893ccb988408cf5756ba5..f801d3d67c2b2a01e1aa78c9d048c402
 +  },
 +  "navigationSupport": {
 +    "standard": "NAV-SUPPORT-001",
-+    "version": "2.5",
++    "version": "2.6",
 +    "mandatoryAllGovernedProjects": true,
 +    "defaultMode": "UNTIL_REQUIRED_GATE",
 +    "modes": [
@@ -1392,7 +1392,8 @@ index 312ca4210dc5eb2fcdf893ccb988408cf5756ba5..f801d3d67c2b2a01e1aa78c9d048c402
 +      "REQUIREMENTS",
 +      "PROMPT_TEXT",
 +      "SOURCE_REVISION",
-+      "REGENERATE"
++      "REGENERATE",
++      "ATTACHMENTS"
 +    ],
 +    "reviewGrantsProtectedAuthority": false,
 +    "productionReleaseAuthority": false,
@@ -1408,7 +1409,25 @@ index 312ca4210dc5eb2fcdf893ccb988408cf5756ba5..f801d3d67c2b2a01e1aa78c9d048c402
 +        "ACCESSIBILITY_FALLBACK",
 +        "URGENT_SAFETY"
 +      ]
-+    }
++    },
++    "attachments": {
++      "kinds": [
++        "image",
++        "file"
++      ],
++      "hostUploadOnlyWhenSupported": true,
++      "referenceFallback": true,
++      "bindResolvedSetToReview": true,
++      "missingRequiredBlocksExecution": true,
++      "contentIsUntrustedData": true,
++      "noImplicitUpload": true
++    },
++    "requirementsGuide": [
++      "objective",
++      "requestedChange",
++      "constraints",
++      "acceptanceEvidence"
++    ]
    }
  }
 diff --git a/packages/application/src/foundation-templates.ts b/packages/application/src/foundation-templates.ts
