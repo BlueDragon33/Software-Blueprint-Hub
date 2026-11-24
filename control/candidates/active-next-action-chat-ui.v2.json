@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "candidateId": "active-next-action-chat-001",
-  "contractVersion": "2.3.0-candidate",
+  "contractVersion": "2.4.0-candidate",
   "status": "PROPOSED_ONLY",
   "authority": {
     "policyId": "blueprint-os:universal-century-grade",
@@ -186,17 +186,20 @@
       {
         "id": "ONE_STEP",
         "label": "Từng bước",
-        "completion": "one verified step"
+        "completion": "one verified step",
+        "buttonLabel": "Thực hiện 1 bước"
       },
       {
         "id": "ONE_PACKAGE",
         "label": "Trọn gói",
-        "completion": "all eligible steps in selected canonical work package"
+        "completion": "all eligible steps in selected canonical work package",
+        "buttonLabel": "Hoàn thành 1 gói nhiệm vụ"
       },
       {
         "id": "UNTIL_REQUIRED_GATE",
         "label": "Liên tục",
-        "completion": "all eligible authorized work or genuine boundary"
+        "completion": "all eligible authorized work or genuine boundary",
+        "buttonLabel": "Thực hiện liên tục đến cổng bắt buộc"
       }
     ],
     "orderedPhases": [
@@ -215,6 +218,19 @@
     "protectedHumanDecisionOnly": true,
     "capabilityBlockerIsNotApprovalRequest": true,
     "noBackgroundPromise": true,
-    "advisoryOnly": true
+    "advisoryOnly": true,
+    "controlPresentation": {
+      "kind": "THREE_SEPARATE_BUTTONS",
+      "visibleByDefault": true,
+      "layout": "VERTICAL_FULL_WIDTH",
+      "minimumTargetCssPx": 44,
+      "selection": "EXCLUSIVE",
+      "selectedState": "VISIBLE_TEXT_AND_ICON",
+      "labelAndStopConditionVisible": true,
+      "selectionSends": false,
+      "selectionUpdatesPrompt": true,
+      "selectionGrantsAuthority": false,
+      "explicitSendSeparate": true
+    }
   }
 }
