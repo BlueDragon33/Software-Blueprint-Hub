@@ -1,0 +1,11 @@
+# NAV-SUPPORT-001 — proposed Constitution 1.4.0 (R33)
+
+Status: PROPOSED_ONLY; ACTIVE 1.3.0 unchanged. Owner accepted v2.5 and requested publication and navigation-first routing in chat. This records intent, NOT authenticated canonical ratification.
+
+Baseline main 877595c59072fc908ed40bd91028a80b3001ef02; v2.5 source b7c94ee6f97c8f90fbf57ff9cd18e33d04916605; Node24 42/42 PASS run 45441744845, Fast CI 45441744935. Full release gate skipped. Unpublished target Git object be1034d89f9c15d8351f7692ef66c82f06b9500b; no branch or tag points at this target. Eight-path patch: CONSTITUTION-1.4-NAV-SUPPORT-PUBLICATION.patch. Target version 1.4.0 proposed because this adds a mandatory law, not a patch correction. R1–R32 retained.
+
+## Impact and migration
+Existing and future governed projects inherit R33 upon valid publication. Existing canonical inventory/adoption ledger is the only portfolio source; do not fabricate current/compliant observations. COMPACT and STRUCTURED apply the same behavior proportionately. Migrate shared project instructions and workspace surfaces first, then individual repositories in priority order; verify actual three-turn interaction, compact selectors, exact prompt review and invalidation, accessible fallback, and A technical/B user-value evidence. Use no paid service and no new control plane. Existing host composer cannot be locked; opt-in behavioral routing only. Direct stop/correction/opt-out/urgent safety/accessibility remain available; text is not trusted proof of origin. In owned workspace, enforce reviewed command routing within the existing application authority. Roll back faulty UI separately without revoking law or corrupting work state. No production grants.
+
+## Publication gate
+Existing Constitution Center requires authenticated append-only ratification, impact/migration evidence, trusted exact-revision CI attestation, version-set publication and separate propagation. Existing publication verifier hardcodes the historical 1.3 patch path; do not overwrite that sealed artifact or pretend it accepts 1.4. Generalize selection securely, with regression tests, before trusted issuance. The draft patch is not a trusted attestation or an ACTIVE change. Do not apply to main or use direct SQL. Issue #159 sole ledger. No Graph/Reviewer B changes.
