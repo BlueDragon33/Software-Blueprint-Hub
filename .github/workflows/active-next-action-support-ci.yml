@@ -1,0 +1,37 @@
+name: Per-Reply Support + Delivery Program (source contract)
+on:
+  pull_request:
+    paths:
+      - 'docs/UANA-CHATGPT-PROJECT-INSTRUCTIONS.v2.md'
+      - 'control/candidates/active-next-action-chat-ui.v2.json'
+      - 'projects/blueprint-os/END_TO_END_COMPLETION_PROGRAM.v1.md'
+      - 'tests/governance/active-next-action-chat-ui.candidate.test.mjs'
+      - '.github/workflows/active-next-action-support-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/UANA-CHATGPT-PROJECT-INSTRUCTIONS.v2.md'
+      - 'control/candidates/active-next-action-chat-ui.v2.json'
+      - 'projects/blueprint-os/END_TO_END_COMPLETION_PROGRAM.v1.md'
+      - 'tests/governance/active-next-action-chat-ui.candidate.test.mjs'
+      - '.github/workflows/active-next-action-support-ci.yml'
+permissions:
+  contents: read
+jobs:
+  support-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate response support candidate and end-to-end milestones at exact SHA
+        run: |
+          node --check tests/governance/active-next-action-chat-ui.candidate.test.mjs
+          node --test tests/governance/active-next-action-chat-ui.candidate.test.mjs
+      - name: No native host installation or release assertion
+        run: echo "Contract-only evidence. Host UI, real end-user acceptance and protected release remain unverified."
