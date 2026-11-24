@@ -30,7 +30,7 @@ export function extractLedgerEvents(comments) {
       events.push({...event, ledgerIssue:159, ledgerCommentId:c.id});
     }
   }
-  return {schemaVersion:"1.0.0",events};
+  return {schemaVersion:"2.0.0",events};
 }
 
 export async function readCanonicalFeedback(fetchImpl=fetch,token=undefined) {
