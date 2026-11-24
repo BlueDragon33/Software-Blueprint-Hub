@@ -1,0 +1,17 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const read=(p)=>readFileSync(new URL("../../"+p,import.meta.url),"utf8");
+const c=JSON.parse(read("control/candidates/active-next-action-chat-ui.v2.json"));
+const p=c.presentation;
+const doc=read("docs/design/constitutional-navigation-support-standard.v1.candidate.md");
+const active=JSON.parse(read("control/universal-constitution-version.json"));
+test("candidate preserves active authority",()=>{assert.equal(c.status,"PROPOSED_ONLY");assert.equal(active.policyVersion,"1.3.0");assert.equal(active.productionReleaseAuthority,false);assert.equal(c.authority.productionAuthority,false);assert.equal(c.authority.ratificationRecord,null);assert.equal(c.authority.claimActive,false);});
+test("two focused controls and no repeated report",()=>{assert.deepEqual(p.defaultVisibleActions,["Theo Hiến pháp","Tạo prompt tiếp theo"]);assert.equal(p.summary,"ONE_NEXT_ACTION_ONLY");assert.equal(p.repeatReportMetadata,false);assert.equal(p.defaultExpanded,false);assert.equal(p.defaultPriority,"P0_FIRST");});
+test("optional input, no forced wizard",()=>{assert.equal(p.optionalCustomRequirement,true);assert.equal(p.maxCustomRequirementLength,2000);assert.equal(p.mandatoryCheckbox,false);assert.deepEqual(p.conditionalActions,["Sao chép","Thực hiện tiếp"]);});
+test("preview copy close cannot send; explicit gesture",()=>{for(const k of ["previewSends","closeSends","copySends"])assert.equal(p[k],false);assert.equal(p.sendRequiresExplicitGesture,true);});
+test("source and authority fail closed",()=>{assert.equal(p.sourceRevalidationBeforeMutation,true);assert.equal(p.missingSourceDisablesExecution,true);assert.equal(p.protectedApprovalSeparate,true);});
+test("host fallback and Hub boundary",()=>{assert.equal(c.scope.hostInstallationByRepository,false);assert.equal(c.scope.externalHubCanSendChatTurn,false);assert.equal(p.hubContinue,"VALIDATED_INTERNAL_NAVIGATION_ONLY");assert.equal(p.hostFallback,"VISIBLE_TEXT_AND_COPYABLE_PROMPT");});
+test("per reply and accessibility",()=>{assert.equal(c.scope.perSubstantiveProjectResponse,true);assert.ok(p.repeatTurnRegressionMinimum>=3);assert.equal(p.keyboardTouch,true);assert.ok(p.minimumTargetCssPx>=44);});
+test("immediate legal effect only after lawful publication, not product acceptance",()=>{assert.equal(c.publication.effectiveImmediatelyAfterValidRatificationAndPublication,true);assert.equal(c.publication.atomicVersionSetRequired,true);assert.equal(c.publication.independentOfUnrelatedProductRelease,true);assert.equal(c.publication.adoptionEvidenceRequired,true);assert.deepEqual(p.qualityAxes,["technical","user_value"]);assert.equal(c.zeroSpend,true);assert.equal(c.scope.canonicalLedger,"Issue #159");});
+test("document aligns with contract and avoids invented installation",()=>{for(const s of [...p.defaultVisibleActions,...p.conditionalActions,"PROPOSED_ONLY","P0-first","Issue #159","A GitHub commit cannot install","three consecutive replies"])assert.ok(doc.includes(s),s);});
