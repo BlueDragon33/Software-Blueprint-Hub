@@ -25,8 +25,8 @@ const complete=(offlineClaim=false)=>{
       metrics[criterion.id]={
         value:criterion.threshold,sourceRevision:HEAD,sourceUrl:EVIDENCE_URL,
         evidenceKind:axis.id==="user_value"?"user-study":"ci",
-        sampleCount:Math.max(30,criterion.minSamples),
-        baselineSampleCount:Math.max(30,criterion.minBaselineSamples)};
+        sampleCount:Math.max(150,criterion.minSamples),
+        baselineSampleCount:Math.max(150,criterion.minBaselineSamples)};
     }
     input.axes[axis.id]={metrics,notApplicable};
   }
