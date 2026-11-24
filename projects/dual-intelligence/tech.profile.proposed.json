@@ -1,0 +1,35 @@
+{
+  "id": "profile:software-blueprint-tech-intelligence",
+  "projectId": "project:software-blueprint-tech-intelligence",
+  "meta": {
+    "schemaVersion": "1.0.0",
+    "recordVersion": 1,
+    "createdAt": "2026-11-19T00:00:00.000Z",
+    "updatedAt": "2026-11-19T00:00:00.000Z"
+  },
+  "name": "Technology Intelligence",
+  "projectType": "offline-engine",
+  "blueprintLevel": "B3",
+  "primaryUsers": [
+    "Owner-authorized engineers"
+  ],
+  "jobsToBeDone": [
+    "Verify technology hypotheses from permitted source material and produce independently implementable specifications."
+  ],
+  "dataSensitivity": "restricted",
+  "persistence": "local",
+  "authentication": "none",
+  "authorization": "policy-based",
+  "offlineRequirement": "read-write",
+  "externalIntegrations": [
+    "optional Hub metadata intake"
+  ],
+  "aiUse": "assistive",
+  "extensibilityRequirement": "configuration",
+  "expectedLifetime": "long-lived",
+  "expectedScale": "Single workstation and bounded manifest imports per project",
+  "availabilityRequirement": "Core works on an isolated workstation",
+  "complianceSecuritySensitivity": "Restricted source custody and clean-room separation",
+  "deploymentTarget": "Local Node 24 runtime",
+  "maintenanceModel": "Exact-revision contract updates and regression evidence"
+}
