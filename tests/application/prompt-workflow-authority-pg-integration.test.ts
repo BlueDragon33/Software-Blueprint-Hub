@@ -8,9 +8,15 @@ import {
   PostgresWorkflowExecutionAuthorityRepository
 } from "../../packages/persistence/src";
 
-const databaseUrl = process.env.DATABASE_URL;
-const suite = process.env.BLUEPRINT_QA_DB_INTEGRATION === "true" && databaseUrl
-  ? describe : describe.skip;
+const databaseUrl = process.env.BLUEPRINT_QA_DATABASE_URL ?? process.env.DATABASE_URL;
+const enabled = process.env.BLUEPRINT_QA_DB_INTEGRATION === "true";
+if (enabled) {
+  const target = new URL(databaseUrl ?? "");
+  if (target.hostname !== "localhost" || target.pathname !== "/blueprint_qa_test" || !["postgresql:", "postgres:"].includes(target.protocol)) {
+    throw new Error("Authority integration requires the disposable localhost blueprint_qa_test database");
+  }
+}
+const suite = enabled ? describe : describe.skip;
 
 suite("P1 workflow execution authority PostgreSQL integrity", () => {
   const prisma = createPrismaClient(databaseUrl!);

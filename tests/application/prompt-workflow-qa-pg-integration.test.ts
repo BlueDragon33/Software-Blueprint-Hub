@@ -14,7 +14,7 @@ describe("real PostgreSQL immutable QA verification integrity", () => {
   const live = process.env.BLUEPRINT_QA_DB_INTEGRATION === "true" ? it : it.skip;
 
   async function seededJournal() {
-    const url = process.env.DATABASE_URL ?? "";
+    const url = process.env.BLUEPRINT_QA_DATABASE_URL ?? process.env.DATABASE_URL ?? "";
     const target = new URL(url);
     expect(target.hostname).toBe("localhost");
     expect(target.pathname).toBe("/blueprint_qa_test");
@@ -167,9 +167,10 @@ describe("real PostgreSQL immutable QA verification integrity", () => {
   }, 30_000);
 
   live("requires the matching succeeded observation and blocks forgery/duplicates", async () => {
-    const url = process.env.DATABASE_URL ?? "";
-    expect(url).toContain("localhost");
-    expect(url).toContain("blueprint_qa_test");
+    const url = process.env.BLUEPRINT_QA_DATABASE_URL ?? process.env.DATABASE_URL ?? "";
+    const target = new URL(url);
+    expect(target.hostname).toBe("localhost");
+    expect(target.pathname).toBe("/blueprint_qa_test");
     const prisma = createPrismaClient(url);
     const requestId = "sha256:" + randomBytes(32).toString("hex");
     const obs = "sha256:" + "b".repeat(64);

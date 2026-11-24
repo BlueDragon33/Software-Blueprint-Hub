@@ -178,7 +178,22 @@ jobs:
       - name: Architecture boundaries
         run: pnpm check:boundaries
 
+      - name: Prepare disposable QA PostgreSQL database
+        env:
+          QA_POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+          DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_qa_test
+        run: |
+          docker exec "$QA_POSTGRES_CONTAINER" psql -U blueprint -d postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE blueprint_qa_test'
+          pnpm db:migrate:deploy
+          pnpm db:migrate:status
+
       - name: Unit, contract, authority, and PostgreSQL integration tests
+        env:
+          BLUEPRINT_QA_DB_INTEGRATION: "true"
+          BLUEPRINT_QA_DATABASE_URL: postgresql://blueprint:blueprint@localhost:5432/blueprint_qa_test
+          BLUEPRINT_LIVE_PINNED_SMOKE: "true"
+          BLUEPRINT_LIVE_SOURCE_SHA: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm exec vitest run --passWithNoTests --fileParallelism=false --reporter=default --reporter=json --outputFile.json=artifacts/vitest-results.json
 
       - name: Production build
