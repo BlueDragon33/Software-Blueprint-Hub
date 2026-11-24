@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "candidateId": "active-next-action-chat-001",
-  "contractVersion": "2.5.0-candidate",
+  "contractVersion": "2.6.0-candidate",
   "status": "PROPOSED_ONLY",
   "authority": {
     "policyId": "blueprint-os:universal-century-grade",
@@ -177,12 +177,31 @@
         "REQUIREMENTS",
         "PROMPT_TEXT",
         "SOURCE_REVISION",
-        "REGENERATE"
+        "REGENERATE",
+        "ATTACHMENTS"
       ],
       "reviewSends": false,
       "reviewGrantsProtectedAuthority": false,
       "copyRequiresReview": false,
       "explicitSendRequired": true
+    },
+    "attachments": {
+      "kinds": [
+        "image",
+        "file"
+      ],
+      "hostUploadOnlyWhenSupported": true,
+      "referenceFallback": true,
+      "bindResolvedSetToReview": true,
+      "missingRequiredBlocksExecution": true,
+      "contentIsUntrustedData": true,
+      "noImplicitUpload": true,
+      "guide": [
+        "objective",
+        "requestedChange",
+        "constraints",
+        "acceptanceEvidence"
+      ]
     }
   },
   "amendmentId": "NAV-SUPPORT-001",

@@ -28,6 +28,16 @@ export function decideContinuation({mode="UNTIL_REQUIRED_GATE",sourceVerified=fa
   return result("BLOCKED",blocked?.id??null,blocked?"CAPABILITY_OR_REMEDY_LIMIT":"DEPENDENCY_PRIORITY_OR_AUTHORITY");
 }
 
+// Host adapter must resolve attachment identities and versions; this pure helper performs no IO or upload.
+export function attachmentBinding(attachments=[]){
+  if(!Array.isArray(attachments)||attachments.length>32)return null;
+  const seen=new Set(),refs=[];
+  for(const a of attachments){
+    if(!a||!["image","file"].includes(a.kind)||typeof a.id!=="string"||!a.id.trim()||a.id.length>512||typeof a.version!=="string"||!a.version.trim()||a.version.length>512||a.accessible!==true||seen.has(a.id))return null;
+    seen.add(a.id);refs.push([a.kind,a.id,a.version]);
+  }
+  return JSON.stringify(refs.sort((a,b)=>a[1]<b[1]?-1:a[1]>b[1]?1:0));
+}
 // Pure candidate prompt-review state; UI must dispatch every relevant change.
 export function initialPromptReview(){return {context:null,draft:null,approved:false};}
 export function promptReviewTransition(state,event){
@@ -35,8 +45,9 @@ export function promptReviewTransition(state,event){
   switch(event.type){
     case "GENERATE": {
       const x=event.context;
-      if(!x||!MODES.includes(x.mode)||typeof x.requirements!=="string"||x.requirements.length>2000||typeof x.revision!=="string"||!x.revision.trim()||typeof event.draft!=="string"||!event.draft.trim())return initialPromptReview();
-      return {context:{mode:x.mode,requirements:x.requirements,revision:x.revision},draft:event.draft,approved:false};
+      const binding=attachmentBinding(x?.attachments);
+      if(!x||binding===null||!MODES.includes(x.mode)||typeof x.requirements!=="string"||x.requirements.length>2000||typeof x.revision!=="string"||!x.revision.trim()||typeof event.draft!=="string"||!event.draft.trim())return initialPromptReview();
+      return {context:{mode:x.mode,requirements:x.requirements,revision:x.revision,attachmentBinding:binding},draft:event.draft,approved:false};
     }
     case "CHANGE_CONTEXT":return initialPromptReview();
     case "EDIT":return state.context&&typeof event.draft==="string"?{...state,draft:event.draft,approved:false}:initialPromptReview();
@@ -45,4 +56,4 @@ export function promptReviewTransition(state,event){
     default:return {...state,approved:false};
   }
 }
-export function canSendReviewedPrompt(state,context){return !!(state?.approved===true&&state.context&&typeof state.draft==="string"&&state.draft.trim()&&context&&state.context.mode===context.mode&&state.context.requirements===context.requirements&&state.context.revision===context.revision);}
+export function canSendReviewedPrompt(state,context){return !!(state?.approved===true&&state.context&&typeof state.draft==="string"&&state.draft.trim()&&context&&state.context.mode===context.mode&&state.context.requirements===context.requirements&&state.context.revision===context.revision&&state.context.attachmentBinding===attachmentBinding(context.attachments));}
