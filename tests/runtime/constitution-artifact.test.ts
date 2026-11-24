@@ -21,3 +21,5 @@ test.each(["crc", "local-header", "local-name"])("rejects %s corruption even wit
  const digest="sha256:"+createHash("sha256").update(broken).digest("hex");
  expect(()=>readConstitutionArtifactZip(broken,digest)).toThrow();
 });
+
+test("extracts explicit 1.4 proof names without allowing arbitrary names",()=>{const archive=createTestArtifact({"artifacts/constitution-1.4-candidate.json":{version:"1.4.0"},"artifacts/constitution-1.4-authority-set.json":{version:"1.4.0"},"artifacts/constitution-1.5-candidate.json":{version:"1.5.0"}});const result=readConstitutionArtifactZip(archive.bytes,archive.digest);expect(Object.keys(result).sort()).toEqual(["artifacts/constitution-1.4-authority-set.json","artifacts/constitution-1.4-candidate.json"]);});
