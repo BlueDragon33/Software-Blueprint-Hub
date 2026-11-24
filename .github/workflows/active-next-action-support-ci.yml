@@ -11,6 +11,9 @@ on:
       - 'scripts/check-constitution-1.4-candidate.mjs'
       - 'packages/application/src/constitution-publication-sources.ts'
       - 'packages/runtime/src/constitution-publication.ts'
+      - 'packages/runtime/src/constitution-artifact.ts'
+      - 'tests/runtime/constitution-publication.test.ts'
+      - 'tests/runtime/constitution-artifact.test.ts'
 permissions:
   contents: read
 jobs:
@@ -27,3 +30,20 @@ jobs:
           node-version: '24'
       - run: node --test tests/governance/active-next-action-chat-ui.candidate.test.mjs
       - run: node scripts/check-constitution-1.4-candidate.mjs
+  publication-runtime-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec vitest run tests/runtime/constitution-publication.test.ts tests/runtime/constitution-artifact.test.ts --fileParallelism=false
