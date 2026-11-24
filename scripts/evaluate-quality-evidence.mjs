@@ -163,7 +163,8 @@ export function learnFromFeedback(standard, feedback, asOf) {
       typeof event.category !== "string" || !/^[a-z][a-z0-9_-]+$/.test(event.category) ||
       !/^\d{4}-\d{2}-\d{2}$/.test(event.date || "") ||
       !Number.isFinite(Date.parse(event.date + "T00:00:00Z")) ||
-      !validUrl(event.evidenceUrl) || typeof event.closed !== "boolean" ||
+      !validUrl(event.evidenceUrl) || !event.evidenceUrl.startsWith("https://github.com/"+event.repository+"/") ||
+      typeof event.closed !== "boolean" ||
       typeof event.firstAttemptFixed !== "boolean" ||
       typeof event.reopened !== "boolean" ||
       typeof event.regressionIntroduced !== "boolean" ||
