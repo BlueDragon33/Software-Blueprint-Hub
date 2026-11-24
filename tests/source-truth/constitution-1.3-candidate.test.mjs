@@ -12,7 +12,7 @@ test("one inactive candidate seals all 32 rules, contrast and canonical componen
     { encoding: "utf8" });
   assert.equal(run.status, 0, run.stderr);
   const result = JSON.parse(run.stdout);
-  assert.equal(result.status, JSON.parse(before).policyVersion === "1.2.0" ? "INACTIVE_CANDIDATE_VERIFIED" : "ACTIVE_AUTHORITY_SET_VERIFIED");
+  assert.equal(result.status, JSON.parse(before).policyVersion === "1.2.0" ? "INACTIVE_CANDIDATE_VERIFIED" : JSON.parse(before).policyVersion === "1.4.0" ? "HISTORICAL_AUTHORITY_SET_VERIFIED" : "ACTIVE_AUTHORITY_SET_VERIFIED");
   assert.equal(result.activePolicyVersion, JSON.parse(before).policyVersion);
   assert.equal(result.candidatePolicyVersion, "1.3.0");
   assert.equal(result.ruleCount, 32);

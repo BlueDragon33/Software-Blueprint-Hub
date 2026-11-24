@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { readNavigationBaseline } from "../../scripts/check-constitution-1.4-candidate.mjs";
 import { buildConstitutionCandidate } from "../../scripts/check-constitution-1.3-candidate.mjs";
 import { attestConstitutionAuthoritySources, constitutionSourceDigest, constitutionPublicationPaths, applyConstitutionPublicationPatch } from "../../packages/application/src/constitution-publication-sources";
 import { createTestArtifact } from "./constitution-artifact-fixture";
@@ -10,7 +11,7 @@ type ProviderFixture = Record<string, unknown> & {
  artifacts?: Array<Record<string, unknown> & { expired: boolean }>;
 };
 function fixture(change?: (url: string, body: ProviderFixture) => void, defect?: string, nextVersion = false) {
- const baseline=Object.fromEntries(constitutionPublicationPaths.map(path=>[path,readFileSync(path,"utf8")]));
+ const baseline=nextVersion?readNavigationBaseline().originals:Object.fromEntries(constitutionPublicationPaths.map(path=>[path,readFileSync(path,"utf8")]));
  const nextPatch="docs/amendments/CONSTITUTION-1.4-NAV-SUPPORT-PUBLICATION.patch";
  const candidate = nextVersion ? {originals:new Map(Object.entries(baseline)),files:new Map(Object.entries(applyConstitutionPublicationPatch(baseline,readFileSync(nextPatch,"utf8"))))} : buildConstitutionCandidate();
  const steps = readFileSync(".github/workflows/ci.yml", "utf8").split("  release-gate:")[1]!.split("\n")
