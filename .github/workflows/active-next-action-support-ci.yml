@@ -1,0 +1,23 @@
+name: Navigation Support isolated contract
+on:
+  pull_request:
+    paths:
+      - 'docs/design/constitutional-navigation-support-standard.v1.candidate.md'
+      - 'control/candidates/active-next-action-chat-ui.v2.json'
+      - 'tests/governance/active-next-action-chat-ui.candidate.test.mjs'
+      - '.github/workflows/active-next-action-support-ci.yml'
+permissions:
+  contents: read
+jobs:
+  support-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/governance/active-next-action-chat-ui.candidate.test.mjs
