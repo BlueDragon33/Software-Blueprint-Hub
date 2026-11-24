@@ -4,6 +4,7 @@
 // remain in their existing owners. No network, CI rerun, file mutation or "auto training".
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 
 const policyPath = fileURLToPath(new URL("../control/quality-evaluation-standard.v1.json", import.meta.url));
 const shaPattern = /^[0-9a-f]{40}$/;
@@ -220,7 +221,7 @@ function main(argv) {
     process.stdout.write(JSON.stringify(learnFromFeedback(standard,data,valueFor("--at",argv)),null,2)+"\n");
   }
 }
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   try { main(process.argv.slice(2)); }
   catch (error) { process.stderr.write("QUALITY_EVIDENCE_BLOCKED: "+error.message+"\n"); process.exitCode=2; }
 }
