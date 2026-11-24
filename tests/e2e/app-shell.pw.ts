@@ -241,7 +241,7 @@ test("P7-004 forbidden project reads stay distinct from runtime outages", async 
   ).toBeVisible();
 
   await expect(
-    page.getByRole("button", { name: /Retry canonical read/i })
+    page.getByRole("button", { name: /Retry canonical read|Thử lại/i })
   ).toHaveCount(0);
 
   await expect(
@@ -249,7 +249,7 @@ test("P7-004 forbidden project reads stay distinct from runtime outages", async 
   ).toHaveCount(0);
 
   await expect(
-    page.getByRole("link", { name: "Back to readable projects" })
+    page.getByRole("link", { name: "Về màn hình ứng dụng" })
   ).toHaveAttribute("href", "/");
 
   await page.screenshot({
@@ -333,7 +333,7 @@ test("canonical project workspace has stable truthful views", async ({
 
   await openWorkspaceView(page, "Blueprint");
   await expect(
-    page.getByRole("heading", { name: "Resolved engineering requirements" })
+    page.getByRole("heading", { name: "Yêu cầu kỹ thuật của dự án" })
   ).toBeVisible();
   await expect(
     page.getByText("gate:platform:compatibility", { exact: true })
@@ -531,7 +531,7 @@ test("Phase 6 Product UX Gate traverses the canonical product without dead ends"
   const journey = [
     ["Overview", /Readiness is blocked by canonical engineering state/],
     ["Profile", /Canonical Project Profile/],
-    ["Blueprint", /Resolved engineering requirements/],
+    ["Blueprint", /Yêu cầu kỹ thuật của dự án/],
     ["Roadmap", /Dependency-aware Work Packages/],
     ["Quality", /Quality Gates and revision-specific evidence/],
     ["Prompt", /Derived execution projection/],
@@ -547,7 +547,7 @@ test("Phase 6 Product UX Gate traverses the canonical product without dead ends"
       page.getByRole("navigation", { name: workspaceNavLabel })
         .getByRole("link", { name: workspaceLabels[label] })
     ).toHaveAttribute("aria-current", "page");
-    await expect(page.getByText("Project cannot be opened.")).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /Project cannot be opened|Không thể tải dữ liệu dự án|Không tìm thấy dự án|Bạn không có quyền truy cập dự án này/ })).toHaveCount(0);
   }
 
   await page.goto("/knowledge");

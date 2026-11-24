@@ -74,3 +74,13 @@ export function inputBufferTransition(state,event){
  return state;
 }
 export function canGenerateFromBuffer(state,max=2000){return !!(state&&!state.composing&&typeof state.raw==="string"&&state.raw.length<=max);}
+
+// Explicit execution budget for a generated chat prompt; not an unattended runner.
+export function executionDirectionInstruction(mode){
+ switch(mode){
+ case "ONE_STEP": return "Complete exactly one eligible canonical step: implement, verify and checkpoint it, then stop. Do not advance to the next step.";
+ case "ONE_PACKAGE": return "Complete the current canonical work package, including all eligible dependency-ordered steps and acceptance evidence. Stop at package completion or a mandatory boundary; do not start another package.";
+ case "UNTIL_REQUIRED_GATE": return "Continue across eligible authorized packages in dependency and P0 order. After each verified step checkpoint and re-evaluate. Stop only at completion or a genuine mandatory human/capability boundary after exhausting safe independent work. No unattended promise.";
+ default: throw new TypeError("Unknown execution direction");
+ }
+}
