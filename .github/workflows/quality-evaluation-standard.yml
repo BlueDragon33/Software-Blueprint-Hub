@@ -1,0 +1,71 @@
+name: Evidence Quality Scorecard (advisory; no release authority)
+on:
+  pull_request:
+    paths:
+      - 'control/quality-evaluation-standard.v1.json'
+      - 'scripts/evaluate-quality-evidence.mjs'
+      - 'scripts/collect-quality-feedback-from-github.mjs'
+      - 'tests/governance/quality-evaluation-standard.test.mjs'
+      - 'docs/QUALITY_EVALUATION_STANDARD.md'
+      - '.github/workflows/quality-evaluation-standard.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'control/quality-evaluation-standard.v1.json'
+      - 'scripts/evaluate-quality-evidence.mjs'
+      - 'scripts/collect-quality-feedback-from-github.mjs'
+      - 'tests/governance/quality-evaluation-standard.test.mjs'
+      - 'docs/QUALITY_EVALUATION_STANDARD.md'
+      - '.github/workflows/quality-evaluation-standard.yml'
+  workflow_dispatch:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  quality-standard-contract:
+    if: github.event_name != 'issue_comment'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify evaluator syntax and threshold/feedback tests
+        run: |
+          node --check scripts/evaluate-quality-evidence.mjs
+          node --check scripts/collect-quality-feedback-from-github.mjs
+          node --test tests/governance/quality-evaluation-standard.test.mjs
+      - name: Gate remains advisory
+        run: echo "This job does not approve QualityGate, independent review, merge, ratification or Production."
+
+  feedback-advisory:
+    if: >-
+      github.event_name == 'pull_request' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.number == 159 &&
+       contains(github.event.comment.body, 'BLUEPRINT_QUALITY_FEEDBACK_V1'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || 'main' }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Propose feedback patterns from canonical Hub Issue 159 (read-only)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/collect-quality-feedback-from-github.mjs --at "$(date -u +%F)"
+          echo "Suggestions only: no auto threshold, code, review, QualityGate or Production changes."
