@@ -11,7 +11,7 @@ import {extractLedgerEvents,readCanonicalFeedback,summarizeCanonicalFeedback} fr
 const standard=JSON.parse(readFileSync(new URL("../../control/quality-evaluation-standard.v1.json",import.meta.url),"utf8"));
 const HEAD="1e0cb233f4fef2be6f759c175acaa7aa7a394762";
 const REPO="BlueDragon33/Bauman-master-ai-system";
-const URL="https://github.com/"+REPO+"/issues/373";
+const EVIDENCE_URL="https://github.com/"+REPO+"/issues/373";
 const complete=(offlineClaim=false)=>{
   const input={schemaVersion:"2.0.0",repository:REPO,sourceRevision:HEAD,
     context:{offlineClaim},axes:{}};
@@ -23,7 +23,7 @@ const complete=(offlineClaim=false)=>{
         continue;
       }
       metrics[criterion.id]={
-        value:criterion.threshold,sourceRevision:HEAD,sourceUrl:URL,
+        value:criterion.threshold,sourceRevision:HEAD,sourceUrl:EVIDENCE_URL,
         evidenceKind:axis.id==="user_value"?"user-study":"ci",
         sampleCount:Math.max(30,criterion.minSamples),
         baselineSampleCount:Math.max(30,criterion.minBaselineSamples)};
