@@ -122,8 +122,8 @@
           "threshold": 10,
           "critical": false,
           "when": "always",
-          "minSamples": 10,
-          "minBaselineSamples": 10,
+          "minSamples": 100,
+          "minBaselineSamples": 100,
           "evidence": "source"
         },
         {
@@ -174,7 +174,7 @@
           "threshold": 0.95,
           "critical": true,
           "when": "always",
-          "minSamples": 10,
+          "minSamples": 40,
           "minBaselineSamples": 0,
           "evidence": "user"
         },
@@ -185,8 +185,8 @@
           "threshold": 20,
           "critical": true,
           "when": "always",
-          "minSamples": 10,
-          "minBaselineSamples": 10,
+          "minSamples": 20,
+          "minBaselineSamples": 20,
           "evidence": "user"
         },
         {
@@ -196,7 +196,7 @@
           "threshold": 0.99,
           "critical": true,
           "when": "always",
-          "minSamples": 10,
+          "minSamples": 100,
           "minBaselineSamples": 0,
           "evidence": "user"
         },
@@ -207,7 +207,7 @@
           "threshold": 0.9,
           "critical": true,
           "when": "always",
-          "minSamples": 5,
+          "minSamples": 10,
           "minBaselineSamples": 0,
           "evidence": "user"
         },
@@ -218,7 +218,7 @@
           "threshold": 0.95,
           "critical": true,
           "when": "always",
-          "minSamples": 5,
+          "minSamples": 15,
           "minBaselineSamples": 0,
           "evidence": "user"
         },
@@ -229,7 +229,7 @@
           "threshold": 0.02,
           "critical": true,
           "when": "always",
-          "minSamples": 10,
+          "minSamples": 100,
           "minBaselineSamples": 0,
           "evidence": "user"
         },
@@ -240,7 +240,7 @@
           "threshold": 0.65,
           "critical": true,
           "when": "always",
-          "minSamples": 10,
+          "minSamples": 20,
           "minBaselineSamples": 0,
           "evidence": "user"
         },
@@ -251,7 +251,7 @@
           "threshold": 0.95,
           "critical": true,
           "when": "always",
-          "minSamples": 5,
+          "minSamples": 15,
           "minBaselineSamples": 0,
           "evidence": "user"
         },
@@ -262,8 +262,8 @@
           "threshold": 0,
           "critical": false,
           "when": "always",
-          "minSamples": 10,
-          "minBaselineSamples": 10,
+          "minSamples": 20,
+          "minBaselineSamples": 20,
           "evidence": "user"
         }
       ]
