@@ -1450,8 +1450,20 @@ test("Pinned constitutional prompt support follows owner P0/P1 direction with re
   await expect(copy).toBeDisabled();
   await approve.click();
   await expect(copy).toBeEnabled();
+  await page.emulateMedia({ colorScheme: "dark" });
   for (const width of [1440, 800, 390]) {
     await page.setViewportSize({ width, height: 820 });
+    const title = support.getByRole("heading", { name: "Bảng hỗ trợ điều hướng" });
+    await title.scrollIntoViewIfNeeded();
+    await expect(title).toBeVisible();
+    const unobscuredHeading = await title.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      const hit = document.elementFromPoint((rect.left + rect.right) / 2,
+        (rect.top + rect.bottom) / 2);
+      return rect.top >= 0 && rect.bottom <= window.innerHeight &&
+        Boolean(hit && (hit === el || el.contains(hit)));
+    });
+    expect(unobscuredHeading).toBe(true);
     await expect(page.getByRole("link", { name: /Tạo prompt tiếp theo/ }).first()).toBeVisible();
     await expect(support).toBeVisible();
     const noPanelOverflow = await support.evaluate(
