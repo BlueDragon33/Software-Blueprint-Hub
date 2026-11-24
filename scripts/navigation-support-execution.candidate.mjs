@@ -27,3 +27,22 @@ export function decideContinuation({mode="UNTIL_REQUIRED_GATE",sourceVerified=fa
   const blocked=candidates.find(s=>s.state==="CAPABILITY_BLOCKED"||s.state==="RECOVERABLE");
   return result("BLOCKED",blocked?.id??null,blocked?"CAPABILITY_OR_REMEDY_LIMIT":"DEPENDENCY_PRIORITY_OR_AUTHORITY");
 }
+
+// Pure candidate prompt-review state; UI must dispatch every relevant change.
+export function initialPromptReview(){return {context:null,draft:null,approved:false};}
+export function promptReviewTransition(state,event){
+  if(!state||!event)return initialPromptReview();
+  switch(event.type){
+    case "GENERATE": {
+      const x=event.context;
+      if(!x||!MODES.includes(x.mode)||typeof x.requirements!=="string"||x.requirements.length>2000||typeof x.revision!=="string"||!x.revision.trim()||typeof event.draft!=="string"||!event.draft.trim())return initialPromptReview();
+      return {context:{mode:x.mode,requirements:x.requirements,revision:x.revision},draft:event.draft,approved:false};
+    }
+    case "CHANGE_CONTEXT":return initialPromptReview();
+    case "EDIT":return state.context&&typeof event.draft==="string"?{...state,draft:event.draft,approved:false}:initialPromptReview();
+    case "REVIEW":return {...state,approved:!!state.context&&typeof state.draft==="string"&&!!state.draft.trim()};
+    case "SEND":return {...state,approved:false};
+    default:return {...state,approved:false};
+  }
+}
+export function canSendReviewedPrompt(state,context){return !!(state?.approved===true&&state.context&&typeof state.draft==="string"&&state.draft.trim()&&context&&state.context.mode===context.mode&&state.context.requirements===context.requirements&&state.context.revision===context.revision);}
