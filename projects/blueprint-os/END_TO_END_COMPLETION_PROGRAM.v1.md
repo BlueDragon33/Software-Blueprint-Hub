@@ -53,3 +53,39 @@ The complete project is not DONE until (1) all in-scope critical WorkPackages me
 - **Continuous improvement:** every accepted defect fix adds a meaningful regression guard when warranted; monitor first-attempt fix target ≥85%, reopen ≤5%, introduced regressions ≤2 per 100 changes **only once denominators are sufficient**; actual observed outcomes matter more than counts.
 
 **Note:** roadmap stages and measurements are **implementation targets**, not historical claims that those steps have already passed. No merger/ratification/Production is requested by this plan.
+
+## M0 evidence-backed portfolio readback — 2026-11-24 (observed, never a permanent LIVE cache)
+
+18 scoped operating repositories checked directly against GitHub default branch and latest matching-SHA Actions. SHA is a **snapshot**, not a certification of current deployment. Recheck live before each write. The 5 remaining support/onboarding repository classifications in historical Hub #159 are separate; the private Execution Gateway/Worker repositories could not be fetched in this inspection and remain UNKNOWN rather than marked PASS.
+
+| Repository | Observed exact default-branch SHA | GitHub QA readback / risk |
+|---|---|---|
+| Software-Blueprint-Hub | `877595c59072fc908ed40bd91028a80b3001ef02` | policy CI PASS; Draft #177 A/B and Draft #178 assistance not merged |
+| Application-Management | `739adcc7c4d516b8f4c90bc2ffa0e492f8837621` | Fast + Constitution + Production workflow SUCCESS; real user B and reload/restore acceptance unverified |
+| Bauman-master-ai-system | `16d8f7a963e27a12520d510f29b161374b5c5df3` | main CI PASS; scoped 16-route Chromium PASS remains unmerged PR #372; offline full Issue #373 NOT_RUN |
+| RU_LIFE | `a607cdf03f237b73cff0146cfd08fc1e118eccd6` | main Site CI FAIL, verified prior published-route drift; source-only Draft #34 cannot publish |
+| Health_Care | `316f1739ba16b947315dcdb24dffc51bd057aa` | main Fast/Constitution PASS; genuine network-none shell work Draft #72; encrypted private data restore NOT_RUN |
+| BOIECH_AI | `4cb8b104712501403fd984b5dc864b4af4611014` | main CI PASS; historical P0 role-chunk fix #171 MERGED; real Production asset verification at deployed `5b1ad54c41ea1251109eb31a445ae938ee7315a0` PASS in run 44902356636, signed role GO still unverified |
+| NC03_Modem | `b4d42dc770b9643918c21471c4becb60e6930c95` | functional CI PASS; Constitution CI FAIL; adoption manifest still 1.2.0; real modem-device QA unverified |
+| Math_Bauman | `91d4cbb3330bfe0dc167d4aa6c3f6e6cb50c9355` | Fast + Constitution CI PASS; whole product A/B unverified |
+| GrowUP_MyChildren | `43694c2b911400e04511bd1239b8a747501de90b` | functional CI PASS; Constitution CI FAIL; adoption 1.2.0; protected restore unverified |
+| Hardware_Simulation | `fbd57ee106b5e55081bcafbeb7204b8b5a4fb823` | Constitution CI PASS; physical/visual simulation product acceptance unverified |
+| MPC_PID_System | `b4525cac913ed74034b9ed842040a0b973590644` | functional + architecture CI PASS; Constitution FAIL; adoption 1.2.0; native/runtime QA unverified |
+| CAD_CAM_3D | `5720d06c96aeb39825e1149330eff1e3518292bd` | core CI PASS; Constitution FAIL; manifest 1.2.0 B4 vs Hub sealed B2 source-of-truth conflict |
+| PriceReport_Tunggiabao | `9e8df71f2839989b067af79ef22c389f541664e5` | Release Gate/Constitution CI PASS; real disconnected task/data acceptance unverified |
+| pc-manager-desktop | `83645a56987666144020dbdc85b3eec12815d003` | CI/Constitution PASS; installed native Windows recovery and end-user B unverified |
+| ECAD_Design | `3b47303869742e99924e9d4c82b1a6f45bed076f` | Constitution CI PASS, feature/runtime maturity not accepted |
+| CAE_Simulation | `ac31178bae7a92f89180d875e81d6d35760a8367` | Constitution CI PASS, feature/runtime maturity not accepted |
+| Blueprint-Russian-Expert-Engine | `60c544eeafff06e145a3363fef8071f29e51cc86` | contract CI PASS, complete expert/product B acceptance unverified |
+| ROS-1-2 (ros2 branch) | `13cfc485e411f2d7028bf40dd77ba81d9ae00972` | Constitution PASS; source adoption marker 1.2.0; physical ROS acceptance unverified |
+
+### P0-first reconciliation — do not mistake milestone for outage
+
+- **BOIECH_AI actual P0 incident (#173):** historical authenticated learner workspace GO blocked by stale lazy JavaScript; PR #171 patch MERGED, current main carries SW v5, bounded chunk recovery and negative regressions. Production run [#44902356636](https://github.com/BlueDragon33/BOIECH_AI/actions/runs/44902356636) confirmed both learner and teacher role chunks HTTP/MIME, revision, protection boundary at **deployed SHA** `5b1ad54c41ea1251109eb31a445ae938ee7315a0`. **Cannot close end-to-end P0** without authenticated synthetic learner/teacher GO, stale-tab/reload, device/progress preservation and exact current production identity. Protected credentials or private user data must not appear in chat/issue.
+- **BOIECH_AI gate #195:** D1 remote last-seat/consent race and role-scoped Manager/Teacher/Learner signed tests NOT_RUN; security/consistency risk stays BLOCKED. Owner-approved isolated synthetic profile/manager identity fixture required for safe live acceptance. Distinct from a confirmed Production exploit.
+- **Academic Workspaces #382:** “P0” is *MVP development tier*, not a reported P0 Production outage; a lexical priority search must not outrank a reproduced real incident. Likewise red Constitution CI (NC03/GrowUP/MPC/CAD) identifies an adoption contract gap, not automatically a zero-severity security incident.
+- **RU_LIFE release drift:** the published Site has returned 404 for pack routes; this is a **real release-readback blocker** from existing [Issue #29](https://github.com/BlueDragon33/RU_LIFE/issues/29), not evidence the source build is broken. Publication is separately protected and not authorized here.
+
+**M1 next technical acceptance (single critical path):** obtain **read-only authenticated synthetic user journey evidence** for BOIECH_AI's historical P0 fix at the actually deployed SHA; test learner GO and teacher chunk, stale tab, progress/device preservation, and match request/asset revision. Until a verified principal/fixture and accessible runtime are available, mark this as one genuine capability blocker instead of rerunning green source tests or silently moving to P1. Independently eligible M0 documentation/quality gate fixes may proceed on isolated Draft branches, never bypassing the P0 closure claim.
+
+**M1 user-value B baseline (NOT_RUN):** for BOIECH_AI learner, define first successful GO, correct course loading/progress retention, sign-in effort and safe recovery as actual tasks. At least one real observed user task dataset must exist before making any B progress claim, and Draft quality rubric #177 has additional sample/threshold requirements. Other apps require their own user tasks and accepted baselines; no whole-portfolio B PASS exists in this audit.
