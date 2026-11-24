@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "candidateId": "active-next-action-chat-001",
-  "contractVersion": "2.4.0-candidate",
+  "contractVersion": "2.5.0-candidate",
   "status": "PROPOSED_ONLY",
   "authority": {
     "policyId": "blueprint-os:universal-century-grade",
@@ -165,7 +165,25 @@
       "user_value"
     ],
     "defaultControlAuthority": "defaultVisibleActions",
-    "legacyActionRegistry": "CONDITIONAL_COMPATIBILITY_ONLY"
+    "legacyActionRegistry": "CONDITIONAL_COMPATIBILITY_ONLY",
+    "promptReview": {
+      "required": true,
+      "actionLabel": "Duyệt prompt",
+      "approvalScope": "EXACT_CURRENT_TEXT_AND_CONTEXT_ONLY",
+      "sendInitiallyDisabled": true,
+      "requiresGeneratedPrompt": true,
+      "invalidateOn": [
+        "MODE",
+        "REQUIREMENTS",
+        "PROMPT_TEXT",
+        "SOURCE_REVISION",
+        "REGENERATE"
+      ],
+      "reviewSends": false,
+      "reviewGrantsProtectedAuthority": false,
+      "copyRequiresReview": false,
+      "explicitSendRequired": true
+    }
   },
   "amendmentId": "NAV-SUPPORT-001",
   "publication": {
@@ -222,15 +240,21 @@
     "controlPresentation": {
       "kind": "THREE_SEPARATE_BUTTONS",
       "visibleByDefault": true,
-      "layout": "VERTICAL_FULL_WIDTH",
+      "layout": "COMPACT_SEPARATE_WRAP",
       "minimumTargetCssPx": 44,
       "selection": "EXCLUSIVE",
       "selectedState": "VISIBLE_TEXT_AND_ICON",
-      "labelAndStopConditionVisible": true,
+      "labelAndStopConditionVisible": false,
       "selectionSends": false,
       "selectionUpdatesPrompt": true,
       "selectionGrantsAuthority": false,
-      "explicitSendSeparate": true
+      "explicitSendSeparate": true,
+      "selectedStopConditionVisible": true,
+      "shortLabels": [
+        "1 bước",
+        "1 gói",
+        "Liên tục"
+      ]
     }
   }
 }
