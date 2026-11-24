@@ -73,11 +73,11 @@ test("B green cannot compensate A defect, inconsistency or open critical securit
   }
 });
 test("even a score >=90 cannot cancel a mandatory technical or user-value failure",()=>{
-  const x=complete();x.axes.technical.metrics.migration_backup_restore_pass_ratio.value=0.9;
+  const x=complete();x.axes.technical.metrics.fault_injection_pass_ratio.value=0.9;
   const r=assessQuality(standard,x,HEAD);
   assert.ok(r.technicalScore>=90);
   assert.equal(r.completion,"BLOCKED");
-  assert.ok(r.axes.technical.blockers.includes("MANDATORY_THRESHOLD_FAILED:migration_backup_restore_pass_ratio"));
+  assert.ok(r.axes.technical.blockers.includes("MANDATORY_THRESHOLD_FAILED:fault_injection_pass_ratio"));
 });
 test("B refuses all fake user satisfaction inferred solely from CI",()=>{
   const x=complete();x.axes.user_value.metrics.essential_task_success_ratio.evidenceKind="ci";
