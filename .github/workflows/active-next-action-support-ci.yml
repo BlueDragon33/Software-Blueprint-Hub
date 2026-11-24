@@ -5,6 +5,7 @@ on:
       - 'docs/design/constitutional-navigation-support-standard.v1.candidate.md'
       - 'control/candidates/active-next-action-chat-ui.v2.json'
       - 'tests/governance/active-next-action-chat-ui.candidate.test.mjs'
+      - 'scripts/navigation-support-execution.candidate.mjs'
       - '.github/workflows/active-next-action-support-ci.yml'
 permissions:
   contents: read
