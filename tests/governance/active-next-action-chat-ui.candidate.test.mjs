@@ -1,12 +1,35 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+import { readFileSync } from "node:fs";
+const contract=JSON.parse(readFileSync(new URL("../../control/candidates/active-next-action-chat-ui.v2.json",import.meta.url),"utf8"));
+const proposal=readFileSync(new URL("../../docs/amendments/ACTIVE-NEXT-ACTION-CHAT-001.md",import.meta.url),"utf8");
+const instructions=readFileSync(new URL("../../docs/UANA-CHATGPT-PROJECT-INSTRUCTIONS.v2.md",import.meta.url),"utf8");
+const active=readFileSync(new URL("../../docs/UNIVERSAL-CONSTITUTION.md",import.meta.url),"utf8");
+const version=JSON.parse(readFileSync(new URL("../../control/universal-constitution-version.json",import.meta.url),"utf8"));
+test("candidate never changes active 1.3.0 authority",()=>{assert.equal(contract.status,"PROPOSED_ONLY");assert.equal(version.policyVersion,"1.3.0");assert.equal(contract.authority.basePolicyVersion,version.policyVersion);assert.equal(contract.authority.targetPolicyVersion,null);assert.equal(contract.authority.ratificationRecord,null);assert.equal(contract.release.claimActive,false);assert.match(active,/Status: \*\*ACTIVE UNIVERSAL LAW\*\*/);});
+test("all 12 proposed refinements have dedicated textual content",()=>{assert.equal(contract.requirementIds.length,12);assert.equal(new Set(contract.requirementIds).size,12);for(const id of contract.requirementIds)assert.match(proposal,new RegExp("\\b"+id+"\\b"));});
+test("one-click direct action is not a copy or guaranteed host installation",()=>{const [cta]=contract.actions;assert.equal(cta.kind,"host-new-user-turn");assert.equal(cta.requiresUserGesture,true);assert.equal(cta.requiresNativeCopy,false);assert.equal(cta.grantsAuthority,false);assert.equal(contract.scope.hostButtonInstallationByRepository,false);assert.equal(contract.scope.externalHubCanSendChatTurn,false);assert.match(instructions,/GitHub commit cannot install buttons/);});
+test("advanced panel is optional with two scoped streams",()=>{assert.equal(contract.operations.noMandatoryForm,true);assert.equal(contract.operations.optionalAdvanced,true);assert.deepEqual(contract.streams,["existing-canonical-work","optional-proposed-addition"]);assert.equal(contract.actions[1].kind,"local-expand");});
+test("no fabricated runner or unattended chat execution",()=>{assert.equal(contract.operations.backgroundWithoutRunner,false);assert.equal(contract.operations.requiresLiveRevalidation,true);assert.equal(contract.operations.autoResumeOnlyWithinAuthorizedTurn,true);assert.match(instructions,/cannot/);});
+test("PowerShell handoff is one bounded native batch, not repeated commands",()=>{assert.equal(contract.operations.windowsOnlyAfterEligibleConnectedWork,true);assert.equal(contract.operations.oneBoundedNativeBatch,true);assert.match(proposal,/timeout\/progress/);});
+test("all protected authorities remain separated",()=>{assert.equal(contract.authority.productionAuthority,false);assert.equal(contract.release.ratification,"AUTHENTICATED_APPEND_ONLY");assert.equal(contract.release.publication,"ATOMIC_VERSION_SET_ONLY_AFTER_RATIFICATION");assert.deepEqual(contract.protectedCapabilities,["PROJECT_MUTATE","QUALITY_GATE_PASS","CONSTITUTION_RATIFICATION","PR_MERGE","PRODUCTION_RELEASE"]);});
+test("distinguishes evidence from actual deployment and acceptance",()=>{assert.ok(contract.evidenceStates.indexOf("SOURCE_QA")<contract.evidenceStates.indexOf("INTEGRATION_QA"));assert.ok(contract.evidenceStates.indexOf("MERGED")<contract.evidenceStates.indexOf("DEPLOYED"));assert.ok(contract.evidenceStates.indexOf("DEPLOYED")<contract.evidenceStates.indexOf("ACCEPTED"));});
+test("no new second control plane or payment dependency",()=>{assert.equal(contract.operations.zeroSpend,true);assert.equal(contract.scope.sourceOfTruth,"authenticated-existing-project-state");assert.match(proposal,/no new cloud service/i);});
+test("host/project instruction deployment is opt-in, not implied by repo merge",()=>{assert.equal(contract.scope.requiresOwnerOptInForProjectInstructions,true);assert.match(instructions,/Owner-opt-in guidance/);});
+test("old PRs explicitly reconciled before merging law",()=>{for(const n of [155,156,161,166,171,173])assert.ok(contract.references.relatedPrs.includes(n));assert.match(proposal,/PR #171/);});
+test("mainline R15–R22 retain original obligations",()=>{for(let n=15;n<=22;n++)assert.match(active,new RegExp("R"+n+" —"));assert.equal(contract.authority.activePublishedVersionUnaffected,true);});
+
+test("v2 visual controls cannot regress to a primary-only CTA",()=>{assert.equal(contract.presentation.summaryRequired,true);assert.equal(contract.presentation.showPrimaryAndSecondaryWhenHostSupports,true);assert.equal(contract.presentation.secondaryOptionalToUse,true);assert.equal(contract.presentation.primaryOnlyDoesNotPassV2UX,true);assert.match(instructions,/Always show both controls/);assert.match(proposal,/single primary-only button/);});
+test("observed revision and UX truth are mandatory",()=>{assert.equal(contract.presentation.observedRevisionMustBeRevalidated,true);assert.equal(contract.presentation.currentWorkAndQaStatusGrounded,true);assert.equal(contract.presentation.falseLiveProgressForbidden,true);assert.equal(contract.presentation.unknownStateLabel,"UNVERIFIED");});
+test("preview, close, advanced mode and user supplement remain honest",()=>{assert.equal(contract.presentation.closeOrPreviewTriggersExecution,false);assert.equal(contract.presentation.advancedModesAffectSubmittedPrompt,true);assert.equal(contract.presentation.mandatoryCheckbox,false);assert.equal(contract.presentation.accessibleKeyboardAndTouch,true);});
+
+// Compact NAV-SUPPORT extension; preserve all 15 baseline tests.
 const read=(p)=>readFileSync(new URL("../../"+p,import.meta.url),"utf8");
 const c=JSON.parse(read("control/candidates/active-next-action-chat-ui.v2.json"));
 const p=c.presentation;
 const doc=read("docs/design/constitutional-navigation-support-standard.v1.candidate.md");
-const active=JSON.parse(read("control/universal-constitution-version.json"));
-test("candidate preserves active authority",()=>{assert.equal(c.status,"PROPOSED_ONLY");assert.equal(active.policyVersion,"1.3.0");assert.equal(active.productionReleaseAuthority,false);assert.equal(c.authority.productionAuthority,false);assert.equal(c.authority.ratificationRecord,null);assert.equal(c.authority.claimActive,false);});
+const activeVersion=JSON.parse(read("control/universal-constitution-version.json"));
+test("candidate preserves active authority",()=>{assert.equal(c.status,"PROPOSED_ONLY");assert.equal(activeVersion.policyVersion,"1.3.0");assert.equal(activeVersion.productionReleaseAuthority,false);assert.equal(c.authority.productionAuthority,false);assert.equal(c.authority.ratificationRecord,null);assert.equal(c.authority.claimActive,false);});
 test("two focused controls and no repeated report",()=>{assert.deepEqual(p.defaultVisibleActions,["Theo Hiến pháp","Tạo prompt tiếp theo"]);assert.equal(p.summary,"ONE_NEXT_ACTION_ONLY");assert.equal(p.repeatReportMetadata,false);assert.equal(p.defaultExpanded,false);assert.equal(p.defaultPriority,"P0_FIRST");});
 test("optional input, no forced wizard",()=>{assert.equal(p.optionalCustomRequirement,true);assert.equal(p.maxCustomRequirementLength,2000);assert.equal(p.mandatoryCheckbox,false);assert.deepEqual(p.conditionalActions,["Sao chép","Thực hiện tiếp"]);});
 test("preview copy close cannot send; explicit gesture",()=>{for(const k of ["previewSends","closeSends","copySends"])assert.equal(p[k],false);assert.equal(p.sendRequiresExplicitGesture,true);});

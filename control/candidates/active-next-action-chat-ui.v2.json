@@ -1,25 +1,139 @@
 {
   "schemaVersion": "1.0.0",
   "candidateId": "active-next-action-chat-001",
-  "amendmentId": "NAV-SUPPORT-001",
   "contractVersion": "2.3.0-candidate",
   "status": "PROPOSED_ONLY",
   "authority": {
+    "policyId": "blueprint-os:universal-century-grade",
     "basePolicyVersion": "1.3.0",
     "activePublishedVersionUnaffected": true,
-    "ratificationRecord": null,
     "targetPolicyVersion": null,
+    "ratificationRecord": null,
     "productionAuthority": false,
     "claimActive": false
   },
   "scope": {
+    "surface": "chatgpt-conversation-host",
+    "externalHubCanSendChatTurn": false,
+    "hostButtonInstallationByRepository": false,
+    "sourceOfTruth": "authenticated-existing-project-state",
+    "requiresOwnerOptInForProjectInstructions": true,
     "allGovernedProjectsAfterValidPublication": true,
     "perSubstantiveProjectResponse": true,
     "hostInstallationByRepository": false,
-    "externalHubCanSendChatTurn": false,
     "canonicalLedger": "Issue #159"
   },
+  "operations": {
+    "primaryAction": "continue-az",
+    "optionalAdvanced": true,
+    "noMandatoryForm": true,
+    "requiresRealHostUserEvent": true,
+    "requiresLiveRevalidation": true,
+    "autoResumeOnlyWithinAuthorizedTurn": true,
+    "backgroundWithoutRunner": false,
+    "windowsOnlyAfterEligibleConnectedWork": true,
+    "oneBoundedNativeBatch": true,
+    "zeroSpend": true
+  },
+  "actions": [
+    {
+      "id": "continue-az",
+      "label": "Tiếp tục thực hiện A–Z",
+      "kind": "host-new-user-turn",
+      "requiresHostAction": true,
+      "requiresUserGesture": true,
+      "requiresNativeCopy": false,
+      "grantsAuthority": false
+    },
+    {
+      "id": "advanced",
+      "label": "Xem kế hoạch và bổ sung nhiệm vụ",
+      "kind": "local-expand",
+      "requiresHostAction": false,
+      "requiresUserGesture": true,
+      "grantsAuthority": false
+    },
+    {
+      "id": "preview",
+      "label": "Xem nội dung tự sinh",
+      "kind": "local-preview",
+      "requiresHostAction": false,
+      "requiresUserGesture": true,
+      "grantsAuthority": false
+    }
+  ],
+  "modes": [
+    "continue",
+    "focused-qa",
+    "finish-to-gate"
+  ],
+  "streams": [
+    "existing-canonical-work",
+    "optional-proposed-addition"
+  ],
+  "requirementIds": [
+    "NAI-01",
+    "NAI-02",
+    "NAI-03",
+    "NAI-04",
+    "NAI-05",
+    "NAI-06",
+    "NAI-07",
+    "NAI-08",
+    "NAI-09",
+    "NAI-10",
+    "NAI-11",
+    "NAI-12"
+  ],
+  "evidenceStates": [
+    "UNVERIFIED",
+    "CODED",
+    "SOURCE_QA",
+    "INTEGRATION_QA",
+    "REAL_UX",
+    "MERGED",
+    "DEPLOYED",
+    "ACCEPTED"
+  ],
+  "protectedCapabilities": [
+    "PROJECT_MUTATE",
+    "QUALITY_GATE_PASS",
+    "CONSTITUTION_RATIFICATION",
+    "PR_MERGE",
+    "PRODUCTION_RELEASE"
+  ],
+  "release": {
+    "mergeAuthority": "SEPARATE_HUMAN_GATE",
+    "ratification": "AUTHENTICATED_APPEND_ONLY",
+    "publication": "ATOMIC_VERSION_SET_ONLY_AFTER_RATIFICATION",
+    "claimActive": false
+  },
+  "references": {
+    "normative": "docs/UNIVERSAL-CONSTITUTION.md",
+    "proposal": "docs/amendments/ACTIVE-NEXT-ACTION-CHAT-001.md",
+    "portableInstructions": "docs/UANA-CHATGPT-PROJECT-INSTRUCTIONS.v2.md",
+    "relatedPrs": [
+      155,
+      156,
+      161,
+      166,
+      171,
+      173
+    ]
+  },
   "presentation": {
+    "summaryRequired": true,
+    "observedRevisionMustBeRevalidated": true,
+    "showPrimaryAndSecondaryWhenHostSupports": true,
+    "secondaryOptionalToUse": true,
+    "primaryOnlyDoesNotPassV2UX": true,
+    "currentWorkAndQaStatusGrounded": true,
+    "unknownStateLabel": "UNVERIFIED",
+    "falseLiveProgressForbidden": true,
+    "closeOrPreviewTriggersExecution": false,
+    "advancedModesAffectSubmittedPrompt": true,
+    "mandatoryCheckbox": false,
+    "accessibleKeyboardAndTouch": true,
     "defaultVisibleActions": [
       "Theo Hiến pháp",
       "Tạo prompt tiếp theo"
@@ -30,7 +144,6 @@
     "defaultExpanded": false,
     "optionalCustomRequirement": true,
     "maxCustomRequirementLength": 2000,
-    "mandatoryCheckbox": false,
     "conditionalActions": [
       "Sao chép",
       "Thực hiện tiếp"
@@ -50,8 +163,11 @@
     "qualityAxes": [
       "technical",
       "user_value"
-    ]
+    ],
+    "defaultControlAuthority": "defaultVisibleActions",
+    "legacyActionRegistry": "CONDITIONAL_COMPATIBILITY_ONLY"
   },
+  "amendmentId": "NAV-SUPPORT-001",
   "publication": {
     "effectiveImmediatelyAfterValidRatificationAndPublication": true,
     "independentOfUnrelatedProductRelease": true,
