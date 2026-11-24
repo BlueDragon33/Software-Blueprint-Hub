@@ -20,11 +20,11 @@
 | Restart/crash recovery | 10 | 100% of declared critical recovery journeys pass | Fault -> restart -> recover same state |
 | Migration, backup and restore | 10 | 100% of applicable source-critical paths pass | Versioned migration, rollback, restore, corruption cases |
 | Fault-injection endurance | 6 | 100% pass across ≥30 trials | Network loss, stale cache, retries, quota, partial failure; no forced manual reset |
-| Matched p95 performance regression | 5 | ≤+10% latency, ≥10 baseline + ≥10 candidate samples | Repeatable requests/render, same fixture and environment |
+| Matched p95 performance regression | 5 | ≤+10% latency, ≥100 matched baseline + ≥100 candidate samples | Repeatable requests/render, same fixture and environment |
 | Incident observability | 4 | 100% of critical faults traceable with sanitized logs/status | Actual event/operation log with no secret exposure |
 | Offline core journeys **if claimed** | 3 | 100% of in-scope journeys pass disconnected | Genuine offline test; app-specific boundaries |
 
-Total = 100. A must score ≥90; **every critical control also must pass independently**. Missing evidence, false N/A and incorrect SHA block the result even if nominal score ≥90. All percentages use an explicit numerator/denominator; claims without matched baseline or required sample size are unverified.
+Total = 100. A must score ≥90; **every critical control also must pass independently**. Missing evidence, false N/A and incorrect SHA block the result even if nominal score ≥90. All percentages use an explicit numerator/denominator; claims without matched baseline or required sample size are unverified. A 100-sample observed correctness fraction is still a descriptive sample estimate, **not a statistical guarantee** of future 99% correctness; uncertain/high-consequence projects must strengthen confidence and sampling through their existing risk-specific QualityGates.
 
 **“100 years without reset” is an architectural direction, not a claim of 100 years of demonstrated uptime.** It means no routine user reset or destructive clean-slate operation to keep functioning: forward-compatible data, schema migrations with reversibility, portable formats and dependency replacement, crash-recoverable writes, backup and integrity checks, observability, bounded retries and reproducible releases. Test faults and migrations regularly; do not invent century-long operating evidence. A bug-free guarantee is not scientifically credible.
 
@@ -33,15 +33,15 @@ Total = 100. A must score ≥90; **every critical control also must pass indepen
 | Criterion | Weight | PASS threshold | Proof required |
 |---|---:|---|---|
 | Real user problem and baseline validated | 10 | 100% of stated top problems traceable to real user observations; ≥5 | Actual target audience, current workaround and pain, before-building evidence |
-| Essential user task completion | 20 | ≥95% success; ≥10 observed task attempts | Realistic task scripts; observed results, not only buttons rendering |
-| User time/effort improvement | 15 | ≥20% improvement from matched baseline; ≥10 before & after | Time, steps, rework or error effort measured on the same representative task |
-| Output solves task correctly | 15 | ≥99% correctness; ≥10 observations | Useful result checked against trusted task oracle |
-| First use without instructions | 10 | ≥90% unassisted success; ≥5 sessions | Fresh-user onboarding and first task |
-| Accessible user task completion | 8 | ≥95%; ≥5 sessions | Keyboard, screen reader and appropriate assistive pathways |
-| User-visible task error rate | 8 | ≤2%; ≥10 observed attempts | Errors blocking or misleading a user, separate from console errors |
-| Repeat-use usefulness | 7 | ≥65% continuing value; ≥10 observations | Actual repeat sessions/returning useful outcomes, not vanity views |
-| Truthful status comprehension | 5 | ≥95%; ≥5 user tests | Can users distinguish “saved locally”, “pending sync”, “offline”, “done”, “error”? |
-| Cost/friction regression | 2 | ≤0% worse vs matched baseline; ≥10 before & after | Cost, permissions, clicks, unwanted network use or support burden |
+| Essential user task completion | 20 | ≥95% success; ≥40 observed task attempts | Realistic task scripts; observed results, not only buttons rendering |
+| User time/effort improvement | 15 | ≥20% improvement from matched baseline; ≥20 before & after | Time, steps, rework or error effort measured on the same representative task |
+| Output solves task correctly | 15 | ≥99% correctness; ≥100 observations | Useful result checked against trusted task oracle |
+| First use without instructions | 10 | ≥90% unassisted success; ≥10 sessions | Fresh-user onboarding and first task |
+| Accessible user task completion | 8 | ≥95%; ≥15 sessions | Keyboard, screen reader and appropriate assistive pathways |
+| User-visible task error rate | 8 | ≤2%; ≥100 observed attempts | Errors blocking or misleading a user, separate from console errors |
+| Repeat-use usefulness | 7 | ≥65% continuing value; ≥20 observations | Actual repeat sessions/returning useful outcomes, not vanity views |
+| Truthful status comprehension | 5 | ≥95%; ≥15 user tests | Can users distinguish “saved locally”, “pending sync”, “offline”, “done”, “error”? |
+| Cost/friction regression | 2 | ≤0% worse vs matched baseline; ≥20 before & after | Cost, permissions, clicks, unwanted network use or support burden |
 
 Total = 100. B must score ≥90 with all critical criteria passed. **B evidence must come from actual or structured user-oriented observation**: \`user-study\`, \`field-observation\` or \`structured-user-feedback\`, linked to a source record at the same candidate SHA. A green build, CI screenshot, engineer assertion or hypothetical persona **cannot** stand in for a real user outcome. Personal details must remain private; only anonymized aggregated measures and safe evidence references may appear in GitHub.
 
