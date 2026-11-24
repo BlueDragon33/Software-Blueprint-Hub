@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "candidateId": "active-next-action-chat-001",
-  "contractVersion": "2.6.0-candidate",
+  "contractVersion": "2.6.1-candidate",
   "status": "PROPOSED_ONLY",
   "authority": {
     "policyId": "blueprint-os:universal-century-grade",
@@ -178,7 +178,9 @@
         "PROMPT_TEXT",
         "SOURCE_REVISION",
         "REGENERATE",
-        "ATTACHMENTS"
+        "ATTACHMENTS",
+        "TERMINAL_RESULT",
+        "CONTEXTUAL_SUGGESTION"
       ],
       "reviewSends": false,
       "reviewGrantsProtectedAuthority": false,
@@ -202,6 +204,27 @@
         "constraints",
         "acceptanceEvidence"
       ]
+    },
+    "inputStability": {
+      "compositionSafe": true,
+      "stableInputIdentity": true,
+      "noRegenerationDuringTyping": true,
+      "explicitGenerateAfterChange": true,
+      "retainRawUnicode": true,
+      "contextualSuggestions": true,
+      "suggestionsNeverOverwrite": true,
+      "terminalResult": {
+        "visibleWhenCommandHandoff": true,
+        "optionalOtherwise": true,
+        "shells": [
+          "PowerShell",
+          "CMD"
+        ],
+        "maxCharacters": 30000,
+        "treatAsUntrustedData": true,
+        "neverExecutePastedOutput": true,
+        "reviewBindingRequired": true
+      }
     }
   },
   "amendmentId": "NAV-SUPPORT-001",

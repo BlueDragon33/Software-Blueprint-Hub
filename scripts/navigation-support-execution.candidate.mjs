@@ -46,8 +46,10 @@ export function promptReviewTransition(state,event){
     case "GENERATE": {
       const x=event.context;
       const binding=attachmentBinding(x?.attachments);
-      if(!x||binding===null||!MODES.includes(x.mode)||typeof x.requirements!=="string"||x.requirements.length>2000||typeof x.revision!=="string"||!x.revision.trim()||typeof event.draft!=="string"||!event.draft.trim())return initialPromptReview();
-      return {context:{mode:x.mode,requirements:x.requirements,revision:x.revision,attachmentBinding:binding},draft:event.draft,approved:false};
+      const terminal=terminalBinding(x?.terminalResult);
+      const suggestion=x?.suggestion??"";
+      if(!x||binding===null||terminal===null||typeof suggestion!=="string"||suggestion.length>2000||!MODES.includes(x.mode)||typeof x.requirements!=="string"||x.requirements.length>2000||typeof x.revision!=="string"||!x.revision.trim()||typeof event.draft!=="string"||!event.draft.trim())return initialPromptReview();
+      return {context:{mode:x.mode,requirements:x.requirements,revision:x.revision,attachmentBinding:binding,terminalBinding:terminal,suggestion},draft:event.draft,approved:false};
     }
     case "CHANGE_CONTEXT":return initialPromptReview();
     case "EDIT":return state.context&&typeof event.draft==="string"?{...state,draft:event.draft,approved:false}:initialPromptReview();
@@ -56,4 +58,19 @@ export function promptReviewTransition(state,event){
     default:return {...state,approved:false};
   }
 }
-export function canSendReviewedPrompt(state,context){return !!(state?.approved===true&&state.context&&typeof state.draft==="string"&&state.draft.trim()&&context&&state.context.mode===context.mode&&state.context.requirements===context.requirements&&state.context.revision===context.revision&&state.context.attachmentBinding===attachmentBinding(context.attachments));}
+export function canSendReviewedPrompt(state,context){return !!(state?.approved===true&&state.context&&typeof state.draft==="string"&&state.draft.trim()&&context&&state.context.mode===context.mode&&state.context.requirements===context.requirements&&state.context.revision===context.revision&&state.context.attachmentBinding===attachmentBinding(context.attachments)&&state.context.terminalBinding===terminalBinding(context.terminalResult)&&state.context.suggestion===(context.suggestion??""));}
+
+// Exact raw output is data; never passed to a shell by this helper.
+export function terminalBinding(result){
+ if(result===undefined||result===null)return JSON.stringify(null);
+ if(!["PowerShell","CMD"].includes(result.shell)||typeof result.text!=="string"||result.text.length>30000)return null;
+ return JSON.stringify([result.shell,result.text]);
+}
+// Draft buffers remain untouched during input; no auto-generation on composition events.
+export function inputBufferTransition(state,event){
+ if(!state||!event)return {raw:"",composing:false,dirty:false};
+ if(event.type==="COMPOSITION_START")return {...state,composing:true};
+ if(event.type==="INPUT"||event.type==="COMPOSITION_END")return typeof event.text==="string"?{...state,raw:event.text,composing:event.type==="INPUT"?state.composing:false,dirty:true}:state;
+ return state;
+}
+export function canGenerateFromBuffer(state,max=2000){return !!(state&&!state.composing&&typeof state.raw==="string"&&state.raw.length<=max);}
