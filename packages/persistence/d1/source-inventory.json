@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "56b1403384539b5ccb88930fdf6cd64a99d75a08",
+  "sourceMigrations": [
+    {
+      "name": "20260925090000_fnd003_init",
+      "blob": "f2a85f1501664a88e4747911d86fa920c20f4070"
+    },
+    {
+      "name": "20260925100000_fnd004_identity_authority",
+      "blob": "0465ccbfd8962ff3ae15e90bbf8c841f6de2404a"
+    },
+    {
+      "name": "20260925183000_fnd007_work_quality",
+      "blob": "7fd549d051e7d2a474e77cdaf5229b455b27f324"
+    },
+    {
+      "name": "20260925233000_p6_004_governance_state",
+      "blob": "dd8f968a12ab378eda6281b35f4ef3a55e0d14c2"
+    },
+    {
+      "name": "20260926004000_p6_006_release_lessons",
+      "blob": "1ae6fa1339b4c2cd49e270ad721e44445c803b32"
+    },
+    {
+      "name": "20260926013000_p6_007_prompt_history",
+      "blob": "64b89f4999761239dcd304603afbda0433030ba1"
+    },
+    {
+      "name": "20260927130000_p9_019_human_professional_review_decision",
+      "blob": "3c29f8cd79af6743a0ba61adb5e47291767b364c"
+    },
+    {
+      "name": "20260928080000_ca002_constitution_authority",
+      "blob": "566ab93bcb703248693ff2e820e4822393a93ae7"
+    },
+    {
+      "name": "20260928093000_ca004_constitution_publication",
+      "blob": "af1af172d81c75d760fa3596b39e4c2c40320ce4"
+    },
+    {
+      "name": "20261013124900_phase5c_workflow_execution_journal",
+      "blob": "58029ac9782c06fe522b984e1936c0aa992dfeb6"
+    },
+    {
+      "name": "20261014160000_appmanage_sso_identity_link",
+      "blob": "80b344fcc53cb429717d12b2f24cce6fbe4b3a71"
+    },
+    {
+      "name": "20261015150000_phase5d_independent_qa_verification",
+      "blob": "2aaea9fce96cf9ee9d35d8ac8a9840514cb9392b"
+    },
+    {
+      "name": "20261015190000_execution_journal_append_only",
+      "blob": "06451053ac212cd661e6c4b6060bf48e3bede79e"
+    },
+    {
+      "name": "20261015211000_workflow_execution_authority",
+      "blob": "b8d399954fe2db856a2048c36e9670e31d131172"
+    }
+  ],
+  "tables": [
+    "Project",
+    "ProjectProfile",
+    "Principal",
+    "SystemBootstrap",
+    "ProjectAuthority",
+    "AuthorityAuditEvent",
+    "WorkPackage",
+    "QualityGate",
+    "GateEvidence",
+    "ArchitectureDecision",
+    "Risk",
+    "TechnicalDebt",
+    "ReleaseRecord",
+    "LessonLearned",
+    "PromptProjectionSnapshot",
+    "HumanProfessionalReviewDecision",
+    "ConstitutionAmendment",
+    "ConstitutionAmendmentRevision",
+    "ConstitutionEvidence",
+    "ConstitutionRatificationDecision",
+    "ConstitutionPublication",
+    "WorkflowExecutionClaim",
+    "WorkflowExecutionObservation",
+    "AppManagementSsoLink",
+    "WorkflowExecutionQaVerification",
+    "WorkflowExecutionAdoptionDecision",
+    "WorkflowExecutionIssuerDecision"
+  ],
+  "foreignKeysFromAlter": 29,
+  "indexes": 59,
+  "localSchemaStatus": "UNTESTED_AT_CREATION",
+  "runtimeAdmission": false
+}
