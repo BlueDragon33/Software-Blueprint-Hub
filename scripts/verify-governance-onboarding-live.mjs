@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import { readHistoricalRegistrationContract, registrationBaselineVersion } from "./governance-policy-source.mjs";
 
 const API = "https://api.github.com";
 const sha = /^[a-f0-9]{40}$/;
@@ -21,8 +22,8 @@ export async function githubJson(path, fetchImpl = fetch) {
 }
 
 /**
- * Active GitHub inspection: exact branch HEAD, manifest fetched at SHA, and
- * completed successful compliance CI for that SAME SHA. No mutating actions.
+ * Recheck historical registration eligibility while the current branch still
+ * points to the queued revision. Bind the manifest and CI to that revision.
  */
 export async function inspectPendingOnboarding(queue, contract, getJson = githubJson, options = {}) {
   // An explicit private-read scope is only usable with a separately scoped API provider.
@@ -36,7 +37,8 @@ export async function inspectPendingOnboarding(queue, contract, getJson = github
       queue.entries[0].visibility === "private", "private verification requires a single private RUE entry");
   }
   requireEvidence(queue?.scope === "bounded-observation-not-constitutional-authority", "untrusted queue");
-  requireEvidence(queue.sealedBaseline?.policyVersion === contract?.policyVersion, "policy mismatch");
+  requireEvidence(queue.sealedBaseline?.policyVersion === registrationBaselineVersion &&
+    contract?.policyVersion === registrationBaselineVersion, "historical registration policy mismatch");
   requireEvidence(Array.isArray(queue.entries) && queue.entries.length > 0, "no pending entries");
   requireEvidence(Array.isArray(contract?.pillars), "missing canonical pillars");
   const expectedPillars = pillars(contract.pillars.map(item => item.id));
@@ -124,10 +126,12 @@ export async function inspectPendingOnboarding(queue, contract, getJson = github
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const queue = JSON.parse(readFileSync("control/governance-onboarding-queue.v1.json", "utf8"));
-    const contract = JSON.parse(readFileSync("control/universal-constitution.contract.json", "utf8"));
+    const contract = readHistoricalRegistrationContract();
     const results = await inspectPendingOnboarding(queue, contract);
     console.log(JSON.stringify({
       kind: "read-only-live-governance-observation",
+      policyScope: "historical-registration",
+      registrationPolicyVersion: contract.policyVersion,
       observedAt: new Date().toISOString(),
       records: results,
       productionReleaseAuthority: false

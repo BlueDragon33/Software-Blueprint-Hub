@@ -43,3 +43,8 @@ test("new RUE observation is later than historic sealed queue source", () => {
   q.entries.at(-1).observedAt=entry.observedAt;
   assert.deepEqual(check(q),[]);
 });
+
+test("historical baseline cannot be relabelled as successor adoption",()=>{
+ const q=structuredClone(queue);q.sealedBaseline.policyVersion="1.4.0";
+ assert.ok(check(q).some(s=>s.includes("queue historical policy mismatch")));
+});

@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
+import { assertGovernancePolicySource, registrationBaselineVersion } from "./governance-policy-source.mjs";
 
 const BASELINE = "control/constitution-governed-repositories.json";
 const QUEUE = "control/governance-onboarding-queue.v1.json";
@@ -56,16 +57,16 @@ function checkQueueEntry(item, historicRecordedAt) {
  * Operational registration is append-only in LEDGER and remains distinct from
  * the ratified Constitution publication artifact.
  */
-export function buildGovernanceCurrentView(baseline, queue, ledger, policy) {
+export function buildGovernanceCurrentView(baseline, queue, ledger, policy, root=process.cwd()) {
   assert(baseline?.schemaVersion === "1.0.0", "baseline version mismatch");
   assert(queue?.schemaVersion === "1.0.0" && queue.kind === "governed-repository-onboarding-queue", "invalid onboarding source");
   assert(queue.scope === "bounded-observation-not-constitutional-authority", "onboarding source cannot grant authority");
   assert(ledger?.schemaVersion === "1.0.0" && ledger.kind === "governed-repository-registration-ledger", "invalid registration ledger");
   assert(ledger.authority === "operational-registration-not-constitutional-amendment", "registration ledger claims constitutional authority");
-  assert(policy?.policyVersion === "1.3.0", "only the sealed 1.3 policy is supported");
+  assertGovernancePolicySource(policy, root);
   assert(baseline.policyId === policy.policyId && ledger.policyId === policy.policyId, "baseline/ledger policy mismatch");
-  assert(ledger.policyVersion === policy.policyVersion, "ledger policy version mismatch");
-  assert(queue.sealedBaseline?.policyVersion === policy.policyVersion, "queue policy mismatch");
+  assert(ledger.policyVersion === registrationBaselineVersion, "ledger historical policy version mismatch");
+  assert(queue.sealedBaseline?.policyVersion === registrationBaselineVersion, "queue historical policy mismatch");
   assert(queue.sealedBaseline?.registryPath === BASELINE && ledger.sealedBaseline?.registryPath === BASELINE, "unexpected baseline path");
   assert(Array.isArray(baseline.repositories) && Array.isArray(queue.entries) && Array.isArray(ledger.migrations), "missing repository collections");
   assert(queue.sealedBaseline.governedCount === baseline.repositories.length, "historical baseline count drift");
@@ -201,17 +202,20 @@ function load(path) { return JSON.parse(readFileSync(path, "utf8")); }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const current = buildGovernanceCurrentView(load(BASELINE), load(QUEUE), load(LEDGER), load(POLICY));
-    const text = JSON.stringify(current, null, 2) + "\n";
+    // The tracked inventory records registrations made against the 1.3 baseline.
+    // A source transition changes the read-only projection, not the registration record.
+    const registrationSnapshot = { ...current, policyVersion: registrationBaselineVersion };
+    const text = JSON.stringify(registrationSnapshot, null, 2) + "\n";
     if (process.argv.includes("--write")) {
       writeFileSync(OUTPUT, text);
-      console.log("[governance-current-view] generated read-only current view");
+      console.log("[governance-current-view] generated read-only registration snapshot");
     } else if (process.argv.includes("--check")) {
-      assert(readFileSync(OUTPUT, "utf8") === text, "generated current view is stale; run --write");
+      assert(readFileSync(OUTPUT, "utf8") === text, "generated registration snapshot is stale; run --write");
       console.log("[governance-current-view] PASS " + current.sealedBaselineCount + " sealed + " +
         current.admittedRegistrationCount + " admitted + " + current.pendingOnboardingCount +
         " pending; no constitutional/Production authority granted");
     } else {
-      console.log(text.trimEnd());
+      console.log(JSON.stringify(current, null, 2));
     }
   } catch (error) {
     console.error(errorsOf(error));

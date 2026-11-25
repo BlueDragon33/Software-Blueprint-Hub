@@ -1,13 +1,16 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { assertGovernancePolicySource, registrationBaselineVersion } from "./governance-policy-source.mjs";
 
-export function validateOnboardingQueue(queue, governed, policy) {
+export function validateOnboardingQueue(queue, governed, policy, root=process.cwd()) {
   const errors = [];
   const reject = (message) => errors.push(message);
   if (!queue || queue.schemaVersion !== "1.0.0" || queue.kind !== "governed-repository-onboarding-queue") return ["invalid onboarding queue"];
   if (queue.scope !== "bounded-observation-not-constitutional-authority") reject("queue cannot claim constitutional authority");
-  if (queue.sealedBaseline?.policyVersion !== policy?.policyVersion) reject("queue policy must agree with active Constitution");
+  try { assertGovernancePolicySource(policy, root); } catch(error) { reject(error.message); }
+  if (governed?.policyId !== policy?.policyId) reject("governed policy identity mismatch");
+  if (queue.sealedBaseline?.policyVersion !== registrationBaselineVersion) reject("queue historical policy mismatch");
   if (!Array.isArray(governed?.repositories) || !Array.isArray(queue.entries)) return [...errors, "invalid repository arrays"];
   if (queue.sealedBaseline?.governedCount !== governed.repositories.length) reject("sealed baseline count drift");
   const isExactIso = value => typeof value === "string" && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString() === value;

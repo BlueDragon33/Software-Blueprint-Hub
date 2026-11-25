@@ -3,10 +3,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {verifyRuePrivateOnboarding} from "../../scripts/verify-rue-private-onboarding.mjs";
 import {inspectPendingOnboarding} from "../../scripts/verify-governance-onboarding-live.mjs";
+import { readHistoricalRegistrationContract } from "../../scripts/governance-policy-source.mjs";
 
 const load = path => JSON.parse(readFileSync(path,"utf8"));
 const queue=load("control/governance-onboarding-queue.v1.json");
-const contract=load("control/universal-constitution.contract.json");
+const contract=readHistoricalRegistrationContract();
 const name="BlueDragon33/Blueprint-Russian-Expert-Engine";
 const entry=queue.entries.find(e=>e.repository===name);
 const selected={...queue,entries:[entry]};

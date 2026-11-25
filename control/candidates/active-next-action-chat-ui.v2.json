@@ -271,6 +271,12 @@
         "label": "Liên tục",
         "completion": "all eligible authorized work or genuine boundary",
         "buttonLabel": "Thực hiện liên tục đến cổng bắt buộc"
+      },
+      {
+        "id": "FINISH_PRODUCT",
+        "label": "Hoàn thiện sản phẩm",
+        "completion": "whole approved product candidate evidenced and ready for Owner publication decision, or genuine mandatory boundary",
+        "buttonLabel": "Hoàn thiện sản phẩm"
       }
     ],
     "orderedPhases": [
@@ -291,7 +297,7 @@
     "noBackgroundPromise": true,
     "advisoryOnly": true,
     "controlPresentation": {
-      "kind": "THREE_SEPARATE_BUTTONS",
+      "kind": "FOUR_SEPARATE_BUTTONS",
       "visibleByDefault": true,
       "layout": "COMPACT_SEPARATE_WRAP",
       "minimumTargetCssPx": 44,
@@ -306,8 +312,20 @@
       "shortLabels": [
         "1 bước",
         "1 gói",
-        "Liên tục"
+        "Liên tục",
+        "Hoàn thiện sản phẩm"
       ]
+    },
+    "productCompletion": {
+      "advisoryOnly": true,
+      "scopeMustBeVerified": true,
+      "exactCandidateEvidenceRequired": true,
+      "publicationAuthoritySeparate": true,
+      "postPublicationAcceptanceRequired": true,
+      "changedRevisionInvalidatesApproval": true,
+      "mergeAuthoritySeparate": true,
+      "protectedPublicationRouteRequired": true,
+      "policyPublicationIndependentOfProductRelease": true
     }
   }
 }

@@ -6,7 +6,7 @@ const proposal=readFileSync(new URL("../../docs/amendments/ACTIVE-NEXT-ACTION-CH
 const instructions=readFileSync(new URL("../../docs/UANA-CHATGPT-PROJECT-INSTRUCTIONS.v2.md",import.meta.url),"utf8");
 const active=readFileSync(new URL("../../docs/UNIVERSAL-CONSTITUTION.md",import.meta.url),"utf8");
 const version=JSON.parse(readFileSync(new URL("../../control/universal-constitution-version.json",import.meta.url),"utf8"));
-test("candidate never changes active 1.3.0 authority",()=>{assert.equal(contract.status,"PROPOSED_ONLY");assert.ok(["1.3.0","1.4.0"].includes(version.policyVersion));assert.equal(contract.authority.basePolicyVersion,"1.3.0");assert.equal(contract.authority.targetPolicyVersion,null);assert.equal(contract.authority.ratificationRecord,null);assert.equal(contract.release.claimActive,false);assert.match(active,/Status: \*\*ACTIVE UNIVERSAL LAW\*\*/);});
+test("candidate never changes active 1.3.0 authority",()=>{assert.equal(contract.status,"PROPOSED_ONLY");assert.ok(["1.3.0","1.4.0","1.5.0"].includes(version.policyVersion));assert.equal(contract.authority.basePolicyVersion,"1.3.0");assert.equal(contract.authority.targetPolicyVersion,null);assert.equal(contract.authority.ratificationRecord,null);assert.equal(contract.release.claimActive,false);assert.match(active,/Status: \*\*ACTIVE UNIVERSAL LAW\*\*/);});
 test("all 12 proposed refinements have dedicated textual content",()=>{assert.equal(contract.requirementIds.length,12);assert.equal(new Set(contract.requirementIds).size,12);for(const id of contract.requirementIds)assert.match(proposal,new RegExp("\\b"+id+"\\b"));});
 test("one-click direct action is not a copy or guaranteed host installation",()=>{const [cta]=contract.actions;assert.equal(cta.kind,"host-new-user-turn");assert.equal(cta.requiresUserGesture,true);assert.equal(cta.requiresNativeCopy,false);assert.equal(cta.grantsAuthority,false);assert.equal(contract.scope.hostButtonInstallationByRepository,false);assert.equal(contract.scope.externalHubCanSendChatTurn,false);assert.match(instructions,/GitHub commit cannot install buttons/);});
 test("advanced panel is optional with two scoped streams",()=>{assert.equal(contract.operations.noMandatoryForm,true);assert.equal(contract.operations.optionalAdvanced,true);assert.deepEqual(contract.streams,["existing-canonical-work","optional-proposed-addition"]);assert.equal(contract.actions[1].kind,"local-expand");});
@@ -29,7 +29,7 @@ const c=JSON.parse(read("control/candidates/active-next-action-chat-ui.v2.json")
 const p=c.presentation;
 const doc=read("docs/design/constitutional-navigation-support-standard.v1.candidate.md");
 const activeVersion=JSON.parse(read("control/universal-constitution-version.json"));
-test("candidate preserves active authority",()=>{assert.equal(c.status,"PROPOSED_ONLY");assert.ok(["1.3.0","1.4.0"].includes(activeVersion.policyVersion));assert.equal(activeVersion.productionReleaseAuthority,false);assert.equal(c.authority.productionAuthority,false);assert.equal(c.authority.ratificationRecord,null);assert.equal(c.authority.claimActive,false);});
+test("candidate preserves active authority",()=>{assert.equal(c.status,"PROPOSED_ONLY");assert.ok(["1.3.0","1.4.0","1.5.0"].includes(activeVersion.policyVersion));assert.equal(activeVersion.productionReleaseAuthority,false);assert.equal(c.authority.productionAuthority,false);assert.equal(c.authority.ratificationRecord,null);assert.equal(c.authority.claimActive,false);});
 test("two focused controls and no repeated report",()=>{assert.deepEqual(p.defaultVisibleActions,["Theo Hiến pháp","Tạo prompt tiếp theo"]);assert.equal(p.summary,"ONE_NEXT_ACTION_ONLY");assert.equal(p.repeatReportMetadata,false);assert.equal(p.defaultExpanded,false);assert.equal(p.defaultPriority,"P0_FIRST");});
 test("optional input, no forced wizard",()=>{assert.equal(p.optionalCustomRequirement,true);assert.equal(p.maxCustomRequirementLength,2000);assert.equal(p.mandatoryCheckbox,false);assert.deepEqual(p.conditionalActions,["Sao chép","Thực hiện tiếp"]);});
 test("preview copy close cannot send; explicit gesture",()=>{for(const k of ["previewSends","closeSends","copySends"])assert.equal(p[k],false);assert.equal(p.sendRequiresExplicitGesture,true);});
@@ -42,7 +42,7 @@ test("document aligns with contract and avoids invented installation",()=>{for(c
 import {decideContinuation} from "../../scripts/navigation-support-execution.candidate.mjs";
 const step=(id,over={})=>({id,packageId:"wp1",priority:"P0",state:"READY",authorized:true,dependsOn:[],distinctRemedies:0,...over});
 const run=(steps,over={})=>decideContinuation({sourceVerified:true,scopeAuthorized:true,currentPackage:"wp1",steps,...over});
-test("three directions, default continuous, no background promise",()=>{assert.equal(c.executionDirection.defaultMode,"UNTIL_REQUIRED_GATE");assert.deepEqual(c.executionDirection.modes.map(x=>x.id),["ONE_STEP","ONE_PACKAGE","UNTIL_REQUIRED_GATE"]);assert.equal(c.executionDirection.noBackgroundPromise,true);assert.equal(c.executionDirection.maxDistinctRemedies,3);});
+test("four directions, default continuous, no background promise",()=>{assert.equal(c.executionDirection.defaultMode,"UNTIL_REQUIRED_GATE");assert.deepEqual(c.executionDirection.modes.map(x=>x.id),["ONE_STEP","ONE_PACKAGE","UNTIL_REQUIRED_GATE","FINISH_PRODUCT"]);assert.equal(c.executionDirection.noBackgroundPromise,true);assert.equal(c.executionDirection.maxDistinctRemedies,3);});
 test("one step stops only after verified step count",()=>{assert.equal(run([step("a")],{mode:"ONE_STEP"}).action,"RUN_STEP");assert.equal(run([step("a",{state:"VERIFIED_DONE"}),step("b")],{mode:"ONE_STEP",completedStepIdsThisTurn:["a"]}).action,"STEP_COMPLETE");});
 test("one package cannot move to another",()=>{const steps=[step("a",{state:"VERIFIED_DONE"}),step("b",{packageId:"wp2"})];assert.equal(run(steps,{mode:"ONE_PACKAGE"}).action,"PACKAGE_COMPLETE");assert.equal(run(steps).stepId,"b");});
 test("independent eligible work before asking human",()=>{assert.equal(run([step("gate",{state:"HUMAN_REQUIRED"}),step("b")]).stepId,"b");assert.equal(run([step("gate",{state:"HUMAN_REQUIRED"})]).action,"ASK_HUMAN");});
@@ -54,7 +54,7 @@ test("invalid mode or dependency rejected",()=>{assert.equal(run([step("a")],{mo
 test("verified completion is not a human question",()=>{assert.equal(run([step("a",{state:"VERIFIED_DONE"})]).action,"DONE");});
 test("completion IDs cannot claim an unfinished or foreign step",()=>{for(const id of ["a","missing","foreign"])assert.equal(run([step("a"),step("foreign",{packageId:"wp2",state:"VERIFIED_DONE"})],{mode:"ONE_STEP",completedStepIdsThisTurn:[id]}).reason,"UNVERIFIED_COMPLETION");});
 
-test("direction buttons are separate, visible and individually labeled",()=>{const v=c.executionDirection.controlPresentation;assert.equal(v.kind,"THREE_SEPARATE_BUTTONS");assert.equal(v.visibleByDefault,true);assert.equal(v.layout,"COMPACT_SEPARATE_WRAP");assert.ok(v.minimumTargetCssPx>=44);assert.equal(v.labelAndStopConditionVisible,false);assert.equal(v.selectedStopConditionVisible,true);assert.deepEqual(v.shortLabels,["1 bước","1 gói","Liên tục"]);assert.deepEqual(c.executionDirection.modes.map(m=>m.buttonLabel),["Thực hiện 1 bước","Hoàn thành 1 gói nhiệm vụ","Thực hiện liên tục đến cổng bắt buộc"]);for(const m of c.executionDirection.modes)assert.ok(doc.includes(m.buttonLabel));});
+test("direction buttons are separate, visible and individually labeled",()=>{const v=c.executionDirection.controlPresentation;assert.equal(v.kind,"FOUR_SEPARATE_BUTTONS");assert.equal(v.visibleByDefault,true);assert.equal(v.layout,"COMPACT_SEPARATE_WRAP");assert.ok(v.minimumTargetCssPx>=44);assert.equal(v.labelAndStopConditionVisible,false);assert.equal(v.selectedStopConditionVisible,true);assert.deepEqual(v.shortLabels,["1 bước","1 gói","Liên tục","Hoàn thiện sản phẩm"]);assert.deepEqual(c.executionDirection.modes.map(m=>m.buttonLabel),["Thực hiện 1 bước","Hoàn thành 1 gói nhiệm vụ","Thực hiện liên tục đến cổng bắt buộc","Hoàn thiện sản phẩm"]);for(const m of c.executionDirection.modes)assert.ok(doc.includes(m.buttonLabel));});
 test("exclusive direction selection updates prompt but never executes or grants authority",()=>{const v=c.executionDirection.controlPresentation;assert.equal(v.selection,"EXCLUSIVE");assert.equal(v.selectedState,"VISIBLE_TEXT_AND_ICON");assert.equal(v.selectionSends,false);assert.equal(v.selectionUpdatesPrompt,true);assert.equal(v.selectionGrantsAuthority,false);assert.equal(v.explicitSendSeparate,true);assert.equal(c.executionDirection.defaultMode,"UNTIL_REQUIRED_GATE");});
 
 import {initialPromptReview,promptReviewTransition,canSendReviewedPrompt} from "../../scripts/navigation-support-execution.candidate.mjs";
@@ -76,7 +76,7 @@ test("unresolved, duplicate and malformed attachments fail closed",()=>{for(cons
 
 import {constitutionPublicationProfile} from "../../packages/application/src/constitution-publication-sources.ts";
 import {buildNavigationPublicationCandidate} from "../../scripts/check-constitution-1.4-candidate.mjs";
-test("publication profiles are fixed and do not accept caller paths or unknown versions",()=>{assert.equal(constitutionPublicationProfile("1.2.0").targetVersion,"1.3.0");assert.equal(constitutionPublicationProfile("1.3.0").targetVersion,"1.4.0");for(const v of ["1.4.0","../1.3.0","1.3","",null])assert.throws(()=>constitutionPublicationProfile(v));});
+test("publication profiles are fixed and do not accept caller paths or unknown versions",()=>{assert.equal(constitutionPublicationProfile("1.2.0").targetVersion,"1.3.0");assert.equal(constitutionPublicationProfile("1.3.0").targetVersion,"1.4.0");assert.deepEqual(constitutionPublicationProfile("1.4.0"),{targetVersion:"1.5.0",patchPath:"docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch",descriptorPath:"artifacts/constitution-1.5-candidate.json",attestationPath:"artifacts/constitution-1.5-authority-set.json"});for(const v of ["1.5.0","1.6.0","../1.3.0","1.3","",null])assert.throws(()=>constitutionPublicationProfile(v));});
 test("strict inactive 1.4 patch replay preserves 32 old rules and authority",()=>{const r=buildNavigationPublicationCandidate();assert.equal(r.attestation.policyVersion,"1.4.0");assert.equal(r.descriptor.activePolicyVersion,activeVersion.policyVersion);assert.equal(r.descriptor.ruleCount,33);assert.equal(r.descriptor.publication,"NOT_ASSERTED");assert.equal(r.descriptor.ratification,"NOT_ASSERTED");assert.equal(r.descriptor.productionReleaseAuthority,false);assert.equal(Object.keys(r.files).length,8);});
 
 import {terminalBinding,inputBufferTransition,canGenerateFromBuffer} from "../../scripts/navigation-support-execution.candidate.mjs";
@@ -101,3 +101,78 @@ test("each selected execution direction has a distinct explicit stop instruction
 import {combineReleaseVitestReports} from "../../scripts/release-gate-vitest-reports.mjs";
 const makeVitestReport=(name,statuses)=>({numTotalTests:statuses.length,numPassedTests:statuses.filter(s=>s==="passed").length,numFailedTests:statuses.filter(s=>s==="failed").length,numPendingTests:statuses.filter(s=>s==="pending").length,numTodoTests:0,testResults:[{name,assertionResults:statuses.map(status=>({status}))}]});
 test("protected manual gate combines disjoint actual Vitest results without masking skips",()=>{const pub=makeVitestReport("/repo/tests/unit/ordinary.test.ts",["passed","pending"]);const bridge=makeVitestReport("/repo/tests/application/prompt-workflow-live-private-bridge.test.ts",Array(8).fill("passed"));assert.deepEqual(combineReleaseVitestReports(pub,bridge),{passed:9,failed:0,skipped:1});assert.throws(()=>combineReleaseVitestReports(bridge,bridge),/already present/);assert.throws(()=>combineReleaseVitestReports(pub,makeVitestReport(bridge.testResults[0].name,Array(7).fill("passed"))),/eight private/);assert.throws(()=>combineReleaseVitestReports(pub,makeVitestReport("/repo/tests/unit/unrelated.test.ts",Array(8).fill("passed"))),/eight private/);assert.throws(()=>combineReleaseVitestReports(pub,makeVitestReport(bridge.testResults[0].name,[...Array(7).fill("passed"),"pending"])),/eight private/);assert.throws(()=>combineReleaseVitestReports({...pub,numPassedTests:2},bridge),/Inconsistent/);assert.throws(()=>combineReleaseVitestReports(pub),/Unpartitioned gate requires/);assert.deepEqual(combineReleaseVitestReports(bridge),{passed:8,failed:0,skipped:0});});
+
+import {decideProductRelease} from "../../scripts/navigation-support-execution.candidate.mjs";
+test("finish product never stops at one completed package or declares readiness without whole-product evidence",()=>{
+ const steps=[step("a",{state:"VERIFIED_DONE"}),step("b",{packageId:"wp2"})];
+ const context={mode:"FINISH_PRODUCT",sourceVerified:true,scopeAuthorized:true,productScopeVerified:true,steps,completedStepIdsThisTurn:["a"]};
+ assert.equal(decideContinuation(context).stepId,"b");
+ const done={...context,steps:steps.map(s=>({...s,state:"VERIFIED_DONE"}))};
+ assert.equal(decideContinuation(done).reason,"PRODUCT_ACCEPTANCE_EVIDENCE_REQUIRED");
+ assert.equal(decideContinuation({...done,productCompletionVerified:true}).action,"PRODUCT_READY_FOR_PUBLICATION_REVIEW");
+ assert.equal(decideContinuation({...done,productScopeVerified:false,productCompletionVerified:true}).reason,"UNVERIFIED_PRODUCT_SCOPE");
+ assert.match(executionDirectionInstruction("FINISH_PRODUCT"),/Do not publish or merge/);
+});
+test("product publication and final merge are independent exact-revision protected decisions",()=>{
+ const a="a".repeat(40),b="b".repeat(40);
+ const x={sourceVerified:true,candidateRevision:a,technicalEvidenceRevision:a,rollbackEvidenceRevision:a,publicationRouteVerified:true};
+ assert.equal(decideProductRelease(x).action,"AWAIT_OWNER_PUBLICATION");
+ assert.equal(decideProductRelease({...x,publicationRouteVerified:false}).action,"BLOCKED");
+ const y={...x,publicationAuthorityRevision:a};
+ assert.equal(decideProductRelease(y).action,"READY_FOR_PROTECTED_PUBLICATION_REVIEW");
+ const z={...y,deployedRevision:a};
+ assert.equal(decideProductRelease(z).action,"AWAIT_OWNER_ACCEPTANCE");
+ assert.equal(decideProductRelease({...z,ownerAcceptanceRevision:a}).reason,"RECONCILE_BASE_AND_REVERIFY");
+ const m={...z,ownerAcceptanceRevision:a,mergeBaseVerified:true};
+ assert.equal(decideProductRelease(m).action,"AWAIT_OWNER_MERGE");
+ assert.deepEqual(decideProductRelease({...m,mergeAuthorityRevision:a}),{action:"READY_FOR_PROTECTED_MERGE_REVIEW",reason:"SEPARATE_TRUSTED_GATE_REQUIRED",advisoryOnly:true,grantsAuthority:false});
+ assert.equal(decideProductRelease({...m,candidateRevision:b,mergeAuthorityRevision:a}).action,"CONTINUE_ENGINEERING");
+ assert.equal(decideProductRelease({...m,candidateRevision:b,technicalEvidenceRevision:b,rollbackEvidenceRevision:b}).action,"AWAIT_OWNER_PUBLICATION");
+ assert.equal(decideProductRelease({...m,deployedRevision:b}).action,"READY_FOR_PROTECTED_PUBLICATION_REVIEW");
+});
+
+import {createHash} from "node:crypto";
+import {applyConstitutionPublicationPatch,attestConstitutionAuthoritySources,constitutionPublicationPaths} from "../../packages/application/src/constitution-publication-sources.ts";
+test("R34–R38 successor is a complete inactive eight-path candidate preserving R33 and historical observations",()=>{
+ const prior=buildNavigationPublicationCandidate(process.cwd());
+ assert.equal(prior.attestation.authoritySetDigest,"sha256:229b4084e5f4efe0a70432bb447ca76cf6e1101790ba3d79e5066775d5cbea2d");
+ const patch=read("docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch");const next=applyConstitutionPublicationPatch(prior.files,patch);
+ const blob=text=>{const b=Buffer.from(text,"utf8");return createHash("sha1").update("blob "+b.length+"\0").update(b).digest("hex");};
+ const seals=[...patch.matchAll(/^diff --git a\/(\S+) b\/\1\nindex ([a-f0-9]{40})\.\.([a-f0-9]{40}) 100644$/gm)];
+ assert.equal(seals.length,8);assert.equal(new Set(seals.map(m=>m[1])).size,8);
+ for(const [,path,before,after] of seals){assert.equal(blob(prior.files[path]),before);assert.equal(blob(next[path]),after);}
+ const a=attestConstitutionAuthoritySources(next,"","");assert.equal(a.policyVersion,"1.5.0");assert.equal(a.productionReleaseAuthority,false);
+ const old=JSON.parse(prior.files[constitutionPublicationPaths[1]]),n=JSON.parse(next[constitutionPublicationPaths[1]]);
+ assert.deepEqual(n.executionRules.slice(0,33),old.executionRules);assert.deepEqual(n.executionRules.slice(33).map(r=>r.id),["R34","R35","R36","R37","R38"]);
+ const od=prior.files[constitutionPublicationPaths[0]],nd=next[constitutionPublicationPaths[0]];
+ assert.equal(nd.slice(0,nd.indexOf("### 10.R34")).replace("**1.5.0**","**1.4.0**"),od.slice(0,od.indexOf("## 11.")));
+ assert.deepEqual(n.navigationSupport.modes,["ONE_STEP","ONE_PACKAGE","UNTIL_REQUIRED_GATE","FINISH_PRODUCT"]);
+ assert.equal(n.productCompletion.automaticMerge,false);assert.equal(n.productCompletion.automaticPublication,false);assert.equal(n.operationalExecution.scheduleIsRunnerProof,false);assert.equal(n.policyPublication.proposalIsActive,false);
+ assert.ok(["1.3.0","1.4.0","1.5.0"].includes(JSON.parse(read("control/universal-constitution-version.json")).policyVersion));
+ console.log("[constitution-1.5-successor] INACTIVE_CONTENT_VERIFIED",a.authoritySetDigest);
+});
+
+import {buildProductCompletionPublicationCandidate} from "../../scripts/check-constitution-1.5-candidate.mjs";
+test("1.5 predecessor gating and historical 1.3/1.4 replay verify both seals",()=>{
+ const root=mkdtempSync(join(tmpdir(),"r38-activation-"));
+ try{
+  const prior=buildNavigationPublicationCandidate();
+  const successor=buildProductCompletionPublicationCandidate();
+  assert.equal(successor.descriptor.status,activeVersion.policyVersion==="1.3.0"?"PREDECESSOR_NOT_ACTIVE":activeVersion.policyVersion==="1.4.0"?"INACTIVE_CANDIDATE_VERIFIED":"ACTIVE_AUTHORITY_SET_VERIFIED");
+  assert.equal(successor.descriptor.publication,"NOT_ASSERTED");
+  const write=(p,b)=>{const file=join(root,p);mkdirSync(dirname(file),{recursive:true});writeFileSync(file,b);};
+  for(const p of [prior.profile.patchPath,successor.profile.patchPath,"docs/amendments/CONSTITUTION-1.3-PUBLICATION.patch","docs/amendments/CONSTITUTION-1.3-AGENT-CHANGE-RELIABILITY.md","docs/amendments/CONSTITUTION-UI-CONTRAST-20261008-PROPOSAL.md"])write(p,read(p));
+  for(const [p,b] of Object.entries(prior.files))write(p,b);
+  assert.equal(buildProductCompletionPublicationCandidate(root).descriptor.status,"INACTIVE_CANDIDATE_VERIFIED");
+  for(const [p,b] of Object.entries(successor.files))write(p,b);
+  assert.equal(buildProductCompletionPublicationCandidate(root).descriptor.status,"ACTIVE_AUTHORITY_SET_VERIFIED");
+  const h=buildNavigationPublicationCandidate(root);
+  assert.equal(h.descriptor.status,"HISTORICAL_AUTHORITY_SET_VERIFIED");
+  assert.equal(h.attestation.authoritySetDigest,prior.attestation.authoritySetDigest);
+  assert.equal(buildConstitutionCandidate(root).activePolicyVersion,"1.5.0");
+  const path="packages/application/src/constitution-authority.ts";
+  write(path,successor.files[path]+"\n// drift outside patch\n");
+  assert.throws(()=>buildProductCompletionPublicationCandidate(root),/blob seal mismatch/);
+  assert.throws(()=>buildConstitutionCandidate(root),/blob seal mismatch/);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
