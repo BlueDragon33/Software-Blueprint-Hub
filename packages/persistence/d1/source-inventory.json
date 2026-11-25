@@ -267,9 +267,19 @@
   ],
   "workerdGate": {
     "path": "experiments/d1-publication/d1-workerd-gate.test.mjs",
-    "status": "NOT_EXECUTED_NODE24_AND_MINIFLARE_UNAVAILABLE",
+    "status": "LOCKED_DEPENDENCY_CANDIDATE_INSTALL_AND_ACTUAL_WORKERD_PENDING",
     "localEphemeralOnly": true,
-    "notProductionAuthority": true
+    "notProductionAuthority": true,
+    "dependencyLock": {
+      "path": "experiments/d1-publication/package-lock.json",
+      "sourceRepo": "BlueDragon33/Application-Management",
+      "sourceRevision": "e97df96427cbc03ba5a62cf03cd6cc214340cf90",
+      "sourceBlob": "110f80e067a92a350ec6ce50a7c3913c5570a3d8",
+      "packageCount": 54,
+      "miniflare": "4.20260515.0",
+      "workerd": "1.20260515.1",
+      "installVerified": false
+    }
   },
   "localSqlEvidence": {
     "P0": 8,
@@ -279,5 +289,6 @@
     "sso": 3,
     "total": 53,
     "scope": "SQLite local tests; revised schema regression 50 plus SSO 3; not workerd"
-  }
+  },
+  "p2BindingCaution": "AM local config references same database name with dummy local ID; exclusive live binding not verified"
 }

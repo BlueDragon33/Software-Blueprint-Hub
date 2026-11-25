@@ -1,5 +1,5 @@
 // Actual workerd/D1 local admission. Never connects to a remote Cloudflare account.
-// Run with existing Node 24 and installed Miniflare:
+// First run explicit npm ci --prefix experiments/d1-publication --no-audit --no-fund (locked dependency).
 // node --experimental-transform-types --test experiments/d1-publication/d1-workerd-gate.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,12 +12,12 @@ import { D1LogStore } from './d1-log-store.ts';
 import { D1SsoStore } from './d1-sso-store.ts';
 import * as codecs from '../../packages/persistence/src/constitution-codecs.ts';
 if (Number(process.versions.node.split('.')[0])!==24) throw Error('D1_GATE_BLOCKED: Node 24 required');
-const {Miniflare}=await import('miniflare').catch(()=>{throw Error('D1_GATE_BLOCKED: existing Miniflare/workerd installation required')});
+const {Miniflare}=await import('miniflare').catch(()=>{throw Error('D1_GATE_BLOCKED: locked isolated Miniflare/workerd installation required')});
 const schema=readFileSync(new URL('../../packages/persistence/d1/migrations/0001_candidate_schema.sql',import.meta.url),'utf8');
 assert.equal(createHash('sha256').update(schema).digest('hex'),'6208ea7b05db58673e1aea0d2911f2164f78e02c892473b9b4e076ec372ef0f7');
 class Conflict extends Error {}
 test('real local workerd D1: schema, concurrent bootstrap/CAS, canonical codec lifecycle, journal and SSO',async()=>{
- const mf=new Miniflare({modules:true,script:'export default {fetch(){return new Response("D1 QA fixture only")}}',compatibilityDate:'2026-05-22',host:'127.0.0.1',port:0,d1Databases:{DB:'blueprint-d1-p1-ephemeral'},d1Persist:false});
+ const mf=new Miniflare({modules:true,script:'export default {fetch(){return new Response("D1 QA fixture only")}}',compatibilityDate:'2026-05-15',host:'127.0.0.1',port:0,d1Databases:{DB:'blueprint-d1-p1-ephemeral'},d1Persist:false});
  try{
   const db=await mf.getD1Database('DB');
   const statements=schema.replace(/^--[^\n]*\n/,'').split(/\n(?=CREATE (?:TABLE|(?:UNIQUE )?INDEX|TRIGGER) )/).map(s=>s.trim()).filter(Boolean);
