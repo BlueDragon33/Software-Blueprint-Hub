@@ -10,3 +10,5 @@ coverage/
 *.log
 .DS_Store
 packages/persistence/src/generated/prisma/
+# Next web typecheck incremental cache (generated, not authority source)
+/apps/web/tsconfig.tsbuildinfo

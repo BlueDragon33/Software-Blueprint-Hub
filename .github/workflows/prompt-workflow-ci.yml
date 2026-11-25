@@ -81,6 +81,7 @@ jobs:
         run: |
           node --experimental-transform-types --test experiments/d1-publication/d1-workerd-gate.test.mjs
           node --test packages/runtime/src/d1/request-runtime-scope.test.mjs
+          node --test experiments/d1-publication/d1-worker-host.test.mjs
       - name: Validate workflow manifests
         run: pnpm check:prompts
       - name: Workflow graph adversarial tests
@@ -106,7 +107,8 @@ jobs:
           AUTH_SECRET: build-only-not-an-authenticated-runtime-fixture
         run: |
           test "$(git rev-parse HEAD)" = "$EXPECTED_CANDIDATE_REVISION"
+          git status --porcelain=v1 --untracked-files=all
           test -z "$(git status --porcelain=v1 --untracked-files=all)"
-          pnpm --filter @blueprint-os/web build
+          pnpm --filter @blueprint-os/web exec next build --webpack
           node --input-type=module -e 'import assert from "node:assert/strict"; import {readFileSync} from "node:fs"; const build=JSON.parse(readFileSync("apps/web/.next/required-server-files.json","utf8")); assert.equal(build.config.env.BLUEPRINT_LOCAL_RUNTIME_REVISION,process.env.EXPECTED_CANDIDATE_REVISION); console.log("LOCAL_BUILD_STAMP_VERIFIED",process.env.EXPECTED_CANDIDATE_REVISION)'
           echo "BUILD_ONLY_NO_AUTHENTICATED_RATIFICATION_OR_PUBLICATION"
