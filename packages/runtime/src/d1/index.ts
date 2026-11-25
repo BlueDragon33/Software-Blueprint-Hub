@@ -24,14 +24,14 @@ import type { SsoIdentityStore } from "../sso-identity-store";
 import { D1WorkflowExecutionJournal } from "./workflow-execution-journal";
 import { D1WorkflowInspectionQaJournal } from "./workflow-inspection-qa-journal";
 import { createD1AuthorityRepository,createD1ConstitutionAuthorityRepository,D1DomainStore,D1LogStore,D1SsoStore,D1ProjectProfileRepository,D1WorkQualityRepository,D1GovernanceRepository,D1ReleaseRepository,D1PromptProjectionHistoryRepository,D1HumanProfessionalReviewDecisionRepository,D1WorkflowExecutionAuthorityRepository,type D1CanonicalBinding } from "@blueprint-os/persistence/d1";
-export function createD1BlueprintServerRuntime(db:D1CanonicalBinding,publicationTokenProvider?:()=>Promise<string|null>) {
+export function createD1BlueprintServerRuntime(db:D1CanonicalBinding,publicationTokenProvider?:()=>Promise<string|null>, trustedBuildRevision?:string) {
   if(!db||typeof db.prepare!=="function"||typeof db.batch!=="function")throw new Error("Canonical D1 binding required");
   const domain=new D1DomainStore(db), logs=new D1LogStore(db);
   const authorityRepository=createD1AuthorityRepository(db);
   const authority = new AuthorityService(authorityRepository);
   const constitutionAuthorityRepository =
     createD1ConstitutionAuthorityRepository(db);
-  const runtimeRevision = publicationRuntimeRevision(process.env.BLUEPRINT_LOCAL_RUNTIME_REVISION, undefined);
+  const runtimeRevision = publicationRuntimeRevision(trustedBuildRevision ?? process.env.BLUEPRINT_LOCAL_RUNTIME_REVISION, undefined);
   const constitutionAuthority = new ConstitutionAuthorityApplicationService(
     constitutionAuthorityRepository,
     authority,

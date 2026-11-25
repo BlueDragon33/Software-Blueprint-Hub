@@ -8,6 +8,8 @@ const repo=resolve(dirname(fileURLToPath(import.meta.url)),"../..");
 const web=resolve(repo,"apps/web");
 const runtime=resolve(web,"src/server/runtime");
 const revision=localPublicationBuildRevision(web);
+const virtualRevision="virtual:blueprint-worker-build-revision";
+const resolvedRevision="\0"+virtualRevision;
 if(process.env.EXPECTED_CANDIDATE_REVISION!==revision)throw Error("Exact Worker build revision required");
 export default defineConfig({
  root:web,
@@ -15,11 +17,12 @@ export default defineConfig({
  resolve:{dedupe:["react","react-dom"]},
  plugins:[
    {name:"blueprint-native-d1-runtime",enforce:"pre",resolveId(source,importer){
+     if(source===virtualRevision)return resolvedRevision;
      if(!importer||!source.startsWith("."))return null;
      const target=resolve(dirname(importer.split("?")[0]!),source);
      if(target===runtime||target===runtime+".ts")return runtime+".cloudflare.ts";
      return null;
-   }},
+   },load(id){if(id===resolvedRevision)return "export const workerBuildRevision = "+JSON.stringify(revision)+";";return null;}},
    vinext(),
    cloudflare({config:{
      name:"software-blueprint-hub",

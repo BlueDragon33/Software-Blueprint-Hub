@@ -15,8 +15,11 @@ assert.ok(existsSync(entry),"generated entry does not exist");
 const files=[];function walk(p){for(const n of readdirSync(p)){const f=join(p,n);if(statSync(f).isDirectory())walk(f);else if(/\.(m?js|cjs)$/.test(n))files.push(f);}}walk(dirname(path));
 const sha=process.env.EXPECTED_CANDIDATE_REVISION;
 assert.match(sha,/^[a-f0-9]{40}$/);
-assert.ok(files.some(f=>readFileSync(f,"utf8").includes(sha)),"compiled exact revision missing");
-assert.ok(files.some(f=>readFileSync(f,"utf8").includes("Canonical Cloudflare D1 binding unavailable")),"native D1 module missing from bundle");
-assert.ok(files.some(f=>readFileSync(f,"utf8").includes("Canonical persistence unavailable")),"host entry missing from bundle");
+const contents=files.map(f=>readFileSync(f,"utf8"));
+const proof={main:cfg.main,modules:files.length,shaModules:contents.filter(s=>s.includes(sha)).length,nativeModules:contents.filter(s=>s.includes("Canonical Cloudflare D1 binding unavailable")).length,hostModules:contents.filter(s=>s.includes("Canonical persistence unavailable")).length};
+console.log("WORKER_BUNDLE_PROOF",JSON.stringify(proof));
+assert.ok(proof.nativeModules>0,"native D1 module missing from bundle");
+assert.ok(proof.hostModules>0,"host entry missing from bundle");
+assert.ok(proof.shaModules>0,"compiled exact revision missing");
 console.log("LOCAL_WORKER_BUILD_VERIFIED",sha,"entrySHA256",createHash("sha256").update(readFileSync(entry)).digest("hex"),"modules",files.length);
 // This is artifact verification only. Actual full app workerd smoke remains a gate.

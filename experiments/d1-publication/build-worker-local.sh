@@ -16,6 +16,7 @@ for p in vinext vite @vitejs/plugin-react @vitejs/plugin-rsc react-server-dom-we
 done
 # Do not replace Hub React/ReactDOM or Next links to make the build pass.
 node -e 'const {createRequire}=require("node:module");const req=createRequire(process.argv[1]+"/package.json");console.log("HUB_REACT",req("react/package.json").version,"HUB_REACT_DOM",req("react-dom/package.json").version,"VINEXT_RSC",req("react-server-dom-webpack/package.json").version)' "$web"
+export BLUEPRINT_LOCAL_PUBLICATION=true
 export WRANGLER_WRITE_LOGS=false
 export WRANGLER_LOG_PATH="$RUNNER_TEMP/blueprint-d1-wrangler.log"
 export MINIFLARE_REGISTRY_PATH="$RUNNER_TEMP/blueprint-d1-miniflare-registry"
