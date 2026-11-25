@@ -84,12 +84,17 @@ describe("App-Manage to Blueprint one-login SSO client", () => {
 
   it("starts signed two-provider proof on email mismatch, without making an unverified link", () => {
     const callback = readFileSync(new URL("../../apps/web/app/api/sso/callback/route.ts", import.meta.url), "utf8");
-    const mismatch = callback.slice(callback.indexOf("if (!ownerId)"),
-      callback.indexOf("      try {\n        link = await runtime.prisma.appManagementSsoLink.create", callback.indexOf("if (!ownerId)")));
+    const start = callback.indexOf("if (!ownerId)");
+    const link = callback.indexOf("link = await runtime.sso.linkExistingOwner", start);
+    expect(start).toBeGreaterThan(-1);
+    expect(link).toBeGreaterThan(start);
+    const mismatch = callback.slice(start, link);
     expect(mismatch).toContain("SSO_PAIR_COOKIE");
     expect(mismatch).toContain("sealOwnerPair");
     expect(mismatch).toContain("/api/sso/finish");
-    expect(mismatch).not.toContain("appManagementSsoLink.create");
+    expect(mismatch).not.toContain("runtime.sso.linkExistingOwner");
+    expect(mismatch).toContain("return response;");
+    expect(callback).not.toContain("runtime.prisma");
   });
 
   it("refuses tampered, expired or malformed pending Google-owner proof", () => {
@@ -123,11 +128,34 @@ describe("App-Manage to Blueprint one-login SSO client", () => {
     expect(finish).toContain("readOwnerPair");
     expect(finish).toContain("resolveWebIdentity()");
     expect(finish).toContain("isVerifiedGitHubOwner");
-    expect(finish).toContain("appManagementSsoLink.create");
+    const proof = finish.indexOf("!isVerifiedGitHubOwner(github, owner)");
+    const link = finish.indexOf("runtime.sso.linkExistingOwner(subject, owner.id, owner.provider, owner.providerSubject)");
+    const readback = finish.indexOf("runtime.resolveLinkedAppManagementPrincipal(subject, owner.id)");
+    expect(proof).toBeGreaterThan(-1);
+    expect(link).toBeGreaterThan(proof);
+    expect(readback).toBeGreaterThan(link);
+    expect(finish.indexOf("response.cookies.set(SSO_SESSION_COOKIE")).toBeGreaterThan(readback);
+    expect(finish).not.toContain(".prisma");
     expect(finish).toContain("link-conflict");
     expect(finish).toContain("SSO_PAIR_COOKIE");
     expect(finish).toContain("SSO_SESSION_COOKIE");
     expect(finish).toContain("callbackUrl=%2Fapi%2Fsso%2Ffinish");
+  });
+
+  it("provider-neutral route retains immutable owner checks at the persistence boundary", () => {
+    const pg = readFileSync(new URL("../../packages/runtime/src/sso-identity-store.ts", import.meta.url), "utf8");
+    const d1 = readFileSync(new URL("../../experiments/d1-publication/d1-sso-store.ts", import.meta.url), "utf8");
+    const actor = readFileSync(new URL("../../apps/web/src/auth/server-actor.ts", import.meta.url), "utf8");
+    expect(pg).toContain('FOR SHARE OF b,p');
+    expect(pg).toContain('p."providerSubject"=');
+    expect(pg).toContain("ON CONFLICT DO NOTHING");
+    expect(pg).toContain('link.revokedAt||link.principalId!==ownerId');
+    expect(d1).toContain('p."providerSubject"=?');
+    expect(d1).toContain('b."ownerPrincipalId"');
+    expect(d1).toContain('blueprint_atomic_guard');
+    expect(d1).toContain('found.revokedAt||found.principalId!==ownerId');
+    expect(actor).toContain("runtime.resolveLinkedAppManagementPrincipal(session.subject, session.principalId)");
+    expect(actor).not.toContain("runtime.prisma");
   });
 
   it("auto-links exclusively to a pre-existing Github constitutional owner with matching verified email", () => {
