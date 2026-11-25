@@ -93,8 +93,8 @@
   "localSchemaStatus": "SQLITE_EXACT_BLOB_VALIDATED",
   "runtimeAdmission": false,
   "schemaEvidence": {
-    "gitBlob": "c4952d1e4ee9a1c07eb1ec0dab8e63aa730c72b1",
-    "sha256": "21cfacc19591a96d8a80020d113754fd416290dfe4551fc28806cf7ec59821ce",
+    "gitBlob": "8cab685780d59f607f9c1c6217aee6ab0bfbb4a7",
+    "sha256": "6208ea7b05db58673e1aea0d2911f2164f78e02c892473b9b4e076ec372ef0f7",
     "engine": "Node 22.16.0 node:sqlite",
     "canonicalTables": 27,
     "internalGuardTables": 1,
@@ -103,7 +103,8 @@
     "triggers": 31,
     "integrityCheck": "ok",
     "foreignKeyViolations": 0,
-    "localOnly": true
+    "localOnly": true,
+    "nullableSsoTimestampRepair": true
   },
   "adapterInventory": [
     {
@@ -151,27 +152,32 @@
     {
       "path": "packages/persistence/src/professional-review-repository.ts",
       "scope": "2 methods",
-      "state": "PENDING"
+      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
+      "candidate": "experiments/d1-publication/d1-log-store.ts"
     },
     {
       "path": "packages/persistence/src/workflow-execution-authority-repository.ts",
       "scope": "5 methods",
-      "state": "PENDING"
+      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
+      "candidate": "experiments/d1-publication/d1-log-store.ts"
     },
     {
       "path": "packages/runtime/src/workflow-execution-journal.ts",
       "scope": "3 methods",
-      "state": "PENDING"
+      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
+      "candidate": "experiments/d1-publication/d1-log-store.ts"
     },
     {
       "path": "packages/runtime/src/workflow-inspection-qa-journal.ts",
       "scope": "2 methods",
-      "state": "PENDING"
+      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
+      "candidate": "experiments/d1-publication/d1-log-store.ts"
     },
     {
       "path": "apps/web/src/auth/server-actor.ts",
       "scope": "direct Prisma AppManagementSsoLink and Principal reads",
-      "state": "PENDING"
+      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
+      "candidate": "experiments/d1-publication/d1-log-store.ts"
     },
     {
       "path": "apps/web/src/server/runtime.ts",
@@ -194,7 +200,7 @@
       "failed": 0,
       "skipped": 0,
       "sourceBlob": "b22b3451a2a6da9129470490179b8a9409ac1f3d",
-      "testBlob": "10473dd717d2f708adff8222af40636423d4705e"
+      "testBlob": "f9cb81de0f8cc929d632d2e6cbfeecba3b5b325f"
     },
     {
       "suite": "d1-domain-store.test.mjs",
@@ -204,6 +210,15 @@
       "sourceBlob": "d6e6a95b7422a1479f99dfcff9ddc644aa246b01",
       "testBlob": "ed6ca1f17de392526096a8eb11cff59e388928c7",
       "scope": "SQL layer only; standalone tsc with Hub strict/exactOptionalPropertyTypes/noUncheckedIndexedAccess passed; full adapter typecheck and D1 pending"
+    },
+    {
+      "suite": "d1-log-store.test.mjs",
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "20a13ed38a914fe827aebad31aef4d87fbb91ee9",
+      "testBlob": "2733badc25abbd687eea0552a495f5ea2ae8e3d1",
+      "scope": "local SQLite SQL layer; actual D1 pending"
     }
   ],
   "remainingAdmission": [
@@ -212,5 +227,13 @@
     "Test actual D1/workerd atomicity, concurrent writes, append-only guards, limits and error mapping; no simulated PASS.",
     "Review intentional stronger immutable audit/history constraints against PostgreSQL FK cascade/SET NULL behavior; migration timestamp normalization must be explicit.",
     "Verify existing canonical history/owner before any data migration. No reset, binding or deployment from P1 partial."
-  ]
+  ],
+  "revisedSchemaRegression": {
+    "tests": 50,
+    "passed": 50,
+    "failed": 0,
+    "skipped": 0,
+    "includesP0": 8,
+    "engine": "Node22.16.0 SQLite"
+  }
 }

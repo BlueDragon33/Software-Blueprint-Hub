@@ -294,7 +294,7 @@ CREATE TABLE "AppManagementSsoLink" (
   "subject" TEXT NOT NULL CHECK (length("subject")<=320),
   "principalId" TEXT NOT NULL CHECK (length("principalId")<=160),
   "linkedAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) CHECK (length("linkedAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"linkedAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"linkedAt")="linkedAt"),
-  "revokedAt" TEXT CHECK (length("revokedAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"revokedAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"revokedAt")="revokedAt"),
+  "revokedAt" TEXT CHECK ("revokedAt" IS NULL OR (length("revokedAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"revokedAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"revokedAt")="revokedAt")),
   CONSTRAINT "AppManagementSsoLink_pkey" PRIMARY KEY ("issuer","subject"),
   CONSTRAINT "AppManagementSsoLink_principalId_fkey" FOREIGN KEY ("principalId") REFERENCES "Principal"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );

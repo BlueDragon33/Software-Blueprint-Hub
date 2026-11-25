@@ -1,0 +1,41 @@
+// Internal append-only SQL port; no arbitrary SQL/identifier input from requests.
+import type { D1Binding, D1Result, SqlValue } from './d1-domain-store.ts';
+const shape = {
+  HumanProfessionalReviewDecision: {id:'s',projectId:'s',reviewerActorId:'s',source:'s',decision:'s',decidedAt:'d',note:'s',candidateReviewedRevision:'s',candidateEvidenceDigest:'s',acknowledgedFindingIds:'j',humanSignoff:'b',p9020TransitionAllowed:'b',productionReleaseAuthority:'b',blockers:'j',createdAt:'d'},
+  WorkflowExecutionAdoptionDecision: {id:'s',projectId:'s',workflowId:'s',workflowDigest:'s',policyVersion:'s',decision:'s',decidedByPrincipalId:'s',decidedAt:'d',productionReleaseAuthority:'b'},
+  WorkflowExecutionIssuerDecision: {id:'s',projectId:'s',workflowId:'s',issuerId:'s',publicKeyPem:'s',policyVersion:'s',decision:'s',decidedByPrincipalId:'s',decidedAt:'d',productionReleaseAuthority:'b'},
+  WorkflowExecutionClaim: {requestId:'s',expiresAt:'d',createdAt:'d'},
+  WorkflowExecutionObservation: {requestId:'s',attempt:'n',outcome:'s',observationDigest:'sn',evidenceReferences:'j',filesTouched:'j',tokensUsed:'n',createdAt:'d'},
+  WorkflowExecutionQaVerification: {requestId:'s',attempt:'n',observationDigest:'s',sourceRevision:'s',verifierId:'s',verifiedFiles:'n',verifiedAt:'d'},
+  AuthorityAuditEvent: {id:'s',actorPrincipalId:'s',targetPrincipalId:'sn',projectId:'sn',action:'s',detail:'j',createdAt:'d'}
+} as const;
+type Table=keyof typeof shape;
+type Kind='s'|'sn'|'n'|'d'|'j'|'b';
+type KindValue<K> = K extends 's'?string:K extends 'sn'?string|null:K extends 'n'?number:K extends 'd'?Date:K extends 'b'?boolean:unknown;
+type LogRow<T extends Table> = {[P in keyof typeof shape[T]]:KindValue<typeof shape[T][P]>};
+type Data=Record<string,unknown>;
+const q=(s:string)=>'"'+s+'"';
+function name(t:Table){if(!Object.hasOwn(shape,t))throw new TypeError('Unknown log table');return q(t)}
+function kind(t:Table,k:string):Kind {name(t);const fields:Readonly<Record<string,Kind>>=shape[t];const v=Object.hasOwn(fields,k)?fields[k]:undefined;if(!v)throw new TypeError('Unknown log column');return v}
+function encode(t:Table,k:string,v:unknown):SqlValue {const c=kind(t,k);if(c==='j'){const s=JSON.stringify(v);if(typeof s!=='string')throw new TypeError('Invalid JSON');return s;}if(c==='d'&&v instanceof Date)return v.toISOString();if(c==='b'&&typeof v==='boolean')return v?1:0;if((c==='s'||c==='sn')&&typeof v==='string')return v;if(c==='sn'&&v===null)return null;if(c==='n'&&typeof v==='number'&&Number.isSafeInteger(v))return v;throw new TypeError('Invalid log field '+k)}
+function decoded<T extends Table>(t:T,row:unknown):LogRow<T>{if(!row||typeof row!=='object'||Array.isArray(row))throw Error('Invalid log row');const input=row as Data,out:Data={};for(const k of Object.keys(shape[t])){const v=input[k],c=kind(t,k);if(c==='j'&&typeof v==='string')out[k]=JSON.parse(v);else if(c==='d'&&typeof v==='string'){const d=new Date(v);if(d.toISOString()!==v)throw Error('Invalid log timestamp');out[k]=d;}else if(c==='b'&&(v===0||v===1))out[k]=v===1;else if((c==='s'||c==='sn')&&typeof v==='string'||c==='sn'&&v===null||c==='n'&&typeof v==='number'&&Number.isSafeInteger(v))out[k]=v;else throw Error('Invalid persisted log field '+k);}return out as LogRow<T>}
+function verify(rs:D1Result[],n:number){if(!Array.isArray(rs)||rs.length!==n||rs.some(r=>r.success!==true))throw Error('D1 result unavailable; reconcile before retry')}
+function readRows<T extends Table>(t:T,r:D1Result){if(r.success!==true||!Array.isArray(r.results))throw Error('D1 log read unavailable');return r.results.map(x=>decoded(t,x))}
+export class D1LogStore {
+  constructor(private readonly db:D1Binding){}
+  private stmt(sql:string,vals:SqlValue[]=[]){return this.db.prepare(sql).bind(...vals)}
+  private insert(t:Table,data:Data,condition='',tail:SqlValue[]=[]){const keys=Object.keys(data);const vals=keys.map(k=>encode(t,k,data[k]));return this.stmt(`INSERT INTO ${name(t)} (${keys.map(q).join(',')}) SELECT ${keys.map(()=>'?').join(',')}${condition}`, [...vals,...tail]);}
+  private select<T extends Table>(t:T,filter:Data,order:ReadonlyArray<readonly [string,'asc'|'desc']>=[],take?:number){const keys=Object.keys(filter);if(!keys.length)throw new TypeError('Scoped log read required');const vals=keys.map(k=>encode(t,k,filter[k]));const sort=order.map(([k,v])=>{kind(t,k);if(v!=='asc'&&v!=='desc')throw new TypeError('Invalid log order');return q(k)+' '+v});if(take!==undefined&&(!Number.isSafeInteger(take)||take<1))throw new TypeError('Invalid limit');return this.stmt(`SELECT * FROM ${name(t)} WHERE ${keys.map(k=>q(k)+'=?').join(' AND ')}${sort.length?' ORDER BY '+sort.join(','):''}${take!==undefined?' LIMIT ?':''}`,[...vals,...(take===undefined?[]:[take])])}
+  async append(t: 'HumanProfessionalReviewDecision'|'WorkflowExecutionObservation'|'WorkflowExecutionQaVerification',data:Data){const r=await this.db.batch([this.insert(t,data)]);verify(r,1);if(r[0]?.meta?.changes!==1)throw Error('Log append result invalid');}
+  async read<T extends Table>(t:T,filter:Data,order:ReadonlyArray<readonly [string,'asc'|'desc']>=[],take?:number){return readRows(t,await this.select(t,filter,order,take).all())}
+  async claim(requestId:string,expiresAt:Date){const r=await this.db.batch([this.insert('WorkflowExecutionClaim',{requestId,expiresAt},' WHERE NOT EXISTS(SELECT 1 FROM "WorkflowExecutionClaim" WHERE "requestId"=?)',[requestId])]);verify(r,1);const n=r[0]?.meta?.changes;if(n!==0&&n!==1)throw Error('Claim result invalid');return n===1;}
+  async readJournal(requestId:string){const r=await this.db.batch([this.select('WorkflowExecutionClaim',{requestId},[],1),this.select('WorkflowExecutionObservation',{requestId},[['attempt','asc']],5)]);verify(r,2);return {claimed:readRows('WorkflowExecutionClaim',r[0]!).length===1,observations:readRows('WorkflowExecutionObservation',r[1]!)}}
+  async appendOwned<T extends 'WorkflowExecutionAdoptionDecision'|'WorkflowExecutionIssuerDecision'>(t:T,data:Data,audit:Data){const scope=t==='WorkflowExecutionAdoptionDecision'?'workflowDigest':'issuerId';const keys=Object.keys(data);if('decidedAt' in data||data.productionReleaseAuthority!==false||audit.actorPrincipalId!==data.decidedByPrincipalId||audit.projectId!==data.projectId)throw new TypeError('Decision scope invalid');const vals=keys.map(k=>encode(t,k,data[k]));const now=new Date().toISOString();const actor=encode(t,'decidedByPrincipalId',data.decidedByPrincipalId),project=encode(t,'projectId',data.projectId),workflow=encode(t,'workflowId',data.workflowId),key=encode(t,scope,data[scope]);
+    // Millisecond precision in D1: advance one logical millisecond if needed so
+    // an allow/revoke written in the same clock tick never ties the prior row.
+    const prior=`(SELECT max("decidedAt") FROM ${name(t)} WHERE "projectId"=? AND "workflowId"=? AND ${q(scope)}=?)`;
+    const stamp=`CASE WHEN ${prior} >= ? THEN strftime('%Y-%m-%dT%H:%M:%fZ',${prior},'+0.001 seconds') ELSE ? END`;
+    const mutation=this.stmt(`INSERT INTO ${name(t)} (${keys.map(q).join(',')},"decidedAt") SELECT ${keys.map(()=>'?').join(',')},${stamp} WHERE EXISTS(SELECT 1 FROM "SystemBootstrap" WHERE id='system' AND "ownerPrincipalId"=?) AND EXISTS(SELECT 1 FROM "Project" WHERE id=?)`,[...vals,project,workflow,key,now,project,workflow,key,now,actor,project]);
+    const r=await this.db.batch([mutation,this.stmt('INSERT INTO blueprint_atomic_guard(id,ok) VALUES(1,CASE WHEN changes()=1 THEN 1 ELSE 0 END)'),this.stmt('DELETE FROM blueprint_atomic_guard WHERE id=1'),this.insert('AuthorityAuditEvent',audit),this.select(t,{id:data.id},[],1)]);verify(r,5);const found=readRows(t,r[4]!);if(found.length!==1)throw Error('Decision readback unavailable');return found[0]!;}
+  async linkedPrincipal(issuer:string,subject:string,principalId:string){const r=await this.stmt('SELECT p.id FROM "AppManagementSsoLink" l JOIN "Principal" p ON p.id=l."principalId" WHERE l.issuer=? AND l.subject=? AND l."principalId"=? AND l."revokedAt" IS NULL',[issuer,subject,principalId]).all();if(r.success!==true||!Array.isArray(r.results)||r.results.length>1)throw Error('SSO link read unavailable');const row=r.results[0] as {id?:unknown}|undefined;return row&&row.id===principalId?principalId:null;}
+}
