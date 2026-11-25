@@ -94,14 +94,6 @@ export async function resolveWebActor(): Promise<WebAuthenticatedActor | null> {
     secret, "session");
   if (!session || session.kind !== "session") return null;
   const runtime = getBlueprintServerRuntime();
-  const link = await runtime.prisma.appManagementSsoLink.findUnique({
-    where: {
-      issuer_subject: { issuer: "application-management", subject: session.subject }
-    }
-  });
-  if (!link || link.revokedAt || link.principalId !== session.principalId) return null;
-  const principal = await runtime.prisma.principal.findUnique({
-    where: { id: session.principalId }, select: { id: true }
-  });
-  return principal ? Object.freeze({ principalId: principal.id }) : null;
+  const principalId = await runtime.resolveLinkedAppManagementPrincipal(session.subject, session.principalId);
+  return principalId ? Object.freeze({ principalId }) : null;
 }

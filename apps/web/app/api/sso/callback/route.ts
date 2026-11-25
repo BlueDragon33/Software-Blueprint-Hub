@@ -57,24 +57,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const runtime = getBlueprintServerRuntime();
     const issuerName = "application-management";
-    let link = await runtime.prisma.appManagementSsoLink.findUnique({
-      where: { issuer_subject: { issuer: issuerName, subject: identity.subject } }
-    });
+    let link = await runtime.sso.findLink(identity.subject);
     if (!link) {
       // One-tap enrollment: App-Manage has verified an active Google Owner.
       // The sole constitutional Hub owner is separately established in this
       // database. Never invent a Hub Principal, bootstrap or project role.
-      const bootstrap = await runtime.prisma.systemBootstrap.findUnique({
-        where: { id: "system" },
-        include: { owner: { select: { id: true, email: true, provider: true, providerSubject: true } } }
-      });
-      const ownerId = matchingExistingHubOwner(identity, bootstrap?.owner ?? null);
+      const owner = await runtime.sso.currentOwner();
+      const ownerId = matchingExistingHubOwner(identity, owner);
       if (!ownerId) {
         // Different emails do not prove the accounts are unrelated.
         // The App-Manage owner identity has been verified by the PKCE
         // backchannel; now require independent GitHub constitutional-owner
         // OAuth proof before a single durable link is created.
-        if (!bootstrap?.owner) return returnToAccessError(origin, "missing-principal");
+        if (!owner) return returnToAccessError(origin, "missing-principal");
         const pending = {
           kind: "pending-owner-pair" as const,
           appManageSubject: identity.subject,
@@ -91,32 +86,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         response.headers.set("Referrer-Policy", "no-referrer");
         return response;
       }
+      if (!owner || owner.id !== ownerId) return returnToAccessError(origin, "missing-principal");
       try {
-        link = await runtime.prisma.appManagementSsoLink.create({
-          data: { issuer: issuerName, subject: identity.subject, principalId: ownerId }
-        });
+        link = await runtime.sso.linkExistingOwner(identity.subject, ownerId, owner.provider, owner.providerSubject);
       } catch {
-        // Another request may have created the same link. Never overwrite
-        // or reassign a conflicting or revoked identity.
-        link = await runtime.prisma.appManagementSsoLink.findUnique({
-          where: { issuer_subject: { issuer: issuerName, subject: identity.subject } }
-        });
-        if (!link || link.principalId !== ownerId || link.revokedAt) {
-          return returnToAccessError(origin, "link-conflict");
-        }
+        return returnToAccessError(origin, "link-conflict");
       }
     }
     if (!link || link.revokedAt) return returnToAccessError(origin, "link-required");
 
     // External issuer can assert only identity. All actual authority is held
     // by the existing Hub Principal / ProjectAuthority / SystemBootstrap.
-    const principal = await runtime.prisma.principal.findUnique({
-      where: { id: link.principalId }, select: { id: true }
-    });
-    if (!principal) return returnToAccessError(origin, "missing-principal");
+    const principalId = await runtime.resolveLinkedAppManagementPrincipal(identity.subject, link.principalId);
+    if (!principalId) return returnToAccessError(origin, "missing-principal");
     const session = {
       kind: "session" as const, issuer: issuerName as "application-management",
-      subject: identity.subject, principalId: principal.id,
+      subject: identity.subject, principalId,
       exp: Math.floor(Date.now() / 1000) + SESSION_TTL
     };
     const response = NextResponse.redirect(new URL("/", origin));

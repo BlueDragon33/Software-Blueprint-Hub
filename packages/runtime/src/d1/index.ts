@@ -20,6 +20,7 @@ import {
 import { GitHubConstitutionPublicationVerifier } from "../constitution-publication";
 import { publicationRuntimeRevision } from "../publication-runtime-revision";
 import { AuthorityService } from "@blueprint-os/core";
+import type { SsoIdentityStore } from "../sso-identity-store";
 import { D1WorkflowExecutionJournal } from "./workflow-execution-journal";
 import { D1WorkflowInspectionQaJournal } from "./workflow-inspection-qa-journal";
 import { createD1AuthorityRepository,createD1ConstitutionAuthorityRepository,D1DomainStore,D1LogStore,D1SsoStore,D1ProjectProfileRepository,D1WorkQualityRepository,D1GovernanceRepository,D1ReleaseRepository,D1PromptProjectionHistoryRepository,D1HumanProfessionalReviewDecisionRepository,D1WorkflowExecutionAuthorityRepository,type D1CanonicalBinding } from "@blueprint-os/persistence/d1";
@@ -95,8 +96,9 @@ export function createD1BlueprintServerRuntime(db:D1CanonicalBinding,publication
   const workflowExecutionJournal = new D1WorkflowExecutionJournal(logs);
   const workflowExecutionAuthority = new D1WorkflowExecutionAuthorityRepository(logs);
 
+  const sso:SsoIdentityStore = new D1SsoStore(db);
   return Object.freeze({
-    sso: new D1SsoStore(db),
+    sso,
     resolveLinkedAppManagementPrincipal: (subject:string,principalId:string) => logs.linkedPrincipal('application-management',subject,principalId),
     workflowInspectionQaJournal: new D1WorkflowInspectionQaJournal(logs),
     authority,

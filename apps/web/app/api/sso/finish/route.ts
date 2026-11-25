@@ -53,36 +53,24 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const db = getBlueprintServerRuntime().prisma;
-    const bootstrap = await db.systemBootstrap.findUnique({
-      where: { id: "system" },
-      include: { owner: { select: {
-        id: true, provider: true, providerSubject: true
-      } } }
-    });
-    const owner = bootstrap?.owner ?? null;
+    const runtime = getBlueprintServerRuntime();
+    const owner = await runtime.sso.currentOwner();
     if (!owner || !isVerifiedGitHubOwner(github, owner)) {
       return deny(origin, "owner-identity-mismatch");
     }
 
-    const issuer = "application-management";
     const subject = pending.appManageSubject;
-    const selector = { issuer_subject: { issuer, subject } };
-    let linked = await db.appManagementSsoLink.findUnique({ where: selector });
-    if (!linked) {
-      try {
-        linked = await db.appManagementSsoLink.create({
-          data: { issuer, subject, principalId: owner.id }
-        });
-      } catch {
-        // A concurrent request or another identity cannot silently reassign
-        // a principal. Re-read the exact unique mapping and fail closed.
-        linked = await db.appManagementSsoLink.findUnique({ where: selector });
-      }
+    let linked;
+    try {
+      linked = await runtime.sso.linkExistingOwner(subject, owner.id, owner.provider, owner.providerSubject);
+    } catch {
+      return deny(origin, "link-conflict");
     }
     if (!linked || linked.revokedAt || linked.principalId !== owner.id) {
       return deny(origin, "link-conflict");
     }
+
+    if (await runtime.resolveLinkedAppManagementPrincipal(subject, owner.id) !== owner.id) return deny(origin, "link-conflict");
 
     const session = {
       kind: "session" as const,

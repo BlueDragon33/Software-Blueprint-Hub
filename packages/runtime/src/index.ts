@@ -25,6 +25,7 @@ export { PinnedInspectionQaVerifier } from "./workflow-observation-qa";
 export { executeAndVerifyScopedInspection } from "./workflow-inspection-pipeline";
 export { PostgresWorkflowInspectionQaJournal } from "./workflow-inspection-qa-journal";
 import { AuthorityService } from "@blueprint-os/core";
+import { PostgresSsoIdentityStore, type SsoIdentityStore } from "./sso-identity-store";
 import {
   createPrismaClient,
   PostgresAuthorityRepository,
@@ -41,6 +42,8 @@ import {
 
 export interface BlueprintServerRuntime {
   readonly prisma: BlueprintPrismaClient;
+  readonly sso: SsoIdentityStore;
+  readonly resolveLinkedAppManagementPrincipal: (subject:string,principalId:string)=>Promise<string|null>;
   readonly authority: AuthorityService;
   readonly constitutionAuthority: ConstitutionAuthorityApplicationService;
   readonly profiles: ProjectProfileApplicationService;
@@ -136,8 +139,11 @@ export function createBlueprintServerRuntime(
   const workflowExecutionJournal = new PostgresWorkflowExecutionJournal(prisma);
   const workflowExecutionAuthority = new PostgresWorkflowExecutionAuthorityRepository(prisma);
 
+  const sso = new PostgresSsoIdentityStore(prisma);
   return Object.freeze({
     prisma,
+    sso,
+    resolveLinkedAppManagementPrincipal:(subject:string,principalId:string)=>sso.resolveLinkedPrincipal(subject,principalId),
     authority,
     constitutionAuthority,
     profiles,
