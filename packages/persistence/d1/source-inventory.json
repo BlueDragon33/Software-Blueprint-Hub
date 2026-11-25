@@ -176,13 +176,13 @@
     {
       "path": "apps/web/src/auth/server-actor.ts",
       "scope": "direct Prisma AppManagementSsoLink and Principal reads",
-      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
+      "state": "D1_SSO_SQL_PORT_TESTED_WEB_ROUTE_INTEGRATION_PENDING",
       "candidate": "experiments/d1-publication/d1-log-store.ts"
     },
     {
       "path": "apps/web/src/server/runtime.ts",
       "scope": "DATABASE_URL and server-runtime composition",
-      "state": "PENDING"
+      "state": "D1_PROVIDER_COMPOSITION_SOURCE_PREPARED_NOT_SELECTED"
     }
   ],
   "tests": [
@@ -219,6 +219,15 @@
       "sourceBlob": "20a13ed38a914fe827aebad31aef4d87fbb91ee9",
       "testBlob": "2733badc25abbd687eea0552a495f5ea2ae8e3d1",
       "scope": "local SQLite SQL layer; actual D1 pending"
+    },
+    {
+      "suite": "d1-sso-store.test.mjs",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "f0ded7390334c94d483044fa910935a52430ccde",
+      "testBlob": "a9b9c8f7a52ceebc78471e76ff433f1fd7d60406",
+      "scope": "local SQLite SQL layer only"
     }
   ],
   "remainingAdmission": [
@@ -239,6 +248,21 @@
   "sharedCanonicalCodecs": {
     "path": "packages/persistence/src/constitution-codecs.ts",
     "sourceBlob": "bc118084e15be59531bc579e936bc4928a1ecb27",
-    "status": "EXTRACTED_UNCHANGED_READ_VALIDATION_FULL_INTEGRATION_PENDING"
-  }
+    "status": "SHARED_IN_D1_COMPOSITION_SOURCE_INTEGRATION_QA_PENDING"
+  },
+  "providerComposition": {
+    "path": "packages/runtime/src/d1/index.ts",
+    "state": "CANDIDATE_SOURCE_NOT_SELECTED_BY_WEB_RUNTIME",
+    "providerEntryPoint": "@blueprint-os/runtime/d1",
+    "remaining": [
+      "Authenticated Cloudflare binding selection",
+      "Replace direct Prisma SSO callback/finish/server-actor paths with provider-neutral ports",
+      "Full actual Node24 typecheck and app regressions",
+      "Actual D1/workerd test, build and gate"
+    ]
+  },
+  "additionalDirectPrismaPaths": [
+    "apps/web/app/api/sso/callback/route.ts",
+    "apps/web/app/api/sso/finish/route.ts"
+  ]
 }

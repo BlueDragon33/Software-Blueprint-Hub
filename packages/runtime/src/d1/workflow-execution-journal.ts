@@ -4,7 +4,7 @@ import type {
   WorkflowAttemptRecord,
   WorkflowExecutionJournal
 } from "@blueprint-os/application";
-import type { D1LogStore } from "@blueprint-os/persistence";
+import type { D1LogStore } from "@blueprint-os/persistence/d1";
 
 const REQUEST_ID = /^sha256:[0-9a-f]{64}$/;
 const DIGEST = /^sha256:[0-9a-f]{64}$/;

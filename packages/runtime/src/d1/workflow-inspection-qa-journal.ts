@@ -1,5 +1,5 @@
 // Candidate; original QA validation from cca507983de8dfc4cca0247f17da5264ada1c296.
-import type { D1LogStore } from "@blueprint-os/persistence";
+import type { D1LogStore } from "@blueprint-os/persistence/d1";
 
 const REQUEST = /^sha256:[a-f0-9]{64}$/;
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
