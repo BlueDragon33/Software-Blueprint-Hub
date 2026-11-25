@@ -264,5 +264,20 @@
   "additionalDirectPrismaPaths": [
     "apps/web/app/api/sso/callback/route.ts",
     "apps/web/app/api/sso/finish/route.ts"
-  ]
+  ],
+  "workerdGate": {
+    "path": "experiments/d1-publication/d1-workerd-gate.test.mjs",
+    "status": "NOT_EXECUTED_NODE24_AND_MINIFLARE_UNAVAILABLE",
+    "localEphemeralOnly": true,
+    "notProductionAuthority": true
+  },
+  "localSqlEvidence": {
+    "P0": 8,
+    "P1Previous": 20,
+    "domain": 13,
+    "log": 9,
+    "sso": 3,
+    "total": 53,
+    "scope": "SQLite local tests; revised schema regression 50 plus SSO 3; not workerd"
+  }
 }
