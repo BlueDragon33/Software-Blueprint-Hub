@@ -130,3 +130,25 @@ test("product publication and final merge are independent exact-revision protect
  assert.equal(decideProductRelease({...m,candidateRevision:b,technicalEvidenceRevision:b,rollbackEvidenceRevision:b}).action,"AWAIT_OWNER_PUBLICATION");
  assert.equal(decideProductRelease({...m,deployedRevision:b}).action,"READY_FOR_PROTECTED_PUBLICATION_REVIEW");
 });
+
+import {createHash} from "node:crypto";
+import {buildNavigationPublicationCandidate} from "../../scripts/check-constitution-1.4-candidate.mjs";
+import {applyConstitutionPublicationPatch,attestConstitutionAuthoritySources,constitutionPublicationPaths} from "../../packages/application/src/constitution-publication-sources.ts";
+test("R34–R38 successor is a complete inactive eight-path candidate preserving R33 and historical observations",()=>{
+ const prior=buildNavigationPublicationCandidate(process.cwd());
+ assert.equal(prior.attestation.authoritySetDigest,"sha256:229b4084e5f4efe0a70432bb447ca76cf6e1101790ba3d79e5066775d5cbea2d");
+ const patch=read("docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch");const next=applyConstitutionPublicationPatch(prior.files,patch);
+ const blob=text=>{const b=Buffer.from(text,"utf8");return createHash("sha1").update("blob "+b.length+"\0").update(b).digest("hex");};
+ const seals=[...patch.matchAll(/^diff --git a\/(\S+) b\/\1\nindex ([a-f0-9]{40})\.\.([a-f0-9]{40}) 100644$/gm)];
+ assert.equal(seals.length,8);assert.equal(new Set(seals.map(m=>m[1])).size,8);
+ for(const [,path,before,after] of seals){assert.equal(blob(prior.files[path]),before);assert.equal(blob(next[path]),after);}
+ const a=attestConstitutionAuthoritySources(next,"","");assert.equal(a.policyVersion,"1.5.0");assert.equal(a.productionReleaseAuthority,false);
+ const old=JSON.parse(prior.files[constitutionPublicationPaths[1]]),n=JSON.parse(next[constitutionPublicationPaths[1]]);
+ assert.deepEqual(n.executionRules.slice(0,33),old.executionRules);assert.deepEqual(n.executionRules.slice(33).map(r=>r.id),["R34","R35","R36","R37","R38"]);
+ const od=prior.files[constitutionPublicationPaths[0]],nd=next[constitutionPublicationPaths[0]];
+ assert.equal(nd.slice(0,nd.indexOf("### 10.R34")).replace("**1.5.0**","**1.4.0**"),od.slice(0,od.indexOf("## 11.")));
+ assert.deepEqual(n.navigationSupport.modes,["ONE_STEP","ONE_PACKAGE","UNTIL_REQUIRED_GATE","FINISH_PRODUCT"]);
+ assert.equal(n.productCompletion.automaticMerge,false);assert.equal(n.productCompletion.automaticPublication,false);assert.equal(n.operationalExecution.scheduleIsRunnerProof,false);assert.equal(n.policyPublication.proposalIsActive,false);
+ assert.ok(["1.3.0","1.4.0"].includes(JSON.parse(read("control/universal-constitution-version.json")).policyVersion));
+ console.log("[constitution-1.5-successor] INACTIVE_CONTENT_VERIFIED",a.authoritySetDigest);
+});
