@@ -1,0 +1,1388 @@
+// Local D1 browser parity of tests/e2e/app-shell.pw.ts blob 427cceac1307aaa5d49bda748ee128cf76f19933.
+// Original protected browser suite unchanged. Only import paths and D1 connectivity label differ.
+import { encode } from "@auth/core/jwt";
+import { readFileSync } from "node:fs";
+import { expect, test, type Page } from "@playwright/test";
+import { p9019ProfessionalReviewCandidate } from "../../../packages/application/src/professional-review";
+
+const e2eAuthSecret = process.env.AUTH_SECRET ?? "";
+const activePolicyVersion = (JSON.parse(readFileSync("control/universal-constitution-version.json", "utf8")) as { policyVersion: string }).policyVersion;
+const adoptionSnapshot = JSON.parse(readFileSync("control/constitution-ecosystem-snapshot.json", "utf8")) as {
+  repositories: { manifest: { policyVersion: string } }[];
+};
+// Publication preserves observed versions. Stale observations must become migration-required.
+const expectedCurrentRepositories = adoptionSnapshot.repositories.filter(row => row.manifest.policyVersion === activePolicyVersion).length;
+const expectedMigrationRepositories = adoptionSnapshot.repositories.length - expectedCurrentRepositories;
+
+
+// The Hub is Vietnamese-first and workspace navigation is now grouped.
+// Open the actual disclosure before clicking a visible accessible link.
+const workspaceNavLabel = /^(Các mục trong dự án|Project workspace views)$/;
+const workspaceLabels: Readonly<Record<string, RegExp>> = {
+  "Overview": /^(Tổng quan|Overview)/,
+  "Profile": /^(Hồ sơ dự án|Profile)/,
+  "Blueprint": /^(Thiết kế|Blueprint)/,
+  "Roadmap": /^(Lộ trình|Roadmap)/,
+  "Quality": /^(Chất lượng|Quality)/,
+  "Prompt": /^(Quy trình & Prompt|Workflow & Prompt)/,
+  "Decisions": /^(Quyết định|Decisions)/,
+  "Risks & Debt": /^(Rủi ro|Risks)/,
+  "Releases & Lessons": /^(Lịch sử & bài học|History & lessons)/,
+  "Data Lifecycle": /^(Dữ liệu|Data lifecycle)/
+};
+function workspaceLink(page: Page, label: string) {
+  return page.getByRole("navigation", { name: workspaceNavLabel })
+    .getByRole("link", { name: workspaceLabels[label] });
+}
+async function openWorkspaceView(page: Page, label: string) {
+  const nav = page.getByRole("navigation", { name: workspaceNavLabel });
+  const link = workspaceLink(page, label);
+  if (!(await link.isVisible())) {
+    const groupName = ["Overview","Profile","Blueprint","Roadmap"].includes(label)
+      ? /Xây dựng|Build/ : ["Quality","Data Lifecycle"].includes(label)
+      ? /Kiểm soát|Assurance/ : /Tri thức & AI|Knowledge & AI/;
+    await nav.locator("summary").filter({ hasText: groupName }).click();
+  }
+  await expect(link).toBeVisible();
+  await link.click();
+}
+
+const registryAlphaName = "Registry Alpha canonical";
+const registryBetaName = "Registry Beta canonical";
+
+async function authenticatePrincipal(
+  page: Page,
+  subject: string,
+  email: string
+): Promise<void> {
+  const cookieName = "authjs.session-token";
+  const token = await encode({
+    secret: e2eAuthSecret,
+    salt: cookieName,
+    token: {
+      sub: subject,
+      email,
+      blueprintProvider: "github",
+      blueprintProviderSubject: subject
+    }
+  });
+
+  await page.context().addCookies([
+    {
+      name: cookieName,
+      value: token,
+      url: "http://127.0.0.1:3000",
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax"
+    }
+  ]);
+}
+
+async function authenticateRegistryOwner(page: Page): Promise<void> {
+  return authenticatePrincipal(
+    page,
+    "p6-e2e-owner",
+    "p6-e2e@example.test"
+  );
+}
+
+async function authenticateNoAccessUser(page: Page): Promise<void> {
+  return authenticatePrincipal(
+    page,
+    "p7-e2e-no-access",
+    "p7-no-access@example.test"
+  );
+}
+
+test("P9-019 runtime readiness is truthful and redacts configuration values", async ({
+  page
+}, testInfo) => {
+  await page.goto("/professional-review/readiness");
+
+  await expect(
+    page.getByRole("heading", { name: "Review Runtime Readiness" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Preflight blocked", { exact: true })
+  ).toBeVisible();
+
+  const githubOauth = page.getByRole("heading", { name: "GitHub OAuth" }).locator("..");
+  await expect(githubOauth.getByText("Blocked", { exact: true })).toBeVisible();
+
+  const databaseConnectivity = page
+    .getByRole("heading", { name: "Cloudflare D1 connectivity" })
+    .locator("..");
+  await expect(
+    databaseConnectivity.getByText("Ready", { exact: true })
+  ).toBeVisible();
+
+  const schema = page
+    .getByRole("heading", { name: "P9-019 persistence schema" })
+    .locator("..");
+  await expect(schema.getByText("Ready", { exact: true })).toBeVisible();
+
+  const body = await page.locator("body").innerText();
+  expect(body).not.toContain("postgresql://blueprint:blueprint");
+  expect(body).not.toContain("p6-e2e-auth-secret-2026-blueprint-os-registry");
+
+  await page.screenshot({
+    path: `artifacts/p9-019-runtime-readiness-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("ADR-0003 owner setup requires the deployment-configured identity", async ({
+  page
+}, testInfo) => {
+  await page.goto("/setup/owner");
+  await expect(
+    page.getByRole("heading", {
+      name: "Sign in before initializing the System Owner."
+    })
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+    "href",
+    "/api/auth/signin"
+  );
+
+  await authenticateRegistryOwner(page);
+  await page.goto("/setup/owner");
+  await expect(
+    page.getByRole("heading", {
+      name: "This authenticated account is the System Owner."
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Open P9-019 professional review" })
+  ).toHaveAttribute("href", "/professional-review");
+  await expect(
+    page.getByText("System Owner active", { exact: true })
+  ).toBeVisible();
+
+  await page.context().clearCookies();
+  await authenticateNoAccessUser(page);
+  await page.goto("/setup/owner");
+  await expect(
+    page.getByRole("heading", {
+      name: "This account is not authorized to initialize System Owner."
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: "Initialize this account as System Owner"
+    })
+  ).toHaveCount(0);
+  await expect(
+    page.getByText(/setup route grants no authority to unconfigured identities/i)
+  ).toBeVisible();
+  await expect(
+    page.getByText("System Owner active", { exact: true })
+  ).toHaveCount(0);
+
+  await page.screenshot({
+    path: `artifacts/p9-019-owner-bootstrap-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("signed-out root protects the canonical project registry", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Trung tâm ứng dụng", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Đăng nhập để mở trung tâm ứng dụng." })
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+  await expect(page.getByText("Dữ liệu dự án được bảo vệ và chỉ hiển thị sau khi xác thực.")).toBeVisible();
+  await expect(page.getByText(registryAlphaName, { exact: true })).toHaveCount(0);
+  await expect(page.getByText(registryBetaName, { exact: true })).toHaveCount(0);
+  await page.screenshot({
+    path: `artifacts/p6-001-registry-signed-out-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("System Owner sees canonical multi-project registry and opens a project", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Ứng dụng của bạn, trong một nơi.", exact: true })).toBeVisible();
+  await expect(page.getByText(registryAlphaName, { exact: true })).toBeVisible();
+  await expect(page.getByText(registryBetaName, { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Hệ sinh thái/ })).toHaveAttribute("href", "/ecosystem");
+
+  await page.screenshot({
+    path: `artifacts/p6-001-registry-authenticated-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+
+  await page.getByRole("link", { name: new RegExp(registryBetaName) }).click();
+  await expect(
+    page.getByRole("heading", { name: registryBetaName })
+  ).toBeVisible();
+  await expect(page.getByText("Canonical", { exact: true })).toBeVisible();
+  await expect(page.getByText("B4", { exact: true }).first()).toBeVisible();
+});
+
+test("P7-004 forbidden project reads stay distinct from runtime outages", async ({
+  page
+}, testInfo) => {
+  await authenticateNoAccessUser(page);
+  await page.goto("/projects/project%3Ap6-registry-beta");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Bạn không có quyền truy cập dự án này."
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText(/không hiển thị dữ liệu trái quyền hạn/i)
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("button", { name: /Retry canonical read|Thử lại/i })
+  ).toHaveCount(0);
+
+  await expect(
+    page.getByText(/Preview mode|Build with evidence, not guesswork/i)
+  ).toHaveCount(0);
+
+  await expect(
+    page.getByRole("link", { name: "Về màn hình ứng dụng" })
+  ).toHaveAttribute("href", "/");
+
+  await page.screenshot({
+    path: `artifacts/p7-004-forbidden-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("existing B4 project is constitution-retrofitted and surfaces truthful readiness without percentages", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/projects/project%3Ap6-registry-beta");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Readiness is blocked by canonical engineering state."
+    })
+  ).toBeVisible();
+
+  await expect(page.getByText("1 / 9 PASS", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("6 required gate records missing", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Define required gate gate:architecture:future-scale"
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("gate:architecture:future-scale", { exact: true }).first()
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Revision recorded · currentness unverified", {
+      exact: true
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Ship readiness dashboard", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText(
+      /Dependency work-package:p6-beta-foundation is testing, not completed/
+    )
+  ).toBeVisible();
+
+  const readiness = page.getByLabel("Canonical readiness summary");
+  await expect(readiness).not.toContainText("%");
+
+  await page.screenshot({
+    path: `artifacts/p6-002-readiness-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("canonical project workspace has stable truthful views", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/projects/project%3Ap6-registry-beta");
+
+  const workspaceNav = page.getByRole("navigation", {
+    name: workspaceNavLabel
+  });
+
+  await expect(workspaceNav.getByRole("link", { name: workspaceLabels["Overview"] })).toHaveAttribute(
+    "aria-current",
+    "page"
+  );
+
+  await openWorkspaceView(page, "Profile");
+  await expect(
+    page.getByRole("heading", { name: "Canonical Project Profile" })
+  ).toBeVisible();
+  await expect(page.getByText("role-based", { exact: true })).toBeVisible();
+
+  await openWorkspaceView(page, "Blueprint");
+  await expect(
+    page.getByRole("heading", { name: "Yêu cầu kỹ thuật của dự án" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("gate:platform:compatibility", { exact: true })
+  ).toBeVisible();
+
+  await openWorkspaceView(page, "Roadmap");
+  await expect(
+    page.getByRole("heading", { name: "Dependency-aware Work Packages" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Ship readiness dashboard", { exact: true })
+  ).toBeVisible();
+
+  await openWorkspaceView(page, "Quality");
+  await expect(
+    page.getByRole("heading", {
+      name: "Quality Gates and revision-specific evidence"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("revision-p6-beta-quality", { exact: true }).first()
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p6-003-workspace-quality-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+
+  await openWorkspaceView(page, "Prompt");
+  await expect(
+    page.getByRole("heading", { name: "Derived execution projection" })
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Export .md" })).toBeEnabled();
+  await expect(
+    page.getByRole("heading", { name: "Prompt Projection snapshots" })
+  ).toBeVisible();
+
+  if (testInfo.project.name === "desktop-chromium") {
+    await expect(page.getByText("Stale", { exact: true }).first()).toBeVisible();
+    await expect(
+      page.getByText(/Canonical state has changed since this prompt was generated/)
+    ).toBeVisible();
+    await expect(
+      page.getByText("2026-09-26T00:20:00.000Z", { exact: true }).first()
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Regenerate" }).click();
+    await expect(page.getByText("Fresh", { exact: true }).first()).toBeVisible();
+    await expect(
+      page.getByText(/This prompt matches the current canonical source revision/)
+    ).toBeVisible();
+    await expect(
+      page.getByText("Page 1 · 2 shown", { exact: true })
+    ).toBeVisible();
+  } else {
+    await expect(
+      page.getByText(/^(Fresh|Stale)$/).first()
+    ).toBeVisible();
+  }
+
+  await page.screenshot({
+    path: `artifacts/p6-007-prompt-workspace-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+
+  await openWorkspaceView(page, "Decisions");
+  await expect(
+    page.getByRole("heading", { name: "Architecture Decisions" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Keep governance state canonical and structured", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(page.getByText("accepted", { exact: true }).first()).toBeVisible();
+  await expect(
+    page.getByText(/Revision revision-p6-004-e2e/)
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p6-004-decisions-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+
+  await openWorkspaceView(page, "Risks & Debt");
+  await expect(
+    page.getByRole("heading", { name: "Risks & Technical Debt" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Governance records can drift from implementation", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Legacy governance notes remain outside structured records",
+      { exact: true }
+    )
+  ).toBeVisible();
+  await expect(
+    page.getByText("work-package:p6-beta-dashboard", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("work-package:p6-beta-foundation", { exact: true })
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p6-004-risks-debt-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+
+  await openWorkspaceView(page, "Releases & Lessons");
+  await expect(
+    page.getByRole("heading", {
+      name: "Exact revisions, rollback history and reusable learning"
+    })
+  ).toBeVisible();
+  await expect(page.getByText("v1.0.0", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("revision-p6-006-e2e", { exact: true }).first()
+  ).toBeVisible();
+  await expect(
+    page.getByText("evidence:p6-006-release", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Release evidence must match the shipped revision", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("release:p6-006-beta-v1", { exact: true }).first()
+  ).toBeVisible();
+
+  if (testInfo.project.name === "mobile-chromium") {
+    const activeReleaseLink = page
+      .getByRole("navigation", { name: workspaceNavLabel })
+      .getByRole("link", { name: workspaceLabels["Releases & Lessons"] });
+
+    await expect(activeReleaseLink).toHaveAttribute("aria-current", "page");
+
+    const activeTabVisible = await activeReleaseLink.evaluate((element) => {
+      const shell = element.closest(".project-workspace-nav-shell");
+      if (!(shell instanceof HTMLElement)) return false;
+
+      const activeBox = element.getBoundingClientRect();
+      const shellBox = shell.getBoundingClientRect();
+
+      return (
+        activeBox.left >= shellBox.left - 1 &&
+        activeBox.right <= shellBox.right + 1
+      );
+    });
+
+    expect(activeTabVisible).toBe(true);
+  }
+
+  await page.screenshot({
+    path: `artifacts/p6-006-releases-lessons-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+
+  await openWorkspaceView(page, "Overview");
+  await expect(
+    page.getByRole("heading", {
+      name: "Readiness is blocked by canonical engineering state."
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("link", { name: "Tạo dự án" })
+  ).toHaveAttribute("href", "/projects/new");
+
+  await page.screenshot({
+    path: `artifacts/p6-003-workspace-overview-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("Phase 6 Product UX Gate traverses the canonical product without dead ends", async ({
+  page
+}) => {
+  await authenticateRegistryOwner(page);
+
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: "Ứng dụng của bạn, trong một nơi.", exact: true })
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: new RegExp(registryBetaName) }).click();
+  await expect(
+    page.getByRole("heading", { name: registryBetaName })
+  ).toBeVisible();
+
+  const journey = [
+    ["Overview", /Readiness is blocked by canonical engineering state/],
+    ["Profile", /Canonical Project Profile/],
+    ["Blueprint", /Yêu cầu kỹ thuật của dự án/],
+    ["Roadmap", /Dependency-aware Work Packages/],
+    ["Quality", /Quality Gates and revision-specific evidence/],
+    ["Prompt", /Derived execution projection/],
+    ["Decisions", /Architecture Decisions/],
+    ["Risks & Debt", /Risks & Technical Debt/],
+    ["Releases & Lessons", /Exact revisions, rollback history and reusable learning/]
+  ] as const;
+
+  for (const [label, heading] of journey) {
+    await openWorkspaceView(page, label);
+    await expect(page.getByRole("heading", { name: heading })).toBeVisible();
+    await expect(
+      page.getByRole("navigation", { name: workspaceNavLabel })
+        .getByRole("link", { name: workspaceLabels[label] })
+    ).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("heading", { name: /Project cannot be opened|Không thể tải dữ liệu dự án|Không tìm thấy dự án|Bạn không có quyền truy cập dự án này/ })).toHaveCount(0);
+  }
+
+  await page.goto("/knowledge");
+  await expect(
+    page.getByRole("heading", { name: "Knowledge Library", exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Reusable definitions are never project completion state/)
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: "Use knowledge in guided setup" }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "From software idea to an evidence-ready engineering starting point."
+    })
+  ).toBeVisible();
+  await expect(page.getByText("Preview first", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Generate Bootstrap Plan" })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText(/Not Found|Project cannot be opened|temporarily unavailable/)
+  ).toHaveCount(0);
+});
+
+test("Knowledge Library exposes reusable truth without project completion state", async ({
+  page
+}, testInfo) => {
+  await page.goto("/knowledge");
+
+  await expect(
+    page.getByRole("heading", { name: "Knowledge Library", exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Definitions guide projects; they do not claim projects are done."
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Universal Constitution v0", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Template Resolution Contract v1", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("No canonical Patterns published yet.", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("No canonical Anti-patterns published yet.", { exact: true })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("Bauman Next-Generation Platform", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Inspect reference case" })
+  ).toBeVisible();
+
+  const knowledgeCards = page.locator(".knowledge-card");
+  await expect(knowledgeCards.first()).toBeVisible();
+  await expect(
+    page.locator(".knowledge-card", { hasText: "project:p6-registry-beta" })
+  ).toHaveCount(0);
+  await expect(
+    page.locator(".knowledge-card", { hasText: "Project readiness" })
+  ).toHaveCount(0);
+  await expect(
+    page.locator(".knowledge-card", { hasText: "Quality Gate PASS" })
+  ).toHaveCount(0);
+  await expect(
+    page.locator(".knowledge-meta dt", { hasText: "Project" })
+  ).toHaveCount(0);
+  await expect(
+    page.locator(".knowledge-meta dt", { hasText: "Gate" })
+  ).toHaveCount(0);
+
+  await page.screenshot({
+    path: `artifacts/p6-005-knowledge-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("P8-004 Reference Case keeps provenance visible and deep detail progressive", async ({
+  page
+}, testInfo) => {
+  await page.goto("/knowledge/reference-cases/bauman-nextgen-v1");
+
+  await expect(
+    page.getByRole("heading", { name: "Bauman Next-Generation Platform" })
+  ).toBeVisible();
+  await expect(page.getByText("Reference only", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Exact imported source" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("BlueDragon33/Bauman-master-ai-system", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("52b2a581a9c38a7060e95209e94c3087764f6d5f", {
+      exact: true
+    })
+  ).toBeVisible();
+
+  await expect(page.locator(".readiness-card")).toHaveCount(0);
+  await expect(page.locator(".status-chip-success")).toHaveCount(0);
+
+  const disclosures = page.locator("details.reference-case-disclosure");
+  await expect(disclosures).toHaveCount(3);
+  await expect(disclosures.nth(0)).not.toHaveAttribute("open", "");
+  await expect(disclosures.nth(1)).not.toHaveAttribute("open", "");
+  await expect(disclosures.nth(2)).not.toHaveAttribute("open", "");
+
+  const collisionSummary = disclosures
+    .filter({ hasText: "Semantic collision guards" })
+    .locator("summary");
+  await collisionSummary.focus();
+  await expect(collisionSummary).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(
+    disclosures.filter({ hasText: "Semantic collision guards" })
+  ).toHaveAttribute("open", "");
+  await expect(
+    page.getByText("Academic Evidence ≠ GateEvidence", { exact: true })
+  ).toBeVisible();
+
+  const gapDisclosure = disclosures.filter({
+    hasText: "Gap & universality analysis"
+  });
+  await gapDisclosure.locator("summary").focus();
+  await page.keyboard.press("Space");
+  await expect(gapDisclosure).toHaveAttribute("open", "");
+  await expect(
+    gapDisclosure.getByText("Structured Reference Case provenance", {
+      exact: true
+    })
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p8-004-reference-case-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("P7-003 critical surfaces provide usable keyboard landmarks and focus", async ({
+  page
+}, testInfo) => {
+  await page.goto("/knowledge");
+
+  await page.keyboard.press("Tab");
+  const skip = page.getByRole("link", { name: "Bỏ qua menu, đến nội dung chính" });
+  await expect(skip).toBeFocused();
+  await expect(skip).toBeVisible();
+
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+
+  await expect(page.locator('[tabindex]:not([tabindex="-1"]):not([tabindex="0"])')).toHaveCount(0);
+
+  const disclosureSummary = page.locator("details.knowledge-disclosure summary").first();
+  await disclosureSummary.focus();
+  const focusStyle = await disclosureSummary.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      outlineStyle: style.outlineStyle,
+      outlineWidth: style.outlineWidth
+    };
+  });
+  expect(focusStyle.outlineStyle).not.toBe("none");
+  expect(focusStyle.outlineWidth).not.toBe("0px");
+
+  await authenticateRegistryOwner(page);
+  await page.goto("/projects/project%3Ap6-registry-beta/quality");
+
+  const workspaceNav = page.getByRole("navigation", {
+    name: workspaceNavLabel
+  });
+  await expect(workspaceNav).toBeVisible();
+
+  const qualityLink = workspaceNav.getByRole("link", { name: workspaceLabels["Quality"] });
+  await expect(qualityLink).toHaveAttribute("aria-current", "page");
+
+  const qualitySkip = page.getByRole("link", { name: "Bỏ qua menu, đến nội dung chính" });
+  await qualitySkip.focus();
+  await expect(qualitySkip).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+
+  const gateStatus = page
+    .locator(".workspace-quality-card", { hasText: "gate:quality:evidence" })
+    .getByText(/candidate|pass|fail|not-ready/i)
+    .first();
+  await expect(gateStatus).toBeVisible();
+
+  if (testInfo.project.name === "mobile-chromium") {
+    await page.screenshot({
+      path: "artifacts/p7-003-accessibility-mobile.png",
+      fullPage: true
+    });
+  }
+});
+
+test("P7-002 disclosures preserve critical truth and are keyboard operable", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+
+  await page.goto("/projects/project%3Ap6-registry-beta/quality");
+  await expect(
+    page.getByText("revision-p6-beta-quality", { exact: true }).first()
+  ).toBeVisible();
+
+  const qualityFilter = page.getByLabel("Search gates or evidence");
+  await expect(qualityFilter).toBeVisible();
+  await qualityFilter.fill("revision-p6-beta-security");
+  await expect(page.locator(".workspace-quality-card")).toHaveCount(1);
+  await expect(
+    page.locator(".workspace-quality-card", {
+      hasText: "gate:security:authority"
+    })
+  ).toBeVisible();
+  await qualityFilter.fill("");
+
+  const qualityStatusFilter = page.getByLabel("Status");
+  await qualityStatusFilter.selectOption("candidate");
+  await expect(page.locator(".workspace-quality-card")).toHaveCount(1);
+  await expect(
+    page.locator(".workspace-quality-card", {
+      hasText: "gate:quality:evidence"
+    })
+  ).toBeVisible();
+  await qualityStatusFilter.selectOption("all");
+
+  const qualityGateCard = page.locator(".workspace-quality-card", {
+    hasText: "gate:quality:evidence"
+  });
+  const qualityDisclosure = qualityGateCard.locator(
+    "details.quality-disclosure"
+  );
+  await expect(qualityDisclosure).not.toHaveAttribute("open", "");
+  const qualitySummary = qualityDisclosure.locator("summary");
+  await qualitySummary.focus();
+  await page.keyboard.press("Enter");
+  await expect(qualityDisclosure).toHaveAttribute("open", "");
+  await expect(
+    qualityDisclosure.getByText("evidence:p6-beta-quality", { exact: true })
+  ).toBeVisible();
+
+  await page.goto("/knowledge");
+  await expect(
+    page.getByText("Universal Constitution v0", { exact: true })
+  ).toBeVisible();
+  const knowledgeDisclosure = page
+    .locator("details.knowledge-disclosure")
+    .first();
+  await expect(knowledgeDisclosure).not.toHaveAttribute("open", "");
+  await knowledgeDisclosure.locator("summary").focus();
+  await page.keyboard.press("Space");
+  await expect(knowledgeDisclosure).toHaveAttribute("open", "");
+
+  await page.goto("/projects/project%3Ap6-registry-beta/prompt");
+  await expect(
+    page.getByText(/^(Fresh|Stale)$/).first()
+  ).toBeVisible();
+  await expect(
+    page.getByText("Current canonical source revision", { exact: true })
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy" })).toBeEnabled();
+  await expect(page.locator(".prompt-card pre")).toBeVisible();
+
+  const historyDisclosure = page.locator(
+    "details.prompt-history-disclosure"
+  );
+  await expect(historyDisclosure).not.toHaveAttribute("open", "");
+  await historyDisclosure.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect(historyDisclosure).toHaveAttribute("open", "");
+  await expect(
+    historyDisclosure.locator(".prompt-history-row").first()
+  ).toBeVisible();
+
+  await page.goto(
+    "/projects/project%3Ap6-registry-beta/releases-lessons"
+  );
+  await expect(page.getByText("v1.0.0", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("revision-p6-006-e2e", { exact: true }).first()
+  ).toBeVisible();
+  await expect(
+    page.getByText("evidence:p6-006-release", { exact: true })
+  ).toBeVisible();
+
+  const releaseDisclosure = page
+    .locator("details.release-disclosure")
+    .first();
+  await expect(releaseDisclosure).not.toHaveAttribute("open", "");
+  await releaseDisclosure.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect(releaseDisclosure).toHaveAttribute("open", "");
+  await expect(
+    releaseDisclosure.getByText(/Rollback plan/)
+  ).toBeVisible();
+
+  if (testInfo.project.name === "mobile-chromium") {
+    await page.screenshot({
+      path: "artifacts/p7-002-progressive-disclosure-mobile.png",
+      fullPage: true
+    });
+  }
+});
+
+test("critical preview journey stays understandable and evidence-honest", async ({
+  page
+}, testInfo) => {
+  await page.goto("/projects/new");
+  await expect(
+    page.getByRole("heading", {
+      name: "From software idea to an evidence-ready engineering starting point."
+    })
+  ).toBeVisible();
+
+  await expect(page.getByText("Preview first", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(/Nothing here writes canonical project state/)
+  ).toBeVisible();
+
+  await page.getByLabel("Project name").fill("Human UX Review Project");
+  await page.getByLabel("Data sensitivity").selectOption("restricted");
+  await page.getByLabel("Authorization").selectOption("policy-based");
+  await page.getByLabel("Criticality").selectOption("critical");
+
+  await page.getByRole("button", { name: "Generate Bootstrap Plan" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "Review before persistence." })
+  ).toBeVisible();
+  await expect(page.getByText("Deterministic preview", { exact: true })).toBeVisible();
+  await expect(page.getByText("Recommended minimum", { exact: true })).toBeVisible();
+  await expect(page.locator(".bootstrap-level strong")).toHaveText("B5");
+
+  await expect(
+    page.getByText("Dependency-aware starting roadmap", { exact: true })
+  ).toBeVisible();
+  await expect(page.getByText("Authority boundary", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(/cannot PASS a Quality Gate, authorize Production, or write canonical state/)
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Confirm & create canonical project" })
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/fnd009-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("critical preview journey is keyboard-operable", async ({ page }) => {
+  await page.goto("/projects/new");
+
+  const projectName = page.getByLabel("Project name");
+  await projectName.focus();
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.keyboard.type("Keyboard Review Project");
+  await expect(projectName).toHaveValue("Keyboard Review Project");
+
+  const criticality = page.getByLabel("Criticality");
+  await criticality.focus();
+  await page.keyboard.press("End");
+  await expect(criticality).toHaveValue("critical");
+
+  const generate = page.getByRole("button", { name: "Generate Bootstrap Plan" });
+  await generate.focus();
+  await expect(generate).toBeFocused();
+  await page.keyboard.press("Enter");
+
+  await expect(
+    page.getByRole("heading", { name: "Review before persistence." })
+  ).toBeVisible();
+  await expect(page.getByText("Deterministic preview", { exact: true })).toBeVisible();
+
+  const confirm = page.getByRole("button", {
+    name: "Confirm & create canonical project"
+  });
+  await confirm.focus();
+  await expect(confirm).toBeFocused();
+
+  await expect(
+    page.getByText(/requires an authenticated, authorized actor/)
+  ).toBeVisible();
+});
+
+
+test("P9-011 signed-out portfolio protects canonical project metadata", async ({
+  page
+}, testInfo) => {
+  await page.goto("/portfolio");
+
+  await expect(
+    page.getByRole("heading", { name: "Portfolio", exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Sign in to open your authority-filtered portfolio."
+    })
+  ).toBeVisible();
+  await expect(page.getByText(registryAlphaName, { exact: true })).toHaveCount(0);
+  await expect(page.getByText(registryBetaName, { exact: true })).toHaveCount(0);
+
+  await page.screenshot({
+    path: `artifacts/p9-011-portfolio-signed-out-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("P9-011 portfolio shows only authority-filtered registry metadata without combined readiness", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/portfolio");
+
+  await expect(
+    page.getByRole("heading", { name: "Portfolio", exact: true })
+  ).toBeVisible();
+  await expect(page.getByText(registryAlphaName, { exact: true })).toBeVisible();
+  await expect(page.getByText(registryBetaName, { exact: true })).toBeVisible();
+  await expect(page.getByText("Authority filtered", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("No combined readiness", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText(/does not merge project authority, readiness, Quality Gate state/i)
+  ).toBeVisible();
+
+  const portfolio = page.locator("main.portfolio-page");
+  await expect(portfolio).not.toContainText(/Quality Gate PASS/i);
+  await expect(portfolio).not.toContainText(/% complete/i);
+  await expect(portfolio).not.toContainText(/global readiness/i);
+
+  const beta = page.getByRole("link", { name: new RegExp(registryBetaName) });
+  await expect(beta).toHaveAttribute(
+    "href",
+    "/projects/project%3Ap6-registry-beta"
+  );
+
+  await page.screenshot({
+    path: `artifacts/p9-011-portfolio-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+
+test("P9-016 adaptive audit covers current workspace without overflow and honors reduced motion", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/projects/project%3Ap6-registry-beta/data-lifecycle");
+
+  const nav = page.getByRole("navigation", { name: workspaceNavLabel });
+  const lifecycle = nav.getByRole("link", { name: workspaceLabels["Data Lifecycle"] });
+  await expect(lifecycle).toHaveAttribute("aria-current", "page");
+
+  const pageHasOverflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
+  expect(pageHasOverflow).toBe(false);
+
+  const reducedMotion = await page.evaluate(() => {
+    const probe = document.querySelector(".state-spinner") ?? document.body;
+    const style = getComputedStyle(probe);
+    return {
+      animation: style.animationName,
+      transition: style.transitionDuration,
+      scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior
+    };
+  });
+  expect(reducedMotion.animation === "none" || reducedMotion.animation === "").toBe(true);
+  expect(reducedMotion.transition === "0s" || reducedMotion.transition === "").toBe(true);
+  expect(reducedMotion.scrollBehavior).toBe("auto");
+
+  await lifecycle.focus();
+  await expect(lifecycle).toBeFocused();
+
+  await expect(
+    page.getByRole("heading", { name: "No lifecycle policy is checked in yet" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Choose record kinds", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Define retention and archive rules", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Review destructive-action blockers", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "This guidance creates no lifecycle policy, performs no destructive action and grants no Production authority.",
+      { exact: true }
+    )
+  ).toBeVisible();
+
+  if (testInfo.project.name !== "desktop-chromium") {
+    const visible = await lifecycle.evaluate((element) => {
+      const shell = element.closest(".project-workspace-nav-shell");
+      if (!(shell instanceof HTMLElement)) return false;
+      const item = element.getBoundingClientRect();
+      const bounds = shell.getBoundingClientRect();
+      return item.left >= bounds.left - 1 && item.right <= bounds.right + 1;
+    });
+    expect(visible).toBe(true);
+  }
+
+  await page.screenshot({
+    path: `artifacts/p9-016-data-lifecycle-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("P9-019 exposes an explicit human review surface without automated sign-off", async ({
+  page
+}, testInfo) => {
+  await page.goto("/professional-review");
+  await expect(
+    page.getByRole("heading", {
+      name: "Sign in to review the exact candidate."
+    })
+  ).toBeVisible();
+
+  await authenticateRegistryOwner(page);
+  await page.goto("/compass");
+
+  const reviewLink = page.getByRole("link", { name: "Open P9-019 review" });
+  await expect(reviewLink).toHaveAttribute("href", "/professional-review");
+  await reviewLink.click();
+
+  await expect(
+    page.getByRole("heading", { name: "Human Professional Review" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Human sign-off required", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Production not authorized", { exact: true })
+  ).toBeVisible();
+
+  const releaseGateUrl =
+    "https://github.com/BlueDragon33/Software-Blueprint-Hub/actions/runs/" +
+    p9019ProfessionalReviewCandidate.evidenceArtifact.workflowRunId;
+  await expect(
+    page.getByRole("link", { name: "Open Release Gate run" })
+  ).toHaveAttribute("href", releaseGateUrl);
+  await expect(
+    page.getByRole("link", { name: "Open screenshot artifact" })
+  ).toHaveAttribute(
+    "href",
+    releaseGateUrl +
+      "/artifacts/" +
+      p9019ProfessionalReviewCandidate.evidenceArtifact.artifactId
+  );
+
+  const reviewedScope = page.getByRole("region", {
+    name: "What the evidence actually covers"
+  });
+  await expect(reviewedScope.getByText("desktop", { exact: true })).toBeVisible();
+  await expect(reviewedScope.getByText("tablet", { exact: true })).toBeVisible();
+  await expect(reviewedScope.getByText("mobile", { exact: true })).toBeVisible();
+  await expect(
+    reviewedScope.getByText("Canonical Project Workspace / Quality", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(
+    reviewedScope.getByText("Compass Acceptance preflight", { exact: true })
+  ).toBeVisible();
+  await expect(
+    reviewedScope.getByText("Release & Lessons", { exact: true })
+  ).toHaveCount(0);
+
+  const approve = page.getByRole("button", { name: "Approve P9-019" });
+  await expect(approve).toBeDisabled();
+
+  await expect(
+    page.getByText("No open findings", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("No tracked finding remains open in this candidate.", {
+      exact: true
+    })
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("No finding acknowledgement is required.", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("group", { name: "Finding acknowledgements" })
+  ).toHaveCount(0);
+  await expect(approve).toBeDisabled();
+
+  await page.getByLabel("Decision note").fill(
+    "Human reviewer note is required before approval can be submitted."
+  );
+  await expect(approve).toBeEnabled();
+
+  await expect(
+    page.getByText(
+      "Even an approval only allows transition to P9-020. It never authorizes Production deployment.",
+      { exact: true }
+    )
+  ).toBeVisible();
+
+  await page.screenshot({
+    path: `artifacts/p9-019-human-review-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+test("P9-020 acceptance preflight remains locked before human sign-off", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/compass");
+
+  await expect(
+    page.getByRole("heading", { name: "System Compass" })
+  ).toBeVisible();
+  await expect(page.getByText("P9-019", { exact: true }).first()).toBeVisible();
+  await expect(
+    page.getByText(
+      "P9-019 human professional sign-off has not been recorded for the exact current review candidate.",
+      { exact: true }
+    )
+  ).toBeVisible();
+  await expect(
+    page.getByText(/P9-001 is complete\. P9-002 is therefore/)
+  ).toHaveCount(0);
+
+  await page.goto("/compass/acceptance");
+
+  await expect(
+    page.getByRole("heading", { name: "Compass Acceptance Gate" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Blueprint OS is subject to the same law it imposes"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("NON-COMPLIANT", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("universal-constitution-non-compliant", { exact: true })
+  ).toBeVisible();
+  await expect(page.getByText("Dependency locked", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "P9-020 cannot begin yet" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Production not authorized", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Acceptance is not deployment.", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Complete P9-019 human review" })
+  ).toHaveAttribute("href", "/professional-review");
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
+  expect(overflow).toBe(false);
+
+  await page.screenshot({
+    path: `artifacts/p9-020-preflight-locked-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+
+test("Constitution Center exposes authority separation and prompt governance", async ({
+  page
+}, testInfo) => {
+  await page.goto("/constitution");
+
+  await expect(
+    page.getByRole("heading", { name: "Constitution Center" })
+  ).toBeVisible();
+  await expect(page.getByText(`Policy ${activePolicyVersion}`, { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Century-grade universal pillars" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Changing the Constitution is a gated lifecycle"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "One law version, four synchronized authority components"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("CI atomicity enforced", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Prompts coordinate work; they do not own authority"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Human Ratification", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Production authority separate", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "System Owner authentication required" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "New amendment draft" })
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", {
+      name: "Constitution adoption across governed repositories"
+    })
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Adoption is not compliance" })
+  ).toHaveCount(0);
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
+  expect(overflow).toBe(false);
+
+  await page.screenshot({
+    path: `artifacts/constitution-center-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});
+
+
+test("System Owner can open the canonical amendment workspace without automated ratification", async ({
+  page
+}, testInfo) => {
+  await authenticateRegistryOwner(page);
+  await page.goto("/constitution");
+
+  await expect(
+    page.getByRole("heading", { name: "Canonical amendment workspace" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("System Owner authority", { exact: true })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "New amendment draft" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Create canonical draft" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /publish/i })
+  ).toHaveCount(0);
+  await expect(
+    page.getByText(/manual publication data is not trusted/i)
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Publication requires authenticated ratification and verified repository and runtime activation/i)
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Verify publication candidate", exact: true })
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Record verified activation", exact: true })
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", {
+      name: "Constitution adoption across governed repositories"
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByText(`${expectedCurrentRepositories} / 15 current`, { exact: true })
+  ).toBeVisible();
+  const propagationMatrix = page.locator(".constitution-propagation");
+  await expect(
+    propagationMatrix.getByText("BlueDragon33/Software-Blueprint-Hub", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(
+    propagationMatrix.getByText("BlueDragon33/Bauman-master-ai-system", {
+      exact: true
+    })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Adoption is not compliance" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("0 / 15 compliant", { exact: true })
+  ).toBeVisible();
+  const complianceMatrix = page.locator(".constitution-compliance-matrix");
+  await expect(
+    complianceMatrix
+      .locator(".constitution-compliance-metrics article")
+      .filter({ hasText: "Unverified" })
+      .getByText(String(expectedCurrentRepositories), { exact: true })
+  ).toBeVisible();
+  await expect(
+    complianceMatrix
+      .locator(".constitution-compliance-metrics article")
+      .filter({ hasText: "Migration / blocked" })
+      .getByText(String(expectedMigrationRepositories), { exact: true })
+  ).toBeVisible();
+  await expect(
+    propagationMatrix.getByText(expectedMigrationRepositories ? "migration-required" : "current", { exact: true }).first()
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /deploy|pass quality|auto.*pass/i })
+  ).toHaveCount(0);
+
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
+  expect(overflow).toBe(false);
+
+  await page.screenshot({
+    path: `artifacts/constitution-authority-console-${testInfo.project.name}.png`,
+    fullPage: true
+  });
+});

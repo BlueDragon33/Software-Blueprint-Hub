@@ -112,6 +112,9 @@ jobs:
           pnpm --filter @blueprint-os/web exec next build --webpack
           node --input-type=module -e 'import assert from "node:assert/strict"; import {readFileSync} from "node:fs"; const build=JSON.parse(readFileSync("apps/web/.next/required-server-files.json","utf8")); assert.equal(build.config.env.BLUEPRINT_LOCAL_RUNTIME_REVISION,process.env.EXPECTED_CANDIDATE_REVISION); console.log("LOCAL_BUILD_STAMP_VERIFIED",process.env.EXPECTED_CANDIDATE_REVISION)'
           echo "BUILD_ONLY_NO_AUTHENTICATED_RATIFICATION_OR_PUBLICATION"
+      - name: Install Chromium for local D1 browser parity
+        if: github.event.pull_request.number == 183
+        run: pnpm exec playwright install --with-deps chromium
       - name: Exact Cloudflare-only bundle build (isolated local artifact)
         if: github.event.pull_request.number == 183
         env:

@@ -38,3 +38,28 @@ curl --silent --fail --max-time 10 http://127.0.0.1:8787/constitution > "$persis
 grep -Fq 'System Owner authentication required' "$persist/constitution.html"
 grep -Fq '1.3.0' "$persist/constitution.html"
 echo "ACTUAL_FULL_APP_WORKER_D1_SMOKE_PASS $EXPECTED_CANDIDATE_REVISION"
+
+# The existing anonymous smoke must have passed before browser fixture writes.
+# Fresh local DB only, no remote IDs or auth tokens. E2E JWTs are isolated fixtures.
+kill "$pid"; wait "$pid" 2>/dev/null || true; pid=""
+node experiments/d1-publication/verify-worker-bundle.mjs
+"$tools/.bin/wrangler" d1 execute BLUEPRINT_CANONICAL_DB --local --config "$config" --persist-to "$persist" --file "$root/experiments/d1-publication/e2e-d1-fixture.sql" --yes
+export AUTH_SECRET="p6-e2e-auth-secret-2026-blueprint-os-registry"
+export BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH=true
+"$tools/.bin/wrangler" dev --local --config "$config" --persist-to "$persist" --ip 127.0.0.1 --port 3000 \
+ --var AUTH_SECRET:"$AUTH_SECRET" \
+ --var BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH:true \
+ --var BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER:github \
+ --var BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT:p6-e2e-owner >"$persist/browser-worker.log" 2>&1 &
+pid=$!
+ready=0
+for attempt in $(seq 1 30); do
+  if ! kill -0 "$pid" 2>/dev/null; then break; fi
+  if grep -Fq "Ready on http://127.0.0.1:3000" "$persist/browser-worker.log" && curl --silent --fail --max-time 3 http://127.0.0.1:3000/constitution >/dev/null; then ready=1; break; fi
+  sleep 1
+done
+if [ "$ready" != 1 ]; then tail -80 "$persist/browser-worker.log"; exit 1; fi
+mkdir -p artifacts
+# Scope fixture secret to the local worker and Playwright process only.
+pnpm exec playwright test --config experiments/d1-publication/playwright.d1.config.mts
+node --input-type=module -e 'import assert from "node:assert/strict"; import {readFileSync} from "node:fs"; const stats=JSON.parse(readFileSync("artifacts/d1-browser-results.json","utf8")).stats; assert.equal(stats.expected,72);assert.equal(stats.unexpected,0);assert.equal(stats.skipped,0);assert.equal(stats.flaky,0);console.log("D1_BROWSER_FULL_PARITY",JSON.stringify(stats));'
