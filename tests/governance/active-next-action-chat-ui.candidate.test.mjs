@@ -132,7 +132,6 @@ test("product publication and final merge are independent exact-revision protect
 });
 
 import {createHash} from "node:crypto";
-import {buildNavigationPublicationCandidate} from "../../scripts/check-constitution-1.4-candidate.mjs";
 import {applyConstitutionPublicationPatch,attestConstitutionAuthoritySources,constitutionPublicationPaths} from "../../packages/application/src/constitution-publication-sources.ts";
 test("R34–R38 successor is a complete inactive eight-path candidate preserving R33 and historical observations",()=>{
  const prior=buildNavigationPublicationCandidate(process.cwd());
