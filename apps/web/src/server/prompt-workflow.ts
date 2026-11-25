@@ -11,7 +11,7 @@ import {
   type WorkflowReadinessPlan
 } from "@blueprint-os/application";
 import { resolveGitHubPublicationToken, type WebAuthenticatedActor } from "../auth/server-actor";
-import { ScopedGitHubReadExecutor } from "@blueprint-os/runtime";
+import { ScopedGitHubReadExecutor } from "@blueprint-os/runtime/scoped-github";
 
 import governed from "../../../../control/constitution-governed-repositories.json";
 import { CENTRAL_WORKFLOW_MANIFESTS } from "./prompt-workflow-manifests.generated";

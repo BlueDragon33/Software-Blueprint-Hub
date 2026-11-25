@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./d1": "./src/d1/index.ts"
+    "./d1": "./src/d1/index.ts",
+    "./scoped-github": "./src/workflow-scoped-github-executor.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit"

@@ -112,3 +112,16 @@ jobs:
           pnpm --filter @blueprint-os/web exec next build --webpack
           node --input-type=module -e 'import assert from "node:assert/strict"; import {readFileSync} from "node:fs"; const build=JSON.parse(readFileSync("apps/web/.next/required-server-files.json","utf8")); assert.equal(build.config.env.BLUEPRINT_LOCAL_RUNTIME_REVISION,process.env.EXPECTED_CANDIDATE_REVISION); console.log("LOCAL_BUILD_STAMP_VERIFIED",process.env.EXPECTED_CANDIDATE_REVISION)'
           echo "BUILD_ONLY_NO_AUTHENTICATED_RATIFICATION_OR_PUBLICATION"
+      - name: Exact Cloudflare-only bundle build (isolated local artifact)
+        if: github.event.pull_request.number == 183
+        env:
+          EXPECTED_CANDIDATE_REVISION: ${{ github.event.pull_request.head.sha }}
+        run: |
+          stage="$RUNNER_TEMP/blueprint-d1-worker-$EXPECTED_CANDIDATE_REVISION"
+          git worktree add --detach "$stage" "$EXPECTED_CANDIDATE_REVISION"
+          trap 'git worktree remove --force "$stage"' EXIT
+          ln -s "$GITHUB_WORKSPACE/experiments/d1-publication/node_modules" "$stage/experiments/d1-publication/node_modules"
+          cd "$stage"
+          pnpm install --frozen-lockfile --offline
+          pnpm prisma:generate
+          bash experiments/d1-publication/build-worker-local.sh

@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import {readFileSync,existsSync,readdirSync,statSync} from "node:fs";
+import {resolve,dirname,join} from "node:path";
+import {createHash} from "node:crypto";
+const root=process.cwd(),path=resolve(root,"apps/web/dist/server/wrangler.json");
+const cfg=JSON.parse(readFileSync(path,"utf8"));
+assert.equal(cfg.name,"software-blueprint-hub");
+assert.equal(cfg.preview_urls,false);
+assert.equal(cfg.workers_dev,false);
+assert.equal(cfg.vars.BLUEPRINT_PERSISTENCE_PROVIDER,"d1");
+assert.deepEqual(cfg.d1_databases.map(x=>[x.binding,x.database_id,Boolean(x.remote)]),[["BLUEPRINT_CANONICAL_DB","00000000-0000-0000-0000-000000000003",false]]);
+assert.ok(!cfg.account_id,"local artifact must not carry a real account");
+const entry=resolve(dirname(path),cfg.main);
+assert.ok(existsSync(entry),"generated entry does not exist");
+const files=[];function walk(p){for(const n of readdirSync(p)){const f=join(p,n);if(statSync(f).isDirectory())walk(f);else if(/\.(m?js|cjs)$/.test(n))files.push(f);}}walk(dirname(path));
+const sha=process.env.EXPECTED_CANDIDATE_REVISION;
+assert.match(sha,/^[a-f0-9]{40}$/);
+assert.ok(files.some(f=>readFileSync(f,"utf8").includes(sha)),"compiled exact revision missing");
+assert.ok(files.some(f=>readFileSync(f,"utf8").includes("Canonical Cloudflare D1 binding unavailable")),"native D1 module missing from bundle");
+assert.ok(files.some(f=>readFileSync(f,"utf8").includes("Canonical persistence unavailable")),"host entry missing from bundle");
+console.log("LOCAL_WORKER_BUILD_VERIFIED",sha,"entrySHA256",createHash("sha256").update(readFileSync(entry)).digest("hex"),"modules",files.length);
+// This is artifact verification only. Actual full app workerd smoke remains a gate.
