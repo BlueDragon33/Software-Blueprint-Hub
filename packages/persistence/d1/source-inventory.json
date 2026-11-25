@@ -201,9 +201,9 @@
       "passed": 13,
       "failed": 0,
       "skipped": 0,
-      "sourceBlob": "44457d4a0f226ec38772b7d655f3731658b31513",
+      "sourceBlob": "d6e6a95b7422a1479f99dfcff9ddc644aa246b01",
       "testBlob": "ed6ca1f17de392526096a8eb11cff59e388928c7",
-      "scope": "SQL layer only; strict standalone tsc passed; full adapter typecheck and D1 pending"
+      "scope": "SQL layer only; standalone tsc with Hub strict/exactOptionalPropertyTypes/noUncheckedIndexedAccess passed; full adapter typecheck and D1 pending"
     }
   ],
   "remainingAdmission": [
