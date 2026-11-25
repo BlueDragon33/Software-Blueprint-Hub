@@ -1,8 +1,8 @@
 // Advisory continuation decision; no IO, mutation, runner, or authority grant.
-export const MODES=Object.freeze(["ONE_STEP","ONE_PACKAGE","UNTIL_REQUIRED_GATE"]);
+export const MODES=Object.freeze(["ONE_STEP","ONE_PACKAGE","UNTIL_REQUIRED_GATE","FINISH_PRODUCT"]);
 const STATES=new Set(["VERIFIED_DONE","READY","RECOVERABLE","HUMAN_REQUIRED","CAPABILITY_BLOCKED"]);
 const result=(action,stepId=null,reason=null)=>({action,stepId,reason});
-export function decideContinuation({mode="UNTIL_REQUIRED_GATE",sourceVerified=false,scopeAuthorized=false,completedStepIdsThisTurn=[],currentPackage=null,steps=[]}={}){
+export function decideContinuation({mode="UNTIL_REQUIRED_GATE",sourceVerified=false,scopeAuthorized=false,completedStepIdsThisTurn=[],currentPackage=null,productScopeVerified=false,productCompletionVerified=false,steps=[]}={}){
   if(!MODES.includes(mode)||sourceVerified!==true||scopeAuthorized!==true||!Array.isArray(completedStepIdsThisTurn)||!Array.isArray(steps)||steps.length===0)return result("BLOCKED",null,"UNVERIFIED_CONTEXT");
   const ids=new Set();
   for(const s of steps){
@@ -10,12 +10,19 @@ export function decideContinuation({mode="UNTIL_REQUIRED_GATE",sourceVerified=fa
     ids.add(s.id);
   }
   if(steps.some(s=>s.dependsOn.some(d=>!ids.has(d)||d===s.id)))return result("BLOCKED",null,"INVALID_DEPENDENCY");
-  if(mode!=="UNTIL_REQUIRED_GATE"&&(!currentPackage||!steps.some(s=>s.packageId===currentPackage)))return result("BLOCKED",null,"MISSING_PACKAGE");
-  const scoped=steps.filter(s=>mode==="UNTIL_REQUIRED_GATE"||s.packageId===currentPackage);
+  const wholeScope=mode==="UNTIL_REQUIRED_GATE"||mode==="FINISH_PRODUCT";
+  if(mode==="FINISH_PRODUCT"&&productScopeVerified!==true)return result("BLOCKED",null,"UNVERIFIED_PRODUCT_SCOPE");
+  if(!wholeScope&&(!currentPackage||!steps.some(s=>s.packageId===currentPackage)))return result("BLOCKED",null,"MISSING_PACKAGE");
+  const scoped=steps.filter(s=>wholeScope||s.packageId===currentPackage);
   if(new Set(completedStepIdsThisTurn).size!==completedStepIdsThisTurn.length||completedStepIdsThisTurn.some(id=>!scoped.some(s=>s.id===id&&s.authorized&&s.state==="VERIFIED_DONE")))return result("BLOCKED",null,"UNVERIFIED_COMPLETION");
   if(mode==="ONE_STEP"&&completedStepIdsThisTurn.length>=1)return result("STEP_COMPLETE");
   const open=scoped.filter(s=>s.state!=="VERIFIED_DONE");
-  if(!open.length)return result(mode==="UNTIL_REQUIRED_GATE"?"DONE":"PACKAGE_COMPLETE");
+  if(!open.length){
+    if(mode==="FINISH_PRODUCT")return productCompletionVerified===true&&scoped.every(s=>s.authorized)
+      ?result("PRODUCT_READY_FOR_PUBLICATION_REVIEW",null,"OWNER_DECISION_REQUIRED")
+      :result("BLOCKED",null,"PRODUCT_ACCEPTANCE_EVIDENCE_REQUIRED");
+    return result(mode==="UNTIL_REQUIRED_GATE"?"DONE":"PACKAGE_COMPLETE");
+  }
   const p0Open=steps.some(s=>s.priority==="P0"&&s.state!=="VERIFIED_DONE");
   const candidates=open.filter(s=>s.authorized&&(!p0Open||s.priority==="P0")&&s.dependsOn.every(id=>steps.find(x=>x.id===id).state==="VERIFIED_DONE"));
   const ready=candidates.find(s=>s.state==="READY");
@@ -81,6 +88,27 @@ export function executionDirectionInstruction(mode){
  case "ONE_STEP": return "Complete exactly one eligible canonical step: implement, verify and checkpoint it, then stop. Do not advance to the next step.";
  case "ONE_PACKAGE": return "Complete the current canonical work package, including all eligible dependency-ordered steps and acceptance evidence. Stop at package completion or a mandatory boundary; do not start another package.";
  case "UNTIL_REQUIRED_GATE": return "Continue across eligible authorized packages in dependency and P0 order. After each verified step checkpoint and re-evaluate. Stop only at completion or a genuine mandatory human/capability boundary after exhausting safe independent work. No unattended promise.";
+ case "FINISH_PRODUCT": return "Complete the entire approved product scope, including code, actual QA, regression, UX, release artifact and rollback evidence, without routine approval. Keep working across eligible packages until the exact candidate is ready for Owner publication review or a genuine mandatory boundary after exhausting safe independent work. Do not publish or merge. After authorized publication, validate actual deployed revision, incorporate feedback on the draft, reverify and obtain fresh publication authority for changed SHA. Only after exact deployed revision is accepted and separately authorized may the protected main merge be considered. No unattended promise.";
  default: throw new TypeError("Unknown execution direction");
  }
+}
+
+// Advisory projection only. Inputs must be resolved by an authenticated authority
+// adapter from canonical evidence. This helper cannot verify or issue approval.
+export function decideProductRelease(input={}){
+  const {sourceVerified=false,candidateRevision,technicalEvidenceRevision,rollbackEvidenceRevision,
+    publicationRouteVerified=false,publicationAuthorityRevision,deployedRevision,
+    ownerAcceptanceRevision,mergeAuthorityRevision,mergeBaseVerified=false}=input;
+  const exact=v=>typeof v==="string"&&/^[0-9a-f]{40}$/.test(v);
+  const out=(action,reason)=>({action,reason,advisoryOnly:true,grantsAuthority:false});
+  if(sourceVerified!==true||!exact(candidateRevision))return out("BLOCKED","UNVERIFIED_CANDIDATE");
+  if(technicalEvidenceRevision!==candidateRevision||rollbackEvidenceRevision!==candidateRevision)
+    return out("CONTINUE_ENGINEERING","EXACT_CANDIDATE_EVIDENCE_REQUIRED");
+  if(publicationRouteVerified!==true)return out("BLOCKED","PROTECTED_PUBLICATION_ROUTE_UNVERIFIED");
+  if(publicationAuthorityRevision!==candidateRevision)return out("AWAIT_OWNER_PUBLICATION","EXACT_PUBLICATION_AUTHORITY_REQUIRED");
+  if(deployedRevision!==candidateRevision)return out("READY_FOR_PROTECTED_PUBLICATION_REVIEW","DEPLOYMENT_NOT_OBSERVED");
+  if(ownerAcceptanceRevision!==candidateRevision)return out("AWAIT_OWNER_ACCEPTANCE","EXACT_DEPLOYED_USER_ACCEPTANCE_REQUIRED");
+  if(mergeBaseVerified!==true)return out("CONTINUE_ENGINEERING","RECONCILE_BASE_AND_REVERIFY");
+  if(mergeAuthorityRevision!==candidateRevision)return out("AWAIT_OWNER_MERGE","EXACT_MERGE_AUTHORITY_REQUIRED");
+  return out("READY_FOR_PROTECTED_MERGE_REVIEW","SEPARATE_TRUSTED_GATE_REQUIRED");
 }
