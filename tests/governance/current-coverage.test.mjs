@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, dirname } from "node:path";
+import { buildNavigationPublicationCandidate } from "../../scripts/check-constitution-1.4-candidate.mjs";
+import { buildProductCompletionPublicationCandidate } from "../../scripts/check-constitution-1.5-candidate.mjs";
+import { validateOnboardingQueue } from "../../scripts/check-governance-onboarding-queue.mjs";
 import { buildGovernanceCurrentView } from "../../scripts/derive-governance-current-view.mjs";
 
 const read = name => JSON.parse(readFileSync(name, "utf8"));
@@ -105,8 +110,8 @@ test("rejects fake or missing observed commit SHA and evidence origin", () => {
 });
 
 test("rejects forged policy, timestamp and branch identity", () => {
-  const p = clone(policy); p.policyVersion = "1.4.0";
-  assert.throws(() => build(baseline,pending,ledger,p), /only the sealed 1.3 policy/);
+  const p = clone(policy); p.policyVersion = "9.9.9";
+  assert.throws(() => build(baseline,pending,ledger,p), /unsupported governance policy source version/);
   const q = clone(pending); q.recordedAt = "yesterday";
   assert.throws(() => build(baseline,q), /exact ISO/);
   const q2 = clone(pending); q2.entries[0].branch = "unknown";
@@ -147,4 +152,32 @@ test("RUE observedAt must be an exact later historical record and registration m
     }]
   });
   assert.throws(() => build(baseline,pending,ledgerWrong), /registration migration queue source mismatch/);
+});
+
+test("successor source compatibility preserves historical registry and never certifies adoption", () => {
+  const root=mkdtempSync(join(tmpdir(),"governance-policy-source-"));
+  const write=(path,bytes)=>{const p=join(root,path);mkdirSync(dirname(p),{recursive:true});writeFileSync(p,bytes);};
+  try {
+    const r33=buildNavigationPublicationCandidate();
+    const r38=buildProductCompletionPublicationCandidate();
+    for(const path of [r33.profile.patchPath,r38.profile.patchPath])write(path,readFileSync(path,"utf8"));
+    for(const candidate of [r33,r38]){
+      const original=JSON.stringify([baseline,pending,ledger]);
+      for(const [path,bytes] of Object.entries(candidate.files))write(path,bytes);
+      const next=JSON.parse(candidate.files["control/universal-constitution-version.json"]);
+      const view=buildGovernanceCurrentView(baseline,pending,ledger,next,root);
+      assert.equal(view.policyVersion,next.policyVersion);
+      assert.equal(view.trackedCount,18);
+      assert.equal(view.pendingOnboardingCount,1);
+      assert.ok(view.repositories.every(row=>row.complianceState==="UNVERIFIED"&&row.productionAuthority===false));
+      assert.equal(JSON.stringify([baseline,pending,ledger]),original);
+      assert.deepEqual(validateOnboardingQueue(pending,baseline,next,root),[]);
+      const wrong=clone(next);wrong.policyVersion="1.3.9";
+      assert.throws(()=>buildGovernanceCurrentView(baseline,pending,ledger,wrong,root),/unsupported/);
+      const path="packages/application/src/constitution-authority.ts";
+      write(path,candidate.files[path]+"\n// outside seal\n");
+      assert.throws(()=>buildGovernanceCurrentView(baseline,pending,ledger,next,root),/blob seal mismatch/);
+      assert.ok(validateOnboardingQueue(pending,baseline,next,root).some(s=>s.includes("blob seal mismatch")));
+    }
+  }finally{rmSync(root,{recursive:true,force:true});}
 });
