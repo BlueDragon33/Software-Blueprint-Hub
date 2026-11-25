@@ -4,6 +4,7 @@ set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
 test "$(git rev-parse HEAD)" = "$EXPECTED_CANDIDATE_REVISION"
+git status --porcelain=v1 --untracked-files=all
 test -z "$(git status --porcelain=v1 --untracked-files=all)"
 tools="$root/experiments/d1-publication/node_modules"
 web="$root/apps/web"
@@ -23,3 +24,4 @@ cd "$web"
 "$tools/.bin/vite" build --config "$root/experiments/d1-publication/vite.worker.config.mts"
 cd "$root"
 node "$root/experiments/d1-publication/verify-worker-bundle.mjs"
+bash "$root/experiments/d1-publication/smoke-worker-local.sh"

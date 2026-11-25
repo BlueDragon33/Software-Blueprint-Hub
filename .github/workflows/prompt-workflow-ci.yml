@@ -120,7 +120,8 @@ jobs:
           stage="$RUNNER_TEMP/blueprint-d1-worker-$EXPECTED_CANDIDATE_REVISION"
           git worktree add --detach "$stage" "$EXPECTED_CANDIDATE_REVISION"
           trap 'git worktree remove --force "$stage"' EXIT
-          ln -s "$GITHUB_WORKSPACE/experiments/d1-publication/node_modules" "$stage/experiments/d1-publication/node_modules"
+          mkdir -p "$stage/experiments/d1-publication/node_modules"
+          cp -a --reflink=auto "$GITHUB_WORKSPACE/experiments/d1-publication/node_modules/." "$stage/experiments/d1-publication/node_modules/"
           cd "$stage"
           pnpm install --frozen-lockfile --offline
           pnpm prisma:generate
