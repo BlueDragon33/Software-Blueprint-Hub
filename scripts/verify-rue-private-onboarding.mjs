@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { inspectPendingOnboarding, githubJson } from "./verify-governance-onboarding-live.mjs";
+import { readHistoricalRegistrationContract } from "./governance-policy-source.mjs";
 
 const RUE = "BlueDragon33/Blueprint-Russian-Expert-Engine";
 
@@ -46,7 +47,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       throw new Error("[rue-private] opt-in Preview scope and restricted GitHub App token required");
     }
     const queue = JSON.parse(readFileSync("control/governance-onboarding-queue.v1.json","utf8"));
-    const contract = JSON.parse(readFileSync("control/universal-constitution.contract.json","utf8"));
+    const contract = readHistoricalRegistrationContract();
     const result = await verifyRuePrivateOnboarding(queue, contract);
     // Only already-authorized, public onboarding metadata. No token, source bytes or corpus.
     console.log(JSON.stringify(result));

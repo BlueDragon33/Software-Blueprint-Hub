@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { spawnSync } from "node:child_process";
 import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildNavigationPublicationCandidate } from "../../scripts/check-constitution-1.4-candidate.mjs";
 import { buildProductCompletionPublicationCandidate } from "../../scripts/check-constitution-1.5-candidate.mjs";
 import { validateOnboardingQueue } from "../../scripts/check-governance-onboarding-queue.mjs";
 import { buildGovernanceCurrentView } from "../../scripts/derive-governance-current-view.mjs";
+import { readHistoricalRegistrationContract } from "../../scripts/governance-policy-source.mjs";
 
 const read = name => JSON.parse(readFileSync(name, "utf8"));
 const baseline = read("control/constitution-governed-repositories.json");
@@ -160,7 +163,20 @@ test("successor source compatibility preserves historical registry and never cer
   try {
     const r33=buildNavigationPublicationCandidate();
     const r38=buildProductCompletionPublicationCandidate();
-    for(const path of [r33.profile.patchPath,r38.profile.patchPath])write(path,readFileSync(path,"utf8"));
+    const inventory = "control/governance-current-view.v1.json";
+    const historicalInventory = readFileSync(inventory, "utf8");
+    const cli = fileURLToPath(new URL("../../scripts/derive-governance-current-view.mjs", import.meta.url));
+    const run = (...args) => spawnSync(process.execPath, [cli, ...args], { cwd: root, encoding: "utf8" });
+    for (const path of [
+      r33.profile.patchPath,
+      r38.profile.patchPath,
+      "control/constitution-governed-repositories.json",
+      "control/governance-onboarding-queue.v1.json",
+      "control/governance-registration-ledger.v1.json",
+      inventory
+    ]) {
+      write(path, readFileSync(path, "utf8"));
+    }
     for(const candidate of [r33,r38]){
       const original=JSON.stringify([baseline,pending,ledger]);
       for(const [path,bytes] of Object.entries(candidate.files))write(path,bytes);
@@ -172,6 +188,19 @@ test("successor source compatibility preserves historical registry and never cer
       assert.ok(view.repositories.every(row=>row.complianceState==="UNVERIFIED"&&row.productionAuthority===false));
       assert.equal(JSON.stringify([baseline,pending,ledger]),original);
       assert.deepEqual(validateOnboardingQueue(pending,baseline,next,root),[]);
+      assert.deepEqual(readHistoricalRegistrationContract(root),
+        JSON.parse(r33.originals["control/universal-constitution.contract.json"]));
+      const check = run("--check");
+      assert.equal(check.status, 0, check.stderr);
+      assert.equal(readFileSync(join(root, inventory), "utf8"), historicalInventory);
+      const current = run();
+      assert.equal(current.status, 0, current.stderr);
+      assert.equal(JSON.parse(current.stdout).policyVersion, next.policyVersion);
+      write(inventory, historicalInventory.replace('"policyVersion": "1.3.0"', `"policyVersion": "${next.policyVersion}"`));
+      assert.match(run("--check").stderr, /generated registration snapshot is stale/);
+      const rewrite = run("--write");
+      assert.equal(rewrite.status, 0, rewrite.stderr);
+      assert.equal(readFileSync(join(root, inventory), "utf8"), historicalInventory);
       const wrong=clone(next);wrong.policyVersion="1.3.9";
       assert.throws(()=>buildGovernanceCurrentView(baseline,pending,ledger,wrong,root),/unsupported/);
       const path="packages/application/src/constitution-authority.ts";

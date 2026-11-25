@@ -202,17 +202,20 @@ function load(path) { return JSON.parse(readFileSync(path, "utf8")); }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const current = buildGovernanceCurrentView(load(BASELINE), load(QUEUE), load(LEDGER), load(POLICY));
-    const text = JSON.stringify(current, null, 2) + "\n";
+    // The tracked inventory records registrations made against the 1.3 baseline.
+    // A source transition changes the read-only projection, not the registration record.
+    const registrationSnapshot = { ...current, policyVersion: registrationBaselineVersion };
+    const text = JSON.stringify(registrationSnapshot, null, 2) + "\n";
     if (process.argv.includes("--write")) {
       writeFileSync(OUTPUT, text);
-      console.log("[governance-current-view] generated read-only current view");
+      console.log("[governance-current-view] generated read-only registration snapshot");
     } else if (process.argv.includes("--check")) {
-      assert(readFileSync(OUTPUT, "utf8") === text, "generated current view is stale; run --write");
+      assert(readFileSync(OUTPUT, "utf8") === text, "generated registration snapshot is stale; run --write");
       console.log("[governance-current-view] PASS " + current.sealedBaselineCount + " sealed + " +
         current.admittedRegistrationCount + " admitted + " + current.pendingOnboardingCount +
         " pending; no constitutional/Production authority granted");
     } else {
-      console.log(text.trimEnd());
+      console.log(JSON.stringify(current, null, 2));
     }
   } catch (error) {
     console.error(errorsOf(error));

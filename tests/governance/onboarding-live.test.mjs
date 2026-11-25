@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { inspectPendingOnboarding } from "../../scripts/verify-governance-onboarding-live.mjs";
+import { readHistoricalRegistrationContract } from "../../scripts/governance-policy-source.mjs";
 
 const load = path => JSON.parse(readFileSync(path, "utf8"));
 const queue = load("control/governance-onboarding-queue.v1.json");
-const contract = load("control/universal-constitution.contract.json");
+const contract = readHistoricalRegistrationContract();
 
 function provider(overrides = {}) {
   return async path => {
@@ -50,6 +51,16 @@ test("live inspection verifies SHA-pinned adoption and CI, but never quality gat
   assert.equal(rue.verifiedCiRunId,null);
   assert.ok(out.every(x => x.complianceState === "UNVERIFIED" && x.qualityGatePassAllowed === false && x.productionReleaseAuthority === false));
 });
+test("assigning the same successor version to queue and contract cannot relabel registration", async () => {
+  const relabelledQueue = structuredClone(queue);
+  relabelledQueue.sealedBaseline.policyVersion = "1.4.0";
+  const relabelledContract = { ...contract, policyVersion: "1.4.0" };
+  await assert.rejects(
+    inspectPendingOnboarding(relabelledQueue, relabelledContract, provider()),
+    /historical registration policy mismatch/
+  );
+});
+
 test("stale observed HEAD blocks onboarding", async () => {
   await assert.rejects(inspectPendingOnboarding(queue, contract, provider({sha:"f".repeat(40)})), /queued HEAD is stale/);
 });
