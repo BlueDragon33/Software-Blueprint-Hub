@@ -121,27 +121,32 @@
     {
       "path": "packages/persistence/src/project-profile-repository.ts",
       "scope": "5 methods",
-      "state": "PENDING"
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/project-profile-repository.ts"
     },
     {
       "path": "packages/persistence/src/work-quality-repository.ts",
       "scope": "12 methods",
-      "state": "PENDING"
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/work-quality-repository.ts"
     },
     {
       "path": "packages/persistence/src/governance-repository.ts",
       "scope": "12 methods",
-      "state": "PENDING"
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/governance-repository.ts"
     },
     {
       "path": "packages/persistence/src/release-repository.ts",
       "scope": "8 methods",
-      "state": "PENDING"
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/release-repository.ts"
     },
     {
       "path": "packages/persistence/src/prompt-history-repository.ts",
       "scope": "2 methods",
-      "state": "PENDING"
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/prompt-history-repository.ts"
     },
     {
       "path": "packages/persistence/src/professional-review-repository.ts",
@@ -190,6 +195,15 @@
       "skipped": 0,
       "sourceBlob": "b22b3451a2a6da9129470490179b8a9409ac1f3d",
       "testBlob": "10473dd717d2f708adff8222af40636423d4705e"
+    },
+    {
+      "suite": "d1-domain-store.test.mjs",
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "44457d4a0f226ec38772b7d655f3731658b31513",
+      "testBlob": "ed6ca1f17de392526096a8eb11cff59e388928c7",
+      "scope": "SQL layer only; strict standalone tsc passed; full adapter typecheck and D1 pending"
     }
   ],
   "remainingAdmission": [
