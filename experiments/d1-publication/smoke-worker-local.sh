@@ -19,8 +19,14 @@ pid=$!
 ready=0
 for attempt in $(seq 1 30); do
   if ! kill -0 "$pid" 2>/dev/null; then break; fi
+  if ! grep -Fq "Ready on http://127.0.0.1:8787" "$persist/worker.log"; then sleep 1; continue; fi
   if status=$(curl --silent --max-time 3 --output "$persist/readiness.html" --write-out "%{http_code}" http://127.0.0.1:8787/professional-review/readiness); then
-    if [ "$status" != 200 ]; then echo "FULL_APP_READINESS_HTTP=$status"; tail -100 "$persist/worker.log"; exit 1; fi
+    if [ "$status" != 200 ]; then
+      echo "FULL_APP_READINESS_HTTP=$status"
+      if grep -Fxq "Canonical persistence unavailable" "$persist/readiness.html"; then echo "FULL_APP_HOST_GATE_DENIED"; else echo "FULL_APP_OTHER_HTTP_BODY"; fi
+      sleep 1
+      tail -100 "$persist/worker.log"; exit 1
+    fi
     ready=1; break
   fi
   sleep 1

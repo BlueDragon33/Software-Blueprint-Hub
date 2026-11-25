@@ -13,15 +13,16 @@ function nativeBinding():D1CanonicalBinding {
   if(host.BLUEPRINT_PERSISTENCE_PROVIDER!=="d1"||!db||typeof db.prepare!=="function"||typeof db.batch!=="function")throw new Error("Canonical Cloudflare D1 binding unavailable");
   return db;
 }
-function runtime(){return createD1BlueprintServerRuntime(nativeBinding(),resolveGitHubPublicationToken,workerBuildRevision);}
+function runtime(binding:D1CanonicalBinding=nativeBinding()){return createD1BlueprintServerRuntime(binding,resolveGitHubPublicationToken,workerBuildRevision);}
 export function runWithD1WorkerRuntime<T>(binding:D1CanonicalBinding,callback:()=>T):T {
-  // Cloudflare may expose distinct proxies for the same native capability.
-  // The native env remains the sole authoritative source; the supplied host
-  // binding is only checked for presence, never used to select a database.
+  // The compiled entry is the trusted host; it has already validated the
+  // D1 binding and explicit provider from Cloudflare fetch(request,env,ctx).
+  // Native module env is needed only in separate RSC/SSR module instances.
   if(!binding||typeof binding.prepare!=="function"||typeof binding.batch!=="function")throw Error("Invalid D1 host binding");
-  return scope.run(runtime(),callback);
+  return scope.run(runtime(binding),callback);
 }
 export function hasD1WorkerRuntime():boolean {
+  if(scope.hasD1Context())return true;
   try{nativeBinding();return true;}catch{return false;}
 }
 export function getBlueprintServerRuntime():WebBlueprintServerRuntime {

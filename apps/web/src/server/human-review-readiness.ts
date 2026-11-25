@@ -187,7 +187,7 @@ async function probeDatabase(
 export async function getHumanReviewRuntimeReadiness(
   environment: HumanReviewReadinessEnvironment = {
     databaseUrl: process.env.DATABASE_URL,
-    persistenceProvider: process.env.BLUEPRINT_PERSISTENCE_PROVIDER,
+    persistenceProvider: hasD1WorkerRuntime() ? "d1" : process.env.BLUEPRINT_PERSISTENCE_PROVIDER,
     d1BindingAvailable: hasD1WorkerRuntime(),
     authSecret: process.env.AUTH_SECRET,
     githubClientId: process.env.GITHUB_ID,
