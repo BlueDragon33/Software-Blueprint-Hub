@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { crc32, inflateRawSync } from "node:zlib";
 
-const accepted = new Set(["artifacts/constitution-1.3-candidate.json", "artifacts/constitution-1.3-authority-set.json", "artifacts/constitution-1.4-candidate.json", "artifacts/constitution-1.4-authority-set.json", "artifacts/constitution-authority-set.json", "artifacts/release-gate-evidence.json"]);
+const accepted = new Set(["artifacts/constitution-1.3-candidate.json", "artifacts/constitution-1.3-authority-set.json", "artifacts/constitution-1.4-candidate.json", "artifacts/constitution-1.4-authority-set.json", "artifacts/constitution-1.5-candidate.json", "artifacts/constitution-1.5-authority-set.json", "artifacts/constitution-authority-set.json", "artifacts/release-gate-evidence.json"]);
 /** Fixed allowlisted bounded JSON entries only; never extracts paths or executes archive content. */
 export function readConstitutionArtifactZip(input: Uint8Array, digest: string): Record<string, unknown> {
   const bytes = Buffer.from(input);

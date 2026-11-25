@@ -10,21 +10,23 @@ type ProviderFixture = Record<string, unknown> & {
  jobs?: Array<Record<string, unknown> & { steps: Array<Record<string, unknown> & { conclusion: string }> }>;
  artifacts?: Array<Record<string, unknown> & { expired: boolean }>;
 };
-function fixture(change?: (url: string, body: ProviderFixture) => void, defect?: string, nextVersion = false) {
- const baseline=nextVersion?readNavigationBaseline().originals:Object.fromEntries(constitutionPublicationPaths.map(path=>[path,readFileSync(path,"utf8")]));
- const nextPatch="docs/amendments/CONSTITUTION-1.4-NAV-SUPPORT-PUBLICATION.patch";
+function fixture(change?: (url: string, body: ProviderFixture) => void, defect?: string, nextVersion: boolean | "successor" = false) {
+ const successor=nextVersion==="successor";
+ const r33Patch="docs/amendments/CONSTITUTION-1.4-NAV-SUPPORT-PUBLICATION.patch";
+ const baseline=successor?applyConstitutionPublicationPatch(readNavigationBaseline().originals,readFileSync(r33Patch,"utf8")):nextVersion?readNavigationBaseline().originals:Object.fromEntries(constitutionPublicationPaths.map(path=>[path,readFileSync(path,"utf8")]));
+ const nextPatch=successor?"docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch":r33Patch;
  const candidate = nextVersion ? {originals:new Map(Object.entries(baseline)),files:new Map(Object.entries(applyConstitutionPublicationPatch(baseline,readFileSync(nextPatch,"utf8"))))} : buildConstitutionCandidate();
  const steps = readFileSync(".github/workflows/ci.yml", "utf8").split("  release-gate:")[1]!.split("\n")
   .map(line => line.match(/^      - name: (.+)$/)?.[1]).filter((name): name is string => Boolean(name))
   .map(name => ({ name, status: "completed", conclusion: "success" }));
  const attestation=attestConstitutionAuthoritySources(Object.fromEntries(candidate.files),SHA,RUN);
  const patch=readFileSync(nextVersion?nextPatch:"docs/amendments/CONSTITUTION-1.3-PUBLICATION.patch","utf8");
- const descriptor: Record<string,unknown>={status:"INACTIVE_CANDIDATE_VERIFIED",candidatePolicyVersion:nextVersion?"1.4.0":"1.3.0",activePolicyVersion:nextVersion?"1.3.0":"1.2.0",ruleCount:nextVersion?33:32,sourceRevision:SHA,ciRunId:RUN,authoritySetDigest:attestation.authoritySetDigest,
+ const descriptor: Record<string,unknown>={status:"INACTIVE_CANDIDATE_VERIFIED",candidatePolicyVersion:successor?"1.5.0":nextVersion?"1.4.0":"1.3.0",activePolicyVersion:successor?"1.4.0":nextVersion?"1.3.0":"1.2.0",ruleCount:successor?38:nextVersion?33:32,sourceRevision:SHA,ciRunId:RUN,authoritySetDigest:attestation.authoritySetDigest,
   publicationPatchDigest:constitutionSourceDigest(patch),ratification:"NOT_ASSERTED",publication:"NOT_ASSERTED",productionReleaseAuthority:false};
  const testResults={node:{passed:125,failed:0,skipped:0},vitest:{passed:273,failed:0,skipped:0},browser:{passed:72,failed:0,skipped:0,flaky:0}};
  if(defect==="skipped-tests")testResults.vitest.skipped=1;
  if(defect==="fake-seal")descriptor.authoritySetDigest="sha256:"+"2".repeat(64);
- const prefix=nextVersion&&defect!=="wrong-version-artifact"?"artifacts/constitution-1.4":"artifacts/constitution-1.3";
+ const prefix=successor?(defect==="wrong-version-artifact"?"artifacts/constitution-1.4":"artifacts/constitution-1.5"):nextVersion&&defect!=="wrong-version-artifact"?"artifacts/constitution-1.4":"artifacts/constitution-1.3";
  const entries:Record<string,unknown>={[prefix+"-authority-set.json"]:attestation,
   "artifacts/constitution-authority-set.json":attestConstitutionAuthoritySources(Object.fromEntries(candidate.originals),SHA,RUN),
   [prefix+"-candidate.json"]:descriptor,"artifacts/release-gate-evidence.json":{repository:"BlueDragon33/Software-Blueprint-Hub",
@@ -117,5 +119,25 @@ describe("versioned 1.4 publication admission",()=>{
  it("rejects substituting historical artifact names",async()=>{
   const {http}=fixture(undefined,"wrong-version-artifact",true);
   await expect(new GitHubConstitutionPublicationVerifier({http,runtimeRevision:ACTIVE,runtimePolicyVersion:"1.4.0"}).prepare(SHA,RUN)).rejects.toThrow();
+ });
+});
+
+describe("fixed 1.4-to-1.5 successor publication admission (provider fixtures)",()=>{
+ it("prepares sealed successor bytes, requires exact active runtime and main",async()=>{
+  const {http}=fixture(undefined,undefined,"successor");
+  const inactive=new GitHubConstitutionPublicationVerifier({http,runtimeRevision:SHA,runtimePolicyVersion:"1.4.0"});
+  const proof=await inactive.prepare(SHA,RUN);
+  expect(proof.attestation.policyVersion).toBe("1.5.0");
+  expect(proof.attestation.authoritySetDigest).toBe("sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3");
+  expect(proof.attestation.productionReleaseAuthority).toBe(false);
+  expect(await inactive.verify(proof.attestation)).toBe(false);
+  const active=new GitHubConstitutionPublicationVerifier({http,runtimeRevision:ACTIVE,runtimePolicyVersion:"1.5.0"});
+  expect(await active.verify(proof.attestation)).toBe(true);
+  const stale=new GitHubConstitutionPublicationVerifier({http,runtimeRevision:SHA,runtimePolicyVersion:"1.5.0"});
+  expect(await stale.verify(proof.attestation)).toBe(false);
+ });
+ it("rejects historical artifact substitution for successor",async()=>{
+  const {http}=fixture(undefined,"wrong-version-artifact","successor");
+  await expect(new GitHubConstitutionPublicationVerifier({http,runtimeRevision:ACTIVE,runtimePolicyVersion:"1.5.0"}).prepare(SHA,RUN)).rejects.toThrow();
  });
 });
