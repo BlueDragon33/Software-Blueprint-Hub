@@ -51,7 +51,7 @@ export function triageWork(input,expectedSha){
   }else if(input.kind==="investigation"){
     disposition="IMPACT_UNVERIFIED_INVESTIGATION";
     priorityBand=2;
-  }else if(input.declaredPriority==="P0" &&
+  }else if(
     severe.has(input.observedImpact) &&
     input.reproduction==="reproduced"){
     disposition="P0_INCIDENT_CANDIDATE_REQUIRES_RUNTIME_ATTESTATION";
@@ -65,7 +65,7 @@ export function triageWork(input,expectedSha){
   }
   // This pure function validates declared metadata, not truth of linked GitHub
   // content. Only human/independent runtime evidence can close an incident.
-  if(input.kind==="incident" && input.declaredPriority==="P0" && !input.runtimeRetested)
+  if(input.kind==="incident" && (input.declaredPriority==="P0" || priorityBand===0) && !input.runtimeRetested)
     blockers.push("RUNTIME_RETEST_REQUIRED_BEFORE_P0_CLOSE");
   return {
     repository:input.repository,sourceRevision:input.sourceRevision,

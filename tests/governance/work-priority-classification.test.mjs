@@ -83,3 +83,20 @@ test("CLI needs exact pin and performs no write or approval",()=>{
   assert.equal(no.status,2);
  } finally {rmSync(dir,{recursive:true,force:true});}
 });
+
+test("reproduced severe incidents outrank unverified P0 claims regardless of declared label",()=>{
+ const claim=triageWork({...fixture(),reproduction:"not-run",sourcePatchMerged:false},SHA);
+ for(const declaredPriority of ["P1","P2","UNCLASSIFIED"]){
+  for(const observedImpact of ["critical-user-journey-unavailable","confirmed-data-loss","confirmed-authorization-bypass","confirmed-sensitive-data-exposure","production-integrity-corruption"]){
+   const x=triageWork({...fixture(),declaredPriority,observedImpact},SHA);
+   assert.equal(x.priorityBand,0);
+   assert.ok(x.priorityBand<claim.priorityBand);
+   assert.equal(x.declaredPriority,declaredPriority);
+   assert.ok(x.blockers.includes("RUNTIME_RETEST_REQUIRED_BEFORE_P0_CLOSE"));
+   assert.equal(x.incidentClosedByThisTool,false);
+   assert.equal(x.productionAuthority,"NONE");
+   const unverified=triageWork({...fixture(),declaredPriority,observedImpact,reproduction:"observed-only"},SHA);
+   assert.notEqual(unverified.priorityBand,0);
+  }
+ }
+});
