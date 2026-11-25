@@ -126,3 +126,11 @@ jobs:
           pnpm install --frozen-lockfile --offline
           pnpm prisma:generate
           bash experiments/d1-publication/build-worker-local.sh
+      - name: Full public regression (D1 candidate, no external authority)
+        if: github.event.pull_request.number == 183
+        run: |
+          unset DATABASE_URL BLUEPRINT_QA_DATABASE_URL BLUEPRINT_QA_DB_INTEGRATION BLUEPRINT_LIVE_PINNED_SMOKE
+          pnpm exec vitest run --exclude tests/application/prompt-workflow-live-private-bridge.test.ts --fileParallelism=false
+      - name: Actual D1 typed repository and application parity
+        if: github.event.pull_request.number == 183
+        run: pnpm exec vitest run --config experiments/d1-publication/vitest.d1.config.mts
