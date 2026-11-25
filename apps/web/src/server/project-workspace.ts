@@ -1,5 +1,5 @@
 import type { ProjectProfileResolution } from "@blueprint-os/application";
-import type { BlueprintServerRuntime } from "@blueprint-os/runtime";
+import type { WebBlueprintServerRuntime } from "./runtime";
 
 import {
   resolveWebActor,
@@ -17,7 +17,7 @@ export type ProjectWorkspaceLoadResult =
       state: "ready";
       projectId: string;
       actor: WebAuthenticatedActor;
-      runtime: BlueprintServerRuntime;
+      runtime: WebBlueprintServerRuntime;
       project: ProjectProfileResolution;
     }>;
 

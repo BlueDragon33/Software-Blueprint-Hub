@@ -31,7 +31,7 @@ export function createD1BlueprintServerRuntime(db:D1CanonicalBinding,publication
   const authority = new AuthorityService(authorityRepository);
   const constitutionAuthorityRepository =
     createD1ConstitutionAuthorityRepository(db);
-  const runtimeRevision = publicationRuntimeRevision(process.env.BLUEPRINT_LOCAL_RUNTIME_REVISION, process.env.VERCEL_GIT_COMMIT_SHA);
+  const runtimeRevision = publicationRuntimeRevision(process.env.BLUEPRINT_LOCAL_RUNTIME_REVISION, undefined);
   const constitutionAuthority = new ConstitutionAuthorityApplicationService(
     constitutionAuthorityRepository,
     authority,
@@ -99,6 +99,12 @@ export function createD1BlueprintServerRuntime(db:D1CanonicalBinding,publication
   const sso:SsoIdentityStore = new D1SsoStore(db);
   return Object.freeze({
     sso,
+    probeReviewSchema: async () => {
+      const result=await db.prepare("SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type='table' AND name='SystemBootstrap') AS authorityReady, EXISTS(SELECT 1 FROM sqlite_master WHERE type='table' AND name='HumanProfessionalReviewDecision') AS reviewDecisionReady").all();
+      const row=result.results?.[0] as {authorityReady?:unknown;reviewDecisionReady?:unknown}|undefined;
+      if(result.success!==true||result.results?.length!==1||!row||![0,1].includes(Number(row.authorityReady))||![0,1].includes(Number(row.reviewDecisionReady)))throw Error("Canonical D1 schema probe unavailable");
+      return {authorityReady:row.authorityReady===1,reviewDecisionReady:row.reviewDecisionReady===1};
+    },
     resolveLinkedAppManagementPrincipal: (subject:string,principalId:string) => logs.linkedPrincipal('application-management',subject,principalId),
     workflowInspectionQaJournal: new D1WorkflowInspectionQaJournal(logs),
     authority,
@@ -118,3 +124,6 @@ export function createD1BlueprintServerRuntime(db:D1CanonicalBinding,publication
 }
 
 export type D1BlueprintServerRuntime=ReturnType<typeof createD1BlueprintServerRuntime>;
+
+export type { D1CanonicalBinding } from "@blueprint-os/persistence/d1";
+export { createRequestRuntimeScope } from "./request-runtime-scope.mjs";
