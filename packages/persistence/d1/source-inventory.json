@@ -90,6 +90,113 @@
   ],
   "foreignKeysFromAlter": 29,
   "indexes": 59,
-  "localSchemaStatus": "UNTESTED_AT_CREATION",
-  "runtimeAdmission": false
+  "localSchemaStatus": "SQLITE_EXACT_BLOB_VALIDATED",
+  "runtimeAdmission": false,
+  "schemaEvidence": {
+    "gitBlob": "c4952d1e4ee9a1c07eb1ec0dab8e63aa730c72b1",
+    "sha256": "21cfacc19591a96d8a80020d113754fd416290dfe4551fc28806cf7ec59821ce",
+    "engine": "Node 22.16.0 node:sqlite",
+    "canonicalTables": 27,
+    "internalGuardTables": 1,
+    "explicitIndexes": 59,
+    "foreignKeyConstraints": 33,
+    "triggers": 31,
+    "integrityCheck": "ok",
+    "foreignKeyViolations": 0,
+    "localOnly": true
+  },
+  "adapterInventory": [
+    {
+      "path": "packages/persistence/src/authority-repository.ts",
+      "scope": "6 methods",
+      "state": "CANDIDATE_SQLITE_TESTED",
+      "candidate": "experiments/d1-publication/d1-authority-repository.mjs"
+    },
+    {
+      "path": "packages/persistence/src/constitution-authority-repository.ts",
+      "scope": "11 methods",
+      "state": "CANDIDATE_SQLITE_TESTED_FIXTURE_CODECS",
+      "candidate": "experiments/d1-publication/d1-constitution-repository.mjs"
+    },
+    {
+      "path": "packages/persistence/src/project-profile-repository.ts",
+      "scope": "5 methods",
+      "state": "PENDING"
+    },
+    {
+      "path": "packages/persistence/src/work-quality-repository.ts",
+      "scope": "12 methods",
+      "state": "PENDING"
+    },
+    {
+      "path": "packages/persistence/src/governance-repository.ts",
+      "scope": "12 methods",
+      "state": "PENDING"
+    },
+    {
+      "path": "packages/persistence/src/release-repository.ts",
+      "scope": "8 methods",
+      "state": "PENDING"
+    },
+    {
+      "path": "packages/persistence/src/prompt-history-repository.ts",
+      "scope": "2 methods",
+      "state": "PENDING"
+    },
+    {
+      "path": "packages/persistence/src/professional-review-repository.ts",
+      "scope": "2 methods",
+      "state": "PENDING"
+    },
+    {
+      "path": "packages/persistence/src/workflow-execution-authority-repository.ts",
+      "scope": "5 methods",
+      "state": "PENDING"
+    },
+    {
+      "path": "packages/runtime/src/workflow-execution-journal.ts",
+      "scope": "3 methods",
+      "state": "PENDING"
+    },
+    {
+      "path": "packages/runtime/src/workflow-inspection-qa-journal.ts",
+      "scope": "2 methods",
+      "state": "PENDING"
+    },
+    {
+      "path": "apps/web/src/auth/server-actor.ts",
+      "scope": "direct Prisma AppManagementSsoLink and Principal reads",
+      "state": "PENDING"
+    },
+    {
+      "path": "apps/web/src/server/runtime.ts",
+      "scope": "DATABASE_URL and server-runtime composition",
+      "state": "PENDING"
+    }
+  ],
+  "tests": [
+    {
+      "suite": "d1-authority-repository.test.mjs",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "bc1c2dd07e9c57f6c34ed751a705b2e6a4a49e2b",
+      "testBlob": "e193d083226421cecae49d86f120b9e06d70679e"
+    },
+    {
+      "suite": "d1-schema-lifecycle.test.mjs",
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "b22b3451a2a6da9129470490179b8a9409ac1f3d",
+      "testBlob": "10473dd717d2f708adff8222af40636423d4705e"
+    }
+  ],
+  "remainingAdmission": [
+    "Share canonical read codecs, typed interface parity and full application integration (fixture codecs never for production).",
+    "Implement remaining repository families and direct persistence accesses; audit query semantics and all transaction boundaries.",
+    "Test actual D1/workerd atomicity, concurrent writes, append-only guards, limits and error mapping; no simulated PASS.",
+    "Review intentional stronger immutable audit/history constraints against PostgreSQL FK cascade/SET NULL behavior; migration timestamp normalization must be explicit.",
+    "Verify existing canonical history/owner before any data migration. No reset, binding or deployment from P1 partial."
+  ]
 }
