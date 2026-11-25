@@ -19,7 +19,10 @@ pid=$!
 ready=0
 for attempt in $(seq 1 30); do
   if ! kill -0 "$pid" 2>/dev/null; then break; fi
-  if curl --silent --fail --max-time 3 http://127.0.0.1:8787/professional-review/readiness > "$persist/readiness.html"; then ready=1; break; fi
+  if status=$(curl --silent --max-time 3 --output "$persist/readiness.html" --write-out "%{http_code}" http://127.0.0.1:8787/professional-review/readiness); then
+    if [ "$status" != 200 ]; then echo "FULL_APP_READINESS_HTTP=$status"; tail -100 "$persist/worker.log"; exit 1; fi
+    ready=1; break
+  fi
   sleep 1
 done
 if [ "$ready" != 1 ]; then tail -100 "$persist/worker.log"; exit 1; fi

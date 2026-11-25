@@ -10,12 +10,15 @@ const scope = createRequestRuntimeScope<D1BlueprintServerRuntime>();
 function nativeBinding():D1CanonicalBinding {
   const host=env as {BLUEPRINT_PERSISTENCE_PROVIDER?:unknown;BLUEPRINT_CANONICAL_DB?:unknown};
   const db=host.BLUEPRINT_CANONICAL_DB as D1CanonicalBinding|undefined;
-  if(host.BLUEPRINT_PERSISTENCE_PROVIDER!=="d1"||!db||typeof db.prepare!=="function"||typeof db.batch!=="function")throw Error("Canonical Cloudflare D1 binding unavailable");
+  if(host.BLUEPRINT_PERSISTENCE_PROVIDER!=="d1"||!db||typeof db.prepare!=="function"||typeof db.batch!=="function")throw new Error("Canonical Cloudflare D1 binding unavailable");
   return db;
 }
 function runtime(){return createD1BlueprintServerRuntime(nativeBinding(),resolveGitHubPublicationToken,workerBuildRevision);}
 export function runWithD1WorkerRuntime<T>(binding:D1CanonicalBinding,callback:()=>T):T {
-  if(binding!==nativeBinding())throw Error("Conflicting native D1 binding");
+  // Cloudflare may expose distinct proxies for the same native capability.
+  // The native env remains the sole authoritative source; the supplied host
+  // binding is only checked for presence, never used to select a database.
+  if(!binding||typeof binding.prepare!=="function"||typeof binding.batch!=="function")throw Error("Invalid D1 host binding");
   return scope.run(runtime(),callback);
 }
 export function hasD1WorkerRuntime():boolean {
