@@ -152,26 +152,26 @@
     {
       "path": "packages/persistence/src/professional-review-repository.ts",
       "scope": "2 methods",
-      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
-      "candidate": "experiments/d1-publication/d1-log-store.ts"
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/professional-review-repository.ts"
     },
     {
       "path": "packages/persistence/src/workflow-execution-authority-repository.ts",
       "scope": "5 methods",
-      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
-      "candidate": "experiments/d1-publication/d1-log-store.ts"
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/workflow-execution-authority-repository.ts"
     },
     {
       "path": "packages/runtime/src/workflow-execution-journal.ts",
       "scope": "3 methods",
-      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
-      "candidate": "experiments/d1-publication/d1-log-store.ts"
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/runtime/src/d1/workflow-execution-journal.ts"
     },
     {
       "path": "packages/runtime/src/workflow-inspection-qa-journal.ts",
       "scope": "2 methods",
-      "state": "CANDIDATE_SQL_LAYER_TESTED_TYPED_ADAPTER_PENDING",
-      "candidate": "experiments/d1-publication/d1-log-store.ts"
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/runtime/src/d1/workflow-inspection-qa-journal.ts"
     },
     {
       "path": "apps/web/src/auth/server-actor.ts",
@@ -235,5 +235,10 @@
     "skipped": 0,
     "includesP0": 8,
     "engine": "Node22.16.0 SQLite"
+  },
+  "sharedCanonicalCodecs": {
+    "path": "packages/persistence/src/constitution-codecs.ts",
+    "sourceBlob": "bc118084e15be59531bc579e936bc4928a1ecb27",
+    "status": "EXTRACTED_UNCHANGED_READ_VALIDATION_FULL_INTEGRATION_PENDING"
   }
 }
