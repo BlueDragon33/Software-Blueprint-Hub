@@ -6,7 +6,7 @@ const proposal=readFileSync(new URL("../../docs/amendments/ACTIVE-NEXT-ACTION-CH
 const instructions=readFileSync(new URL("../../docs/UANA-CHATGPT-PROJECT-INSTRUCTIONS.v2.md",import.meta.url),"utf8");
 const active=readFileSync(new URL("../../docs/UNIVERSAL-CONSTITUTION.md",import.meta.url),"utf8");
 const version=JSON.parse(readFileSync(new URL("../../control/universal-constitution-version.json",import.meta.url),"utf8"));
-test("candidate never changes active 1.3.0 authority",()=>{assert.equal(contract.status,"PROPOSED_ONLY");assert.ok(["1.3.0","1.4.0"].includes(version.policyVersion));assert.equal(contract.authority.basePolicyVersion,"1.3.0");assert.equal(contract.authority.targetPolicyVersion,null);assert.equal(contract.authority.ratificationRecord,null);assert.equal(contract.release.claimActive,false);assert.match(active,/Status: \*\*ACTIVE UNIVERSAL LAW\*\*/);});
+test("candidate never changes active 1.3.0 authority",()=>{assert.equal(contract.status,"PROPOSED_ONLY");assert.ok(["1.3.0","1.4.0","1.5.0"].includes(version.policyVersion));assert.equal(contract.authority.basePolicyVersion,"1.3.0");assert.equal(contract.authority.targetPolicyVersion,null);assert.equal(contract.authority.ratificationRecord,null);assert.equal(contract.release.claimActive,false);assert.match(active,/Status: \*\*ACTIVE UNIVERSAL LAW\*\*/);});
 test("all 12 proposed refinements have dedicated textual content",()=>{assert.equal(contract.requirementIds.length,12);assert.equal(new Set(contract.requirementIds).size,12);for(const id of contract.requirementIds)assert.match(proposal,new RegExp("\\b"+id+"\\b"));});
 test("one-click direct action is not a copy or guaranteed host installation",()=>{const [cta]=contract.actions;assert.equal(cta.kind,"host-new-user-turn");assert.equal(cta.requiresUserGesture,true);assert.equal(cta.requiresNativeCopy,false);assert.equal(cta.grantsAuthority,false);assert.equal(contract.scope.hostButtonInstallationByRepository,false);assert.equal(contract.scope.externalHubCanSendChatTurn,false);assert.match(instructions,/GitHub commit cannot install buttons/);});
 test("advanced panel is optional with two scoped streams",()=>{assert.equal(contract.operations.noMandatoryForm,true);assert.equal(contract.operations.optionalAdvanced,true);assert.deepEqual(contract.streams,["existing-canonical-work","optional-proposed-addition"]);assert.equal(contract.actions[1].kind,"local-expand");});
@@ -29,7 +29,7 @@ const c=JSON.parse(read("control/candidates/active-next-action-chat-ui.v2.json")
 const p=c.presentation;
 const doc=read("docs/design/constitutional-navigation-support-standard.v1.candidate.md");
 const activeVersion=JSON.parse(read("control/universal-constitution-version.json"));
-test("candidate preserves active authority",()=>{assert.equal(c.status,"PROPOSED_ONLY");assert.ok(["1.3.0","1.4.0"].includes(activeVersion.policyVersion));assert.equal(activeVersion.productionReleaseAuthority,false);assert.equal(c.authority.productionAuthority,false);assert.equal(c.authority.ratificationRecord,null);assert.equal(c.authority.claimActive,false);});
+test("candidate preserves active authority",()=>{assert.equal(c.status,"PROPOSED_ONLY");assert.ok(["1.3.0","1.4.0","1.5.0"].includes(activeVersion.policyVersion));assert.equal(activeVersion.productionReleaseAuthority,false);assert.equal(c.authority.productionAuthority,false);assert.equal(c.authority.ratificationRecord,null);assert.equal(c.authority.claimActive,false);});
 test("two focused controls and no repeated report",()=>{assert.deepEqual(p.defaultVisibleActions,["Theo Hiến pháp","Tạo prompt tiếp theo"]);assert.equal(p.summary,"ONE_NEXT_ACTION_ONLY");assert.equal(p.repeatReportMetadata,false);assert.equal(p.defaultExpanded,false);assert.equal(p.defaultPriority,"P0_FIRST");});
 test("optional input, no forced wizard",()=>{assert.equal(p.optionalCustomRequirement,true);assert.equal(p.maxCustomRequirementLength,2000);assert.equal(p.mandatoryCheckbox,false);assert.deepEqual(p.conditionalActions,["Sao chép","Thực hiện tiếp"]);});
 test("preview copy close cannot send; explicit gesture",()=>{for(const k of ["previewSends","closeSends","copySends"])assert.equal(p[k],false);assert.equal(p.sendRequiresExplicitGesture,true);});
@@ -148,6 +148,31 @@ test("R34–R38 successor is a complete inactive eight-path candidate preserving
  assert.equal(nd.slice(0,nd.indexOf("### 10.R34")).replace("**1.5.0**","**1.4.0**"),od.slice(0,od.indexOf("## 11.")));
  assert.deepEqual(n.navigationSupport.modes,["ONE_STEP","ONE_PACKAGE","UNTIL_REQUIRED_GATE","FINISH_PRODUCT"]);
  assert.equal(n.productCompletion.automaticMerge,false);assert.equal(n.productCompletion.automaticPublication,false);assert.equal(n.operationalExecution.scheduleIsRunnerProof,false);assert.equal(n.policyPublication.proposalIsActive,false);
- assert.ok(["1.3.0","1.4.0"].includes(JSON.parse(read("control/universal-constitution-version.json")).policyVersion));
+ assert.ok(["1.3.0","1.4.0","1.5.0"].includes(JSON.parse(read("control/universal-constitution-version.json")).policyVersion));
  console.log("[constitution-1.5-successor] INACTIVE_CONTENT_VERIFIED",a.authoritySetDigest);
+});
+
+import {buildProductCompletionPublicationCandidate} from "../../scripts/check-constitution-1.5-candidate.mjs";
+test("1.5 predecessor gating and historical 1.3/1.4 replay verify both seals",()=>{
+ const root=mkdtempSync(join(tmpdir(),"r38-activation-"));
+ try{
+  const prior=buildNavigationPublicationCandidate();
+  const successor=buildProductCompletionPublicationCandidate();
+  assert.equal(successor.descriptor.status,activeVersion.policyVersion==="1.3.0"?"PREDECESSOR_NOT_ACTIVE":activeVersion.policyVersion==="1.4.0"?"INACTIVE_CANDIDATE_VERIFIED":"ACTIVE_AUTHORITY_SET_VERIFIED");
+  assert.equal(successor.descriptor.publication,"NOT_ASSERTED");
+  const write=(p,b)=>{const file=join(root,p);mkdirSync(dirname(file),{recursive:true});writeFileSync(file,b);};
+  for(const p of [prior.profile.patchPath,successor.profile.patchPath,"docs/amendments/CONSTITUTION-1.3-PUBLICATION.patch","docs/amendments/CONSTITUTION-1.3-AGENT-CHANGE-RELIABILITY.md","docs/amendments/CONSTITUTION-UI-CONTRAST-20261008-PROPOSAL.md"])write(p,read(p));
+  for(const [p,b] of Object.entries(prior.files))write(p,b);
+  assert.equal(buildProductCompletionPublicationCandidate(root).descriptor.status,"INACTIVE_CANDIDATE_VERIFIED");
+  for(const [p,b] of Object.entries(successor.files))write(p,b);
+  assert.equal(buildProductCompletionPublicationCandidate(root).descriptor.status,"ACTIVE_AUTHORITY_SET_VERIFIED");
+  const h=buildNavigationPublicationCandidate(root);
+  assert.equal(h.descriptor.status,"HISTORICAL_AUTHORITY_SET_VERIFIED");
+  assert.equal(h.attestation.authoritySetDigest,prior.attestation.authoritySetDigest);
+  assert.equal(buildConstitutionCandidate(root).activePolicyVersion,"1.5.0");
+  const path="packages/application/src/constitution-authority.ts";
+  write(path,successor.files[path]+"\n// drift outside patch\n");
+  assert.throws(()=>buildProductCompletionPublicationCandidate(root),/blob seal mismatch/);
+  assert.throws(()=>buildConstitutionCandidate(root),/blob seal mismatch/);
+ }finally{rmSync(root,{recursive:true,force:true});}
 });
