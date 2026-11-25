@@ -17,7 +17,18 @@ const sha=process.env.EXPECTED_CANDIDATE_REVISION;
 assert.match(sha,/^[a-f0-9]{40}$/);
 const contents=files.map(f=>readFileSync(f,"utf8"));
 const proof={main:cfg.main,modules:files.length,shaModules:contents.filter(s=>s.includes(sha)).length,nativeModules:contents.filter(s=>s.includes("Canonical Cloudflare D1 binding unavailable")).length,hostModules:contents.filter(s=>s.includes("Canonical persistence unavailable")).length};
-console.log("WORKER_BUNDLE_PROOF",JSON.stringify(proof));
+// plugin-rsc 0.5.26 emits literal cross-environment .js imports.
+assert.equal(cfg.main,"index.js","RSC entry extension mismatch");
+assert.ok(existsSync(resolve(dirname(path),"ssr/index.js")),"SSR entry extension mismatch");
+let edges=0;
+for(let i=0;i<files.length;i++){
+  for(const m of contents[i].matchAll(/import\(\s*["'](\.{1,2}\/[^"']*index\.js)["']\s*\)/g)){
+    assert.ok(existsSync(resolve(dirname(files[i]),m[1])), "Missing cross-environment entry "+m[1]);
+    edges++;
+  }
+}
+assert.ok(edges>0,"No cross-environment import verified");
+console.log("WORKER_BUNDLE_PROOF",JSON.stringify({...proof,verifiedEntryEdges:edges}));
 assert.ok(proof.nativeModules>0,"native D1 module missing from bundle");
 assert.ok(proof.hostModules>0,"host entry missing from bundle");
 assert.ok(proof.shaModules>0,"compiled exact revision missing");

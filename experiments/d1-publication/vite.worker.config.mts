@@ -33,6 +33,13 @@ export default defineConfig({
      preview_urls:false,
      vars:{BLUEPRINT_PERSISTENCE_PROVIDER:"d1"},
      d1_databases:[{binding:"BLUEPRINT_CANONICAL_DB",database_name:"blueprint-d1-local-qa",database_id:"00000000-0000-0000-0000-000000000003",remote:false}]
-   },viteEnvironment:{name:"rsc",childEnvironments:["ssr"]},inspectorPort:false})
+   },viteEnvironment:{name:"rsc",childEnvironments:["ssr"]},inspectorPort:false}),
+   // @vitejs/plugin-rsc 0.5.26 loadModule hardcodes targetName + ".js".
+   // Cloudflare output otherwise uses .mjs; align both environments at
+   // compilation, rather than editing or copying a compiled Worker module.
+   {name:"blueprint-rsc-entry-extension",enforce:"post",outputOptions(options){
+     if(this.environment.name!=="rsc"&&this.environment.name!=="ssr")return null;
+     return {...options,entryFileNames:"[name].js"};
+   }}
  ]
 });
