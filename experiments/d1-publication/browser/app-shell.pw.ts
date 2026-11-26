@@ -52,6 +52,21 @@ async function openWorkspaceView(page: Page, label: string) {
   await link.click();
 }
 
+// Safe local fixture state classification on failure; never print page content,
+ // cookie values, URLs or identity information.
+test.afterEach(async ({page}, info) => {
+  if (info.status === info.expectedStatus) return;
+  const known = [
+    ["REGISTRY_UNAVAILABLE", "Project registry is temporarily unavailable."],
+    ["PORTFOLIO_UNAVAILABLE", "Authority-filtered registry could not be projected."],
+    ["SIGNED_OUT", "Đăng nhập để mở trung tâm ứng dụng."]
+  ] as const;
+  for (const [code, heading] of known) {
+    if (await page.getByRole("heading", {name:heading,exact:true}).isVisible().catch(()=>false)) {
+      console.error("D1_BROWSER_FAILURE_STATE: " + code);
+    }
+  }
+});
 const registryAlphaName = "Registry Alpha canonical";
 const registryBetaName = "Registry Beta canonical";
 
