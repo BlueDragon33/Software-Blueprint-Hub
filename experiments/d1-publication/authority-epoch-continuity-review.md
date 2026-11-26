@@ -126,3 +126,113 @@ to already-authorized non-destructive engineering; storage >=50% alert
 policy is independent. The helper quarantine remains effective. An Owner
 request should not be repeatedly solicited once recorded; only a new
 material decision or evidence warrants another notification.
+
+## Owner request received — prospective foundation review packet v1
+
+Issue #159 comment 7200334604, authored by GitHub BlueDragon33 (account
+ID 297152795 corroborated by current connector identity), contains the
+explicit engineering request for this packet. GitHub attribution is
+observed; a personal human action cannot be proven from comment metadata
+alone. It is not a canonical principal, recovery grant, approval of a
+foundation, or ratification. No second request of this type is needed.
+
+### Decision record (draft; no operational rights)
+
+- Existing-law route: NOT_ADMITTED. The historical identity observation
+  in PR #154 is relevant but no complete canonical data or current
+  revocation-valid recovery instrument is available in the inspected
+  evidence. The Owner request does not cure that deficiency.
+- Prospective route: PROPOSED_NOT_ADOPTED. If separately constituted,
+  a new governance foundation would be prospective, never an old-law
+  amendment, migration, restored grant, or retroactive validation.
+- Status of old history: PRESERVED_UNAVAILABLE / NOT_MIGRATED. Retain
+  exact Git evidence, sealed artifacts and historical database; identify
+  unavailable principals, grants/revocations, ratifications, publications,
+  issuer/adoption decisions, work packages, gates and claims as unknown,
+  not zero. No deletion, overwrite or invented historical records.
+- Current law remains 1.3.0; 1.4 and 1.5 remain candidate content.
+  Preserve R33 Full Gate 45475370038 and successor evidence, but do
+  not transfer acceptance to a changed authority mechanism.
+
+### Prospective foundation — minimum charter for independent review
+
+1. Establish legitimate foundational authority independently of the
+   candidate being reviewed. Verify the proprietor's current control
+   and mandate using an authenticated, challenge-bound channel and an
+   independently validated witness or other externally established trust
+   anchor; record provenance, scope, validity and revocation policy.
+   Repository control alone is insufficient to assert old-law continuity.
+   If legitimacy for a new foundation cannot be established, stop.
+2. Before any adoption, present an exact versioned charter containing
+   the proposed authority model, new epoch identifier, explicit break in
+   continuity, unavailable-history register, no inherited grants,
+   separate reviewer/release roles, recovery/revocation rules, and rollback
+   and data-retention boundaries. Bind the independent A and B verdicts
+   and the proprietor's separate authenticated decision to its digest and
+   candidate SHA. Reject any missing, stale or mismatched verdict.
+3. Only after valid foundation adoption and explicit authorization for
+   implementation, design a prospective initialization transaction in
+   the already-existing isolated D1 target. No direct SQL to assert
+   authority; no bootstrap via helper, no reuse of a historic principal
+   ID or credential. Each principal and grant must be established afresh
+   under the adopted foundation. Bind nonce, expiry, issuer, epoch and
+   idempotency; journal append-only; reject replay and cross-epoch grants.
+   Require exact candidate and target preflight, separate execution
+   approval, actual rollback evidence and independent readback.
+4. Distinguish the new foundation's baseline and subsequent publication
+   process explicitly from the old 1.3 -> 1.4 -> 1.5 continuity path.
+   Do not assume the old version chain can be lawfully replayed in the
+   new epoch. Independently review adoption of the preserved policy
+   content and transition semantics before any claim of ACTIVE 1.5.0.
+   No automatic adoption by projects; each must establish current grant
+   and verify exact digest through its legitimate adoption contract.
+
+### Acceptance matrix — specifications, NOT executed tests
+
+| ID | Adversarial case / acceptance condition | Expected outcome |
+| --- | --- | --- |
+| RCV-01 | GitHub comment or repository admin alone claims old Owner | DENY continuity |
+| RCV-02 | Historical identity lead without current validity/revocation evidence | DENY continuity |
+| RCV-03 | No independent foundational mandate or mismatched challenge/digest | DENY foundation adoption |
+| RCV-04 | Reviewer A/B same actor or absent/stale exact-head verdict | DENY admission |
+| RCV-05 | Unavailable historic row interpreted as absent or fabricated | DENY migration/adoption |
+| RCV-06 | Replay, expired nonce, wrong epoch/target or revoked issuer | DENY, no mutation |
+| RCV-07 | Duplicate or interrupted authorized transaction | At most one journaled result; safe retry |
+| RCV-08 | Historical grant or publication used as new-epoch approval | DENY |
+| RCV-09 | Target not isolated, binding inventory incomplete, rollback unproven | DENY execution |
+| RCV-10 | Correct new-foundation inputs without separate release approval | No publication/promotion |
+| RCV-11 | No-loss audit: old data untouched, prior seal unchanged, new decisions traceable | Independent readback required |
+| RCV-12 | Policy activation/adoption claimed without live exact-version/digest proof | DENY claim |
+
+### C2 and reviewer work in parallel
+
+Keep C2 PARTIAL. The existing target D1 and retained bundle do not
+prove exclusivity for all older Worker versions. Obtain source-bound
+provider inventory of current and still-deployable historical versions,
+bindings, routes, Access controls and rollback version. If the API
+cannot expose enough evidence, document exact missing fields and
+versions; request an independently reviewed change of admission scope
+if justified, rather than silently treating current bindings as complete.
+Do not upload, promote, create new resources, delete versions or revisit
+a legacy provider to obtain this evidence. Do not rerun sealed P1 QA.
+
+Reviewer A: independently evaluate C0/C1 legitimacy, trust anchors,
+scope separation, C2 proof completeness, replay/transaction/rollback
+criteria and unchanged seals. Reviewer B: independently evaluate whether
+the prospective charter satisfies the Owner's Cloudflare-only,
+ZERO-SPEND and no-data-loss requirements, intelligible disclosures,
+recovery UX and usable decision path. Both should cite exact SHA, state
+identity and role provenance, and return findings with explicit PASS,
+FAIL or INSUFFICIENT_EVIDENCE per scope; advisory review is not an
+authenticated runtime verdict. No verdict is pre-populated.
+
+### Next required human decision (only after independent review)
+
+If continuity evidence arrives, assess it under the existing protocol.
+Otherwise present the prospective charter and exact independent findings
+to the legitimate proprietor for separate APPROVE_FOUNDATION_DESIGN or
+REJECT. Approval of design alone authorizes further candidate work only,
+not adoption or execution. Actual foundation adoption requires the
+independently established authority and digest-bound decision described
+above. Do not request this decision before the review packet is assessed.
+The helper stays quarantined and C0/C1 remain AUTHORITY_REQUIRED.
