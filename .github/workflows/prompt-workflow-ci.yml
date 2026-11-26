@@ -46,6 +46,12 @@ on:
       - "apps/web/app/projects/**/prompt/**"
       - "tests/web/workflow-studio.test.tsx"
       - "prompt-workflows/**"
+      - "experiments/d1-publication/**"
+      - "packages/persistence/d1/**"
+      - "packages/persistence/src/d1/**"
+      - "packages/runtime/src/d1/**"
+      - "apps/web/worker/**"
+      - "apps/web/src/server/runtime.cloudflare.ts"
       - ".github/workflows/prompt-workflow-ci.yml"
   workflow_dispatch:
 
@@ -76,6 +82,9 @@ jobs:
       - name: Install isolated locked D1 QA tools (local only)
         if: github.event.pull_request.number == 183
         run: npm ci --prefix experiments/d1-publication --no-audit --no-fund
+      - name: Verify browser fixture dependency and discovery
+        if: github.event.pull_request.number == 183
+        run: pnpm exec playwright test --config experiments/d1-publication/playwright.d1.config.mts --list
       - name: Actual ephemeral workerd D1 and request scope gate
         if: github.event.pull_request.number == 183
         run: |
