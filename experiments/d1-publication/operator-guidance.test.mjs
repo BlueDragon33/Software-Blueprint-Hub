@@ -1,0 +1,16 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {mkdtempSync,rmSync,readdirSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+const script=fileURLToPath(new URL('./prepare-remote-candidate.mjs',import.meta.url));
+const run=(args,cwd)=>spawnSync(process.execPath,[script,...args],{cwd,encoding:'utf8'});
+const blocked=(r,code)=>{assert.equal(r.status,2);assert.equal(r.stdout,'');assert.match(r.stderr,new RegExp('BLOCKED \\['+code+'\\]'));assert.match(r.stderr,/No configuration or authority issued/);assert.doesNotMatch(r.stderr,/\n\s+at |Node\.js v|spawnSync|SECRET_SENTINEL/);};
+test('operator finds help without opening any input files',()=>{const r=run(['--help']);assert.equal(r.status,0);assert.equal(r.stderr,'');assert.match(r.stdout,/read-only, quarantined/);assert.match(r.stdout,/No configuration, grant, upload, or publication/);assert.match(r.stdout,/Do not submit credentials or repeat Owner request/);});
+test('operator distinguishes candidate status from live status',()=>{const r=run(['--status']);assert.equal(r.status,0);assert.equal(r.stderr,'');assert.match(r.stdout,/CANDIDATE_QUARANTINED/);assert.match(r.stdout,/C2 live status unverified/);assert.match(r.stdout,/No config or authority issued/);});
+for(const args of [[],['--bogus'],['--help','SECRET_SENTINEL'],['--status','SECRET_SENTINEL'],['one'],['one','two','SECRET_SENTINEL'],['--bogus','SECRET_SENTINEL']])test('invalid invocation '+JSON.stringify(args),()=>blocked(run(args),'USAGE'));
+test('absent checkout gives actionable bounded error without path/stack',()=>blocked(run([join(tmpdir(),'absent-SECRET_SENTINEL-checkout'),'SECRET_SENTINEL']),'CHECKOUT_UNAVAILABLE'));
+test('non-git checkout gives no raw git stderr or writes',()=>{const d=mkdtempSync(join(tmpdir(),'recovery-qa-'));try{blocked(run([d,'SECRET_SENTINEL']),'CHECKOUT_UNAVAILABLE');assert.deepEqual(readdirSync(d),[]);}finally{rmSync(d,{recursive:true,force:true});}});
+test('wrong git revision denies before reading evidence or generating files',()=>{const d=mkdtempSync(join(tmpdir(),'recovery-qa-'));try{assert.equal(spawnSync('git',['init','-q',d]).status,0);assert.equal(spawnSync('git',['-C',d,'-c','user.name=QA','-c','user.email=qa@example.invalid','commit','--allow-empty','-qm','synthetic']).status,0);blocked(run([d,'SECRET_SENTINEL']),'CHECKOUT_MISMATCH');assert.deepEqual(readdirSync(d),['.git']);}finally{rmSync(d,{recursive:true,force:true});}});
