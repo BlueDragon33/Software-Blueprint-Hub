@@ -1,0 +1,62 @@
+import {createHash,generateKeyPairSync} from "node:crypto";
+import {describe,it,expect,beforeEach,afterEach} from "vitest";
+import {newD1Fixture} from "../d1-fixture";
+import {D1PromptProjectionHistoryRepository,D1WorkflowExecutionAuthorityRepository,D1SsoStore} from "../../../packages/persistence/src/d1";
+import {D1WorkflowExecutionJournal} from "../../../packages/runtime/src/d1/workflow-execution-journal";
+import {D1WorkflowInspectionQaJournal,INDEPENDENT_INSPECTION_VERIFIER_ID} from "../../../packages/runtime/src/d1/workflow-inspection-qa-journal";
+const projectId="project:d1-actual-parity",workflowId="d1-workflow-parity",digest="sha256:"+"a".repeat(64);
+describe("D1 typed prompt, workflow, independent QA and SSO ports",()=>{
+ let f:Awaited<ReturnType<typeof newD1Fixture>>;
+ beforeEach(async()=>{f=await newD1Fixture();await f.db.prepare('INSERT INTO "Project"(id) VALUES(?)').bind(projectId).run();},15000);
+ afterEach(async()=>{await f?.dispose();});
+ it("retains validated prompt history with ordering, pagination, duplicate refusal and scope",async()=>{
+  const repo=new D1PromptProjectionHistoryRepository(f.domain);
+  const content="# Fixture prompt\nTest only.",hash="sha256:"+createHash("sha256").update(content).digest("hex");
+  const a={id:"prompt-projection:"+"b".repeat(32),projectId,sourceRevision:digest,templateVersion:"execution-prompt:v1",generatedAt:"2026-11-25T00:00:00.000Z",content,contentHash:hash};
+  const b={...a,generatedAt:"2026-11-25T00:01:00.000Z"};
+  await repo.record(a);await repo.record(b);
+  expect(await repo.listByProject(projectId,{limit:1,offset:1})).toEqual([a]);
+  expect(await repo.listByProject("project:other")).toEqual([]);
+  await expect(repo.record(a)).rejects.toThrow();
+  await expect(repo.listByProject(projectId,{limit:102})).rejects.toThrow();
+ });
+ it("validates signed issuer type, serializes revocation and refuses non-owner append",async()=>{
+  const repo=new D1WorkflowExecutionAuthorityRepository(f.logs);
+  const publicKeyPem=generateKeyPairSync("ed25519").publicKey.export({type:"spki",format:"pem"}).toString();
+  const base={projectId,workflowId,policyVersion:"1.3.0",actorPrincipalId:f.admin.principalId};
+  const other=await f.authority.resolveIdentity({provider:"github",providerSubject:"fixture-nonowner"});
+  await expect(repo.recordAdoption({...base,actorPrincipalId:other.id,workflowDigest:digest,decision:"adopt"})).rejects.toThrow();
+  expect(await repo.latestAdoption(projectId,workflowId,digest)).toBeNull();
+  await repo.recordAdoption({...base,workflowDigest:digest,decision:"adopt"});
+  await repo.recordIssuer({...base,issuerId:"fixture-issuer",publicKeyPem,decision:"allow"});
+  expect((await repo.currentAllowedIssuers(projectId,workflowId)).size).toBe(1);
+  await repo.recordIssuer({...base,issuerId:"fixture-issuer",publicKeyPem,decision:"revoke"});
+  await repo.recordAdoption({...base,workflowDigest:digest,decision:"revoke"});
+  expect(await repo.latestAdoption(projectId,workflowId,digest)).toMatchObject({decision:"revoke"});
+  expect((await repo.currentAllowedIssuers(projectId,workflowId)).size).toBe(0);
+  await expect(f.db.prepare('DELETE FROM "WorkflowExecutionAdoptionDecision"').run()).rejects.toThrow(/append-only/);
+  expect((await f.db.prepare('SELECT count(*) n FROM "WorkflowExecutionAdoptionDecision" WHERE "productionReleaseAuthority"!=0').first()).n).toBe(0);
+ });
+ it("durable typed journals reject replay, forged evidence and independent QA without matching observation",async()=>{
+  const journal=new D1WorkflowExecutionJournal(f.logs),qa=new D1WorkflowInspectionQaJournal(f.logs);
+  const requestId="sha256:"+"c".repeat(64),expiry="2099-01-01T00:00:00.000Z";
+  expect(await journal.claim(requestId,expiry)).toBe(true);expect(await journal.claim(requestId,expiry)).toBe(false);
+  const row={attempt:1,outcome:"succeeded" as const,observationDigest:digest,evidenceReferences:["github:fixture-readback"],filesTouched:[],tokensUsed:0};
+  const verification={requestId,attempt:1,observationDigest:digest,sourceRevision:"b".repeat(40),verifierId:INDEPENDENT_INSPECTION_VERIFIER_ID,verifiedFiles:1};
+  await expect(qa.appendVerified(verification)).rejects.toThrow();
+  await journal.append(requestId,row);await expect(journal.append(requestId,row)).rejects.toThrow();
+  await qa.appendVerified(verification);expect(await qa.readVerified(requestId,1)).toEqual(verification);
+  expect(await journal.read(requestId)).toEqual({claimed:true,attempts:[row]});
+  await expect(journal.append(requestId,{...row,attempt:2,outcome:"runner-error"})).rejects.toThrow();
+ });
+ it("SSO immutable link and exact owner proof cannot be overwritten",async()=>{
+  const sso=new D1SsoStore(f.binding),owner=await sso.currentOwner();expect(owner?.id).toBe(f.admin.principalId);
+  await expect(sso.linkExistingOwner("fixture-sub",owner!.id,owner!.provider,"wrong")).rejects.toThrow();
+  expect(await sso.findLink("fixture-sub")).toBeNull();
+  await sso.linkExistingOwner("fixture-sub",owner!.id,owner!.provider,owner!.providerSubject);
+  expect(await f.logs.linkedPrincipal("application-management","fixture-sub",owner!.id)).toBe(owner!.id);
+  await f.db.prepare('UPDATE "AppManagementSsoLink" SET "revokedAt"=?').bind("2026-11-25T00:00:00.000Z").run();
+  expect(await f.logs.linkedPrincipal("application-management","fixture-sub",owner!.id)).toBeNull();
+  await expect(sso.linkExistingOwner("fixture-sub",owner!.id,owner!.provider,owner!.providerSubject)).rejects.toThrow();
+ });
+});

@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "56b1403384539b5ccb88930fdf6cd64a99d75a08",
+  "sourceMigrations": [
+    {
+      "name": "20260925090000_fnd003_init",
+      "blob": "f2a85f1501664a88e4747911d86fa920c20f4070"
+    },
+    {
+      "name": "20260925100000_fnd004_identity_authority",
+      "blob": "0465ccbfd8962ff3ae15e90bbf8c841f6de2404a"
+    },
+    {
+      "name": "20260925183000_fnd007_work_quality",
+      "blob": "7fd549d051e7d2a474e77cdaf5229b455b27f324"
+    },
+    {
+      "name": "20260925233000_p6_004_governance_state",
+      "blob": "dd8f968a12ab378eda6281b35f4ef3a55e0d14c2"
+    },
+    {
+      "name": "20260926004000_p6_006_release_lessons",
+      "blob": "1ae6fa1339b4c2cd49e270ad721e44445c803b32"
+    },
+    {
+      "name": "20260926013000_p6_007_prompt_history",
+      "blob": "64b89f4999761239dcd304603afbda0433030ba1"
+    },
+    {
+      "name": "20260927130000_p9_019_human_professional_review_decision",
+      "blob": "3c29f8cd79af6743a0ba61adb5e47291767b364c"
+    },
+    {
+      "name": "20260928080000_ca002_constitution_authority",
+      "blob": "566ab93bcb703248693ff2e820e4822393a93ae7"
+    },
+    {
+      "name": "20260928093000_ca004_constitution_publication",
+      "blob": "af1af172d81c75d760fa3596b39e4c2c40320ce4"
+    },
+    {
+      "name": "20261013124900_phase5c_workflow_execution_journal",
+      "blob": "58029ac9782c06fe522b984e1936c0aa992dfeb6"
+    },
+    {
+      "name": "20261014160000_appmanage_sso_identity_link",
+      "blob": "80b344fcc53cb429717d12b2f24cce6fbe4b3a71"
+    },
+    {
+      "name": "20261015150000_phase5d_independent_qa_verification",
+      "blob": "2aaea9fce96cf9ee9d35d8ac8a9840514cb9392b"
+    },
+    {
+      "name": "20261015190000_execution_journal_append_only",
+      "blob": "06451053ac212cd661e6c4b6060bf48e3bede79e"
+    },
+    {
+      "name": "20261015211000_workflow_execution_authority",
+      "blob": "b8d399954fe2db856a2048c36e9670e31d131172"
+    }
+  ],
+  "tables": [
+    "Project",
+    "ProjectProfile",
+    "Principal",
+    "SystemBootstrap",
+    "ProjectAuthority",
+    "AuthorityAuditEvent",
+    "WorkPackage",
+    "QualityGate",
+    "GateEvidence",
+    "ArchitectureDecision",
+    "Risk",
+    "TechnicalDebt",
+    "ReleaseRecord",
+    "LessonLearned",
+    "PromptProjectionSnapshot",
+    "HumanProfessionalReviewDecision",
+    "ConstitutionAmendment",
+    "ConstitutionAmendmentRevision",
+    "ConstitutionEvidence",
+    "ConstitutionRatificationDecision",
+    "ConstitutionPublication",
+    "WorkflowExecutionClaim",
+    "WorkflowExecutionObservation",
+    "AppManagementSsoLink",
+    "WorkflowExecutionQaVerification",
+    "WorkflowExecutionAdoptionDecision",
+    "WorkflowExecutionIssuerDecision"
+  ],
+  "foreignKeysFromAlter": 29,
+  "indexes": 59,
+  "localSchemaStatus": "SQLITE_EXACT_BLOB_VALIDATED",
+  "runtimeAdmission": false,
+  "schemaEvidence": {
+    "gitBlob": "8cab685780d59f607f9c1c6217aee6ab0bfbb4a7",
+    "sha256": "6208ea7b05db58673e1aea0d2911f2164f78e02c892473b9b4e076ec372ef0f7",
+    "engine": "Node 22.16.0 node:sqlite",
+    "canonicalTables": 27,
+    "internalGuardTables": 1,
+    "explicitIndexes": 59,
+    "foreignKeyConstraints": 33,
+    "triggers": 31,
+    "integrityCheck": "ok",
+    "foreignKeyViolations": 0,
+    "localOnly": true,
+    "nullableSsoTimestampRepair": true
+  },
+  "adapterInventory": [
+    {
+      "path": "packages/persistence/src/authority-repository.ts",
+      "scope": "6 methods",
+      "state": "CANDIDATE_SQLITE_TESTED",
+      "candidate": "experiments/d1-publication/d1-authority-repository.mjs"
+    },
+    {
+      "path": "packages/persistence/src/constitution-authority-repository.ts",
+      "scope": "11 methods",
+      "state": "CANDIDATE_SQLITE_TESTED_FIXTURE_CODECS",
+      "candidate": "experiments/d1-publication/d1-constitution-repository.mjs"
+    },
+    {
+      "path": "packages/persistence/src/project-profile-repository.ts",
+      "scope": "5 methods",
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/project-profile-repository.ts"
+    },
+    {
+      "path": "packages/persistence/src/work-quality-repository.ts",
+      "scope": "12 methods",
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/work-quality-repository.ts"
+    },
+    {
+      "path": "packages/persistence/src/governance-repository.ts",
+      "scope": "12 methods",
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/governance-repository.ts"
+    },
+    {
+      "path": "packages/persistence/src/release-repository.ts",
+      "scope": "8 methods",
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/release-repository.ts"
+    },
+    {
+      "path": "packages/persistence/src/prompt-history-repository.ts",
+      "scope": "2 methods",
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/prompt-history-repository.ts"
+    },
+    {
+      "path": "packages/persistence/src/professional-review-repository.ts",
+      "scope": "2 methods",
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/professional-review-repository.ts"
+    },
+    {
+      "path": "packages/persistence/src/workflow-execution-authority-repository.ts",
+      "scope": "5 methods",
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/persistence/src/d1/workflow-execution-authority-repository.ts"
+    },
+    {
+      "path": "packages/runtime/src/workflow-execution-journal.ts",
+      "scope": "3 methods",
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/runtime/src/d1/workflow-execution-journal.ts"
+    },
+    {
+      "path": "packages/runtime/src/workflow-inspection-qa-journal.ts",
+      "scope": "2 methods",
+      "state": "CANDIDATE_TYPED_SOURCE_PORT_SQLITE_LAYER_TESTED",
+      "candidate": "packages/runtime/src/d1/workflow-inspection-qa-journal.ts"
+    },
+    {
+      "path": "apps/web/src/auth/server-actor.ts",
+      "scope": "direct Prisma AppManagementSsoLink and Principal reads",
+      "state": "D1_SSO_SQL_PORT_TESTED_WEB_ROUTE_INTEGRATION_PENDING",
+      "candidate": "experiments/d1-publication/d1-log-store.ts"
+    },
+    {
+      "path": "apps/web/src/server/runtime.ts",
+      "scope": "DATABASE_URL and server-runtime composition",
+      "state": "D1_PROVIDER_COMPOSITION_SOURCE_PREPARED_NOT_SELECTED"
+    }
+  ],
+  "tests": [
+    {
+      "suite": "d1-authority-repository.test.mjs",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "bc1c2dd07e9c57f6c34ed751a705b2e6a4a49e2b",
+      "testBlob": "e193d083226421cecae49d86f120b9e06d70679e"
+    },
+    {
+      "suite": "d1-schema-lifecycle.test.mjs",
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "b22b3451a2a6da9129470490179b8a9409ac1f3d",
+      "testBlob": "f9cb81de0f8cc929d632d2e6cbfeecba3b5b325f"
+    },
+    {
+      "suite": "d1-domain-store.test.mjs",
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "d6e6a95b7422a1479f99dfcff9ddc644aa246b01",
+      "testBlob": "ed6ca1f17de392526096a8eb11cff59e388928c7",
+      "scope": "SQL layer only; standalone tsc with Hub strict/exactOptionalPropertyTypes/noUncheckedIndexedAccess passed; full adapter typecheck and D1 pending"
+    },
+    {
+      "suite": "d1-log-store.test.mjs",
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "20a13ed38a914fe827aebad31aef4d87fbb91ee9",
+      "testBlob": "2733badc25abbd687eea0552a495f5ea2ae8e3d1",
+      "scope": "local SQLite SQL layer; actual D1 pending"
+    },
+    {
+      "suite": "d1-sso-store.test.mjs",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "sourceBlob": "f0ded7390334c94d483044fa910935a52430ccde",
+      "testBlob": "a9b9c8f7a52ceebc78471e76ff433f1fd7d60406",
+      "scope": "local SQLite SQL layer only"
+    }
+  ],
+  "remainingAdmission": [
+    "Share canonical read codecs, typed interface parity and full application integration (fixture codecs never for production).",
+    "Implement remaining repository families and direct persistence accesses; audit query semantics and all transaction boundaries.",
+    "Test actual D1/workerd atomicity, concurrent writes, append-only guards, limits and error mapping; no simulated PASS.",
+    "Review intentional stronger immutable audit/history constraints against PostgreSQL FK cascade/SET NULL behavior; migration timestamp normalization must be explicit.",
+    "Verify existing canonical history/owner before any data migration. No reset, binding or deployment from P1 partial."
+  ],
+  "revisedSchemaRegression": {
+    "tests": 50,
+    "passed": 50,
+    "failed": 0,
+    "skipped": 0,
+    "includesP0": 8,
+    "engine": "Node22.16.0 SQLite"
+  },
+  "sharedCanonicalCodecs": {
+    "path": "packages/persistence/src/constitution-codecs.ts",
+    "sourceBlob": "bc118084e15be59531bc579e936bc4928a1ecb27",
+    "status": "SHARED_IN_D1_COMPOSITION_SOURCE_INTEGRATION_QA_PENDING"
+  },
+  "providerComposition": {
+    "path": "packages/runtime/src/d1/index.ts",
+    "state": "CANDIDATE_SOURCE_NOT_SELECTED_BY_WEB_RUNTIME",
+    "providerEntryPoint": "@blueprint-os/runtime/d1",
+    "remaining": [
+      "Authenticated Cloudflare binding selection",
+      "Replace direct Prisma SSO callback/finish/server-actor paths with provider-neutral ports",
+      "Full actual Node24 typecheck and app regressions",
+      "Actual D1/workerd test, build and gate"
+    ]
+  },
+  "additionalDirectPrismaPaths": [
+    "apps/web/app/api/sso/callback/route.ts",
+    "apps/web/app/api/sso/finish/route.ts"
+  ],
+  "workerdGate": {
+    "path": "experiments/d1-publication/d1-workerd-gate.test.mjs",
+    "status": "LOCKED_DEPENDENCY_CANDIDATE_INSTALL_AND_ACTUAL_WORKERD_PENDING",
+    "localEphemeralOnly": true,
+    "notProductionAuthority": true,
+    "dependencyLock": {
+      "path": "experiments/d1-publication/package-lock.json",
+      "sourceRepo": "BlueDragon33/Application-Management",
+      "sourceRevision": "e97df96427cbc03ba5a62cf03cd6cc214340cf90",
+      "sourceBlob": "110f80e067a92a350ec6ce50a7c3913c5570a3d8",
+      "packageCount": 54,
+      "miniflare": "4.20260515.0",
+      "workerd": "1.20260515.1",
+      "installVerified": false
+    }
+  },
+  "localSqlEvidence": {
+    "P0": 8,
+    "P1Previous": 20,
+    "domain": 13,
+    "log": 9,
+    "sso": 3,
+    "total": 53,
+    "scope": "SQLite local tests; revised schema regression 50 plus SSO 3; not workerd"
+  },
+  "p2BindingCaution": "AM local config references same database name with dummy local ID; exclusive live binding not verified"
+}

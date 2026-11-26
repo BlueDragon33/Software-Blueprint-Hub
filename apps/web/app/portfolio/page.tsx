@@ -5,6 +5,7 @@ import { ActionGroup, AppShell, EmptyState, StatusChip } from "@blueprint-os/ui"
 
 import { resolveWebActor } from "../../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../../src/server/runtime";
+import { classifyCanonicalReadFailure } from "../../src/server/runtime-state";
 import { RetryCurrentView } from "../_components/retry-current-view";
 
 export const dynamic = "force-dynamic";
@@ -73,7 +74,8 @@ export default async function PortfolioPage() {
   try {
     const items = await getBlueprintServerRuntime().registry.list(actor);
     projection = buildProjectPortfolioProjection(items);
-  } catch {
+  } catch (error) {
+    classifyCanonicalReadFailure(error);
     return (
       <AppShell>
         <main className="registry-shell portfolio-page">

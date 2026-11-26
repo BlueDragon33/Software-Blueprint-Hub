@@ -4,6 +4,7 @@ import { AppShell } from "@blueprint-os/ui";
 
 import { resolveWebActor } from "../src/auth/server-actor";
 import { getBlueprintServerRuntime } from "../src/server/runtime";
+import { classifyCanonicalReadFailure } from "../src/server/runtime-state";
 import { loadCompassProjection } from "../src/server/compass-projection";
 import { RetryCurrentView } from "./_components/retry-current-view";
 import { SystemCompass } from "./_components/system-compass";
@@ -80,7 +81,8 @@ export default async function HomePage() {
       loadCompassProjection(actor).catch(() => null),
       runtime.authority.canExerciseConstitutionalAuthority(actor)
     ]);
-  } catch {
+  } catch (error) {
+    classifyCanonicalReadFailure(error);
     return (
       <AppShell>
         <main className="registry-shell">

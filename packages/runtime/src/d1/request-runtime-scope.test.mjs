@@ -1,0 +1,10 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createRequestRuntimeScope} from './request-runtime-scope.mjs';
+const pg = Object.freeze({provider:'pg'});
+const d1 = Object.freeze({provider:'d1'});
+test('default and explicit PostgreSQL remain unchanged',()=>{const s=createRequestRuntimeScope();assert.equal(s.select(undefined,()=>pg),pg);assert.equal(s.select('postgres',()=>pg),pg)});
+test('D1 missing context never falls back',()=>{const s=createRequestRuntimeScope();assert.throws(()=>s.select('d1',()=>{assert.fail('fallback')}),/binding is unavailable/)});
+test('unknown and conflicting provider denied',()=>{const s=createRequestRuntimeScope();assert.throws(()=>s.select('auto',()=>pg),/Unsupported/);s.run(d1,()=>assert.throws(()=>s.select('postgres',()=>pg),/conflicts/))});
+test('concurrent asynchronous requests retain isolated D1 context',async()=>{const s=createRequestRuntimeScope(),a={},b={};const delay=()=>new Promise(resolve=>setImmediate(resolve));const values=await Promise.all([s.run(a,async()=>{await delay();return s.select('d1',()=>pg)}),s.run(b,async()=>{await delay();return s.select('d1',()=>pg)})]);assert.equal(values[0],a);assert.equal(values[1],b);assert.equal(s.hasD1Context(),false)});
+test('context not leaked after rejected request and nested context denied',async()=>{const s=createRequestRuntimeScope();await assert.rejects(s.run(d1,async()=>{assert.throws(()=>s.run({},()=>null),/Nested/);throw Error('request failure')}),/request failure/);assert.throws(()=>s.select('d1',()=>pg),/unavailable/)});

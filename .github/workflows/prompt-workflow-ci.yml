@@ -46,6 +46,12 @@ on:
       - "apps/web/app/projects/**/prompt/**"
       - "tests/web/workflow-studio.test.tsx"
       - "prompt-workflows/**"
+      - "experiments/d1-publication/**"
+      - "packages/persistence/d1/**"
+      - "packages/persistence/src/d1/**"
+      - "packages/runtime/src/d1/**"
+      - "apps/web/worker/**"
+      - "apps/web/src/server/runtime.cloudflare.ts"
       - ".github/workflows/prompt-workflow-ci.yml"
   workflow_dispatch:
 
@@ -58,6 +64,9 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.number == 183 && github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: pnpm/action-setup@v6
         with:
           version: 12.4.0
@@ -70,6 +79,20 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Generate Prisma Client for dependent web typecheck
         run: pnpm prisma:generate
+      - name: Install isolated locked D1 QA tools (local only)
+        if: github.event.pull_request.number == 183
+        run: npm ci --prefix experiments/d1-publication --no-audit --no-fund
+      - name: Verify browser fixture dependency and discovery
+        if: github.event.pull_request.number == 183
+        run: |
+          pnpm exec playwright test --config experiments/d1-publication/playwright.d1.config.mts --list --reporter=list | tee "$RUNNER_TEMP/d1-browser-discovery.log"
+          grep -Fx "Total: 72 tests in 2 files" "$RUNNER_TEMP/d1-browser-discovery.log"
+      - name: Actual ephemeral workerd D1 and request scope gate
+        if: github.event.pull_request.number == 183
+        run: |
+          node --experimental-transform-types --test experiments/d1-publication/d1-workerd-gate.test.mjs
+          node --test packages/runtime/src/d1/request-runtime-scope.test.mjs
+          node --test experiments/d1-publication/d1-worker-host.test.mjs
       - name: Validate workflow manifests
         run: pnpm check:prompts
       - name: Workflow graph adversarial tests
@@ -86,3 +109,42 @@ jobs:
         run: pnpm exec vitest run --config tests/web/workflow-studio.vitest.config.mts
       - name: Vietnamese launcher, app grouping and no-invented-deployment tests
         run: pnpm exec vitest run tests/application/hub-app-directory.test.ts tests/application/appmanage-sso.test.ts
+      - name: Exact clean production build (D1 candidate, no deploy)
+        if: github.event.pull_request.number == 183
+        env:
+          BLUEPRINT_LOCAL_PUBLICATION: "true"
+          EXPECTED_CANDIDATE_REVISION: ${{ github.event.pull_request.head.sha }}
+          DATABASE_URL: postgresql://blueprint:blueprint@127.0.0.1:5432/build_only
+          AUTH_SECRET: build-only-not-an-authenticated-runtime-fixture
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_CANDIDATE_REVISION"
+          git status --porcelain=v1 --untracked-files=all
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          pnpm --filter @blueprint-os/web exec next build --webpack
+          node --input-type=module -e 'import assert from "node:assert/strict"; import {readFileSync} from "node:fs"; const build=JSON.parse(readFileSync("apps/web/.next/required-server-files.json","utf8")); assert.equal(build.config.env.BLUEPRINT_LOCAL_RUNTIME_REVISION,process.env.EXPECTED_CANDIDATE_REVISION); console.log("LOCAL_BUILD_STAMP_VERIFIED",process.env.EXPECTED_CANDIDATE_REVISION)'
+          echo "BUILD_ONLY_NO_AUTHENTICATED_RATIFICATION_OR_PUBLICATION"
+      - name: Install Chromium for local D1 browser parity
+        if: github.event.pull_request.number == 183
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Exact Cloudflare-only bundle build (isolated local artifact)
+        if: github.event.pull_request.number == 183
+        env:
+          EXPECTED_CANDIDATE_REVISION: ${{ github.event.pull_request.head.sha }}
+        run: |
+          stage="$RUNNER_TEMP/blueprint-d1-worker-$EXPECTED_CANDIDATE_REVISION"
+          git worktree add --detach "$stage" "$EXPECTED_CANDIDATE_REVISION"
+          trap 'git worktree remove --force "$stage"' EXIT
+          mkdir -p "$stage/experiments/d1-publication/node_modules"
+          cp -a --reflink=auto "$GITHUB_WORKSPACE/experiments/d1-publication/node_modules/." "$stage/experiments/d1-publication/node_modules/"
+          cd "$stage"
+          pnpm install --frozen-lockfile --offline
+          pnpm prisma:generate
+          bash experiments/d1-publication/build-worker-local.sh
+      - name: Full public regression (D1 candidate, no external authority)
+        if: github.event.pull_request.number == 183
+        run: |
+          unset DATABASE_URL BLUEPRINT_QA_DATABASE_URL BLUEPRINT_QA_DB_INTEGRATION BLUEPRINT_LIVE_PINNED_SMOKE
+          pnpm exec vitest run --exclude tests/application/prompt-workflow-live-private-bridge.test.ts --fileParallelism=false
+      - name: Actual D1 typed repository and application parity
+        if: github.event.pull_request.number == 183
+        run: pnpm exec vitest run --config experiments/d1-publication/vitest.d1.config.mts

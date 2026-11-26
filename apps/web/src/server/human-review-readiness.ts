@@ -1,4 +1,4 @@
-import { getBlueprintServerRuntime } from "./runtime";
+import { getBlueprintServerRuntime, hasD1WorkerRuntime } from "./runtime";
 
 export type HumanReviewReadinessState = "ready" | "blocked" | "warning";
 
@@ -11,6 +11,8 @@ export interface HumanReviewReadinessCheck {
 
 export interface HumanReviewReadinessEnvironment {
   readonly databaseUrl?: string | null | undefined;
+  readonly persistenceProvider?: string | undefined;
+  readonly d1BindingAvailable?: boolean | undefined;
   readonly authSecret?: string | null | undefined;
   readonly githubClientId?: string | null | undefined;
   readonly githubClientSecret?: string | null | undefined;
@@ -47,13 +49,15 @@ function check(
 export function evaluateHumanReviewEnvironment(
   environment: HumanReviewReadinessEnvironment
 ): readonly HumanReviewReadinessCheck[] {
+  const d1=environment.persistenceProvider==="d1";
+  const supported=environment.persistenceProvider===undefined||environment.persistenceProvider==="postgres"||d1;
   const checks: HumanReviewReadinessCheck[] = [
     check(
       "database-url",
-      "PostgreSQL connection",
-      configured(environment.databaseUrl),
-      "DATABASE_URL is configured.",
-      "DATABASE_URL is missing."
+      d1?"Cloudflare D1 binding":"PostgreSQL connection",
+      supported&&(d1?environment.d1BindingAvailable===true:configured(environment.databaseUrl)),
+      d1?"Request-scoped D1 binding is configured.":"DATABASE_URL is configured.",
+      d1?"Trusted Worker D1 binding is missing.":"DATABASE_URL is missing or persistence provider unsupported."
     ),
     check(
       "auth-secret",
@@ -117,51 +121,39 @@ async function withTimeout<T>(
   }
 }
 
-interface SchemaProbeRow {
-  readonly authorityReady: boolean;
-  readonly reviewDecisionReady: boolean;
-}
-
 async function probeDatabase(
-  databaseConfigured: boolean
+  databaseConfigured: boolean,
+  d1: boolean
 ): Promise<readonly HumanReviewReadinessCheck[]> {
   if (!databaseConfigured) {
     return Object.freeze([
       Object.freeze({
         id: "database-connectivity",
-        label: "PostgreSQL connectivity",
+        label: d1?"Cloudflare D1 connectivity":"PostgreSQL connectivity",
         state: "blocked",
-        detail: "Connectivity cannot be checked until DATABASE_URL is configured."
+        detail: d1?"Connectivity cannot be checked without the D1 binding.":"Connectivity cannot be checked until DATABASE_URL is configured."
       }),
       Object.freeze({
         id: "review-schema",
         label: "P9-019 persistence schema",
         state: "blocked",
-        detail: "Schema cannot be checked until PostgreSQL is reachable."
+        detail: "Schema cannot be checked until the canonical database is reachable."
       })
     ]);
   }
 
   try {
     const runtime = getBlueprintServerRuntime();
-    const rows = await withTimeout(
-      runtime.prisma.$queryRawUnsafe<SchemaProbeRow[]>(`
-        SELECT
-          to_regclass('public."SystemBootstrap"') IS NOT NULL AS "authorityReady",
-          to_regclass('public."HumanProfessionalReviewDecision"') IS NOT NULL AS "reviewDecisionReady"
-      `),
-      4000
-    );
-    const row = rows[0];
+    const row = await withTimeout(runtime.probeReviewSchema(), 4000);
     const authorityReady = row?.authorityReady === true;
     const reviewDecisionReady = row?.reviewDecisionReady === true;
 
     return Object.freeze([
       Object.freeze({
         id: "database-connectivity",
-        label: "PostgreSQL connectivity",
+        label: d1?"Cloudflare D1 connectivity":"PostgreSQL connectivity",
         state: "ready",
-        detail: "PostgreSQL accepted a readiness query."
+        detail: d1?"D1 accepted a readiness query.":"PostgreSQL accepted a readiness query."
       }),
       Object.freeze({
         id: "review-schema",
@@ -178,9 +170,9 @@ async function probeDatabase(
     return Object.freeze([
       Object.freeze({
         id: "database-connectivity",
-        label: "PostgreSQL connectivity",
+        label: d1?"Cloudflare D1 connectivity":"PostgreSQL connectivity",
         state: "blocked",
-        detail: "PostgreSQL could not be reached with the configured DATABASE_URL."
+        detail: d1?"D1 could not be reached with the trusted binding.":"PostgreSQL could not be reached with the configured DATABASE_URL."
       }),
       Object.freeze({
         id: "review-schema",
@@ -195,6 +187,8 @@ async function probeDatabase(
 export async function getHumanReviewRuntimeReadiness(
   environment: HumanReviewReadinessEnvironment = {
     databaseUrl: process.env.DATABASE_URL,
+    persistenceProvider: hasD1WorkerRuntime() ? "d1" : process.env.BLUEPRINT_PERSISTENCE_PROVIDER,
+    d1BindingAvailable: hasD1WorkerRuntime(),
     authSecret: process.env.AUTH_SECRET,
     githubClientId: process.env.GITHUB_ID,
     githubClientSecret: process.env.GITHUB_SECRET,
@@ -205,8 +199,9 @@ export async function getHumanReviewRuntimeReadiness(
   }
 ): Promise<HumanReviewRuntimeReadiness> {
   const environmentChecks = evaluateHumanReviewEnvironment(environment);
+  const d1=environment.persistenceProvider==="d1";
   const databaseChecks = await probeDatabase(
-    configured(environment.databaseUrl)
+    environmentChecks.find(check=>check.id==="database-url")?.state==="ready",d1
   );
   const checks = Object.freeze([
     ...environmentChecks,
