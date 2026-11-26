@@ -61,5 +61,6 @@ done
 if [ "$ready" != 1 ]; then tail -80 "$persist/browser-worker.log"; exit 1; fi
 mkdir -p artifacts
 # Scope fixture secret to the local worker and Playwright process only.
+export D1_BROWSER_REPORT="$persist/browser-results.json"
 pnpm exec playwright test --config experiments/d1-publication/playwright.d1.config.mts
-node --input-type=module -e 'import assert from "node:assert/strict"; import {readFileSync} from "node:fs"; const stats=JSON.parse(readFileSync("artifacts/d1-browser-results.json","utf8")).stats; assert.equal(stats.expected,72);assert.equal(stats.unexpected,0);assert.equal(stats.skipped,0);assert.equal(stats.flaky,0);console.log("D1_BROWSER_FULL_PARITY",JSON.stringify(stats));'
+node --input-type=module -e 'import assert from "node:assert/strict"; import {readFileSync} from "node:fs"; const stats=JSON.parse(readFileSync(process.env.D1_BROWSER_REPORT,"utf8")).stats; assert.equal(stats.expected,72);assert.equal(stats.unexpected,0);assert.equal(stats.skipped,0);assert.equal(stats.flaky,0);console.log("D1_BROWSER_FULL_PARITY",JSON.stringify(stats));'

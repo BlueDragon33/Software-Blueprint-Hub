@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir:"./browser",testMatch:"**/*.pw.ts",fullyParallel:false,retries:0,workers:1,
-  reporter:[["list"],["json",{outputFile:"artifacts/d1-browser-results.json"}]],
+  reporter:process.env.D1_BROWSER_REPORT ? [["list"],["json",{outputFile:process.env.D1_BROWSER_REPORT}]] : [["list"]],
   use:{baseURL:"http://127.0.0.1:3000",trace:"retain-on-failure"},
   projects:[
     {name:"desktop-chromium",use:{...devices["Desktop Chrome"]}},
