@@ -1,6 +1,11 @@
 // Local D1 browser parity of tests/e2e/app-shell.pw.ts blob 427cceac1307aaa5d49bda748ee128cf76f19933.
 // Original protected browser suite unchanged. Only import paths and D1 connectivity label differ.
-import { encode } from "@auth/core/jwt";
+// Resolve the already locked web dependency from its owning workspace.
+// Do not rely on accidental pnpm hoisting into the isolated QA package.
+import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
+const webRequire=createRequire(new URL("../../../apps/web/package.json",import.meta.url));
+const {encode}=await import(pathToFileURL(webRequire.resolve("@auth/core/jwt")).href);
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { p9019ProfessionalReviewCandidate } from "../../../packages/application/src/professional-review";
