@@ -2,7 +2,7 @@
 // Keep this tool outside the exact P1 checkout. Evidence JSON is operator
 // assertion, not independent proof or a deployment grant. Review ledger first.
 import {readFileSync,writeFileSync,readdirSync,lstatSync,existsSync} from "node:fs";
-import {resolve,join,relative} from "node:path";
+import {resolve,join,relative,sep} from "node:path";
 import {createHash} from "node:crypto";
 import {execFileSync} from "node:child_process";
 import {pathToFileURL} from "node:url";
@@ -36,13 +36,14 @@ function main(){
   const dist=join(root,"apps/web/dist"),dir=join(dist,"server");
   const original=join(dir,"wrangler.json"),out=join(dir,"wrangler.remote-candidate.json"),manifest=join(dir,"remote-candidate-manifest.json");
   if(existsSync(out)||existsSync(manifest))throw Error("Existing candidate output; reconcile manually");
-  const config=prepareRemoteCandidate(JSON.parse(readFileSync(original,"utf8")),JSON.parse(readFileSync(resolve(evidenceArg),"utf8")));
+  const evidence=JSON.parse(readFileSync(resolve(evidenceArg),"utf8"));
+  const config=prepareRemoteCandidate(JSON.parse(readFileSync(original,"utf8")),evidence);
   const hash=(b)=>createHash("sha256").update(b).digest("hex");
   const files=[];
-  function walk(p){for(const name of readdirSync(p).sort()){const f=join(p,name),st=lstatSync(f);if(st.isSymbolicLink())throw Error("Unexpected bundle symlink");if(st.isDirectory())walk(f);else if(st.isFile())files.push({path:relative(dist,f).replaceAll("\\\\","/"),size:st.size,sha256:hash(readFileSync(f))});else throw Error("Unexpected bundle entry");}}
+  function walk(p){for(const name of readdirSync(p).sort()){const f=join(p,name),st=lstatSync(f);if(st.isSymbolicLink())throw Error("Unexpected bundle symlink");if(st.isDirectory())walk(f);else if(st.isFile())files.push({path:relative(dist,f).split(sep).join("/"),size:st.size,sha256:hash(readFileSync(f))});else throw Error("Unexpected bundle entry");}}
   walk(dist);
   const bytes=JSON.stringify(config,null,2)+"\n";
-  const record={status:"REMOTE_CONFIG_CANDIDATE_ONLY",revision:expected,originalConfigSHA256:hash(readFileSync(original)),remoteConfigSHA256:hash(bytes),files,requiredSecrets:["AUTH_SECRET","GITHUB_ID","GITHUB_SECRET"],deployed:false,releaseAuthority:false};
+  const record={status:"REMOTE_CONFIG_CANDIDATE_ONLY",revision:expected,evidenceRef:evidence.evidenceRef,priorDeploymentId:evidence.deploymentId,originalConfigSHA256:hash(readFileSync(original)),remoteConfigSHA256:hash(bytes),files,requiredSecrets:["AUTH_SECRET","GITHUB_ID","GITHUB_SECRET"],deployed:false,releaseAuthority:false};
   writeFileSync(out,bytes,{flag:"wx"});
   writeFileSync(manifest,JSON.stringify(record,null,2)+"\n",{flag:"wx"});
   console.log(JSON.stringify({status:record.status,revision:expected,files:files.length,remoteConfigSHA256:record.remoteConfigSHA256,deployed:false,releaseAuthority:false}));
