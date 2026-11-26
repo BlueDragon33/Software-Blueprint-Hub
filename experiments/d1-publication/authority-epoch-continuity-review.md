@@ -194,7 +194,7 @@ foundation, or ratification. No second request of this type is needed.
 | RCV-01 | GitHub comment or repository admin alone claims old Owner | DENY continuity |
 | RCV-02 | Historical identity lead without current validity/revocation evidence | DENY continuity |
 | RCV-03 | No independent foundational mandate or mismatched challenge/digest | DENY foundation adoption |
-| RCV-04 | Reviewer A/B same actor or absent/stale exact-head verdict | DENY admission |
+| RCV-04 | A or B evaluation missing/stale, or a separately mandatory authenticated independent-review gate lacks its required distinct actor | DENY the affected admission; direct engineering remains eligible |
 | RCV-05 | Unavailable historic row interpreted as absent or fabricated | DENY migration/adoption |
 | RCV-06 | Replay, expired nonce, wrong epoch/target or revoked issuer | DENY, no mutation |
 | RCV-07 | Duplicate or interrupted authorized transaction | At most one journaled result; safe retry |
@@ -229,10 +229,10 @@ authenticated runtime verdict. No verdict is pre-populated.
 ### Next required human decision (separate design work from protected admission)
 
 If continuity evidence arrives, assess it under the existing protocol.
-Otherwise present the prospective charter and exact independent findings
-to the legitimate proprietor for separate APPROVE_FOUNDATION_DESIGN or
-REJECT. Approval of design alone authorizes further candidate work only,
-not adoption or execution. Actual foundation adoption requires the
+Otherwise prepare the prospective charter and present the actual findings to
+the proprietor for a separate decision on adoption only after the independent
+foundational mandate and all applicable admission evidence exist. The existing
+Owner request already covers design; no repeat design approval is required. Actual foundation adoption requires the
 independently established authority and digest-bound decision described
 above. Do not wait for a separate reviewer service to perform ordinary engineering assessment or prepare the design. A direct, explicitly non-independent assessment can support design iteration and an optional Owner design-scope decision. It does not satisfy any mandatory independent or protected gate.
 The helper stays quarantined and C0/C1 remain AUTHORITY_REQUIRED.
@@ -340,3 +340,100 @@ of C0/C1/C2, protected release, constitutional ratification, or mandatory
 qualified review. Reviewer A/B services can contribute evidence in parallel;
 they are not prerequisites for ordinary test-and-fix work. No new scores or
 test runs are asserted by this documentation change.
+
+## Prospective charter v1 — concrete decision packet (NOT ADOPTED)
+
+**Disposition:** old-law continuity NOT_PROVEN; prospective mandate
+NOT_ESTABLISHED; C0/C1 not admitted. This is a candidate design, not an
+authorization to operate a new foundation or replace the old one.
+Owner engineering request 7200334604 remains sufficient for preparation.
+
+### Record disposition
+
+| Record family | Current evidence | Proposed treatment |
+| --- | --- | --- |
+| Constitutional normative law | main 1.3.0, immutable protocol blob 775247bf2c3bf2b00dac1a3587eaf32883e404e6 | Keep existing law and history unchanged; no declaration of successor ACTIVE |
+| Prior Owner | PR154 blob ecced43ae67d947b8d5b8611909a7d4972a7cf9d, historical 2026-11-02 observation | Historical identity lead only; never restore a grant from it |
+| Historical decision | PR98 amendment:79521378-d2c1-44f8-a0f3-2265a911a6a0, historical ratification observation | Preserve provenance; no reconstructed canonical row or reuse as approval |
+| Principals, revocations, journals, pending work, adoption and publications | Complete current old-source rows unavailable | UNKNOWN_NOT_MIGRATED, not empty; deny automatic inheritance |
+| Target | Existing Cloudflare D1 4f2a47a5-e250-45ae-8ed1-19afcb04415d | No initialization/reset/write; isolation, actual backup and rollback required |
+| Candidate law | R33 Full Gate 45475370038; R34–R38 exact target 28d96c17936d7ce1bcf660f4dcc4c96d64497344 | Preserve seals; do not transfer protected acceptance to a changed authority mechanism |
+
+No current preservation of the historical database itself is independently
+verified; the observed fact is that these recovery operations did not
+access or mutate it. The historic record register above does not certify
+that the source still exists or that data is recoverable.
+
+### Proposed authority roles and separation
+
+- Project proprietor: may consider whether to establish a genuinely
+  separate prospective governance foundation, after proof of mandate.
+  Current GitHub repo owner metadata and authenticated account both show
+  BlueDragon33 / subject 297152795; this corroborates current repository
+  control only. Cloudflare account role and mandate remain unverified.
+- Foundational authority: must be established outside the candidate,
+  with scope, identity provenance, validity and revocation boundary
+  verified before any adoption. An independently validated pre-existing
+  instrument or trusted witness can support the mandate; neither is
+  asserted here. No credential is created by this charter.
+- Constitutional decision maker, project mutation actor, project review
+  actor and exact artifact release actor: separately scoped grants,
+  freshly established only after legitimate adoption. None is granted
+  by GitHub/Cloudflare admin access, an engineering comment, UI, CI, or
+  the A/B scores. Retain any required formal independent role separation.
+- Executor/AI: prepare, test and report only; no human decision,
+  credential issuance, ratification or publication authority.
+
+### Decision and evidence path
+
+| Step | Evidence / action | Success means | Does not mean |
+| --- | --- | --- | --- |
+| F0 | Reconcile old-source availability without reconnecting excluded providers; preserve existing Git references | Explicit historical disposition and unresolved inventory | C0 verified or data migrated |
+| F1 | Obtain existing independently verifiable mandate/continuity instrument, if one exists; distinguish current project control from old canonical authority | A legitimate decision maker can be identified for a specifically scoped route | Automatic new or restored grant |
+| F2 | If continuity is not established, show exact prospective charter and its SHA/digest, explicit break with old records and project impact, and verify separate foundational mandate | A prospective adoption decision can be considered | Old-law amendment or 1.5 activation |
+| F3 | Obtain authenticated, separately authorized decision tied to exact charter digest, intended epoch, scope and validity; evaluate actual mandatory tests and applicable independent gates | A reviewed adoption decision, if independently valid | Runtime initialization or release approval |
+| F4 | Only after valid adoption and separate implementation/execution authority, design and test a transactional initialization in the existing isolated target; verify C2 and rollback | Candidate/runtime evidence at exact revision | Permission to publish or overwrite old data |
+| F5 | Review version transition semantics, issue exact ratifications and publications under the applicable legitimate framework, verify actual per-project adoption | Only observed, authorized status changes | Automatic inheritance or retroactive restoration |
+
+Route C (existing-law continuity) may proceed only with a real
+revocation-valid authority instrument and source disposition satisfying
+the current protocol/P2. Route P (prospective foundation) must not be
+presented as route C. If neither mandate exists, the protected route is
+blocked; no self-issued challenge, synthetic signature or automatic
+fallback. No additional confirmation is needed for already-authorized
+ordinary design work.
+
+### C2 operator handoff (one bounded action, not repeated QA)
+
+Latest collector candidate 0a5ad1f9e6649fce2300c3adc251a5aa375f2ef0,
+source blob 436a1797ec82ca90c80dc36b596374c3b7ef376f, ledger 7201266556.
+Run in the existing authenticated environment only:
+`node experiments/d1-publication/collect-c2-inventory.mjs`.
+Use an already-authorized Workers read credential privately via the
+existing secure environment, never send a token or raw payload. If
+unavailable, report READ_TOKEN_UNAVAILABLE; do not create a credential
+or another resource automatically. Submit only the sanitized result
+and exact source identity. TARGET_REFERENCE_FOUND requires binding
+reconciliation; INCOMPLETE requires the named missing observation;
+NO_TARGET_IN_OBSERVED_STANDARD_VERSIONS is limited negative evidence,
+never C2 admission. A no-reference result does not verify account-wide
+coverage, other Worker surfaces, Access, routes, plan, D1 schema or
+rollback. No live C2 result has been received at this checkpoint.
+
+### Operator journey acceptance (design inspection only)
+
+1. Read the prior request: design is already authorized; do not ask
+   the operator to submit it again.
+2. Select the applicable route: if only GitHub identity or old UI
+   evidence is available, both protected routes remain blocked.
+3. If no Cloudflare read credential exists, stop only the C2 query.
+   Keep the design and existing evidence; never paste credentials.
+4. If a valid new mandate is provided, distinguish the exact
+   adoption decision from runtime promotion, constitutional ratification
+   and project adoption. Do not label old data restored.
+5. Without an authenticated publication record and exact active
+   readback, show ACTIVE 1.3.0 and candidate 1.5.0 separately.
+
+These are operator task scripts, not measured human trials or runtime
+tests. The proposed charter changes no code, seals, authority model,
+provider configuration or accepted tests. No overall A/B score.
