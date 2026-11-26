@@ -297,3 +297,46 @@ executing agent, NOT an independent A/B verdict):
 This corrects the candidate's execution ordering, not its authority
 model or acceptance criteria. The quarantine remains effective; no
 adoption, no C0/C1 or C2 PASS, and no new test execution is asserted.
+
+
+## Correction: A/B means two evidence axes, not two mandatory reviewer people
+
+Exact prior program: M0–M9 at PR #178
+c6f3ea2b91342c58fa7bbf9b7a268ec22f200098, and proposed quality
+standard at PR #177 8017ebfdc2da8bfee8993bfa009c804870ab2492,
+control/quality-evaluation-standard.v1.json (12 technical and 10 user
+metrics, each proposed threshold 90/100, all mandatory metrics required,
+no cross-axis compensation). These are proposed rubrics, not newly
+ratified law. Existing formal reviewer authorities remain distinct.
+
+- A — Technical testing: actual source/runtime evidence for specification
+  coverage, source-of-truth consistency, regression, P0/P1, security,
+  state consistency, restart/recovery, migration/backup/restore, fault
+  injection, latency, observability and applicable offline behavior.
+  For this recovery scope, use isolated negative tests for RCV-01..12,
+  including authorization denial, replay, revocation, stale SHA,
+  duplicate transaction, interrupted persistence and rollback, only when
+  implemented and executable. Retain prior helper quarantine tests as
+  scope-bound historical evidence; do not rerun sealed P1 suites merely
+  to claim progress.
+- B — User testing: test the actual operator journey as a user: understand
+  unavailable history and consequences, distinguish engineering approval
+  from foundation adoption and publication, choose the correct permitted
+  action without ambiguity, recover from expired/stale/denied states, read
+  truthful status, verify data preservation, accessibility and effort.
+  Define observable baseline/candidate tasks and expected outcomes.
+  Browser-driven persona tests and AI walkthroughs are useful engineering
+  evidence but not observed real-user outcomes. For this draft, B remains
+  UNVERIFIED until representative real-user evidence is collected. Do not
+  fabricate sample sizes, scores, usability trials or human acceptance.
+
+Execution loop: requirements -> implement -> A technical test and B
+user-journey test -> classify actual findings -> causal repair -> scoped
+retest of both affected axes -> system reconciliation -> next READY work.
+If one axis lacks runtime or user evidence, carry its honest status and
+continue independent eligible implementation; only hold the specific
+acceptance/transition requiring that evidence. No automatic PASS, waiver
+of C0/C1/C2, protected release, constitutional ratification, or mandatory
+qualified review. Reviewer A/B services can contribute evidence in parallel;
+they are not prerequisites for ordinary test-and-fix work. No new scores or
+test runs are asserted by this documentation change.
