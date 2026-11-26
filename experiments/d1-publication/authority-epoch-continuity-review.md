@@ -370,7 +370,8 @@ that the source still exists or that data is recoverable.
   separate prospective governance foundation, after proof of mandate.
   Current GitHub repo owner metadata and authenticated account both show
   BlueDragon33 / subject 297152795; this corroborates current repository
-  control only. Cloudflare account role and mandate remain unverified.
+  control only. Cloudflare Super Admin is now observed; the separate
+  foundational mandate remains unverified.
 - Foundational authority: must be established outside the candidate,
   with scope, identity provenance, validity and revocation boundary
   verified before any adoption. An independently validated pre-existing
@@ -437,3 +438,76 @@ rollback. No live C2 result has been received at this checkpoint.
 These are operator task scripts, not measured human trials or runtime
 tests. The proposed charter changes no code, seals, authority model,
 provider configuration or accepted tests. No overall A/B score.
+
+## Dual administrative control — observed 2026-11-26; decision-ready proposal
+
+New direct authenticated-dashboard readback and matching operator screenshot:
+Cloudflare account f88a42260814230aa4a151abbfe5659d, Members tab
+1718376413, one displayed active member, Super admin Yes, API access
+Default, 2FA not established. This independently corroborates control
+of the deployment account alongside GitHub repository owner/admin
+BlueDragon33, immutable subject 297152795. It does NOT prove current
+historical constitutional grants or lack of revocation, nor does it
+authenticate a particular human adoption decision. Do not collect this
+same role evidence again unless materially changed.
+
+C2: dashboard Deployments and Rollout history show a single displayed
+deployment for version prefix e72a8886 at 2026-11-25 18:07:42 UTC,
+100% traffic, Dashboard Template / Automatic deployment on upload.
+No previous rollback version is displayed. Production workers.dev URL
+enabled, preview URLs disabled, no custom domains or zone routes
+displayed. Worker Access configured for all traffic, Cloudflare account
+members Allow; hostname-specific precedence still applies. Current
+Settings shows no connected bindings. Free plan observed; D1 metrics
+545 kB / 28 tables. These are scoped observations, not exhaustive
+deployable-version inventory, proof of rollback, or proof of historical
+data recoverability. Collector 7201834727 made zero requests because
+the read token was absent. Preserve C2 PARTIAL_NOT_ADMITTED.
+
+### Next distinct human decision — proposed route P, not prior-law ratification
+
+Recommend route P for evaluation given the explicit Cloudflare-only
+direction and unavailable old-law continuity instrument. Do not assert
+that route C is impossible. The decision at this stage is whether the
+actual project proprietor adopts a separate prospective governance
+foundation, subject to independently validated mandate and applicable
+admission evidence. Existing engineering request 7200334604 is not
+that decision; no repeat engineering approval is needed.
+
+Proposed epoch label: blueprint-os:prospective-foundation-v1.
+This is a non-operational label, not a persisted epoch ID or credential.
+Scope: Software-Blueprint-Hub and only subsequently admitted governed
+projects. New foundational adoption must explicitly disclose the
+break in continuity, keep old operational records UNKNOWN_NOT_MIGRATED,
+inherit no grants, and preserve the old published 1.3.0 and exact
+R33/R34–R38 artifacts. It does not declare 1.5.0 active or treat a
+new-foundation act as an old-law amendment.
+
+Operator decision intake (candidate procedure, not a canonical gate):
+the actual proprietor personally records an APPROVE_PROSPECTIVE_FOUNDATION
+or REJECT_PROSPECTIVE_FOUNDATION decision on the existing Issue #159,
+identifying this exact charter commit and blob, the proposed epoch,
+scope, history disposition, and a validity/revocation boundary.
+Prefer independently verifiable authenticated/signed provenance and
+validate the actual mandate independently of the candidate bootstrap
+code; a GitHub comment alone, even from the observed administrator,
+is not sufficient to satisfy F1/F3 or the existing governing protocol.
+Do not post the decision on the operator's behalf. No secrets in the
+journal. Before any operational effect, require exact mandate,
+applicable independent acceptance, current validity/revocation and
+C0/C2 data and isolation evidence; if any fail, retain NOT_ADOPTED.
+No live authority grants, initialization, deployment, ratification,
+publication or project adoption follow automatically.
+
+The existing /setup/owner action in P1 blob
+d185f1c17ea77e9c2470c8aab7096d7b0a980cd5 and configured identity
+policy blob 49e6416a77193c3f2cca802731b83d19492ce621 are initial
+bootstrap mechanisms only. Do not set bootstrap variables or invoke
+the action to bypass unavailable historical authority. No alternative
+new provider, account, service or paid resource is needed for the
+proposal. No active runtime change is authorized by this document.
+
+Operator decision is not a request to repeat account screenshots,
+run old tests, or approve design again. Meaningful resume requires
+the actual scoped human decision/mandate evidence, a new lawful
+continuity instrument, or materially new isolation/rollback evidence.
