@@ -3,7 +3,9 @@ import vinext from "vinext";
 import {cloudflare} from "@cloudflare/vite-plugin";
 import {resolve,dirname,sep} from "node:path";
 import {fileURLToPath} from "node:url";
+import {writeFileSync} from "node:fs";
 import {localPublicationBuildRevision} from "../../packages/runtime/src/publication-runtime-revision.ts";
+import {generateStandaloneContractValidators} from "../../packages/contracts/src/standalone-validation.ts";
 const repo=resolve(dirname(fileURLToPath(import.meta.url)),"../..");
 const web=resolve(repo,"apps/web");
 const runtime=resolve(web,"src/server/runtime");
@@ -11,6 +13,12 @@ const revision=localPublicationBuildRevision(web);
 const virtualRevision="virtual:blueprint-worker-build-revision";
 const resolvedRevision="\0"+virtualRevision;
 if(process.env.EXPECTED_CANDIDATE_REVISION!==revision)throw Error("Exact Worker build revision required");
+const contractCompiler = resolve(repo, "packages/contracts/src/schema-compiler");
+const standaloneContracts = resolve(repo, "packages/contracts/node_modules/.blueprint-worker-contracts.cjs");
+// Vite bundles the generated CommonJS module and resolves AJV runtime helpers
+// alongside the same pinned packages used by the Node contract compiler.
+writeFileSync(standaloneContracts, generateStandaloneContractValidators(), "utf8");
+
 export default defineConfig({
  root:web,
  define:{"process.env.BLUEPRINT_LOCAL_RUNTIME_REVISION":JSON.stringify(revision)},
@@ -21,6 +29,7 @@ export default defineConfig({
      if(!importer||!source.startsWith("."))return null;
      const target=resolve(dirname(importer.split("?")[0]!),source);
      if(target===runtime||target===runtime+".ts")return runtime+".cloudflare.ts";
+     if (target === contractCompiler || target === contractCompiler + ".ts") return standaloneContracts;
      return null;
    },load(id){if(id===resolvedRevision)return "export const workerBuildRevision = "+JSON.stringify(revision)+";";return null;}},
    vinext(),
