@@ -1,22 +1,47 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { hasExistingGitHubOwnerSession, matchingExistingHubOwner } from "../../apps/web/src/auth/appmanage-owner-link";
 import { readFileSync } from "node:fs";
 import { isVerifiedGitHubOwner, readOwnerPair, sealOwnerPair, PAIR_TTL_SECONDS } from "../../apps/web/src/auth/appmanage-owner-pair";
 import {
-  APP_MANAGE_ISSUER, HUB_SSO_CLIENT_ID, HUB_SSO_ORIGIN,
+  APP_MANAGE_ISSUER, HUB_SSO_CLIENT_ID, allowedSsoRequestOrigin, hubSsoApprovedOrigin, requireHubSsoOrigin,
   newSsoFlow, readSsoCookie, sealSsoCookie, ssoPkceChallenge,
   ssoRequestUrl, validatedSsoRedemption
 } from "../../apps/web/src/auth/appmanage-sso";
 
 const secret = "a".repeat(48);
 const clock = 1800000000;
+const originalOrigin=process.env.BLUEPRINT_SSO_APPROVED_ORIGIN;
+beforeEach(()=>{process.env.BLUEPRINT_SSO_APPROVED_ORIGIN="https://hub-preview.example.test";});
+afterEach(()=>{if(originalOrigin===undefined)delete process.env.BLUEPRINT_SSO_APPROVED_ORIGIN;
+ else process.env.BLUEPRINT_SSO_APPROVED_ORIGIN=originalOrigin;});
 describe("App-Manage to Blueprint one-login SSO client", () => {
+  it("fails closed without an explicitly approved exact HTTPS callback origin",()=>{
+    for(const invalid of [undefined,"","http://hub.example.test","https://hub.example.test/path",
+      "https://hub.example.test/?x=1","https://user:pass@hub.example.test",
+      "https://hub.example.test/","not-a-url","https://*.example.test"]){
+      if(invalid===undefined)delete process.env.BLUEPRINT_SSO_APPROVED_ORIGIN;
+      else process.env.BLUEPRINT_SSO_APPROVED_ORIGIN=invalid;
+      expect(hubSsoApprovedOrigin()).toBeNull();
+      expect(allowedSsoRequestOrigin("https://hub-preview.example.test")).toBe(false);
+      expect(()=>requireHubSsoOrigin()).toThrow(/approved Hub HTTPS/);
+      expect(()=>ssoRequestUrl(newSsoFlow("login",clock))).toThrow(/approved Hub HTTPS/);
+    }
+  });
+  it("accepts only a preregistered exact HTTPS origin without wildcard or suffix",()=>{
+    expect(requireHubSsoOrigin()).toBe("https://hub-preview.example.test");
+    expect(allowedSsoRequestOrigin("https://hub-preview.example.test")).toBe(true);
+    for(const origin of ["http://hub-preview.example.test","https://evil.hub-preview.example.test",
+      "https://hub-preview.example.test.evil.example","https://other.example.test"]){
+      expect(allowedSsoRequestOrigin(origin)).toBe(false);
+    }
+  });
+
   it("creates exact pinned HTTPS PKCE S256 request, no tokens in browser URL", () => {
     const flow = newSsoFlow("login", clock);
     const url = new URL(ssoRequestUrl(flow));
     expect(url.origin).toBe(APP_MANAGE_ISSUER);
     expect(url.searchParams.get("client_id")).toBe(HUB_SSO_CLIENT_ID);
-    expect(url.searchParams.get("redirect_uri")).toBe(HUB_SSO_ORIGIN + "/api/sso/callback");
+    expect(url.searchParams.get("redirect_uri")).toBe(requireHubSsoOrigin() + "/api/sso/callback");
     expect(url.searchParams.get("code_challenge")).toBe(ssoPkceChallenge(flow.verifier));
     expect(url.searchParams.get("state")).toBe(flow.state);
     expect(url.searchParams.has("code_verifier")).toBe(false);

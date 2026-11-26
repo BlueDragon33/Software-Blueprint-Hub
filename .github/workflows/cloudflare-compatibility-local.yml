@@ -1,0 +1,159 @@
+name: Cloudflare Workers Local Compatibility Audit (NO DEPLOY)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/cloudflare-compatibility-local.yml"
+      - "scripts/assess-cloudflare-worker-compat.mjs"
+      - "scripts/assess-opennext-peer-range.mjs"
+      - "scripts/audit-worker-package-integrity.mjs"
+      - "scripts/audit-worker-postinstall-provenance.mjs"
+      - "scripts/verify-workerd-release-provenance.mjs"
+      - "tests/governance/workerd-release-provenance.test.mjs"
+      - "tests/governance/workers-postinstall-provenance.test.mjs"
+      - "tests/governance/workers-toolchain-trust.test.mjs"
+      - "control/worker-local-adapter-trust.proposed.json"
+      - "control/worker-local-sandbox-preflight.proposed.json"
+      - "scripts/validate-worker-local-sandbox-preflight.mjs"
+      - "tests/governance/worker-local-sandbox-preflight.test.mjs"
+      - "docs/WORKER-LOCAL-SANDBOX-PREFLIGHT-GATE-2026-11-02.md"
+      - "apps/web/**"
+      - "packages/persistence/**"
+      - "packages/runtime/**"
+      - "docs/ADR-PROVIDER-NEUTRAL-EXECUTION-VALIDATION.proposed.md"
+      - "docs/CLOUDFLARE-LOCAL-COMPATIBILITY-EVIDENCE-2026-11-02.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workers-compat-readonly-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-local-checks:
+    name: Source + vinext check + OpenNext CLI metadata (UNVERIFIED runtime)
+    # Does not use environments, deployments, cloud tokens, or remote bindings.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CI: "true"
+      DO_NOT_DEPLOY: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      NPM_CONFIG_UPDATE_NOTIFIER: "false"
+    steps:
+      - name: Checkout current source without persistent credential
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Static sandbox contract preflight (never launch container or binaries)
+        run: |
+          node --test tests/governance/worker-local-sandbox-preflight.test.mjs
+          mkdir -p artifacts
+          node scripts/validate-worker-local-sandbox-preflight.mjs artifacts/worker-sandbox-static-preflight.json
+          node -e 'const p=require("./artifacts/worker-sandbox-static-preflight.json");if(p.status!=="STATIC_CONTRACT_PASS_RUNTIME_BLOCKED"||p.runtimeExecutionAuthorized||p.hostIsolationTested||p.productionAuthorized||p.currentExecutionShaApproved)process.exit(1);console.log("STATIC_POLICY_PASS; HOST_ISOLATION_AND_RUNTIME_BLOCKED")'
+      - name: Install pinned monorepo dependencies (no production secrets)
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client from checked-in schema
+        run: pnpm prisma:generate
+      - name: Record reproducible source-only runtime and API inventory
+        run: node scripts/assess-cloudflare-worker-compat.mjs artifacts/cloudflare-compatibility-source.json
+      - name: Typecheck current Next.js + Prisma + Auth.js baseline without deploy
+        run: pnpm --filter @blueprint-os/web typecheck
+      - name: Node-only Auth.js JWT + SSO fail-closed + Owner route regression (NOT workerd)
+        run: pnpm exec vitest run tests/authority/authjs-config.test.ts tests/application/appmanage-sso.test.ts tests/web/p2-owner-session-readiness.test.ts
+      - name: vinext CLI compatibility check on existing Next.js directory
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p ../../artifacts
+          timeout 240s pnpm dlx vinext@1.4.0 check > ../../artifacts/vinext-check.log 2>&1
+          code=$?
+          printf 'exit_code=%s\nstatus=%s\n' "$code" "$([ "$code" -eq 0 ] && echo CLI_CHECK_PASSED_RUNTIME_UNVERIFIED || echo CLI_CHECK_BLOCKED_OR_UNVERIFIED)" > ../../artifacts/vinext-check.status
+          tail -n 75 ../../artifacts/vinext-check.log
+          echo "vinext check exit: $code; Workers runtime remains UNVERIFIED"
+          exit 0
+      - name: Verify trust model and adversarial tamper cases without network
+        run: node --test tests/governance/workers-toolchain-trust.test.mjs
+      - name: Check pinned package tarball integrity (npm pack --ignore-scripts ONLY)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/audit-worker-package-integrity.mjs artifacts/workers-toolchain-integrity.json
+          node -e 'const p=JSON.parse(require("node:fs").readFileSync("artifacts/workers-toolchain-integrity.json"));if(p.executableBuildScriptsApproved!==false||p.workerdRuntimeVerified!==false||p.packageCount!==7||p.approvedBuildScripts.length!==0)process.exit(1);console.log("TRUST_BOUNDARY_PRESERVED — integrity compared to registry; no scripts approved")'
+      - name: Read exact postinstall source and native ELF without executing either
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/governance/workers-postinstall-provenance.test.mjs
+          node scripts/audit-worker-postinstall-provenance.mjs artifacts/workers-native-provenance.json
+          node -e 'const p=require("./artifacts/workers-native-provenance.json");if(p.scriptsExecuted||p.scriptsApproved||p.workerdExecuted||p.allNativeBinariesIndependentlyVerified||p.findings.length!==4||!p.findings.find(x=>x.spec==="@esbuild/linux-x64@0.28.2").upstreamSourceHashMatch)process.exit(1); console.log("SOURCE_READ_AND_ESBUILD_UPSTREAM_HASH_MATCH; WORKERD_RELEASE_BINARY_PARITY_STILL_UNVERIFIED")'
+      - name: Compare workerd npm ELF with fixed public GitHub Release (bytes only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/governance/workerd-release-provenance.test.mjs
+          curl --fail --silent --show-error --location --max-redirs 5 --max-time 120 --retry 2 \
+            --proto '=https' --proto-redir '=https' \
+            --output artifacts/workerd-linux-64-release.gz \
+            'https://github.com/cloudflare/workerd/releases/download/v1.20261023.1/workerd-linux-64.gz'
+          node scripts/verify-workerd-release-provenance.mjs \
+            artifacts/workerd-linux-64-release.gz artifacts/workers-native-provenance.json \
+            artifacts/workerd-release-parity.json
+          rm -f artifacts/workerd-linux-64-release.gz
+      - name: Pinned OpenNext peer-range check (NO unapproved build scripts)
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm view @opennextjs/cloudflare@1.20.15 version peerDependencies engines --json > artifacts/opennext-metadata.json
+          node scripts/assess-opennext-peer-range.mjs artifacts/opennext-metadata.json artifacts/opennext-peer-evidence.json
+          echo "OpenNext CLI deliberately NOT EXECUTED: Next peer compatibility and pnpm build-script trust must be reviewed separately."
+          echo 'CLI_NOT_EXECUTED_BUILD_SCRIPTS_NOT_APPROVED' > artifacts/opennext-check.status
+      - name: Assert no real runtime acceptance or deployment provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e 'const fs=require("node:fs"); const p=JSON.parse(fs.readFileSync("artifacts/cloudflare-compatibility-source.json")); if(p.providerRuntimeVerified!==false||p.productionAuthorized!==false||p.cloudflareProjectCreated!==false||p.status!=="ADAPTER_RUNTIME_NOT_VERIFIED")process.exit(1); console.log("SAFE_EVIDENCE_ONLY — no authenticated Worker E2E, provider deploy, or Production PASS")'
+          git diff --exit-code -- apps/web/package.json pnpm-lock.yaml apps/web/next.config.ts
+      - name: Record truthful audit summary (never grant compatibility PASS)
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '### Local Cloudflare compatibility probes — not a deployed runtime'
+            echo '- Source audit and current Next.js typecheck: see job steps.'
+            echo '- vinext CLI: check the attached exit/status and full compatibility log.'
+            echo '- OpenNext 1.20.15: review peer-range evidence; CLI not re-run because dependency/build-script gates block.'
+            echo '- Seven pinned tarballs: SHA512 vs npm registry; postinstall bytes inspected only, binary ELF cross-check with upstream/release, never executed.'
+            echo '- Release checksum parity is not a reproducible source build, signature attestation or postinstall approval.'
+            echo '- Sandbox contract is validated STATICALLY; no container, network isolation or host security profile was created or exercised.'
+            echo '- Workers runtime, real Auth.js callback, SSO, Prisma/PostgreSQL TCP, signed E2E and Production: **UNVERIFIED / NOT AUTHORIZED**.'
+            echo '- No site, Worker, domain, OAuth callback or canonical database was created or changed.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve bounded untrusted tool observations for independent review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workers-compatibility-audit-${{ github.sha }}
+          path: |
+            artifacts/cloudflare-compatibility-source.json
+            artifacts/vinext-check.status
+            artifacts/vinext-check.log
+            artifacts/opennext-check.status
+            artifacts/opennext-metadata.json
+            artifacts/opennext-peer-evidence.json
+            artifacts/workers-toolchain-integrity.json
+            artifacts/workers-native-provenance.json
+            artifacts/workerd-release-parity.json
+            artifacts/worker-sandbox-static-preflight.json
+          retention-days: 7
+          if-no-files-found: warn

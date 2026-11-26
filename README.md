@@ -15,6 +15,14 @@ Blueprint OS transforms a software idea into appropriate engineering depth, dete
 - Phase 9 Compass Construction: **ACTIVE**.
 - Production deployment remains **not authorized** until an explicit Release Mode gate passes.
 
+## Hosting and runtime boundary
+
+- Development and signed reviewer verification are provider-neutral: GitHub CI with disposable PostgreSQL is the currently tested integration path; no online deployment follows a PR or CI success.
+- `apps/web` is currently a Next.js server application with authenticated server routes, PostgreSQL, Auth.js and server actions. Cloudflare Workers compatibility is **UNVERIFIED**, not a production-ready configuration; Cloudflare Pages static export is not an equivalent server runtime.
+- `BLUEPRINT_DEPLOYMENT_REVISION` is an explicitly supplied, exact running-artifact Git SHA for Constitutional publication readback; missing or stale evidence blocks publication. It must never be derived from an unrelated CI environment.
+- Do not create a site, Worker, route, hostname, OAuth callback, production secret or perform a canonical database migration without separate scoped human authorization; preserve current IDs/domains and historical evidence until a reviewed cutover.
+- See `docs/ADR-PROVIDER-NEUTRAL-EXECUTION-VALIDATION.proposed.md` for the Cloudflare compatibility investigation and explicit migration/rollback gates.
+
 ## Role in the ecosystem
 
 Blueprint OS is the engineering **compass** for the wider application ecosystem. It must hold itself to a higher standard than the projects it guides:

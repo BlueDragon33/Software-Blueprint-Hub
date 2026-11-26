@@ -38,9 +38,9 @@ export async function recordCompassAcceptanceAction(runId: number): Promise<{
   try {
     const actor = await resolveWebActor();
     if (!actor) throw new Error("Sign in before recording acceptance.");
-    const revision = process.env.VERCEL_GIT_COMMIT_SHA?.trim().toLowerCase();
+    const revision = process.env.BLUEPRINT_DEPLOYMENT_REVISION?.trim().toLowerCase();
     if (!revision || !/^[a-f0-9]{40}$/.test(revision)) {
-      throw new Error("Exact Vercel deployment revision is unavailable.");
+      throw new Error("Exact approved deployment revision is unavailable.");
     }
     if (!Number.isSafeInteger(runId) || runId <= 0) {
       throw new Error("Enter the numeric final Release Gate run ID.");
