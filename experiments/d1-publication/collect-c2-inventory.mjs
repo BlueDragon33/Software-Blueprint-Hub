@@ -43,7 +43,8 @@ export async function collectC2({token,fetchImpl=globalThis.fetch,maxRequests=10
     if(!r?.ok)throw Error(r?.status===401||r?.status===403?'READ_ACCESS_DENIED':'HTTP_FAILURE');
     try{j=await r.json();}catch{throw Error('INVALID_JSON');}
     if(j?.success!==true)throw Error('API_FAILURE');
-    if((j.result_info?.page!==undefined&&j.result_info.page!==1)||(!firstOnly&&j.result_info?.total_pages>1))throw Error('INCOMPLETE_PAGE');
+    // Cloudflare documents deployable=true as ignoring pagination; keep all other checks.
+    if(!path.endsWith('/versions?deployable=true')&&((j.result_info?.page!==undefined&&j.result_info.page!==1)||(!firstOnly&&j.result_info?.total_pages>1)))throw Error('INCOMPLETE_PAGE');
     return j.result;
   }
   const known=new Set(['REQUEST_LIMIT','NETWORK_OR_REDIRECT','READ_ACCESS_DENIED','HTTP_FAILURE','INVALID_JSON','API_FAILURE','INCOMPLETE_PAGE','MISSING_LIST','INVALID_OR_DUPLICATE_ID','MISSING_DEPLOYMENTS','INVALID_DEPLOYMENT','VERSION_BINDINGS_UNAVAILABLE']);
