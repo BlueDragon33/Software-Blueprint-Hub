@@ -226,7 +226,7 @@ identity and role provenance, and return findings with explicit PASS,
 FAIL or INSUFFICIENT_EVIDENCE per scope; advisory review is not an
 authenticated runtime verdict. No verdict is pre-populated.
 
-### Next required human decision (only after independent review)
+### Next required human decision (separate design work from protected admission)
 
 If continuity evidence arrives, assess it under the existing protocol.
 Otherwise present the prospective charter and exact independent findings
@@ -234,5 +234,66 @@ to the legitimate proprietor for separate APPROVE_FOUNDATION_DESIGN or
 REJECT. Approval of design alone authorizes further candidate work only,
 not adoption or execution. Actual foundation adoption requires the
 independently established authority and digest-bound decision described
-above. Do not request this decision before the review packet is assessed.
+above. Do not wait for a separate reviewer service to perform ordinary engineering assessment or prepare the design. A direct, explicitly non-independent assessment can support design iteration and an optional Owner design-scope decision. It does not satisfy any mandatory independent or protected gate.
 The helper stays quarantined and C0/C1 remain AUTHORITY_REQUIRED.
+
+
+## Direct execution correction — R16/R17/R19/R22
+
+Source-grounded assessment of the preceding draft at e0974439 (same
+executing agent, NOT an independent A/B verdict):
+
+- DEF-01, sequencing: requiring external reviewer availability before
+  even preparing a design conflates engineering work and protected
+  acceptance. The controlling execution rules permit direct analysis,
+  scoped implementation and actual QA while independent review is
+  unavailable. Mark reviewer NOT_RUN and defer only the transition that
+  explicitly requires its verdict. No automatic gate waiver.
+- DEF-02, evidence usability: the prior phrase "independently validated
+  witness or other externally established trust anchor" is not yet a
+  usable operator procedure. Separate proof of current repository and
+  Cloudflare control, legal/project mandate for a *prospective* charter,
+  and proof of old-law constitutional authority. They are different
+  facts. GitHub account control and Cloudflare access cannot establish
+  continuity or retroactively authenticate historic decisions.
+- DEF-03, user-facing decision: distinguish design-scope acceptance
+  from foundation adoption and runtime activation; provide a single
+  bounded decision only when it is actually necessary. The existing
+  request 7200334604 already authorizes ordinary design and testing;
+  no additional design confirmation is needed to continue within it.
+
+### Direct work order (not a new governing law)
+
+1. Read exact existing requirements, source and evidence; classify
+   each gap as ENGINEERING_READY, CAPABILITY_BLOCKED, or AUTHORITY_REQUIRED.
+2. Perform engineering-ready work: inspect invariants, reproduce
+   concrete defects, fix scoped root causes, test changed surface and
+   affected regressions, assess result against actual requirements.
+   Preserve existing seals; do not rerun accepted tests solely to
+   manufacture progress. Stop speculative edits after three distinct
+   failures; move to an independent eligible task.
+3. For the prospective charter, prepare exact role/decision definitions,
+   historical non-continuity disclosure and transition/rollback
+   preconditions without creating a runtime credential or a grant.
+   Assess each RCV criterion at source level, then implement/test only
+   admitted ordinary candidate scope. Use NOT_RUN for unavailable tests.
+4. For current control evidence, use already-authorized read-only
+   GitHub repository metadata and existing Cloudflare account UI.
+   Record account role/ownership only if actually displayed; account
+   access and matching repository proprietor are corroboration, not an
+   independently established foundational mandate. Do not request
+   credentials in chat, access prior providers or invent a witness.
+5. Present a concrete gap and exact evidence needed if no legitimate
+   mandate or continuity instrument is available. If a distinct
+   prospective foundation is considered, clearly disclose that the
+   historic version chain cannot be treated as lawfully restored.
+   Establish its legitimate authority independently before adoption.
+6. All applicable mandatory review/Owner/QA/security/UX gates retain
+   their existing meaning. Do not relabel direct assessment as
+   independent; do not wait for A/B to do work that does not require
+   them. No live state mutation, protected transition, publication or
+   Production release merely because direct QA completed.
+
+This corrects the candidate's execution ordering, not its authority
+model or acceptance criteria. The quarantine remains effective; no
+adoption, no C0/C1 or C2 PASS, and no new test execution is asserted.
