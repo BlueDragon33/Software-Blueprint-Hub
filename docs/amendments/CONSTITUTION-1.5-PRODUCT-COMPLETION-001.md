@@ -23,3 +23,10 @@ This supplement records Owner-directed changes to the previously sealed content 
 - **R36/R38 clarification — Học tập và chuyển tiếp:** Each specialist independently evaluates real permitted cases, holdout data and provenance; no model-weight training claim without actual evidence. Keep policy publication independent of discretionary UI. Prove a real product vertical slice before expanding rollout. Cloudflare-only hosting, ZERO-SPEND, no duplicate control plane, no unauthorized merge/release/ratification.
 
 Machine-readable candidate: `control/enterprise-optimization.candidate.json`. Pure advisory risk evaluation extends existing `scripts/agent-change-evidence-candidate.mjs`; inputs must be assembled from authenticated canonical records and verified closure evidence in future runtime integration. The evaluator is not an issuer, gate or deployment service. Threshold percentages are not event probabilities. Budget and score calibration require scoped review; no arbitrary default or normalization against incident count. Existing active law remains unchanged.
+
+### Revised inactive authority-set target
+- Target Git object: `e2059451dd2e5e71bbee209542f0aceb3dd578e7`; tree `86352dd19d49abc1a46d168dd91939c3641d5364`.
+- Authority-set digest: `sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20` (local deterministic calculation checked against the historical 1.5 seal; not trusted CI).
+- Candidate strict eight-path patch: `docs/amendments/CONSTITUTION-1.5-ENTERPRISE-OPTIMIZATION-PUBLICATION.candidate.patch`. Two revised paths match exact independent replay; six existing sections retained byte-identical. R1–R33 bytes and all 38 rule mappings preserved.
+- Existing fixed publication verifier still admits only the previous 1.5 seal. Explicit revised-profile review and exact-source native QA/Full Gate are required; do not activate, substitute proofs or relax predecessor admission.
+- Risk evaluator is advisory until wired to authenticated canonical records and recovery receipts. No new runtime or Production authority.

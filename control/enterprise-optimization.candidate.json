@@ -200,5 +200,21 @@
     "productionAuthority": false,
     "exactGatesPreserved": true
   },
-  "admission": "Requires reviewed mapping into revised normative publication patch, template and source attestation; preserve old target/seals; no activation from this file."
+  "admission": "Requires reviewed mapping into revised normative publication patch, template and source attestation; preserve old target/seals; no activation from this file.",
+  "revisedTarget": {
+    "targetRevision": "e2059451dd2e5e71bbee209542f0aceb3dd578e7",
+    "targetTree": "86352dd19d49abc1a46d168dd91939c3641d5364",
+    "authoritySetDigest": "sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20",
+    "predecessorRevision": "04401dcac91e0973ab4e70e07e798c9632ca8580",
+    "predecessorDigest": "sha256:229b4084e5f4efe0a70432bb447ca76cf6e1101790ba3d79e5066775d5cbea2d",
+    "historicalTarget": "28d96c17936d7ce1bcf660f4dcc4c96d64497344",
+    "historicalDigest": "sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3",
+    "publicationPatchPath": "docs/amendments/CONSTITUTION-1.5-ENTERPRISE-OPTIMIZATION-PUBLICATION.candidate.patch",
+    "replay": "2/2 revised paths exact independent JS replay; six prior patch sections byte-identical; not native verifier or trusted CI",
+    "admission": "UNADMITTED_REVIEW_REQUIRED; old publication profile/checker remains sealed; no automatic substitution",
+    "ruleCount": 38,
+    "ratification": "NOT_ASSERTED",
+    "publication": "NOT_ASSERTED",
+    "productionReleaseAuthority": false
+  }
 }

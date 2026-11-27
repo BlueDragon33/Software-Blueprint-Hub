@@ -1367,3 +1367,6 @@ const enterpriseRiskCases=[
 for(const [name,entries,action,b,d,overrides] of enterpriseRiskCases){
   test("EO risk: "+name,()=>{const r=evaluateAccumulatedRisk(riskFixture(entries,overrides));assert.equal(r.action,action);assert.equal(r.burdenPercent,b);assert.equal(r.dangerPercent,d);assert.ok(Object.values(r.authority).every(v=>v===false));});
 }
+
+test("EO risk: known lower bound survives missing duplicate score",()=>{const r=evaluateAccumulatedRisk(riskFixture([{rootCauseId:"a",burdenPoints:31,dangerScore:10},{rootCauseId:"a",burdenPoints:null,dangerScore:10}]));assert.equal(r.action,"REMEDIATE_NOW");assert.equal(r.burdenPercent,null);});
+test("EO risk: fractional comparison precedes display rounding",()=>{const r=evaluateAccumulatedRisk(riskFixture([{rootCauseId:"a",burdenPoints:301,dangerScore:40}],{budgetPoints:1000}));assert.equal(r.action,"REMEDIATE_NOW");assert.equal(r.burdenPercent,30.1);});

@@ -794,11 +794,11 @@ export function evaluateAccumulatedRisk(snapshot) {
     if(!validId)continue;
     const prev=roots.get(id);
     if(prev&&(prev.closed||prev.burden!==b||prev.danger!==d||prev.flags?.some((v,i)=>v!==flags[i])))issues.add("CONFLICTING_ROOT_RECORD");
-    roots.set(id,{closed:false,burden:prev&&!prev.closed?(prev.burden===null||b===null?null:Math.max(prev.burden,b)):b,danger:prev&&!prev.closed?(prev.danger===null||d===null?null:Math.max(prev.danger,d)):d,flags});
+    roots.set(id,{closed:false,burden:prev&&!prev.closed?(prev.burden===null?b:b===null?prev.burden:Math.max(prev.burden,b)):b,danger:prev&&!prev.closed?(prev.danger===null?d:d===null?prev.danger:Math.max(prev.danger,d)):d,flags});
   }
   const open=[...roots.entries()].filter(([,v])=>!v.closed);
   const knownBurden=open.reduce((n,[,v])=>n+BigInt(v.burden??0),0n);
-  const knownDanger=Math.max(0,...open.map(([,v])=>v.danger??0));
+  const knownDanger=open.reduce((n,[,v])=>Math.max(n,v.danger??0),0);
   const immediate=validBudget&&knownBurden*100n>BigInt(snapshot.budgetPoints)*30n;
   const unknown=issues.size>0;
   return result(severe?"ROOT_CAUSE_CLOSURE_REQUIRED":immediate?"REMEDIATE_NOW":unknown?"UNVERIFIED":"ACCUMULATE",
