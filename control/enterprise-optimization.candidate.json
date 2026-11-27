@@ -979,6 +979,311 @@
         "BP-13 training remains local per specialist; approved evidence shared through Hub, not duplicate global private corpus."
       ],
       "next": "After valid 1.5 admission, develop real engineering capability and use one product vertical slice to qualify BP-05/10. No discretionary UI, new repo, credentials or runtime changes now."
+    },
+    "specialistDevelopment": {
+      "status": "PROPOSED_DEVELOPMENT_PLAN_NOT_RUNTIME_ENROLLMENT",
+      "intent": "Develop each existing repository into a professional independent specialist, following the A/B local-qualification then Hub-integration model; independent development is not manual runtime orchestration.",
+      "developmentWorkspace": {
+        "recommendation": "Keep current Hub, A/B and Application-Management projects. Optionally create six specialist ChatGPT development projects for BP-01, BP-04, BP-06, BP-07, BP-08, BP-12, with separate A/B threads inside their existing project. No new GitHub repositories, no mandatory per-repo chat or scheduled automation. Project is a development workspace, not a runtime worker or authority. Hub routes routine operation once integrated.",
+        "ownership": "Each development session writes only to its assigned repository and authorized branch. Shared contract changes go through Hub; consuming repositories pin approved version. One canonical cross-project WorkPackage and Hub ledger; local evidence remains in owning repository."
+      },
+      "lifecycle": [
+        {
+          "id": "D0",
+          "vi": "Đối chiếu nền tảng",
+          "acceptance": "Actual exact source, applicable active policy, scope, capability gaps and retained evidence."
+        },
+        {
+          "id": "D1",
+          "vi": "Chuẩn chuyên môn",
+          "acceptance": "Versioned domain capability map, inputs, outputs, scope, failure modes, acceptance and risk-specific rubric; no duplicate Hub authority."
+        },
+        {
+          "id": "D2",
+          "vi": "Xây dựng năng lực",
+          "acceptance": "Working deterministic modules where possible, bounded AI adapters only where justified; real executable code and focused tests."
+        },
+        {
+          "id": "D3",
+          "vi": "Huấn luyện và đánh giá",
+          "acceptance": "Authorized cases, provenance, train/retrieval vs holdout split, independently checked labels, regression and calibration; no model-weight training assertion without evidence."
+        },
+        {
+          "id": "D4",
+          "vi": "Nghiệm thu cục bộ",
+          "acceptance": "Exact revision, native applicable QA, failure controls, metrics with denominators and evidence; unknown marked UNVERIFIED. Local acceptance not canonical gate PASS."
+        },
+        {
+          "id": "D5",
+          "vi": "Bàn giao tích hợp",
+          "acceptance": "Versioned contract, exact source/artifact digest, capability manifest, verification evidence, dependency/permission limits and known gaps recorded at Hub #159 once; no duplicate ledger."
+        },
+        {
+          "id": "D6",
+          "vi": "Kiểm chứng phối hợp",
+          "acceptance": "Hub authorizes scoped real vertical slice; actual identities, durable journal, independent verification, valid current policy and scoped readback; test integration delta only."
+        },
+        {
+          "id": "D7",
+          "vi": "Cải tiến liên tục",
+          "acceptance": "Consume verified operational failures/feedback, root-cause dedupe, update owning capability/casebook, reevaluate affected holdout and compare before/after; no unchanged repeated QA."
+        }
+      ],
+      "tracks": [
+        {
+          "id": "BP-00",
+          "developmentProject": "Blueprint OS — Điều hành hệ thống",
+          "baseline": "Existing Hub canonical WorkPackage/workflow/governance/release/graph services; 1.5 not ACTIVE.",
+          "modules": [
+            "policy and adoption",
+            "dependency DAG and critical path",
+            "capability routing and one writer",
+            "authority and bounded dispatch",
+            "canonical evidence and graph projection"
+          ],
+          "learningPlan": "Evaluate real scheduling and handoff cases, not a second universal AI specialist.",
+          "qualificationMetrics": [
+            "accepted outcome lead time",
+            "duplicate dispatch count",
+            "wait/rework time",
+            "token per accepted outcome when measured",
+            "verified authority and evidence trace"
+          ],
+          "firstPilot": "Integrate one specialist via existing D1/Cloudflare contracts.",
+          "completionBoundary": "Canonical 1.5 lawful admission and real integration; do not self-certify."
+        },
+        {
+          "id": "BP-01",
+          "developmentProject": "BP-01 — Thẩm định và Quy hoạch",
+          "baseline": "Existing private repository empty as last verified.",
+          "modules": [
+            "problem/goal appraisal",
+            "reuse/no-build and alternative comparison",
+            "feasibility and B/E sizing",
+            "cost/time/risk estimates with uncertainty",
+            "S1 strategy proposal",
+            "S2 master blueprint/roadmap"
+          ],
+          "learningPlan": "Use authorized historical project cases; separate independent holdout; compare recommendations against actual accepted goals and delivery outcomes.",
+          "qualificationMetrics": [
+            "requirement coverage",
+            "evidence traceability",
+            "forecast error vs observed outcome",
+            "decision rework",
+            "unjustified scope expansion"
+          ],
+          "firstPilot": "Appraise one new/material project change and deliver S1/S2 proposals without approving them.",
+          "completionBoundary": "Local evidence plus approved project authority decision at Hub; no automatic strategy approval."
+        },
+        {
+          "id": "BP-04",
+          "developmentProject": "BP-04 — Nghiên cứu và Thiết kế",
+          "baseline": "Main README; candidate bounded RFC8259 experiment, not broad design capability.",
+          "modules": [
+            "source discovery and rights",
+            "reproducible experiments/benchmark",
+            "algorithm and technology alternatives",
+            "architecture/data/API design",
+            "UX/UI and accessibility specification",
+            "design handoff"
+          ],
+          "learningPlan": "Authorized source/reference experiments and real design tasks; keep research and BP-05 design evaluation separate; holdout reproduction and design implementation cases.",
+          "qualificationMetrics": [
+            "source provenance coverage",
+            "experiment reproduction",
+            "design acceptance first pass",
+            "implementation rework",
+            "accessibility/usability evidence"
+          ],
+          "firstPilot": "Produce research evidence and implementation-ready specification for one product change.",
+          "completionBoundary": "Independent technical/design evaluation; no copying proprietary source or approving own architecture."
+        },
+        {
+          "id": "BP-06",
+          "developmentProject": "BP-06 — Phòng vệ và Bảo mật",
+          "baseline": "Prior candidate bounded authorized metadata analysis; broader defensive capability unverified.",
+          "modules": [
+            "threat modeling",
+            "least privilege and data protection",
+            "dependency and supply-chain review",
+            "safe defensive tests",
+            "privacy and exposure analysis",
+            "remediation verification support"
+          ],
+          "learningPlan": "Authorized fixtures and real sanitized incidents only; known positive/negative holdouts, severity calibration and verified mitigations.",
+          "qualificationMetrics": [
+            "precision/recall with labeled sample counts",
+            "critical miss rate",
+            "false-alert burden",
+            "verified remediation recurrence"
+          ],
+          "firstPilot": "Threat-model one actual scoped integration and validate defensive findings.",
+          "completionBoundary": "No unauthorized exploitation, credentials, production mutation or self-certified security PASS."
+        },
+        {
+          "id": "BP-07",
+          "developmentProject": "BP-07 — Kiểm soát thực thi",
+          "baseline": "Existing inspect-scoped signed gateway, no general mutation authority.",
+          "modules": [
+            "versioned grant validation",
+            "least privilege capability dispatch",
+            "replay/expiry/revocation",
+            "idempotency and retry/backoff",
+            "scope isolation and audit receipts",
+            "fail-closed integration"
+          ],
+          "learningPlan": "Deterministic contract, negative/adversarial and failure-mode tests; do not force LLM or fine-tuning into security decision path.",
+          "qualificationMetrics": [
+            "unauthorized request accepted (target zero in test corpus)",
+            "valid dispatch correctness",
+            "duplicate execution",
+            "revocation/stale-scope rejection",
+            "latency and resource use"
+          ],
+          "firstPilot": "Dispatch one authorized bounded Worker operation and reject invalid variants.",
+          "completionBoundary": "Verified trust boundary and durable readback; no self-issued authority or arbitrary shell."
+        },
+        {
+          "id": "BP-08",
+          "developmentProject": "BP-08 — Nhà máy phần mềm",
+          "baseline": "Existing Worker main inspect-only; real code mutation/build capability not admitted.",
+          "modules": [
+            "bounded task execution",
+            "frontend/backend/data engineering",
+            "root-cause debug",
+            "target-repo scoped patch",
+            "build and focused regression",
+            "artifact and rollback preparation",
+            "recovery within grant"
+          ],
+          "learningPlan": "Real authorized coding cases, reproducible defect/fix pairs, unseen task evaluation; preserve product repo source and no private data leakage. Choose execution environment by actual capability; Cloudflare only for runtime hosting, do not claim Workers can run arbitrary native builds.",
+          "qualificationMetrics": [
+            "first-pass accepted fix",
+            "regressions escaped",
+            "task completion time",
+            "token per accepted change",
+            "out-of-scope writes (target zero in test corpus)"
+          ],
+          "firstPilot": "Implement one bounded real product change with actual tests/artifact, A/B verification.",
+          "completionBoundary": "No general remote shell, arbitrary credentials, self-review-as-independent or Production release."
+        },
+        {
+          "id": "BP-09A",
+          "developmentProject": "Reviewer A/B — Kiểm định kỹ thuật (luồng A)",
+          "baseline": "Owner-native A/B combined local 284 scoped evidence and Hub integration handoff 7227191065; not runtime independent admission.",
+          "modules": [
+            "technical review",
+            "architecture/data/security/performance",
+            "reproduce defects",
+            "test evidence provenance",
+            "root cause and scoped repair advice"
+          ],
+          "learningPlan": "Verified defect casebook and independent unseen cases; separate authored code from independent verification.",
+          "qualificationMetrics": [
+            "technical precision/recall with sample counts",
+            "reproduction success",
+            "critical misses",
+            "review latency",
+            "finding repair acceptance"
+          ],
+          "firstPilot": "Reuse existing actual A/B pilot plan after authenticated Hub integration.",
+          "completionBoundary": "Preserve valid 284 evidence; do not rerun without impact, no fake independence."
+        },
+        {
+          "id": "BP-09B",
+          "developmentProject": "Reviewer A/B — Kiểm định độc lập (luồng B)",
+          "baseline": "Same A/B handoff; actual independent runtime identities/journal remain unverified.",
+          "modules": [
+            "challenge technical findings",
+            "independent source/evidence",
+            "user journeys and acceptance",
+            "regression and adversarial QA",
+            "verified learning intake"
+          ],
+          "learningPlan": "Holdout independent of A verdict, real user evidence where applicable, privacy-safe verified cases, no unadmitted training.",
+          "qualificationMetrics": [
+            "independent finding precision/recall",
+            "false PASS count in corpus",
+            "user-journey acceptance",
+            "evidence authenticity",
+            "escaped regressions"
+          ],
+          "firstPilot": "Same bounded real A/B pilot; independent review and provenance.",
+          "completionBoundary": "Advisory distinct from signed canonical reviewer gate; no role impersonation."
+        },
+        {
+          "id": "BP-11",
+          "developmentProject": "Application-Management — Quản trị ứng dụng",
+          "baseline": "Existing application registry, device/access management and protected deployment; Hub integration incomplete.",
+          "modules": [
+            "registry and scoped access",
+            "operational controls",
+            "authenticated Hub projection",
+            "verified status/readback",
+            "user acceptance and telemetry",
+            "recovery interaction"
+          ],
+          "learningPlan": "Real management journeys, permissions and device cases; user evidence separate from automation.",
+          "qualificationMetrics": [
+            "task success",
+            "permission violations",
+            "stale/false state",
+            "readback convergence",
+            "interaction latency"
+          ],
+          "firstPilot": "Expose one approved Hub workflow projection after lawful policy adoption.",
+          "completionBoundary": "No discretionary UI before ACTIVE; no shadow registry, authority, duplicate data store or domain change."
+        },
+        {
+          "id": "BP-12",
+          "developmentProject": "BP-12 — Giám sát và Tối ưu",
+          "baseline": "Existing private repository empty as last verified; Hub advisory evaluator risk21 available, not live enforcement.",
+          "modules": [
+            "event intake and root-cause dedup",
+            "strategy/process drift",
+            "burden >30 immediate scoped remediation",
+            "danger >40 verified root-cause closure",
+            "critical overrides",
+            "critical path and efficiency",
+            "feedback and calibrated risk"
+          ],
+          "learningPlan": "Use authorized incident cohorts, independently labeled severity and heldout time windows; compare alerts and recurrence; no risk score as probability.",
+          "qualificationMetrics": [
+            "false/missed alerts by severity",
+            "time to verified remediation",
+            "repeat root causes",
+            "flow efficiency",
+            "threshold/latch correctness",
+            "unknown/stale rate"
+          ],
+          "firstPilot": "Observe one real product vertical slice, demonstrate exact threshold boundaries and evidence-linked closure through Hub.",
+          "completionBoundary": "BP-12 assesses; Hub canonical enforcement/dispatch; A/B verify; no duplicate journal or autonomous scope expansion."
+        }
+      ],
+      "qualification": {
+        "commonEvidence": [
+          "repository ID and exact source SHA",
+          "actual capability manifest and versioned API",
+          "accepted scope/non-goals and dependency contract",
+          "native scoped tests and negative cases",
+          "independent evaluation with samples/limitations",
+          "private casebook provenance and heldout split when applicable",
+          "resource metrics if available",
+          "artifact/evidence references",
+          "rollback/failure controls",
+          "remaining integration prerequisites"
+        ],
+        "scoring": "No invented percentage or universal test count. Each specialist selects domain-specific acceptance thresholds before evaluation with justified sample coverage; separate capability completeness, local verification, integration, and operational health. Mandatory security/authority/release gates cannot be averaged away.",
+        "handoff": "One source-bound handoff to canonical Hub #159/WorkPackage, then automatic coordination only when actual runtime is admitted. No manual cross-chat relay required for production.",
+        "constraints": [
+          "policy-first: plan now, develop according to approved sequence after lawful 1.5 activation/adoption",
+          "reuse existing branches/tests and contracts; only delta QA",
+          "no new GitHub repo, no new provider, ZERO-SPEND",
+          "no UI before ACTIVE",
+          "private data stays in owning specialist/product",
+          "no fake model training, no fake independence, no self-issued authority"
+        ]
+      }
     }
   }
 }
