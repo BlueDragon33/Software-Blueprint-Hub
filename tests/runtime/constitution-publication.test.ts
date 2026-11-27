@@ -14,15 +14,20 @@ function fixture(change?: (url: string, body: ProviderFixture) => void, defect?:
  const successor=nextVersion==="successor";
  const r33Patch="docs/amendments/CONSTITUTION-1.4-NAV-SUPPORT-PUBLICATION.patch";
  const baseline=successor?applyConstitutionPublicationPatch(readNavigationBaseline().originals,readFileSync(r33Patch,"utf8")):nextVersion?readNavigationBaseline().originals:Object.fromEntries(constitutionPublicationPaths.map(path=>[path,readFileSync(path,"utf8")]));
- const nextPatch=successor?"docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch":r33Patch;
+ const nextPatch=successor?"docs/amendments/CONSTITUTION-1.5-ENTERPRISE-OPTIMIZATION-PUBLICATION.candidate.patch":r33Patch;
+ const historicalPatch="docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch";
  const candidate = nextVersion ? {originals:new Map(Object.entries(baseline)),files:new Map(Object.entries(applyConstitutionPublicationPatch(baseline,readFileSync(nextPatch,"utf8"))))} : buildConstitutionCandidate();
  const steps = readFileSync(".github/workflows/ci.yml", "utf8").split("  release-gate:")[1]!.split("\n")
   .map(line => line.match(/^      - name: (.+)$/)?.[1]).filter((name): name is string => Boolean(name))
   .map(name => ({ name, status: "completed", conclusion: "success" }));
- const attestation=attestConstitutionAuthoritySources(Object.fromEntries(candidate.files),SHA,RUN);
- const patch=readFileSync(nextVersion?nextPatch:"docs/amendments/CONSTITUTION-1.3-PUBLICATION.patch","utf8");
+ const patchPath=nextVersion?nextPatch:"docs/amendments/CONSTITUTION-1.3-PUBLICATION.patch";
+ const patch=readFileSync(patchPath,"utf8");
+ const artifactPatch=successor&&defect==="historical-successor"?readFileSync(historicalPatch,"utf8"):patch;
+ const artifactFiles=successor&&defect==="historical-successor"?applyConstitutionPublicationPatch(baseline,artifactPatch):Object.fromEntries(candidate.files);
+ const attestation=attestConstitutionAuthoritySources(artifactFiles,SHA,RUN);
  const descriptor: Record<string,unknown>={status:"INACTIVE_CANDIDATE_VERIFIED",candidatePolicyVersion:successor?"1.5.0":nextVersion?"1.4.0":"1.3.0",activePolicyVersion:successor?"1.4.0":nextVersion?"1.3.0":"1.2.0",ruleCount:successor?38:nextVersion?33:32,sourceRevision:SHA,ciRunId:RUN,authoritySetDigest:attestation.authoritySetDigest,
-  publicationPatchDigest:constitutionSourceDigest(patch),ratification:"NOT_ASSERTED",publication:"NOT_ASSERTED",productionReleaseAuthority:false};
+  publicationPatchDigest:constitutionSourceDigest(artifactPatch),ratification:"NOT_ASSERTED",publication:"NOT_ASSERTED",productionReleaseAuthority:false};
+ if(defect==="review-only-successor")descriptor.status="REVIEW_ONLY_NOT_ADMITTED";
  const testResults={node:{passed:125,failed:0,skipped:0},vitest:{passed:273,failed:0,skipped:0},browser:{passed:72,failed:0,skipped:0,flaky:0}};
  if(defect==="skipped-tests")testResults.vitest.skipped=1;
  if(defect==="fake-seal")descriptor.authoritySetDigest="sha256:"+"2".repeat(64);
@@ -43,7 +48,7 @@ function fixture(change?: (url: string, body: ProviderFixture) => void, defect?:
   else if(url.endsWith("/git/ref/heads/main")) body={object:{sha:ACTIVE}};
   else {
    const path=url.split(/\/(?:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)\//)[1]!;
-   body=path.endsWith("ci.yml") ? readFileSync(".github/workflows/ci.yml","utf8")+(defect==="workflow-mismatch"&&url.includes(SHA)?"\n# changed":"") : path.endsWith("PUBLICATION.patch") ? (path===(nextVersion?nextPatch:"docs/amendments/CONSTITUTION-1.3-PUBLICATION.patch") ? patch : undefined) : (url.includes(ACTIVE)?candidate.files:candidate.originals).get(path);
+   body=path.endsWith("ci.yml") ? readFileSync(".github/workflows/ci.yml","utf8")+(defect==="workflow-mismatch"&&url.includes(SHA)?"\n# changed":"") : path===patchPath ? patch : path.endsWith(".patch") ? undefined : (url.includes(ACTIVE)?candidate.files:candidate.originals).get(path);
   }
   if (body && typeof body === "object") change?.(url,body);
   return new Response(typeof body==="string"?body:JSON.stringify(body),{status:body===undefined?404:200});
@@ -122,19 +127,23 @@ describe("versioned 1.4 publication admission",()=>{
  });
 });
 
-describe("fixed 1.4-to-1.5 successor publication admission (provider fixtures)",()=>{
+describe("selected 1.4-to-1.5 successor verification (synthetic provider fixtures only)",()=>{
  it("prepares sealed successor bytes, requires exact active runtime and main",async()=>{
   const {http}=fixture(undefined,undefined,"successor");
   const inactive=new GitHubConstitutionPublicationVerifier({http,runtimeRevision:SHA,runtimePolicyVersion:"1.4.0"});
   const proof=await inactive.prepare(SHA,RUN);
   expect(proof.attestation.policyVersion).toBe("1.5.0");
-  expect(proof.attestation.authoritySetDigest).toBe("sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3");
+  expect(proof.attestation.authoritySetDigest).toBe("sha256:5e802bf1cf50c6947f7c8b335d35acc20782ebda12fb4ce8af7e4d79c74ae6cb");
   expect(proof.attestation.productionReleaseAuthority).toBe(false);
   expect(await inactive.verify(proof.attestation)).toBe(false);
   const active=new GitHubConstitutionPublicationVerifier({http,runtimeRevision:ACTIVE,runtimePolicyVersion:"1.5.0"});
   expect(await active.verify(proof.attestation)).toBe(true);
   const stale=new GitHubConstitutionPublicationVerifier({http,runtimeRevision:SHA,runtimePolicyVersion:"1.5.0"});
   expect(await stale.verify(proof.attestation)).toBe(false);
+ });
+ it.each(["historical-successor","review-only-successor"])("rejects non-selected or non-admitted successor evidence: %s",async defect=>{
+  const {http}=fixture(undefined,defect,"successor");
+  await expect(new GitHubConstitutionPublicationVerifier({http,runtimeRevision:ACTIVE,runtimePolicyVersion:"1.5.0"}).prepare(SHA,RUN)).rejects.toThrow(/Artifact seal\/revision\/attempt mismatch/);
  });
  it("rejects historical artifact substitution for successor",async()=>{
   const {http}=fixture(undefined,"wrong-version-artifact","successor");
