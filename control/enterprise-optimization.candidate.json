@@ -236,12 +236,23 @@
       "physicalRenameNow": false,
       "displayLanguage": "vi",
       "technicalIdsStable": true,
-      "inventoryBasis": "Existing 8-repository source review; names of two new repositories are proposals, not existing services or authorized creation."
+      "inventoryBasis": "Existing 8-repository source review; names of two new repositories are proposals, not existing services or authorized creation.",
+      "repositoryNaming": {
+        "status": "TARGET_NAMES_SELECTED_MIGRATION_PENDING",
+        "format": "BP-[mã bộ máy]-[Tên tiếng Việt không dấu]",
+        "display": "[mã] · Tên tiếng Việt có dấu",
+        "targetCount": 10,
+        "existingRenameCount": 8,
+        "newRepositoryCount": 2,
+        "collisionCheck": "No target name found in returned installed repository inventory; not an organization-wide availability guarantee.",
+        "migration": "Đổi tên vật lý từng repo sau kiểm tra phụ thuộc workflow, GitHub App, registry, automations, remote, Cloudflare binding và rollback; không đổi domain/slug hoặc canonical IDs; xác minh lại sau mỗi bước.",
+        "preserve": "Giữ tên repo đang hoạt động trong trường repository để các lệnh hiện tại không trỏ tới tên chưa tồn tại. Không tạo repo mới chỉ để đổi tên."
+      }
     },
     "applications": [
       {
         "id": "BP-00",
-        "vi": "Blueprint OS — Điều hành",
+        "vi": "Điều hành hệ thống",
         "repository": "Software-Blueprint-Hub",
         "disposition": "REUSE_UPGRADE",
         "group": "control",
@@ -255,12 +266,15 @@
         ],
         "deliverable": "Approved policy, dependency-aware work orders, canonical decisions and graph state",
         "owner": "Hub canonical authority; no specialist self-certification",
-        "training": "coordination efficiency and bounded scheduling evaluation"
+        "training": "coordination efficiency and bounded scheduling evaluation",
+        "targetRepository": "BP-00-Dieu-Hanh",
+        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
+        "repositoryId": "1387058298"
       },
       {
         "id": "BP-01",
         "vi": "Thẩm định và Quy hoạch chiến lược",
-        "repository": "Blueprint-01-ThamDinh-ChienLuoc",
+        "repository": "BP-01-Tham-Dinh-Quy-Hoach",
         "disposition": "PROPOSE_NEW_AFTER_POLICY_AND_SEPARATION_REVIEW",
         "group": "01",
         "roles": [
@@ -273,11 +287,13 @@
         ],
         "deliverable": "S1 strategy alternatives and S2 master-plan candidate, with assumptions, evidence and acceptance criteria",
         "owner": "Independent specialist owns assessment/training; Hub records approved strategy/plan; human project authority decides",
-        "training": "real project cases and unseen planning evaluation"
+        "training": "real project cases and unseen planning evaluation",
+        "targetRepository": "BP-01-Tham-Dinh-Quy-Hoach",
+        "repositoryNameStatus": "PROPOSED_NEW_NOT_CREATED"
       },
       {
         "id": "BP-04",
-        "vi": "Nghiên cứu Công nghệ và Thiết kế",
+        "vi": "Nghiên cứu công nghệ và Thiết kế",
         "repository": "Software-Blueprint-Tech-Intelligence",
         "disposition": "REUSE_UPGRADE",
         "group": "02",
@@ -290,7 +306,10 @@
         ],
         "deliverable": "Evidence-based solution and design specifications, feasibility experiments",
         "owner": "Independent research app; product repository retains implementation; no decision or gate authority",
-        "training": "reproducible benchmarks, licensing/provenance, usability and held-out design tasks"
+        "training": "reproducible benchmarks, licensing/provenance, usability and held-out design tasks",
+        "targetRepository": "BP-04-Nghien-Cuu-Thiet-Ke",
+        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
+        "repositoryId": "1463254518"
       },
       {
         "id": "BP-06",
@@ -307,11 +326,14 @@
         ],
         "deliverable": "Scoped threats, countermeasures, verified security findings",
         "owner": "Independent defense app; product owners implement fixes; mandatory gates unchanged",
-        "training": "authorized defensive test cases and false-positive/negative evaluation"
+        "training": "authorized defensive test cases and false-positive/negative evaluation",
+        "targetRepository": "BP-06-Phong-Ve-Bao-Mat",
+        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
+        "repositoryId": "1463255125"
       },
       {
         "id": "BP-07",
-        "vi": "Kiểm soát Thực thi",
+        "vi": "Kiểm soát thực thi",
         "repository": "Software-Blueprint-Execution-Gateway",
         "disposition": "REUSE_UPGRADE",
         "group": "03",
@@ -324,11 +346,14 @@
         ],
         "deliverable": "Bounded signed job grant and dispatch receipt",
         "owner": "Narrow enforcement service, not an authority issuer or AI specialist",
-        "training": "deterministic security/contract validation; no forced AI training"
+        "training": "deterministic security/contract validation; no forced AI training",
+        "targetRepository": "BP-07-Kiem-Soat-Thuc-Thi",
+        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
+        "repositoryId": "1420556349"
       },
       {
         "id": "BP-08",
-        "vi": "Nhà máy Phần mềm",
+        "vi": "Nhà máy phần mềm",
         "repository": "Software-Blueprint-Execution-Worker",
         "disposition": "REUSE_UPGRADE",
         "group": "03",
@@ -345,11 +370,14 @@
         ],
         "deliverable": "Product repository revision and reproducible artifacts, tests and rollback instructions",
         "owner": "Independent execution app; code remains in target product repository; no self-approval",
-        "training": "real bounded engineering tasks, held-out fix/build/test evaluation"
+        "training": "real bounded engineering tasks, held-out fix/build/test evaluation",
+        "targetRepository": "BP-08-Nha-May-Phan-Mem",
+        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
+        "repositoryId": "1420557540"
       },
       {
         "id": "BP-09A",
-        "vi": "Kiểm định Kỹ thuật A",
+        "vi": "Kiểm định kỹ thuật A",
         "repository": "Software-Blueprint-Reviewer-A",
         "disposition": "REUSE_UPGRADE",
         "group": "04",
@@ -360,11 +388,14 @@
         ],
         "deliverable": "Source-bound findings and review verdict",
         "owner": "Independent of reviewed changes or disclose self-review and require independent verification",
-        "training": "technical review corpus, held-out defects and reproducibility"
+        "training": "technical review corpus, held-out defects and reproducibility",
+        "targetRepository": "BP-09A-Kiem-Dinh-Ky-Thuat",
+        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
+        "repositoryId": "1445212967"
       },
       {
         "id": "BP-09B",
-        "vi": "Kiểm định Độc lập B",
+        "vi": "Kiểm định độc lập B",
         "repository": "Software-Blueprint-QA-Worker",
         "disposition": "REUSE_UPGRADE",
         "group": "04",
@@ -376,11 +407,14 @@
         ],
         "deliverable": "Independent findings and acceptance evidence; not canonical PASS",
         "owner": "Independent from author and reviewed implementation",
-        "training": "held-out technical/product defects and evidence authenticity"
+        "training": "held-out technical/product defects and evidence authenticity",
+        "targetRepository": "BP-09B-Kiem-Dinh-Doc-Lap",
+        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
+        "repositoryId": "1420557997"
       },
       {
         "id": "BP-11",
-        "vi": "Quản trị và Vận hành",
+        "vi": "Quản trị ứng dụng và Vận hành",
         "repository": "Application-Management",
         "disposition": "REUSE_UPGRADE",
         "group": "06",
@@ -394,12 +428,15 @@
         ],
         "deliverable": "Existing app registry and authenticated management interaction; live projection of Hub",
         "owner": "App Manager owns management surface; no shadow policy or universal product data",
-        "training": "operational workflows and usability validation"
+        "training": "operational workflows and usability validation",
+        "targetRepository": "BP-11-Quan-Tri-Ung-Dung",
+        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
+        "repositoryId": "1347048818"
       },
       {
         "id": "BP-12",
         "vi": "Giám sát và Tối ưu",
-        "repository": "Blueprint-12-GiamSat-ToiUu",
+        "repository": "BP-12-Giam-Sat-Toi-Uu",
         "disposition": "PROPOSE_NEW_AFTER_POLICY_AND_SEPARATION_REVIEW",
         "group": "cross-cutting",
         "roles": [
@@ -412,7 +449,9 @@
         ],
         "deliverable": "Scoped findings, risk assessment, prioritized remediation/replan recommendation",
         "owner": "Independent assessment app; Hub owns canonical threshold enforcement, task scheduling and closure; no duplicate journal",
-        "training": "real incident cohorts, calibrated scores, false-alert and recurrence evaluation"
+        "training": "real incident cohorts, calibrated scores, false-alert and recurrence evaluation",
+        "targetRepository": "BP-12-Giam-Sat-Toi-Uu",
+        "repositoryNameStatus": "PROPOSED_NEW_NOT_CREATED"
       }
     ],
     "sharedFunctions": {
