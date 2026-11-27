@@ -1,0 +1,204 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "enterprise-optimization-candidate",
+  "status": "PROPOSED_ONLY",
+  "targetVersion": "1.5.0",
+  "baselineAuthoritySetDigest": "sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3",
+  "predecessorSealPreserved": true,
+  "authority": {
+    "ratify": false,
+    "publish": false,
+    "gatePass": false,
+    "production": false
+  },
+  "rules": [
+    {
+      "id": "EO-01",
+      "extends": [
+        "R23",
+        "R24",
+        "R27"
+      ],
+      "requirement": "Evidence-based appraisal including reuse, no-build and alternatives where feasible; project authority approves direction S1 then master plan S2 at exact revision. Proportionate B0-B2 compact/B3-B5 structured; routine approved tasks do not reopen S1/S2."
+    },
+    {
+      "id": "EO-02",
+      "extends": [
+        "R21",
+        "R22",
+        "R35",
+        "R36"
+      ],
+      "requirement": "Reuse six functional groups and existing twelve department responsibilities. One canonical WorkPackage, provider-neutral capability routing, single writer per mutation scope, independent verification, authenticated bounded dispatch."
+    },
+    {
+      "id": "EO-03",
+      "extends": [
+        "R7",
+        "R9",
+        "R17",
+        "R20"
+      ],
+      "requirement": "Event-driven deterministic monitoring; coalesce root causes; accumulated burden >30 triggers immediate scoped remediation; danger >40 or critical/mandatory gate failure requires verified root-cause closure; no repeated unchanged action, no arbitrary retries."
+    },
+    {
+      "id": "EO-04",
+      "extends": [
+        "R17",
+        "R22",
+        "R35",
+        "R37"
+      ],
+      "requirement": "Minimum context, WIP and resource budgets, critical path, selective QA evidence reuse with dependency/environment/revision validity, exact mandatory gates unchanged. Measure accepted outcomes, tokens if available, rework and elapsed time. Unknown is not zero."
+    },
+    {
+      "id": "EO-05",
+      "extends": [
+        "R25",
+        "R26",
+        "R36"
+      ],
+      "requirement": "Federated engines retain data and independent evaluation. App Manager uses existing management entry; graph derives from canonical state, authenticates all commands at Hub, separates risk/progress/health/authority and marks stale/unknown. No shadow registry, no physical rename without reviewed migration."
+    },
+    {
+      "id": "EO-06",
+      "extends": [
+        "R28",
+        "R29",
+        "R36",
+        "R38"
+      ],
+      "requirement": "Independent specialist learning with provenance and holdout evaluation; no weight-training claim without evidence. Policy-first; verify one real vertical slice before broader rollout; no UI prerequisite for lawful publication."
+    }
+  ],
+  "strategic": {
+    "S1": "APPROVED_DIRECTION_EXACT_REVISION",
+    "S2": "APPROVED_MASTER_PLAN_EXACT_REVISION",
+    "materialChange": "REASSESS_AFFECTED_SCOPE_ONLY",
+    "authority": "existing authenticated project authority; not constitutional or Production authority"
+  },
+  "groups": [
+    {
+      "id": "01",
+      "vi": "Chiến lược",
+      "roles": [
+        "thẩm định",
+        "quy hoạch"
+      ],
+      "repositories": [
+        "Software-Blueprint-Hub"
+      ]
+    },
+    {
+      "id": "02",
+      "vi": "Nghiên cứu",
+      "roles": [
+        "công nghệ",
+        "thiết kế",
+        "phòng vệ"
+      ],
+      "repositories": [
+        "Software-Blueprint-Tech-Intelligence",
+        "Software-Blueprint-Innovation-Defense",
+        "Software-Blueprint-Hub"
+      ]
+    },
+    {
+      "id": "03",
+      "vi": "Sản xuất",
+      "roles": [
+        "điều phối",
+        "kiểm soát thực thi",
+        "lập trình"
+      ],
+      "repositories": [
+        "Software-Blueprint-Hub",
+        "Software-Blueprint-Execution-Gateway",
+        "Software-Blueprint-Execution-Worker"
+      ]
+    },
+    {
+      "id": "04",
+      "vi": "Kiểm định",
+      "roles": [
+        "Reviewer A",
+        "Reviewer B"
+      ],
+      "repositories": [
+        "Software-Blueprint-Reviewer-A",
+        "Software-Blueprint-QA-Worker"
+      ]
+    },
+    {
+      "id": "05",
+      "vi": "Phát hành",
+      "roles": [
+        "đóng gói",
+        "phục hồi"
+      ],
+      "repositories": [
+        "Software-Blueprint-Hub",
+        "Software-Blueprint-Execution-Worker"
+      ]
+    },
+    {
+      "id": "06",
+      "vi": "Vận hành",
+      "roles": [
+        "quản trị",
+        "tri thức"
+      ],
+      "repositories": [
+        "Application-Management",
+        "Software-Blueprint-Hub"
+      ]
+    }
+  ],
+  "monitoring": {
+    "owner": "Software-Blueprint-Hub",
+    "mode": "deterministic-event-driven-advisory-until-admitted",
+    "burden": {
+      "thresholdExclusive": 30,
+      "formula": "100 * sum(unique unresolved root-cause burdenPoints) / approved scope budgetPoints; cap display at 100; compare unrounded",
+      "missing": "UNVERIFIED"
+    },
+    "danger": {
+      "thresholdExclusive": 40,
+      "formula": "maximum assessed unresolved incident dangerScore per scope; never portfolio average",
+      "missing": "UNVERIFIED"
+    },
+    "overrides": [
+      "critical",
+      "mandatory-gate-failure",
+      "unresolved-root-closure-latch"
+    ],
+    "closure": "canonical independently verified root cause remediation and recovery; no score-only closure",
+    "riskScore": "0..100 ordinal calibrated score, not probability; source-bound assessment and approved budget required",
+    "scope": "project/repository/workPackage/rootCause; isolate affected dependencies; continue unrelated authorized work",
+    "dedup": "canonical rootCauseId; conflicts remain UNVERIFIED, retain conservative known severity"
+  },
+  "graph": {
+    "route": "/apps/software-blueprint-hub",
+    "source": "existing Hub canonical records and journals",
+    "projection": "snapshot + incremental events; stale/unknown explicit",
+    "progress": "verified weighted acceptance, not commits or tokens; risk independent",
+    "commandAuthority": "existing Hub server permissions, CAS, idempotency, exact scope",
+    "identity": [
+      "projectId",
+      "repository",
+      "revision",
+      "workPackageId",
+      "stageId",
+      "rootCauseId",
+      "detectedBy",
+      "causalOwner"
+    ]
+  },
+  "release": {
+    "cloudflareOnly": true,
+    "zeroSpend": true,
+    "productionAuthority": false,
+    "exactGatesPreserved": true
+  },
+  "admission": "Requires reviewed mapping into revised normative publication patch, template and source attestation; preserve old target/seals; no activation from this file."
+}

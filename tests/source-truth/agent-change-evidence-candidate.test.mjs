@@ -1080,3 +1080,290 @@ test("Publication preflight binds the human decision to sealed law, not self-dec
   x.ratification.authoritySetDigest = "sha256:" + "e".repeat(64);
   assert.ok(publication(x).blocked.includes("AUTHENTICATED_EXACT_REVISION_HUMAN_RATIFICATION_REQUIRED"));
 });
+
+// Enterprise optimization candidate: advisory rules, not runtime admission.
+import { evaluateAccumulatedRisk } from "../../scripts/agent-change-evidence-candidate.mjs";
+function riskFixture(entries,overrides={}){return {budgetPoints:100,scopeVerified:true,inventoryComplete:true,incidents:entries.map(x=>({state:"OPEN",closureVerified:false,critical:false,mandatoryGateFailure:false,rootClosureRequired:false,...x})),...overrides};}
+const enterpriseRiskCases=[
+  [
+    "30 exact",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 30,
+        "dangerScore": 40
+      }
+    ],
+    "ACCUMULATE",
+    30,
+    40
+  ],
+  [
+    "31 immediate",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 31,
+        "dangerScore": 40
+      }
+    ],
+    "REMEDIATE_NOW",
+    31,
+    40
+  ],
+  [
+    "41 closure",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 41
+      }
+    ],
+    "ROOT_CAUSE_CLOSURE_REQUIRED",
+    1,
+    41
+  ],
+  [
+    "critical override",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 1,
+        "critical": true
+      }
+    ],
+    "ROOT_CAUSE_CLOSURE_REQUIRED",
+    1,
+    1
+  ],
+  [
+    "gate override",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 1,
+        "mandatoryGateFailure": true
+      }
+    ],
+    "ROOT_CAUSE_CLOSURE_REQUIRED",
+    1,
+    1
+  ],
+  [
+    "latched recovery",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 39,
+        "rootClosureRequired": true
+      }
+    ],
+    "ROOT_CAUSE_CLOSURE_REQUIRED",
+    1,
+    39
+  ],
+  [
+    "dedup",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 20,
+        "dangerScore": 10
+      },
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 20,
+        "dangerScore": 10
+      }
+    ],
+    "ACCUMULATE",
+    20,
+    10
+  ],
+  [
+    "aggregate",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 20,
+        "dangerScore": 10
+      },
+      {
+        "rootCauseId": "b",
+        "burdenPoints": 11,
+        "dangerScore": 20
+      }
+    ],
+    "REMEDIATE_NOW",
+    31,
+    20
+  ],
+  [
+    "max danger",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 80
+      },
+      {
+        "rootCauseId": "b",
+        "burdenPoints": 1,
+        "dangerScore": 0
+      }
+    ],
+    "ROOT_CAUSE_CLOSURE_REQUIRED",
+    2,
+    80
+  ],
+  [
+    "conflict retains urgency",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 60
+      },
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 10
+      }
+    ],
+    "ROOT_CAUSE_CLOSURE_REQUIRED",
+    null,
+    null
+  ],
+  [
+    "closure requires proof",
+    [
+      {
+        "rootCauseId": "a",
+        "state": "CLOSED",
+        "burdenPoints": 1,
+        "dangerScore": 41
+      }
+    ],
+    "ROOT_CAUSE_CLOSURE_REQUIRED",
+    null,
+    null
+  ],
+  [
+    "verified closure",
+    [
+      {
+        "rootCauseId": "a",
+        "state": "CLOSED",
+        "closureVerified": true,
+        "burdenPoints": 1,
+        "dangerScore": 41
+      }
+    ],
+    "ACCUMULATE",
+    0,
+    0
+  ],
+  [
+    "unknown score",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": null
+      }
+    ],
+    "UNVERIFIED",
+    null,
+    null
+  ],
+  [
+    "missing budget",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 1
+      }
+    ],
+    "UNVERIFIED",
+    null,
+    null,
+    {
+      "budgetPoints": null
+    }
+  ],
+  [
+    "critical unknown budget",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 99
+      }
+    ],
+    "ROOT_CAUSE_CLOSURE_REQUIRED",
+    null,
+    null,
+    {
+      "budgetPoints": null
+    }
+  ],
+  [
+    "untrusted scope",
+    [],
+    "UNVERIFIED",
+    null,
+    null,
+    {
+      "scopeVerified": false
+    }
+  ],
+  [
+    "incomplete inventory",
+    [],
+    "UNVERIFIED",
+    null,
+    null,
+    {
+      "inventoryComplete": false
+    }
+  ],
+  [
+    "closed/open conflict",
+    [
+      {
+        "rootCauseId": "a",
+        "state": "CLOSED",
+        "closureVerified": true
+      },
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 1,
+        "dangerScore": 41
+      }
+    ],
+    "ROOT_CAUSE_CLOSURE_REQUIRED",
+    null,
+    null
+  ],
+  [
+    "clamped display",
+    [
+      {
+        "rootCauseId": "a",
+        "burdenPoints": 130,
+        "dangerScore": 1
+      }
+    ],
+    "REMEDIATE_NOW",
+    100,
+    1
+  ]
+];
+for(const [name,entries,action,b,d,overrides] of enterpriseRiskCases){
+  test("EO risk: "+name,()=>{const r=evaluateAccumulatedRisk(riskFixture(entries,overrides));assert.equal(r.action,action);assert.equal(r.burdenPercent,b);assert.equal(r.dangerPercent,d);assert.ok(Object.values(r.authority).every(v=>v===false));});
+}

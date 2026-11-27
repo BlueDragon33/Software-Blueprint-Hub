@@ -757,3 +757,51 @@ export function summarizeFixCohorts(reports, minimum = 20) {
     productionRelease: false
   });
 }
+
+/** Advisory only: caller must authenticate canonical inventory, budget, scope and closure evidence. */
+export function evaluateAccumulatedRisk(snapshot) {
+  const authority={canonicalGatePass:false,constitutionalRatification:false,productionRelease:false};
+  const result=(action,burdenPercent,dangerPercent,issues,rootCauseIds)=>({action,burdenPercent,dangerPercent,issues,rootCauseIds,authority});
+  if(!snapshot||!Array.isArray(snapshot.incidents))return result("UNVERIFIED",null,null,["INVALID_SNAPSHOT"],[]);
+  const validInt=(v,min,max)=>Number.isSafeInteger(v)&&v>=min&&v<=max;
+  const issues=new Set(), roots=new Map();
+  const validBudget=validInt(snapshot.budgetPoints,1,1000000);
+  if(!validBudget)issues.add("MISSING_APPROVED_BUDGET");
+  if(snapshot.scopeVerified!==true)issues.add("SCOPE_UNVERIFIED");
+  if(snapshot.inventoryComplete!==true)issues.add("INCOMPLETE_INVENTORY");
+  let severe=false;
+  for(const entry of snapshot.incidents){
+    if(!entry||typeof entry!=="object"){issues.add("INVALID_INCIDENT");continue;}
+    const id=entry.rootCauseId;
+    const validId=typeof id==="string"&&id.trim()===id&&id.length>0&&id.length<=200;
+    const closed=entry.state==="CLOSED"&&entry.closureVerified===true;
+    if(!validId)issues.add("INVALID_ROOT_ID");
+    if(entry.state!=="OPEN"&&entry.state!=="CLOSED")issues.add("INVALID_STATE");
+    if(entry.state==="CLOSED"&&!closed)issues.add("UNVERIFIED_CLOSURE");
+    if(entry.state==="OPEN"&&entry.closureVerified===true)issues.add("CONFLICTING_CLOSURE");
+    if(closed&&validId){
+      const previous=roots.get(id);
+      if(previous&&!previous.closed)issues.add("CONFLICTING_ROOT_RECORD");
+      else if(!previous)roots.set(id,{closed:true,burden:0,danger:0});
+      continue;
+    }
+    const b=validInt(entry.burdenPoints,0,1000000)?entry.burdenPoints:null;
+    const d=validInt(entry.dangerScore,0,100)?entry.dangerScore:null;
+    if(b===null||d===null)issues.add("UNVERIFIED_SCORE");
+    const flags=[entry.critical,entry.mandatoryGateFailure,entry.rootClosureRequired];
+    if(flags.some(v=>typeof v!=="boolean"))issues.add("UNVERIFIED_OVERRIDE");
+    if(flags.some(v=>v===true)||d!==null&&d>40)severe=true;
+    if(!validId)continue;
+    const prev=roots.get(id);
+    if(prev&&(prev.closed||prev.burden!==b||prev.danger!==d||prev.flags?.some((v,i)=>v!==flags[i])))issues.add("CONFLICTING_ROOT_RECORD");
+    roots.set(id,{closed:false,burden:prev&&!prev.closed?(prev.burden===null||b===null?null:Math.max(prev.burden,b)):b,danger:prev&&!prev.closed?(prev.danger===null||d===null?null:Math.max(prev.danger,d)):d,flags});
+  }
+  const open=[...roots.entries()].filter(([,v])=>!v.closed);
+  const knownBurden=open.reduce((n,[,v])=>n+BigInt(v.burden??0),0n);
+  const knownDanger=Math.max(0,...open.map(([,v])=>v.danger??0));
+  const immediate=validBudget&&knownBurden*100n>BigInt(snapshot.budgetPoints)*30n;
+  const unknown=issues.size>0;
+  return result(severe?"ROOT_CAUSE_CLOSURE_REQUIRED":immediate?"REMEDIATE_NOW":unknown?"UNVERIFIED":"ACCUMULATE",
+    !unknown&&validBudget?Math.min(100,Number(knownBurden)*100/snapshot.budgetPoints):null,
+    !unknown?knownDanger:null,[...issues].sort(),open.map(([id])=>id).sort());
+}
