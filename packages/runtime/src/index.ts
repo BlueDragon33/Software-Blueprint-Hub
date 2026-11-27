@@ -17,12 +17,15 @@ import {
 } from "@blueprint-os/application";
 import { GitHubConstitutionPublicationVerifier } from "./constitution-publication";
 import { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
+import { PostgresWorkflowInspectionQaJournal } from "./workflow-inspection-qa-journal";
+import { ReviewerBSourceAdmissionService } from "./reviewer-b-source-admission";
 export { PostgresWorkflowExecutionAuthority } from "./workflow-execution-authority";
 export { PostgresWorkflowExecutionJournal } from "./workflow-execution-journal";
 export { ScopedGitHubReadExecutor } from "./workflow-scoped-github-executor";
 export { PinnedInspectionQaVerifier } from "./workflow-observation-qa";
 export { executeAndVerifyScopedInspection } from "./workflow-inspection-pipeline";
 export { PostgresWorkflowInspectionQaJournal } from "./workflow-inspection-qa-journal";
+export { ReviewerBSourceAdmissionService } from "./reviewer-b-source-admission";
 import { AuthorityService } from "@blueprint-os/core";
 import {
   createPrismaClient,
@@ -55,6 +58,8 @@ export interface BlueprintServerRuntime {
   readonly workflowExecutionJournal: PostgresWorkflowExecutionJournal;
   /** Canonical append-only adoption and issuer decisions; no private keys. */
   readonly workflowExecutionAuthority: PostgresWorkflowExecutionAuthorityRepository;
+  /** Source/QA journal checking only; no Reviewer B principal or live agent. */
+  readonly reviewerBSourceAdmission: ReviewerBSourceAdmissionService;
 }
 
 export function createBlueprintServerRuntime(
@@ -133,6 +138,12 @@ export function createBlueprintServerRuntime(
   );
   const workflowExecutionJournal = new PostgresWorkflowExecutionJournal(prisma);
   const workflowExecutionAuthority = new PostgresWorkflowExecutionAuthorityRepository(prisma);
+  const reviewerBSourceAdmission = new ReviewerBSourceAdmissionService({
+    authority: workflowExecutionAuthority,
+    workPackages: workRepository,
+    execution: workflowExecutionJournal,
+    qa: new PostgresWorkflowInspectionQaJournal(prisma)
+  });
 
   return Object.freeze({
     prisma,
@@ -148,7 +159,8 @@ export function createBlueprintServerRuntime(
     prompts,
     professionalReview,
     workflowExecutionJournal,
-    workflowExecutionAuthority
+    workflowExecutionAuthority,
+    reviewerBSourceAdmission
   });
 }
 

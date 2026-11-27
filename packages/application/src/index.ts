@@ -264,6 +264,8 @@ export * from "./prompt-workflow-graph";
 export * from "./prompt-workflow-orchestration";
 
 export * from "./prompt-workflow-execution";
+export {validateReviewWorkOrder,reviewOrderKey,reviewSourceDigestV1} from "./reviewer-ab-contract.mjs";
+export type {ReviewWorkOrder,ReviewSourceFile} from "./reviewer-ab-contract.mjs";
 
 export type { WorkflowNode } from "./prompt-workflow-core.mjs";
 
