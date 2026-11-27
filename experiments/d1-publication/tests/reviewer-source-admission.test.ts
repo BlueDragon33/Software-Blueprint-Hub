@@ -5,6 +5,7 @@ import {describe,it,expect} from "vitest";
 import {newD1Fixture} from "../d1-fixture";
 import {createD1BlueprintServerRuntime} from "../../../packages/runtime/src/d1";
 import {D1WorkQualityRepository} from "../../../packages/persistence/src/d1";
+import {ReviewerBSourceAdmissionService} from "../../../packages/runtime/src/reviewer-b-source-admission";
 import {workflowManifestDigest} from "../../../packages/application/src/prompt-workflow-orchestration";
 import {workflowExecutionGrantSigningPayload,type WorkflowExecutionGrantPayload} from "../../../packages/application/src/prompt-workflow-execution";
 import {reviewOrderKey,validateReviewWorkOrder,type ReviewWorkOrder} from "../../../packages/application/src/reviewer-ab-contract.mjs";
@@ -49,11 +50,42 @@ describe("R3 D1 source admission composition — changed integration only",()=>{
       expect(await service.verifySource(input)).toMatchObject({status:"SOURCE_AND_P3_QA_JOURNAL_VERIFIED",canonicalWorkPackageCASVerified:true,reviewerBPrincipalVerified:false,reviewerBReviewExecuted:false,authenticatedReviewEvidenceIssued:false,qualityGatePassed:false,productionAuthorized:false});
       await expect(service.verifySource({...input,requestId:sha("wrong")})).rejects.toThrow(/requestId/);
       await expect(service.verifySource({...input,context:{...context,policyVersion:"1.5.0"}})).rejects.toThrow(/policy mismatch/);
-      await work.updateWorkPackage({...wp,meta:{...wp.meta,recordVersion:2,updatedAt:now.toISOString()}},1);
-      await expect(service.verifySource(input)).rejects.toThrow(/WorkPackage CAS/);
-      // Revocation is checked before journal admission even on the older order.
-      await rt.workflowExecutionAuthority.recordIssuer({...issuer,decision:"revoke"});
-      await expect(service.verifySource(input)).rejects.toThrow(/issuer/i);
+      // R3-002: even a rekeyed, structurally valid but unbound PR/byte scope
+      // is only historical source readback. It must not be a B handoff grant.
+      const unboundFields={...order,pullRequestNumber:164,scope:{...order.scope,maxBytes:1}};
+      const unbound={...unboundFields,orderKey:reviewOrderKey(unboundFields)};
+      expect(await service.verifySource({...input,order:unbound})).toMatchObject({
+        admissionKind:"SOURCE_READBACK_ONLY",canonicalReviewWorkOrderVerified:false,
+        signedPrIdentityVerified:false,orderByteScopeVerified:false,reviewHandoffAuthorized:false
+      });
+      const stores={authority:rt.workflowExecutionAuthority,workPackages:work,
+        execution:rt.workflowExecutionJournal,qa:rt.workflowInspectionQaJournal};
+      // Actual D1 CAS update deliberately interleaved after QA read.
+      const casDrift=new ReviewerBSourceAdmissionService({...stores,qa:{
+        readVerified:async(id,attempt)=>{
+          const evidence=await stores.qa.readVerified(id,attempt);
+          await work.updateWorkPackage({...wp,meta:{...wp.meta,recordVersion:2,updatedAt:new Date().toISOString()}},1);
+          return evidence;
+        }
+      }});
+      await expect(casDrift.verifySource(input)).rejects.toThrow(/WorkPackage CAS/);
+      const nextFields={...order,workPackageRecordVersion:2,expectedStateVersion:2};
+      const nextInput={...input,order:{...nextFields,orderKey:reviewOrderKey(nextFields)}};
+      // A trusted server clock expires during a durable read, not the caller's frozen time.
+      let current=new Date();
+      const expiryDrift=new ReviewerBSourceAdmissionService({...stores,execution:{
+        read:async(id)=>{const observed=await stores.execution.read(id);current=new Date(expiry);return observed;}
+      }},()=>current);
+      await expect(expiryDrift.verifySource(nextInput)).rejects.toThrow(/expired/);
+      // Actual D1 issuer revoke deliberately interleaved after execution read.
+      const revokeDrift=new ReviewerBSourceAdmissionService({...stores,execution:{
+        read:async(id)=>{
+          const observed=await stores.execution.read(id);
+          await rt.workflowExecutionAuthority.recordIssuer({...issuer,decision:"revoke"});
+          return observed;
+        }
+      }});
+      await expect(revokeDrift.verifySource(nextInput)).rejects.toThrow(/issuer/i);
     }finally{await f.dispose();}
   },15000);
 });

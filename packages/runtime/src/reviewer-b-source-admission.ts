@@ -47,7 +47,7 @@ export class ReviewerBSourceAdmissionService {
     workPackages: Pick<PostgresWorkQualityRepository, "findWorkPackageById">;
     execution: Pick<PostgresWorkflowExecutionJournal, "read">;
     qa: Pick<PostgresWorkflowInspectionQaJournal, "readVerified">;
-  }>) {}
+  }>, private readonly clock: () => Date = () => new Date()) {}
 
   async verifySource(input: ReviewerBSourceAdmissionInput): Promise<Readonly<{
     status: "SOURCE_AND_P3_QA_JOURNAL_VERIFIED";
@@ -55,6 +55,13 @@ export class ReviewerBSourceAdmissionService {
     requestId: string;
     observationDigest: string;
     verifiedFiles: number;
+    /** Historical, rechecked observation; never a lock or mutation permit. */
+    admissionKind: "SOURCE_READBACK_ONLY";
+    freshnessRecheckedAt: string;
+    canonicalReviewWorkOrderVerified: false;
+    signedPrIdentityVerified: false;
+    orderByteScopeVerified: false;
+    reviewHandoffAuthorized: false;
     canonicalWorkPackageCASVerified: true;
     signedSourceInspectionVerified: true;
     independentP3QaJournalVerified: true;
@@ -64,7 +71,8 @@ export class ReviewerBSourceAdmissionService {
     qualityGatePassed: false;
     productionAuthorized: false;
   }>> {
-    const {order, grant, workflow, context, requestId, now} = input ?? {};
+    // Snapshot the input once: async callbacks cannot replace the admitted scope.
+    const {order, grant, workflow, context, requestId, now} = structuredClone(input);
     if (!order || !workflow || !context || !(now instanceof Date) ||
         !Number.isFinite(now.getTime()) || !DIGEST.test(requestId ?? "") ||
         !SHA.test(order.sourceRevision ?? "")) {
@@ -76,17 +84,39 @@ export class ReviewerBSourceAdmissionService {
         context.policyVersion !== order.policyVersion) {
       fail("source policy mismatch; reconcile bridge with published policy before use");
     }
-    if (Date.parse(order.issuedAt) > now.getTime() ||
-        Date.parse(order.expiresAt) <= now.getTime()) {
-      fail("Hub order has expired or is not yet effective");
-    }
+    // Only the server-owned clock is authoritative. A supplied invocation
+    // timestamp cannot extend a grant across asynchronous reads.
+    let lastTime = now.getTime();
+    const currentTime = (): Date => {
+      const at = this.clock();
+      if (!(at instanceof Date) || !Number.isFinite(at.getTime()) || at.getTime() < lastTime) {
+        return fail("invalid or backwards server clock");
+      }
+      lastTime = at.getTime();
+      if (Date.parse(order.issuedAt) > lastTime || Date.parse(order.expiresAt) <= lastTime) {
+        return fail("Hub order has expired or is not yet effective");
+      }
+      return at;
+    };
+    currentTime();
     const authority = await PostgresWorkflowExecutionAuthority.load(
       this.stores.authority, order.projectId, order.workflowId, order.policyVersion
     );
     // Actual Ed25519, adoption, latest issuer and WorkPackage.meta.recordVersion.
-    await verifyReviewSourceAdmission(
-      order, grant, workflow, context, authority, this.stores.workPackages, now
-    );
+    const recheckAuthority = async (): Promise<void> => {
+      await verifyReviewSourceAdmission(
+        order, grant, workflow, context, authority, this.stores.workPackages, currentTime()
+      );
+      // A WorkOrder is not signed by this grant. Its lifetime must nevertheless
+      // remain within that grant; never extend inspection permission.
+      const signed = grant as WorkflowExecutionGrant;
+      if (Date.parse(order.issuedAt) < Date.parse(signed.issuedAt) ||
+          Date.parse(order.expiresAt) > Date.parse(signed.expiresAt)) {
+        fail("WorkOrder lifetime exceeds signed inspection grant");
+      }
+      if (Date.parse(signed.expiresAt) <= currentTime().getTime()) fail("signed inspection grant expired");
+    };
+    await recheckAuthority();
     // Existing executor's durable key = SHA-256 of the FULL signed grant.
     // This prevents a caller from substituting a successful journal request
     // from another task, even if the path/SHA happens to match.
@@ -122,8 +152,25 @@ export class ReviewerBSourceAdmissionService {
         qa.verifierId !== INDEPENDENT_INSPECTION_VERIFIER_ID) {
       return fail("missing or inconsistent independently persisted byte readback");
     }
+    // R3-001: journal/QA awaits may interleave with canonical revocation or CAS.
+    // Reuse the same pinned authority (including latest key/revocation reads)
+    // and canonical WP verifier at the final handoff boundary. This is not
+    // atomic across stores: B must still run freshAuthority before analysis,
+    // persistence and final use; any protected mutation needs atomic CAS.
+    await recheckAuthority();
+    const freshnessRecheckedAt = currentTime().toISOString();
     return Object.freeze({
       status: "SOURCE_AND_P3_QA_JOURNAL_VERIFIED",
+      admissionKind: "SOURCE_READBACK_ONLY",
+      freshnessRecheckedAt,
+      // R3-002: the four existing ports cannot attest a durable canonical
+      // WorkOrder, signed PR v2 identity or order-specific actual byte budget.
+      // Never use this result to satisfy B verifyHubIssuerGrant or
+      // readCanonicalReviewWorkOrder; those need independent real services.
+      canonicalReviewWorkOrderVerified: false,
+      signedPrIdentityVerified: false,
+      orderByteScopeVerified: false,
+      reviewHandoffAuthorized: false,
       sourceRevision: order.sourceRevision,
       requestId,
       observationDigest: qa.observationDigest,
