@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Read-only successor proof preparation. Never authorizes publication or writes law.
-import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { readFileSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { constitutionPublicationPaths, constitutionPublicationProfile, applyConstitutionPublicationPatch, attestConstitutionAuthoritySources, constitutionSourceDigest } from "../packages/application/src/constitution-publication-sources.ts";
 import { buildNavigationPublicationCandidate, verifyNavigationBlobSeals } from "./check-constitution-1.4-candidate.mjs";
@@ -24,9 +24,46 @@ export function buildProductCompletionPublicationCandidate(root=process.cwd(),re
  const status=activeVersion==="1.3.0"?"PREDECESSOR_NOT_ACTIVE":activeVersion==="1.4.0"?"INACTIVE_CANDIDATE_VERIFIED":"ACTIVE_AUTHORITY_SET_VERIFIED";
  return {profile,files,attestation,descriptor:{status,activePolicyVersion:activeVersion,candidatePolicyVersion:attestation.policyVersion,ruleCount:38,sourceRevision:revision,ciRunId:runId,authoritySetDigest:attestation.authoritySetDigest,publicationPatchDigest:constitutionSourceDigest(patch),ratification:"NOT_ASSERTED",publication:"NOT_ASSERTED",productionReleaseAuthority:false}};
 }
+
+const enterprisePatchPath="docs/amendments/CONSTITUTION-1.5-ENTERPRISE-OPTIMIZATION-PUBLICATION.candidate.patch";
+const enterpriseCandidatePath="control/enterprise-optimization.candidate.json";
+const enterpriseDigest="sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20";
+const enterprisePredecessorDigest="sha256:229b4084e5f4efe0a70432bb447ca76cf6e1101790ba3d79e5066775d5cbea2d";
+const historicalProductDigest="sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3";
+
+// Read-only review of the revised exact target; never emit operational publication proof.
+export function reviewEnterpriseAuthoritySet(prior,historical,patch,revision="",runId=""){
+ if(prior.attestation.authoritySetDigest!==enterprisePredecessorDigest||
+    historical.attestation.authoritySetDigest!==historicalProductDigest||
+    prior.attestation.policyVersion!=="1.4.0"||historical.attestation.policyVersion!=="1.5.0")throw Error("Enterprise predecessor/historical seal mismatch");
+ const files=applyConstitutionPublicationPatch(prior.files,patch);
+ verifyNavigationBlobSeals(prior.files,files,patch);
+ const attestation=attestConstitutionAuthoritySources(files,revision,runId);
+ if(attestation.authoritySetDigest!==enterpriseDigest||attestation.policyVersion!=="1.5.0"||attestation.productionReleaseAuthority!==false)throw Error("Enterprise authority-set seal mismatch");
+ const [normative,contract,...unchanged]=constitutionPublicationPaths;
+ const before=JSON.parse(historical.files[contract]),after=JSON.parse(files[contract]);
+ if(unchanged.some(path=>files[path]!==historical.files[path])||
+    !files[normative].startsWith(historical.files[normative].split("### 10.R34")[0])||
+    JSON.stringify(after.executionRules)!==JSON.stringify(before.executionRules)||
+    JSON.stringify(after.pillars)!==JSON.stringify(before.pillars)||
+    after.enterpriseOptimization?.monitoring?.burden?.thresholdExclusive!==30||
+    after.enterpriseOptimization?.monitoring?.danger?.thresholdExclusive!==40||
+    after.enterpriseOptimization?.productionReleaseAuthority!==false)throw Error("Enterprise historical law or risk contract drift");
+ return {files,attestation,descriptor:{status:"REVIEW_ONLY_NOT_ADMITTED",activePolicyVersion:prior.descriptor.activePolicyVersion,candidatePolicyVersion:"1.5.0",ruleCount:38,sourceRevision:revision,ciRunId:runId,authoritySetDigest:attestation.authoritySetDigest,publicationPatchDigest:constitutionSourceDigest(patch),ratification:"NOT_ASSERTED",publication:"NOT_ASSERTED",productionReleaseAuthority:false}};
+}
+
+export function buildEnterpriseReviewCandidate(root=process.cwd(),revision="",runId=""){
+ const prior=buildNavigationPublicationCandidate(root,revision,runId);
+ const historical=buildProductCompletionPublicationCandidate(root,revision,runId);
+ return reviewEnterpriseAuthoritySet(prior,historical,readFileSync(root+"/"+enterprisePatchPath,"utf8"),revision,runId);
+}
+
 if(import.meta.url===pathToFileURL(process.argv[1]??"").href){
  const revision=process.env.GITHUB_SHA??"",runId=process.env.GITHUB_RUN_ID??"";
- const result=buildProductCompletionPublicationCandidate(process.cwd(),revision,runId);
+ const reviewOnly=process.argv.includes("--review-enterprise");
+ const emit=process.argv.includes("--write-evidence");
+ if(emit&&(reviewOnly||existsSync(enterpriseCandidatePath)))throw Error("Revised enterprise candidate requires independently admitted publication profile; proof emission disabled");
+ const result=reviewOnly?buildEnterpriseReviewCandidate(process.cwd(),revision,runId):buildProductCompletionPublicationCandidate(process.cwd(),revision,runId);
  if(process.argv.includes("--write-evidence")){
   if(result.descriptor.status==="PREDECESSOR_NOT_ACTIVE")throw Error("1.5 publication proof requires an active 1.4 predecessor");
   if(!/^[a-f0-9]{40}$/.test(revision)||!/^\d+$/.test(runId))throw Error("Exact CI context required");

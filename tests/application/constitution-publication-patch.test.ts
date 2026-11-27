@@ -23,3 +23,25 @@ describe("sealed publication bytes", () => {
     expect(() => applyConstitutionPublicationPatch(files, patch)).toThrow();
   });
 });
+
+describe("revised enterprise authority review (not publication admission)", () => {
+  it("replays the exact revised authority and retains the historical target", async () => {
+    const { buildEnterpriseReviewCandidate, buildProductCompletionPublicationCandidate } = await import("../../scripts/check-constitution-1.5-candidate.mjs");
+    const historical = buildProductCompletionPublicationCandidate();
+    const revised = buildEnterpriseReviewCandidate();
+    expect(historical.attestation.authoritySetDigest).toBe("sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3");
+    expect(revised.attestation.authoritySetDigest).toBe("sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20");
+    expect(revised.descriptor.status).toBe("REVIEW_ONLY_NOT_ADMITTED");
+    expect(revised.descriptor.publication).toBe("NOT_ASSERTED");
+    expect(revised.descriptor.productionReleaseAuthority).toBe(false);
+  });
+  it("rejects a changed patch even when an existing canonical replay is available", async () => {
+    const { buildProductCompletionPublicationCandidate, reviewEnterpriseAuthoritySet } = await import("../../scripts/check-constitution-1.5-candidate.mjs");
+    const { buildNavigationPublicationCandidate } = await import("../../scripts/check-constitution-1.4-candidate.mjs");
+    const prior=buildNavigationPublicationCandidate(), historical=buildProductCompletionPublicationCandidate();
+    const patch=readFileSync("docs/amendments/CONSTITUTION-1.5-ENTERPRISE-OPTIMIZATION-PUBLICATION.candidate.patch","utf8");
+    expect(() => reviewEnterpriseAuthoritySet(prior,historical,patch.replace("thresholdExclusive\": 30","thresholdExclusive\": 31"))).toThrow();
+    expect(() => reviewEnterpriseAuthoritySet(prior,historical,readFileSync("docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch","utf8"))).toThrow(/Enterprise authority-set seal mismatch/);
+    expect(() => reviewEnterpriseAuthoritySet({...prior,attestation:{...prior.attestation,authoritySetDigest:"wrong"}},historical,patch)).toThrow(/predecessor\/historical seal mismatch/);
+  });
+});
