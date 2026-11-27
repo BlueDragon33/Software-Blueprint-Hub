@@ -201,7 +201,11 @@
     "closure": "canonical independently verified root cause remediation and recovery; no score-only closure",
     "riskScore": "0..100 ordinal calibrated score, not probability; source-bound assessment and approved budget required",
     "scope": "project/repository/workPackage/rootCause; isolate affected dependencies; continue unrelated authorized work",
-    "dedup": "canonical rootCauseId; conflicts remain UNVERIFIED, retain conservative known severity"
+    "dedup": "canonical rootCauseId; conflicts remain UNVERIFIED, retain conservative known severity",
+    "assessmentSpecialistId": "BP-12",
+    "assessmentRepository": "BP-12-Giam-Sat-Toi-Uu",
+    "enforcementSpecialistId": "BP-00",
+    "enforcement": "Hub alone enforces canonical thresholds and dispatch; BP-12 independently assesses and recommends; existing independent verification establishes closure. No separate authority or journal."
   },
   "graph": {
     "route": "/apps/software-blueprint-hub",

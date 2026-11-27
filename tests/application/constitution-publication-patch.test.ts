@@ -55,3 +55,29 @@ describe("single prospective 1.5 target", () => {
     expect(buildProductCompletionPublicationCandidate().descriptor.status).toBe("SUPERSEDED_UNPUBLISHED_CANDIDATE");
   });
 });
+
+describe("enterprise specialist routing correction", () => {
+  it("binds the six groups to the approved specialist roster without granting authority", async () => {
+    const { buildEnterpriseReviewCandidate } = await import("../../scripts/check-constitution-1.5-candidate.mjs");
+    const revised = buildEnterpriseReviewCandidate();
+    const plan = JSON.parse(readFileSync("control/enterprise-optimization.candidate.json", "utf8"));
+    const enterprise = JSON.parse(revised.files["control/universal-constitution.contract.json"]).enterpriseOptimization;
+    const apps = plan.coordinationPlan.applications as {id: string; repository: string}[];
+    const byId = new Map(apps.map(app => [app.id, app.repository]));
+    expect(byId.size).toBe(10);
+    expect(plan.coordinationPlan.logicalDepartmentCoverage).toHaveLength(15);
+    expect(enterprise.groups).toEqual(plan.groups);
+    for (const group of enterprise.groups) {
+      expect(group.specialistIds.map((id: string) => byId.get(id))).toEqual(group.repositories);
+    }
+    expect(enterprise.groups.find((group: {id: string}) => group.id === "01").specialistIds).toContain("BP-01");
+    expect(enterprise.monitoring).toEqual(plan.monitoring);
+    expect(enterprise.monitoring.assessmentSpecialistId).toBe("BP-12");
+    expect(enterprise.monitoring.assessmentRepository).toBe(byId.get("BP-12"));
+    expect(enterprise.monitoring.enforcementSpecialistId).toBe("BP-00");
+    expect(enterprise.monitoring.burden.thresholdExclusive).toBe(30);
+    expect(enterprise.monitoring.danger.thresholdExclusive).toBe(40);
+    expect(enterprise.ruleBindings.find((rule: {id: string}) => rule.id === "EO-06").extends).toEqual(["R9", "R36", "R38"]);
+    expect(enterprise.productionReleaseAuthority).toBe(false);
+  });
+});
