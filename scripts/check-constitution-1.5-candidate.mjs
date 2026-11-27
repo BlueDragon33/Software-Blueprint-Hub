@@ -27,7 +27,7 @@ export function buildProductCompletionPublicationCandidate(root=process.cwd(),re
 }
 
 const enterprisePatchPath="docs/amendments/CONSTITUTION-1.5-ENTERPRISE-OPTIMIZATION-PUBLICATION.candidate.patch";
-const enterpriseDigest="sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20";
+const enterpriseDigest="sha256:5e802bf1cf50c6947f7c8b335d35acc20782ebda12fb4ce8af7e4d79c74ae6cb";
 const enterprisePredecessorDigest="sha256:229b4084e5f4efe0a70432bb447ca76cf6e1101790ba3d79e5066775d5cbea2d";
 const historicalProductDigest="sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3";
 

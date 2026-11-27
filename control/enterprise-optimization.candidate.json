@@ -29,7 +29,7 @@
         "R35",
         "R36"
       ],
-      "requirement": "Reuse six functional groups and existing twelve department responsibilities. One canonical WorkPackage, provider-neutral capability routing, single writer per mutation scope, independent verification, authenticated bounded dispatch."
+      "requirement": "Reuse six functional groups and 15 department responsibilities across 10 repositories. One canonical WorkPackage, provider-neutral capability routing, single writer per mutation scope, independent verification, authenticated bounded dispatch."
     },
     {
       "id": "EO-03",
@@ -63,8 +63,7 @@
     {
       "id": "EO-06",
       "extends": [
-        "R28",
-        "R29",
+        "R9",
         "R36",
         "R38"
       ],
@@ -86,7 +85,12 @@
         "quy hoạch"
       ],
       "repositories": [
-        "Software-Blueprint-Hub"
+        "Software-Blueprint-Hub",
+        "BP-01-Tham-Dinh-Quy-Hoach"
+      ],
+      "specialistIds": [
+        "BP-00",
+        "BP-01"
       ]
     },
     {
@@ -98,9 +102,12 @@
         "phòng vệ"
       ],
       "repositories": [
-        "Software-Blueprint-Tech-Intelligence",
-        "Software-Blueprint-Innovation-Defense",
-        "Software-Blueprint-Hub"
+        "BP-04-Nghien-Cuu-Thiet-Ke",
+        "BP-06-Phong-Ve-Bao-Mat"
+      ],
+      "specialistIds": [
+        "BP-04",
+        "BP-06"
       ]
     },
     {
@@ -113,8 +120,13 @@
       ],
       "repositories": [
         "Software-Blueprint-Hub",
-        "Software-Blueprint-Execution-Gateway",
-        "Software-Blueprint-Execution-Worker"
+        "BP-07-Kiem-Soat-Thuc-Thi",
+        "BP-08-Nha-May-Phan-Mem"
+      ],
+      "specialistIds": [
+        "BP-00",
+        "BP-07",
+        "BP-08"
       ]
     },
     {
@@ -125,8 +137,12 @@
         "Reviewer B"
       ],
       "repositories": [
-        "Software-Blueprint-Reviewer-A",
-        "Software-Blueprint-QA-Worker"
+        "BP-09A-Kiem-Dinh-Ky-Thuat",
+        "BP-09B-Kiem-Dinh-Doc-Lap"
+      ],
+      "specialistIds": [
+        "BP-09A",
+        "BP-09B"
       ]
     },
     {
@@ -138,7 +154,13 @@
       ],
       "repositories": [
         "Software-Blueprint-Hub",
-        "Software-Blueprint-Execution-Worker"
+        "BP-08-Nha-May-Phan-Mem",
+        "Application-Management"
+      ],
+      "specialistIds": [
+        "BP-00",
+        "BP-08",
+        "BP-11"
       ]
     },
     {
@@ -151,6 +173,10 @@
       "repositories": [
         "Application-Management",
         "Software-Blueprint-Hub"
+      ],
+      "specialistIds": [
+        "BP-11",
+        "BP-00"
       ]
     }
   ],
@@ -202,33 +228,40 @@
   },
   "admission": "Revised target selected as sole prospective 1.5 candidate; operational admission, independent impact/version review, exact-source Full Gate and authenticated ratification remain required. No activation from this file.",
   "revisedTarget": {
-    "targetRevision": "e2059451dd2e5e71bbee209542f0aceb3dd578e7",
-    "targetTree": "86352dd19d49abc1a46d168dd91939c3641d5364",
-    "authoritySetDigest": "sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20",
+    "targetRevision": "0cc16e2f47468c8680f7d2a4f2cbb5a24d6fe4c4",
+    "targetTree": "e73a377f2e7fd907ec24095784ed0211f8386777",
+    "authoritySetDigest": "sha256:5e802bf1cf50c6947f7c8b335d35acc20782ebda12fb4ce8af7e4d79c74ae6cb",
     "predecessorRevision": "04401dcac91e0973ab4e70e07e798c9632ca8580",
     "predecessorDigest": "sha256:229b4084e5f4efe0a70432bb447ca76cf6e1101790ba3d79e5066775d5cbea2d",
     "historicalTarget": "28d96c17936d7ce1bcf660f4dcc4c96d64497344",
     "historicalDigest": "sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3",
     "publicationPatchPath": "docs/amendments/CONSTITUTION-1.5-ENTERPRISE-OPTIMIZATION-PUBLICATION.candidate.patch",
-    "replay": "2/2 revised paths exact independent JS replay; six prior patch sections byte-identical; not native verifier or trusted CI",
-    "admission": "SELECTED_UNADMITTED; previous unpublished 1.5 target superseded, retained for audit only",
+    "replay": "One machine-contract path corrected; strict predecessor section replay matches exact Git readback, other seven patch sections unchanged. Native verifier not run.",
+    "admission": "SELECTED_UNADMITTED; routing delta only; preserve earlier evidence subject to impact checks.",
     "ruleCount": 38,
     "ratification": "NOT_ASSERTED",
     "publication": "NOT_ASSERTED",
     "productionReleaseAuthority": false,
     "previousCandidateStatus": "SUPERSEDED_UNPUBLISHED_CANDIDATE",
     "selection": "SOLE_PROSPECTIVE_1.5_CANDIDATE",
-    "publicationPatchDigest": "sha256:e5d0aea098db1397a9b1c1710ddc83dd76355549d8480f7993bff4a658e874f9"
+    "publicationPatchDigest": "sha256:801522c9192bda37e3db75ee3c03d188790c20d019de3ec09f3fc913b018f5b5",
+    "previousEnterpriseTarget": {
+      "targetRevision": "e2059451dd2e5e71bbee209542f0aceb3dd578e7",
+      "authoritySetDigest": "sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20",
+      "status": "SUPERSEDED_UNPUBLISHED_ROUTING_CORRECTION_ONLY"
+    }
   },
   "coordinationPlan": {
     "status": "PROPOSED_EXECUTION_PLAN_NOT_RUNTIME_ENROLLMENT",
     "purpose": "Hiến pháp quy định; Blueprint OS điều phối; các ứng dụng chuyên môn độc lập thực thi và training; App Manager quản trị; các ứng dụng sản phẩm giữ dữ liệu và runtime.",
     "policyBinding": {
-      "target": "e2059451dd2e5e71bbee209542f0aceb3dd578e7",
-      "digest": "sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20",
+      "target": "0cc16e2f47468c8680f7d2a4f2cbb5a24d6fe4c4",
+      "digest": "sha256:5e802bf1cf50c6947f7c8b335d35acc20782ebda12fb4ce8af7e4d79c74ae6cb",
       "activeSource": "1.3.0",
       "noNewNumberedLaw": true,
-      "noActivation": true
+      "noActivation": true,
+      "priorTarget": "e2059451dd2e5e71bbee209542f0aceb3dd578e7",
+      "routingCorrection": "BP-01 strategy, BP-12 independent assessment, Hub canonical enforcement; stable specialist IDs and current repository locators. No runtime grant."
     },
     "inventory": {
       "existingRepositories": 8,

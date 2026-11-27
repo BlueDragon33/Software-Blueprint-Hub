@@ -71,7 +71,7 @@ index 6cb46d65650fbe7d510c9d304d57b98dbba82050..ee89ab034d048c5a866b13429958d225
    "productionReleaseAuthority": false
  }
 diff --git a/control/universal-constitution.contract.json b/control/universal-constitution.contract.json
-index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828e65e28f5 100644
+index 92f40d29f245d65c294b02d11ee3051f806235ee..100d921da6cd0ae846829ca4a38c4297e3d58615 100644
 --- a/control/universal-constitution.contract.json
 +++ b/control/universal-constitution.contract.json
 @@ -1,10 +1,10 @@
@@ -141,7 +141,7 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
      ],
      "promptReviewRequired": true,
      "invalidatesOn": [
-@@ -477,5 +508,247 @@
+@@ -477,5 +508,278 @@
        "hostFallback": "ACCESSIBLE_TEXT_AND_COPYABLE_PROMPT",
        "actualHostAdoptionEvidenceRequired": true
      }
@@ -230,8 +230,7 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
 +      {
 +        "id": "EO-06",
 +        "extends": [
-+          "R28",
-+          "R29",
++          "R9",
 +          "R36",
 +          "R38"
 +        ]
@@ -252,7 +251,12 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
 +          "quy hoạch"
 +        ],
 +        "repositories": [
-+          "Software-Blueprint-Hub"
++          "Software-Blueprint-Hub",
++          "BP-01-Tham-Dinh-Quy-Hoach"
++        ],
++        "specialistIds": [
++          "BP-00",
++          "BP-01"
 +        ]
 +      },
 +      {
@@ -264,9 +268,12 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
 +          "phòng vệ"
 +        ],
 +        "repositories": [
-+          "Software-Blueprint-Tech-Intelligence",
-+          "Software-Blueprint-Innovation-Defense",
-+          "Software-Blueprint-Hub"
++          "BP-04-Nghien-Cuu-Thiet-Ke",
++          "BP-06-Phong-Ve-Bao-Mat"
++        ],
++        "specialistIds": [
++          "BP-04",
++          "BP-06"
 +        ]
 +      },
 +      {
@@ -279,8 +286,13 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
 +        ],
 +        "repositories": [
 +          "Software-Blueprint-Hub",
-+          "Software-Blueprint-Execution-Gateway",
-+          "Software-Blueprint-Execution-Worker"
++          "BP-07-Kiem-Soat-Thuc-Thi",
++          "BP-08-Nha-May-Phan-Mem"
++        ],
++        "specialistIds": [
++          "BP-00",
++          "BP-07",
++          "BP-08"
 +        ]
 +      },
 +      {
@@ -291,8 +303,12 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
 +          "Reviewer B"
 +        ],
 +        "repositories": [
-+          "Software-Blueprint-Reviewer-A",
-+          "Software-Blueprint-QA-Worker"
++          "BP-09A-Kiem-Dinh-Ky-Thuat",
++          "BP-09B-Kiem-Dinh-Doc-Lap"
++        ],
++        "specialistIds": [
++          "BP-09A",
++          "BP-09B"
 +        ]
 +      },
 +      {
@@ -304,7 +320,13 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
 +        ],
 +        "repositories": [
 +          "Software-Blueprint-Hub",
-+          "Software-Blueprint-Execution-Worker"
++          "BP-08-Nha-May-Phan-Mem",
++          "Application-Management"
++        ],
++        "specialistIds": [
++          "BP-00",
++          "BP-08",
++          "BP-11"
 +        ]
 +      },
 +      {
@@ -317,6 +339,10 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
 +        "repositories": [
 +          "Application-Management",
 +          "Software-Blueprint-Hub"
++        ],
++        "specialistIds": [
++          "BP-11",
++          "BP-00"
 +        ]
 +      }
 +    ],
@@ -341,7 +367,11 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
 +      "closure": "canonical independently verified root cause remediation and recovery; no score-only closure",
 +      "riskScore": "0..100 ordinal calibrated score, not probability; source-bound assessment and approved budget required",
 +      "scope": "project/repository/workPackage/rootCause; isolate affected dependencies; continue unrelated authorized work",
-+      "dedup": "canonical rootCauseId; conflicts remain UNVERIFIED, retain conservative known severity"
++      "dedup": "canonical rootCauseId; conflicts remain UNVERIFIED, retain conservative known severity",
++      "assessmentSpecialistId": "BP-12",
++      "assessmentRepository": "BP-12-Giam-Sat-Toi-Uu",
++      "enforcementSpecialistId": "BP-00",
++      "enforcement": "Hub alone enforces canonical thresholds and dispatch; BP-12 independently assesses and recommends; existing independent verification establishes closure. No separate authority or journal."
 +    },
 +    "graph": {
 +      "route": "/apps/software-blueprint-hub",
@@ -380,7 +410,8 @@ index 92f40d29f245d65c294b02d11ee3051f806235ee..4381e970ada97cd19af4bc2ad4e2f828
 +    "repositoryLifecycle": {
 +      "vietnameseDisplayAliases": true,
 +      "canonicalIdentityPreserved": true,
-+      "newOrRenamedRepositoryRequiresJustifiedReview": true
++      "newOrRenamedRepositoryRequiresJustifiedReview": true,
++      "operationalLocatorRule": "Stable specialist IDs and existing canonical repository identity govern routing; repository names in groups are publication-time locators, not grants; verify current identity before use."
 +    },
 +    "rollout": {
 +      "representativeRealVerticalSliceRequired": true,

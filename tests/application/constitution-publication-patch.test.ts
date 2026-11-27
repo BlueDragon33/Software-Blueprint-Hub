@@ -30,7 +30,7 @@ describe("revised enterprise authority review (not publication admission)", () =
     const historical = buildProductCompletionPublicationCandidate();
     const revised = buildEnterpriseReviewCandidate();
     expect(historical.attestation.authoritySetDigest).toBe("sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3");
-    expect(revised.attestation.authoritySetDigest).toBe("sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20");
+    expect(revised.attestation.authoritySetDigest).toBe("sha256:5e802bf1cf50c6947f7c8b335d35acc20782ebda12fb4ce8af7e4d79c74ae6cb");
     expect(revised.descriptor.status).toBe("REVIEW_ONLY_NOT_ADMITTED");
     expect(revised.descriptor.publication).toBe("NOT_ASSERTED");
     expect(revised.descriptor.productionReleaseAuthority).toBe(false);

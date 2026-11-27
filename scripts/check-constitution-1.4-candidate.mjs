@@ -32,7 +32,7 @@ export function readNavigationBaseline(root=process.cwd()){
  let r33=current;
  if(active.policyVersion==="1.5.0"){
   // Historical readback selects only the exact immutable digest, never an arbitrary path.
-  const successorPath=active.authoritySetDigest==="sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3"?"docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch":active.authoritySetDigest==="sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20"?constitutionPublicationProfile("1.4.0").patchPath:null;
+  const successorPath=active.authoritySetDigest==="sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3"?"docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch":active.authoritySetDigest==="sha256:5e802bf1cf50c6947f7c8b335d35acc20782ebda12fb4ce8af7e4d79c74ae6cb"?constitutionPublicationProfile("1.4.0").patchPath:null;
   if(!successorPath)throw Error("Unknown activated 1.5 authority-set digest");
   const successor=read(successorPath);
   r33=applyConstitutionPublicationPatch(current,reverseNavigationPatch(successor));
