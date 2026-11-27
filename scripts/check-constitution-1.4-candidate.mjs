@@ -15,7 +15,7 @@ export function reverseNavigationPatch(patch){
  }).join("\n");
 }
 // Full Git blob identities prevent drift outside patch hunks; SHA-256 evidence still binds the patch.
-function verifyNavigationBlobSeals(originals,files,patch){
+export function verifyNavigationBlobSeals(originals,files,patch){
  const blob=text=>{const bytes=Buffer.from(text,"utf8");return createHash("sha1").update("blob "+bytes.length+"\0").update(bytes).digest("hex");};
  const matches=[...patch.matchAll(/^diff --git a\/(\S+) b\/\1\nindex ([a-f0-9]{40})\.\.([a-f0-9]{40}) 100644$/gm)];
  if(matches.length!==constitutionPublicationPaths.length||new Set(matches.map(m=>m[1])).size!==constitutionPublicationPaths.length)throw Error("R33 full blob seals missing");
@@ -29,11 +29,18 @@ export function readNavigationBaseline(root=process.cwd()){
  const active=attestConstitutionAuthoritySources(current,"","");
  const profile=constitutionPublicationProfile("1.3.0"),patch=read(profile.patchPath);
  if(active.policyVersion==="1.3.0")return {originals:current,current,activeVersion:active.policyVersion,profile,patch};
- if(active.policyVersion!=="1.4.0")throw Error("Unsupported R33 authority baseline");
- const originals=applyConstitutionPublicationPatch(current,reverseNavigationPatch(patch));
+ let r33=current;
+ if(active.policyVersion==="1.5.0"){
+  const successor=read(constitutionPublicationProfile("1.4.0").patchPath);
+  r33=applyConstitutionPublicationPatch(current,reverseNavigationPatch(successor));
+  const replay=applyConstitutionPublicationPatch(r33,successor);
+  verifyNavigationBlobSeals(r33,replay,successor);
+  if(attestConstitutionAuthoritySources(r33,"","").policyVersion!=="1.4.0"||constitutionPublicationPaths.some(path=>replay[path]!==current[path]))throw Error("Activated successor source drift");
+ }else if(active.policyVersion!=="1.4.0")throw Error("Unsupported R33 authority baseline");
+ const originals=applyConstitutionPublicationPatch(r33,reverseNavigationPatch(patch));
  const replay=applyConstitutionPublicationPatch(originals,patch);
  verifyNavigationBlobSeals(originals,replay,patch);
- if(attestConstitutionAuthoritySources(originals,"","").policyVersion!=="1.3.0"||constitutionPublicationPaths.some(path=>replay[path]!==current[path]))throw Error("Activated R33 source drift");
+ if(attestConstitutionAuthoritySources(originals,"","").policyVersion!=="1.3.0"||constitutionPublicationPaths.some(path=>replay[path]!==r33[path]))throw Error("Activated R33 source drift");
  return {originals,current,activeVersion:active.policyVersion,profile,patch};
 }
 export function buildNavigationPublicationCandidate(root=process.cwd(),revision="",runId=""){
@@ -45,7 +52,7 @@ export function buildNavigationPublicationCandidate(root=process.cwd(),revision=
  const attestation=attestConstitutionAuthoritySources(files,revision,runId);
  const old=JSON.parse(originals[constitutionPublicationPaths[1]]),next=JSON.parse(files[constitutionPublicationPaths[1]]);
  if(attestation.policyVersion!==profile.targetVersion||next.executionRules.length!==33||JSON.stringify(next.executionRules.slice(0,32))!==JSON.stringify(old.executionRules)||next.executionRules[32].id!=="R33"||!next.navigationSupport?.attachments?.bindResolvedSetToReview||next.navigationSupport?.productionReleaseAuthority!==false)throw Error("R33 candidate law mismatch");
- return {profile,originals,files,attestation,descriptor:{status:activeVersion==="1.3.0"?"INACTIVE_CANDIDATE_VERIFIED":"ACTIVE_AUTHORITY_SET_VERIFIED",activePolicyVersion:activeVersion,candidatePolicyVersion:attestation.policyVersion,ruleCount:33,sourceRevision:revision,ciRunId:runId,authoritySetDigest:attestation.authoritySetDigest,publicationPatchDigest:constitutionSourceDigest(patch),ratification:"NOT_ASSERTED",publication:"NOT_ASSERTED",productionReleaseAuthority:false}};
+ return {profile,originals,files,attestation,descriptor:{status:activeVersion==="1.3.0"?"INACTIVE_CANDIDATE_VERIFIED":activeVersion==="1.4.0"?"ACTIVE_AUTHORITY_SET_VERIFIED":"HISTORICAL_AUTHORITY_SET_VERIFIED",activePolicyVersion:activeVersion,candidatePolicyVersion:attestation.policyVersion,ruleCount:33,sourceRevision:revision,ciRunId:runId,authoritySetDigest:attestation.authoritySetDigest,publicationPatchDigest:constitutionSourceDigest(patch),ratification:"NOT_ASSERTED",publication:"NOT_ASSERTED",productionReleaseAuthority:false}};
 }
 if(process.argv[1]?.endsWith("/check-constitution-1.4-candidate.mjs")){
  const revision=process.env.GITHUB_SHA??"",runId=process.env.GITHUB_RUN_ID??"";

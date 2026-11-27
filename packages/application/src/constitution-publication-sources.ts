@@ -13,6 +13,7 @@ export const constitutionPublicationPatchPath = "docs/amendments/CONSTITUTION-1.
 export function constitutionPublicationProfile(baseVersion: string) {
   if (baseVersion === "1.2.0") return Object.freeze({ targetVersion: "1.3.0", patchPath: constitutionPublicationPatchPath, descriptorPath: "artifacts/constitution-1.3-candidate.json", attestationPath: "artifacts/constitution-1.3-authority-set.json" });
   if (baseVersion === "1.3.0") return Object.freeze({ targetVersion: "1.4.0", patchPath: "docs/amendments/CONSTITUTION-1.4-NAV-SUPPORT-PUBLICATION.patch", descriptorPath: "artifacts/constitution-1.4-candidate.json", attestationPath: "artifacts/constitution-1.4-authority-set.json" });
+  if (baseVersion === "1.4.0") return Object.freeze({ targetVersion: "1.5.0", patchPath: "docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch", descriptorPath: "artifacts/constitution-1.5-candidate.json", attestationPath: "artifacts/constitution-1.5-authority-set.json" });
   throw new TypeError("Unsupported Constitution publication transition");
 }
 
