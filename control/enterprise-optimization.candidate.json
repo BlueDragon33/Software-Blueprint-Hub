@@ -238,16 +238,20 @@
       "technicalIdsStable": true,
       "inventoryBasis": "Existing 8-repository source review; names of two new repositories are proposals, not existing services or authorized creation.",
       "repositoryNaming": {
-        "status": "TARGET_NAMES_SELECTED_MIGRATION_PENDING",
-        "format": "BP-[mã bộ máy]-[Tên tiếng Việt không dấu]",
+        "status": "SIX_RENAMES_OBSERVED_HUB_RESTORED_APP_MANAGER_RESTORE_REQUIRED",
+        "format": "Giữ nguyên Software-Blueprint-Hub và Application-Management; các repo chuyên môn BP-[mã]-[tên tiếng Việt không dấu]",
         "display": "[mã] · Tên tiếng Việt có dấu",
         "targetCount": 10,
-        "existingRenameCount": 8,
+        "existingRenameCount": 6,
         "newRepositoryCount": 2,
         "collisionCheck": "No target name found in returned installed repository inventory; not an organization-wide availability guarantee.",
-        "migration": "Đổi tên vật lý từng repo sau kiểm tra phụ thuộc workflow, GitHub App, registry, automations, remote, Cloudflare binding và rollback; không đổi domain/slug hoặc canonical IDs; xác minh lại sau mỗi bước.",
-        "preserve": "Giữ tên repo đang hoạt động trong trường repository để các lệnh hiện tại không trỏ tới tên chưa tồn tại. Không tạo repo mới chỉ để đổi tên."
-      }
+        "migration": "Khôi phục Application-Management (ID 1347048818) từ BP-11-Quan-Tri-Ung-Dung. Software-Blueprint-Hub đã khôi phục. Sáu repo chuyên môn đã đổi tên; cần đối chiếu phụ thuộc CI/CD, GitHub App, registry, automations, remote, Cloudflare và rollback sau đổi tên. Không đổi domain/slug hoặc canonical IDs.",
+        "preserve": "Hai tên nền tảng giữ nguyên lâu dài. Không tạo repo thay thế chỉ để đổi tên. Tên hiện quan sát không chứng minh đã di trú liên kết hay enrollment."
+      },
+      "observedRepositories": 10,
+      "newRepositoriesCreated": 2,
+      "newRepositoriesEmpty": 2,
+      "descriptionStatus": "Descriptions planned for all 10; About verified for 2 newly created empty repositories only; remaining metadata not verified."
     },
     "applications": [
       {
@@ -267,15 +271,19 @@
         "deliverable": "Approved policy, dependency-aware work orders, canonical decisions and graph state",
         "owner": "Hub canonical authority; no specialist self-certification",
         "training": "coordination efficiency and bounded scheduling evaluation",
-        "targetRepository": "BP-00-Dieu-Hanh",
-        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
-        "repositoryId": "1387058298"
+        "targetRepository": "Software-Blueprint-Hub",
+        "repositoryNameStatus": "ORIGINAL_NAME_RESTORED",
+        "repositoryId": 1387058298,
+        "originalRepository": "Software-Blueprint-Hub",
+        "observedRepository": "Software-Blueprint-Hub",
+        "descriptionVi": "Trung tâm điều hành hệ thống: quản lý Hiến pháp, thẩm quyền, kế hoạch, phân công nhiệm vụ và điều phối các ứng dụng chuyên môn độc lập.",
+        "visibilityObserved": "public"
       },
       {
         "id": "BP-01",
         "vi": "Thẩm định và Quy hoạch chiến lược",
         "repository": "BP-01-Tham-Dinh-Quy-Hoach",
-        "disposition": "PROPOSE_NEW_AFTER_POLICY_AND_SEPARATION_REVIEW",
+        "disposition": "CREATED_EMPTY_DEVELOP_AFTER_POLICY_AND_SEPARATION_REVIEW",
         "group": "01",
         "roles": [
           "appraisal",
@@ -289,12 +297,18 @@
         "owner": "Independent specialist owns assessment/training; Hub records approved strategy/plan; human project authority decides",
         "training": "real project cases and unseen planning evaluation",
         "targetRepository": "BP-01-Tham-Dinh-Quy-Hoach",
-        "repositoryNameStatus": "PROPOSED_NEW_NOT_CREATED"
+        "repositoryNameStatus": "CREATED_EMPTY_NOT_ENROLLED",
+        "originalRepository": null,
+        "observedRepository": "BP-01-Tham-Dinh-Quy-Hoach",
+        "repositoryId": 1474849010,
+        "descriptionVi": "Thẩm định dự án, so sánh phương án, đánh giá tính khả thi, xác định mục tiêu, quy mô và xây dựng quy hoạch tổng thể.",
+        "visibilityObserved": "private",
+        "runtimeStatus": "NOT_IMPLEMENTED"
       },
       {
         "id": "BP-04",
         "vi": "Nghiên cứu công nghệ và Thiết kế",
-        "repository": "Software-Blueprint-Tech-Intelligence",
+        "repository": "BP-04-Nghien-Cuu-Thiet-Ke",
         "disposition": "REUSE_UPGRADE",
         "group": "02",
         "roles": [
@@ -308,13 +322,17 @@
         "owner": "Independent research app; product repository retains implementation; no decision or gate authority",
         "training": "reproducible benchmarks, licensing/provenance, usability and held-out design tasks",
         "targetRepository": "BP-04-Nghien-Cuu-Thiet-Ke",
-        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
-        "repositoryId": "1463254518"
+        "repositoryNameStatus": "RENAMED_OBSERVED_DEPENDENCIES_UNVERIFIED",
+        "repositoryId": 1463254518,
+        "originalRepository": "Software-Blueprint-Tech-Intelligence",
+        "observedRepository": "BP-04-Nghien-Cuu-Thiet-Ke",
+        "descriptionVi": "Nghiên cứu công nghệ, thuật toán, kiến trúc và thiết kế trải nghiệm người dùng; thử nghiệm, đánh giá và đề xuất giải pháp tối ưu.",
+        "visibilityObserved": "private"
       },
       {
         "id": "BP-06",
         "vi": "Phòng vệ và Bảo mật",
-        "repository": "Software-Blueprint-Innovation-Defense",
+        "repository": "BP-06-Phong-Ve-Bao-Mat",
         "disposition": "REUSE_UPGRADE",
         "group": "02",
         "roles": [
@@ -328,13 +346,17 @@
         "owner": "Independent defense app; product owners implement fixes; mandatory gates unchanged",
         "training": "authorized defensive test cases and false-positive/negative evaluation",
         "targetRepository": "BP-06-Phong-Ve-Bao-Mat",
-        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
-        "repositoryId": "1463255125"
+        "repositoryNameStatus": "RENAMED_OBSERVED_DEPENDENCIES_UNVERIFIED",
+        "repositoryId": 1463255125,
+        "originalRepository": "Software-Blueprint-Innovation-Defense",
+        "observedRepository": "BP-06-Phong-Ve-Bao-Mat",
+        "descriptionVi": "Đánh giá rủi ro bảo mật, bảo vệ dữ liệu, phân quyền, kiểm tra phụ thuộc và đề xuất giải pháp phòng vệ.",
+        "visibilityObserved": "private"
       },
       {
         "id": "BP-07",
         "vi": "Kiểm soát thực thi",
-        "repository": "Software-Blueprint-Execution-Gateway",
+        "repository": "BP-07-Kiem-Soat-Thuc-Thi",
         "disposition": "REUSE_UPGRADE",
         "group": "03",
         "roles": [
@@ -348,13 +370,17 @@
         "owner": "Narrow enforcement service, not an authority issuer or AI specialist",
         "training": "deterministic security/contract validation; no forced AI training",
         "targetRepository": "BP-07-Kiem-Soat-Thuc-Thi",
-        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
-        "repositoryId": "1420556349"
+        "repositoryNameStatus": "RENAMED_OBSERVED_DEPENDENCIES_UNVERIFIED",
+        "repositoryId": 1420556349,
+        "originalRepository": "Software-Blueprint-Execution-Gateway",
+        "observedRepository": "BP-07-Kiem-Soat-Thuc-Thi",
+        "descriptionVi": "Xác thực, kiểm soát phạm vi và phân phối nhiệm vụ thực thi an toàn; ngăn vượt quyền, trùng lặp và phát lại lệnh.",
+        "visibilityObserved": "private"
       },
       {
         "id": "BP-08",
         "vi": "Nhà máy phần mềm",
-        "repository": "Software-Blueprint-Execution-Worker",
+        "repository": "BP-08-Nha-May-Phan-Mem",
         "disposition": "REUSE_UPGRADE",
         "group": "03",
         "roles": [
@@ -372,13 +398,17 @@
         "owner": "Independent execution app; code remains in target product repository; no self-approval",
         "training": "real bounded engineering tasks, held-out fix/build/test evaluation",
         "targetRepository": "BP-08-Nha-May-Phan-Mem",
-        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
-        "repositoryId": "1420557540"
+        "repositoryNameStatus": "RENAMED_OBSERVED_DEPENDENCIES_UNVERIFIED",
+        "repositoryId": 1420557540,
+        "originalRepository": "Software-Blueprint-Execution-Worker",
+        "observedRepository": "BP-08-Nha-May-Phan-Mem",
+        "descriptionVi": "Sản xuất phần mềm: lập trình, sửa lỗi, giao diện, máy chủ, dữ liệu, tích hợp, đóng gói và chuẩn bị phát hành.",
+        "visibilityObserved": "private"
       },
       {
         "id": "BP-09A",
         "vi": "Kiểm định kỹ thuật A",
-        "repository": "Software-Blueprint-Reviewer-A",
+        "repository": "BP-09A-Kiem-Dinh-Ky-Thuat",
         "disposition": "REUSE_UPGRADE",
         "group": "04",
         "roles": [
@@ -390,13 +420,17 @@
         "owner": "Independent of reviewed changes or disclose self-review and require independent verification",
         "training": "technical review corpus, held-out defects and reproducibility",
         "targetRepository": "BP-09A-Kiem-Dinh-Ky-Thuat",
-        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
-        "repositoryId": "1445212967"
+        "repositoryNameStatus": "RENAMED_OBSERVED_DEPENDENCIES_UNVERIFIED",
+        "repositoryId": 1445212967,
+        "originalRepository": "Software-Blueprint-Reviewer-A",
+        "observedRepository": "BP-09A-Kiem-Dinh-Ky-Thuat",
+        "descriptionVi": "Kiểm định kỹ thuật, kiến trúc, thuật toán, chất lượng mã nguồn và hiệu năng; cung cấp kết luận có bằng chứng.",
+        "visibilityObserved": "private"
       },
       {
         "id": "BP-09B",
         "vi": "Kiểm định độc lập B",
-        "repository": "Software-Blueprint-QA-Worker",
+        "repository": "BP-09B-Kiem-Dinh-Doc-Lap",
         "disposition": "REUSE_UPGRADE",
         "group": "04",
         "roles": [
@@ -409,13 +443,17 @@
         "owner": "Independent from author and reviewed implementation",
         "training": "held-out technical/product defects and evidence authenticity",
         "targetRepository": "BP-09B-Kiem-Dinh-Doc-Lap",
-        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
-        "repositoryId": "1420557997"
+        "repositoryNameStatus": "RENAMED_OBSERVED_DEPENDENCIES_UNVERIFIED",
+        "repositoryId": 1420557997,
+        "originalRepository": "Software-Blueprint-QA-Worker",
+        "observedRepository": "BP-09B-Kiem-Dinh-Doc-Lap",
+        "descriptionVi": "Kiểm định độc lập chất lượng sản phẩm, bằng chứng, lỗi hồi quy, trải nghiệm người dùng và tiêu chí nghiệm thu.",
+        "visibilityObserved": "private"
       },
       {
         "id": "BP-11",
         "vi": "Quản trị ứng dụng và Vận hành",
-        "repository": "Application-Management",
+        "repository": "BP-11-Quan-Tri-Ung-Dung",
         "disposition": "REUSE_UPGRADE",
         "group": "06",
         "roles": [
@@ -429,15 +467,19 @@
         "deliverable": "Existing app registry and authenticated management interaction; live projection of Hub",
         "owner": "App Manager owns management surface; no shadow policy or universal product data",
         "training": "operational workflows and usability validation",
-        "targetRepository": "BP-11-Quan-Tri-Ung-Dung",
-        "repositoryNameStatus": "RENAME_PLANNED_NOT_EXECUTED",
-        "repositoryId": "1347048818"
+        "targetRepository": "Application-Management",
+        "repositoryNameStatus": "RESTORE_ORIGINAL_NAME_REQUIRED",
+        "repositoryId": 1347048818,
+        "originalRepository": "Application-Management",
+        "observedRepository": "BP-11-Quan-Tri-Ung-Dung",
+        "descriptionVi": "Quản trị ứng dụng, người dùng, thiết bị, quyền truy cập, trạng thái vận hành và sơ đồ điều phối toàn hệ thống.",
+        "visibilityObserved": "public"
       },
       {
         "id": "BP-12",
         "vi": "Giám sát và Tối ưu",
         "repository": "BP-12-Giam-Sat-Toi-Uu",
-        "disposition": "PROPOSE_NEW_AFTER_POLICY_AND_SEPARATION_REVIEW",
+        "disposition": "CREATED_EMPTY_DEVELOP_AFTER_POLICY_AND_SEPARATION_REVIEW",
         "group": "cross-cutting",
         "roles": [
           "strategy-drift",
@@ -451,7 +493,13 @@
         "owner": "Independent assessment app; Hub owns canonical threshold enforcement, task scheduling and closure; no duplicate journal",
         "training": "real incident cohorts, calibrated scores, false-alert and recurrence evaluation",
         "targetRepository": "BP-12-Giam-Sat-Toi-Uu",
-        "repositoryNameStatus": "PROPOSED_NEW_NOT_CREATED"
+        "repositoryNameStatus": "CREATED_EMPTY_NOT_ENROLLED",
+        "originalRepository": null,
+        "observedRepository": "BP-12-Giam-Sat-Toi-Uu",
+        "repositoryId": 1474853180,
+        "descriptionVi": "Giám sát liên tục, phát hiện lệch hướng, tích lũy vấn đề, đánh giá rủi ro theo ngưỡng 30/40 và tối ưu nguồn lực, tiến độ.",
+        "visibilityObserved": "private",
+        "runtimeStatus": "NOT_IMPLEMENTED"
       }
     ],
     "sharedFunctions": {
@@ -676,6 +724,112 @@
       "no physical repo rename or new repo creation from this proposal",
       "no repeated unchanged QA",
       "preserve existing authority and exact mandatory gates"
+    ],
+    "logicalDepartmentCoverage": [
+      {
+        "code": "00",
+        "vi": "Điều hành và Hiến pháp",
+        "owner": "BP-00",
+        "placement": "Độc lập"
+      },
+      {
+        "code": "01",
+        "vi": "Thẩm định chiến lược",
+        "owner": "BP-01",
+        "placement": "Repo mới đã tạo, rỗng"
+      },
+      {
+        "code": "02",
+        "vi": "Quy hoạch tổng thể",
+        "owner": "BP-01",
+        "placement": "Chức năng riêng trong cùng bộ máy; S2"
+      },
+      {
+        "code": "03",
+        "vi": "Điều phối sản xuất",
+        "owner": "BP-00",
+        "placement": "Năng lực lõi của Điều hành"
+      },
+      {
+        "code": "04",
+        "vi": "Nghiên cứu công nghệ",
+        "owner": "BP-04",
+        "placement": "Repo chuyên môn"
+      },
+      {
+        "code": "05",
+        "vi": "Thiết kế kiến trúc và UX/UI",
+        "owner": "BP-04",
+        "placement": "Chức năng cần hoàn thiện, tách repo chỉ khi có bằng chứng"
+      },
+      {
+        "code": "06",
+        "vi": "Phòng vệ và Bảo mật",
+        "owner": "BP-06",
+        "placement": "Repo chuyên môn"
+      },
+      {
+        "code": "07",
+        "vi": "Kiểm soát thực thi",
+        "owner": "BP-07",
+        "placement": "Repo chuyên môn"
+      },
+      {
+        "code": "08",
+        "vi": "Nhà máy phần mềm",
+        "owner": "BP-08",
+        "placement": "Repo chuyên môn"
+      },
+      {
+        "code": "09A",
+        "vi": "Kiểm định kỹ thuật A",
+        "owner": "BP-09A",
+        "placement": "Repo chuyên môn"
+      },
+      {
+        "code": "09B",
+        "vi": "Kiểm định độc lập B",
+        "owner": "BP-09B",
+        "placement": "Repo chuyên môn"
+      },
+      {
+        "code": "10",
+        "vi": "Phát hành và Phục hồi",
+        "owner": "BP-08+BP-00+BP-11",
+        "placement": "Chức năng cần làm rõ quyền hạn; ứng viên tách khi cần cách ly quyền/lifecycle"
+      },
+      {
+        "code": "11",
+        "vi": "Quản trị ứng dụng và Vận hành",
+        "owner": "BP-11",
+        "placement": "Application-Management giữ tên"
+      },
+      {
+        "code": "12",
+        "vi": "Giám sát và Tối ưu",
+        "owner": "BP-12",
+        "placement": "Repo mới đã tạo, rỗng"
+      },
+      {
+        "code": "13",
+        "vi": "Tri thức và Huấn luyện",
+        "owner": "ALL_SPECIALISTS+BP-00",
+        "placement": "Huấn luyện phân tán; Hub chỉ nhận bằng chứng năng lực và tri thức được duyệt"
+      }
+    ],
+    "futureSeparationCandidates": [
+      {
+        "code": "05",
+        "repository": "BP-05-Thiet-Ke-Kien-Truc",
+        "reason": "Thiết kế kiến trúc và UX/UI có vòng đời, đầu ra và đánh giá độc lập nếu chứng minh nhu cầu.",
+        "status": "OPTION_ONLY_NO_CREATION"
+      },
+      {
+        "code": "10",
+        "repository": "BP-10-Phat-Hanh-Phuc-Hoi",
+        "reason": "Có thể cần cách ly quyền phát hành, kiểm soát artifact, rollback và phục hồi khỏi người sản xuất.",
+        "status": "OPTION_ONLY_NO_CREATION"
+      }
     ]
   }
 }
