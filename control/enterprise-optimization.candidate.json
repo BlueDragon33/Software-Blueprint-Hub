@@ -238,15 +238,15 @@
       "technicalIdsStable": true,
       "inventoryBasis": "Existing 8-repository source review; names of two new repositories are proposals, not existing services or authorized creation.",
       "repositoryNaming": {
-        "status": "SIX_RENAMES_OBSERVED_HUB_RESTORED_APP_MANAGER_RESTORE_REQUIRED",
+        "status": "SIX_RENAMES_OBSERVED_BOTH_FOUNDATION_NAMES_RESTORED",
         "format": "Giữ nguyên Software-Blueprint-Hub và Application-Management; các repo chuyên môn BP-[mã]-[tên tiếng Việt không dấu]",
         "display": "[mã] · Tên tiếng Việt có dấu",
         "targetCount": 10,
         "existingRenameCount": 6,
         "newRepositoryCount": 2,
         "collisionCheck": "No target name found in returned installed repository inventory; not an organization-wide availability guarantee.",
-        "migration": "Khôi phục Application-Management (ID 1347048818) từ BP-11-Quan-Tri-Ung-Dung. Software-Blueprint-Hub đã khôi phục. Sáu repo chuyên môn đã đổi tên; cần đối chiếu phụ thuộc CI/CD, GitHub App, registry, automations, remote, Cloudflare và rollback sau đổi tên. Không đổi domain/slug hoặc canonical IDs.",
-        "preserve": "Hai tên nền tảng giữ nguyên lâu dài. Không tạo repo thay thế chỉ để đổi tên. Tên hiện quan sát không chứng minh đã di trú liên kết hay enrollment."
+        "migration": "Software-Blueprint-Hub (1387058298) và Application-Management (1347048818) đã khôi phục đúng tên. Sáu repo chuyên môn đã đổi tên; cần đối chiếu phụ thuộc CI/CD, GitHub App, registry, automations, remote, Cloudflare và rollback sau đổi tên. Không đổi domain/slug hoặc canonical IDs.",
+        "preserve": "Giữ nguyên hai tên nền tảng. Không tạo repo thay thế chỉ để đổi tên. Quan sát tên không chứng minh đã di trú liên kết hay enrollment."
       },
       "observedRepositories": 10,
       "newRepositoriesCreated": 2,
@@ -453,7 +453,7 @@
       {
         "id": "BP-11",
         "vi": "Quản trị ứng dụng và Vận hành",
-        "repository": "BP-11-Quan-Tri-Ung-Dung",
+        "repository": "Application-Management",
         "disposition": "REUSE_UPGRADE",
         "group": "06",
         "roles": [
@@ -468,10 +468,10 @@
         "owner": "App Manager owns management surface; no shadow policy or universal product data",
         "training": "operational workflows and usability validation",
         "targetRepository": "Application-Management",
-        "repositoryNameStatus": "RESTORE_ORIGINAL_NAME_REQUIRED",
+        "repositoryNameStatus": "ORIGINAL_NAME_RESTORED",
         "repositoryId": 1347048818,
         "originalRepository": "Application-Management",
-        "observedRepository": "BP-11-Quan-Tri-Ung-Dung",
+        "observedRepository": "Application-Management",
         "descriptionVi": "Quản trị ứng dụng, người dùng, thiết bị, quyền truy cập, trạng thái vận hành và sơ đồ điều phối toàn hệ thống.",
         "visibilityObserved": "public"
       },
@@ -503,9 +503,9 @@
       }
     ],
     "sharedFunctions": {
-      "release": "BP-08+BP-00; isolate later only if proven necessary",
+      "release": "BP-10 logical specialist: prepare exact release plan, execute approved protected workflow, verify deployment/recovery. BP-08 owns build artifacts only; BP-00 owns canonical gates and authorization records; BP-11 manages observation and user interaction. No new production credentials or independent release authority. Physical split conditional on proven boundary and end-to-end QA.",
       "knowledge": "each specialist owns its own training and private corpus; Hub records capability evidence only",
-      "design": "BP-04 independent capability; separate service only after verified need",
+      "design": "BP-04 hosts two distinct capabilities: research produces verified options; design produces implementation-ready specification. BP-05 physical separation conditional on proven independent lifecycle/isolation/load.",
       "monitoring": "BP-12 evaluates; Hub enforces canonical thresholds/closure using existing evaluator",
       "gateway": "retain independent narrow trust boundary; not another authority"
     },
@@ -702,15 +702,15 @@
       },
       {
         "phase": "P1",
-        "work": "Confirm reuse and separate lifecycle/least privilege/rollback/contract with bounded end-to-end prototype; approve two proposed repo creations only if justified; no physical renames now."
+        "work": "Reconcile six observed repository renames, existing empty BP-01/12 and both restored foundation names. Define versioned specialist contracts and scoped qualification for BP-05/10; no duplicate repository creation."
       },
       {
         "phase": "P2",
-        "work": "Upgrade BP-07/08 for real bounded engineering; develop BP-01/12 independently; BP-04/06/09A/09B independent specialization in parallel under approved scopes."
+        "work": "Develop BP-01/12 in existing empty repositories; upgrade BP-07/08 for real bounded engineering; develop BP-05 design capability within BP-04 and BP-10 release qualification using existing protected workflows; BP-04/06/09A/09B specialization in parallel within approved scope."
       },
       {
         "phase": "P3",
-        "work": "Federate one real product vertical slice, demonstrate independent services, event/contract and fail-closed gates, calibrate risk and measure efficiency."
+        "work": "Federate one real product vertical slice with independent QA, demonstrate fail-closed dispatch, design handoff and release/recovery isolation. Decide physical BP-05/10 split from measured evidence and existing separation criteria; no automatic split."
       },
       {
         "phase": "P4",
@@ -760,7 +760,7 @@
         "code": "05",
         "vi": "Thiết kế kiến trúc và UX/UI",
         "owner": "BP-04",
-        "placement": "Chức năng cần hoàn thiện, tách repo chỉ khi có bằng chứng"
+        "placement": "Năng lực thiết kế độc lập về nhiệm vụ, đầu ra và đánh giá trong BP-04; thử nghiệm trước khi tách repo."
       },
       {
         "code": "06",
@@ -796,7 +796,7 @@
         "code": "10",
         "vi": "Phát hành và Phục hồi",
         "owner": "BP-08+BP-00+BP-11",
-        "placement": "Chức năng cần làm rõ quyền hạn; ứng viên tách khi cần cách ly quyền/lifecycle"
+        "placement": "Tách vai trò phát hành khỏi sản xuất ngay trong thiết kế quyền hạn; thực thi qua protected workflow hiện có. Ưu tiên đánh giá tách repo sau vertical slice."
       },
       {
         "code": "11",
@@ -822,14 +822,163 @@
         "code": "05",
         "repository": "BP-05-Thiet-Ke-Kien-Truc",
         "reason": "Thiết kế kiến trúc và UX/UI có vòng đời, đầu ra và đánh giá độc lập nếu chứng minh nhu cầu.",
-        "status": "OPTION_ONLY_NO_CREATION"
+        "status": "DEFER_PHYSICAL_SPLIT_DEVELOP_CAPABILITY_FIRST"
       },
       {
         "code": "10",
         "repository": "BP-10-Phat-Hanh-Phuc-Hoi",
         "reason": "Có thể cần cách ly quyền phát hành, kiểm soát artifact, rollback và phục hồi khỏi người sản xuất.",
-        "status": "OPTION_ONLY_NO_CREATION"
+        "status": "PRIORITY_QUALIFICATION_NOT_CREATED"
       }
-    ]
+    ],
+    "separationAssessment": {
+      "status": "SOURCE_REVIEW_COMPLETE_RUNTIME_QUALIFICATION_PENDING",
+      "decision": "Maintain 10 observed repositories and 15 logical departments. No new physical repository on current evidence. Prioritize BP-10 isolation qualification; BP-05 capability within BP-04. This is executor source review, not independent review or runtime acceptance.",
+      "criteriaSource": {
+        "path": "control/execution-department-ownership.v1.json",
+        "revision": "7a21b33f49f8c9a5346d0924c8627dbec4a70138",
+        "criteria": [
+          "independent lifecycle with proven contract",
+          "privilege isolation with threat model and least privilege",
+          "sustained load measured against approved SLO"
+        ],
+        "preSplit": [
+          "bounded real end-to-end execution with independent QA",
+          "versioned API, signed grants, idempotency, retry budget and evidence ownership",
+          "contract and failure tests",
+          "verified rollback",
+          "separate production authority"
+        ]
+      },
+      "design": {
+        "code": "05",
+        "repositoryCandidate": "BP-05-Thiet-Ke-Kien-Truc",
+        "decision": "DEFER_REPOSITORY_SPLIT",
+        "currentHost": "BP-04-Nghien-Cuu-Thiet-Ke",
+        "observed": [
+          {
+            "repo": "BP-04-Nghien-Cuu-Thiet-Ke",
+            "revision": "15f449241091786d384318f8b3c97a3888cf412d",
+            "finding": "main README only"
+          },
+          {
+            "repo": "BP-04-Nghien-Cuu-Thiet-Ke",
+            "revision": "8667fb0198cc43906f59576e30a57848beb01ac7",
+            "path": "research.mjs",
+            "finding": "bounded RFC8259 experiment; not general UX or architecture design capability"
+          }
+        ],
+        "boundary": {
+          "research": "source rights, technology options, reproducible comparison, feasibility; not final design or implementation",
+          "design": "architecture alternatives, data/API contracts, component and UX specification, accessibility/acceptance, prototype where applicable; not strategic approval, source implementation or own independent certification",
+          "strategy": "BP-01 owns S1/S2 proposals, not detailed production design",
+          "approval": "existing project authority approves material architecture decisions; BP-00 records canonical ADR; product repository owns implementation"
+        },
+        "inputs": [
+          "approved strategy/plan revision",
+          "requirements and constraints",
+          "research evidence",
+          "security findings"
+        ],
+        "outputs": [
+          "versioned design proposal",
+          "architecture decision candidate",
+          "data/API/interface contracts",
+          "acceptance and accessibility criteria",
+          "implementation dependencies and non-goals"
+        ],
+        "qualification": {
+          "slice": "One approved real product change, compare research-to-design handoff with combined baseline, then implement through BP-08 and independently verify design usability/technical correctness.",
+          "measure": [
+            "design acceptance first pass",
+            "missing requirements discovered during implementation",
+            "handoff rework",
+            "time and token use if measured",
+            "evidence trace completeness"
+          ],
+          "splitOnlyIf": "At least one existing separation criterion verified and all pre-split requirements met; independent technical/product evaluation of outputs does not itself require a separate repository."
+        }
+      },
+      "release": {
+        "code": "10",
+        "repositoryCandidate": "BP-10-Phat-Hanh-Phuc-Hoi",
+        "decision": "PRIORITY_QUALIFICATION_NO_REPOSITORY_YET",
+        "observed": [
+          {
+            "repo": "BP-08-Nha-May-Phan-Mem",
+            "revision": "6de12d9efb36052fd039e869797540d0f182bd66",
+            "path": "src/worker.mjs",
+            "finding": "inspect-scoped only, no repository writes, arbitrary commands or deploy"
+          },
+          {
+            "repo": "Software-Blueprint-Hub",
+            "revision": "b6699207612ea836c14dd4a9c1ea59549f7de2bb",
+            "path": "packages/application/src/release-orchestration.ts",
+            "finding": "canonical promotion planning, not authority or deployment"
+          },
+          {
+            "repo": "Application-Management",
+            "revision": "e97df96427cbc03ba5a62cf03cd6cc214340cf90",
+            "path": ".github/workflows/deploy-application-management-production.yml",
+            "finding": "existing protected Cloudflare workflow, exact SHA and confirmation, rollback evidence, production environment secrets"
+          },
+          {
+            "repo": "Application-Management",
+            "revision": "e97df96427cbc03ba5a62cf03cd6cc214340cf90",
+            "path": "app/deploy-ops.server.ts",
+            "finding": "legacy Vercel/Neon paths; do not extend or re-enable under Cloudflare-only"
+          }
+        ],
+        "boundary": {
+          "BP08": "build, tests, artifact digest and rollback preparation; no production credential",
+          "BP10": "release readiness, exact artifact verification, authorized workflow invocation, post-release readback, rollback plan and bounded recovery; no self-issued grant or independent gate PASS",
+          "BP00": "canonical release records and policy/gate/authority verification, no duplicate release ledger",
+          "BP11": "management/observability and operator interaction, no separate authority",
+          "BP09": "independent verification",
+          "human": "existing exact-revision publication authority remains separate; recovery action must be within valid authorized scope"
+        },
+        "inputs": [
+          "immutable artifact/source digest",
+          "independent verification evidence",
+          "current exact scoped release authorization",
+          "rollback target and migration safety"
+        ],
+        "outputs": [
+          "release manifest",
+          "protected workflow receipt",
+          "observed deployment revision/health",
+          "rollback/readback evidence and incident link"
+        ],
+        "qualification": {
+          "slice": "One real product uses existing Cloudflare protected release workflow; test release eligibility and rollback in authorized isolated environment; actual production only on separate authority.",
+          "failureCases": [
+            "wrong revision",
+            "expired/revoked grant",
+            "untrusted artifact",
+            "duplicate dispatch",
+            "failed deployment",
+            "unsafe migration/rollback",
+            "missing readback"
+          ],
+          "measure": [
+            "release lead time",
+            "change failure rate",
+            "recovery time",
+            "manual interventions",
+            "duplicate records",
+            "actual permission scope"
+          ],
+          "splitOnlyIf": "Prove least-privilege separation from engineering with independent lifecycle or isolation need not already satisfied by protected product workflow; all pre-split requirements satisfied. Do not copy Cloudflare credentials or centralize a superadmin."
+        }
+      },
+      "overlapRules": [
+        "BP-01 sets strategic options and master plan; BP-05 detailed design; BP-04 research evidence.",
+        "BP-08 produces; BP-09A/B verify independently; BP-10 executes only separately authorized release/recovery; BP-00 owns canonical gates.",
+        "BP-12 assesses process risk and drift; no routine code changes or independent gate PASS. BP-00 enforces thresholds and dispatches remediation; BP-10 handles operational release/recovery tasks, not portfolio supervision.",
+        "BP-07 authenticates bounded commands; no grant of new authority.",
+        "BP-13 training remains local per specialist; approved evidence shared through Hub, not duplicate global private corpus."
+      ],
+      "next": "After valid 1.5 admission, develop real engineering capability and use one product vertical slice to qualify BP-05/10. No discretionary UI, new repo, credentials or runtime changes now."
+    }
   }
 }
