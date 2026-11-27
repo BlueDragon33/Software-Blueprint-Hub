@@ -200,7 +200,7 @@
     "productionAuthority": false,
     "exactGatesPreserved": true
   },
-  "admission": "Requires reviewed mapping into revised normative publication patch, template and source attestation; preserve old target/seals; no activation from this file.",
+  "admission": "Revised target selected as sole prospective 1.5 candidate; operational admission, independent impact/version review, exact-source Full Gate and authenticated ratification remain required. No activation from this file.",
   "revisedTarget": {
     "targetRevision": "e2059451dd2e5e71bbee209542f0aceb3dd578e7",
     "targetTree": "86352dd19d49abc1a46d168dd91939c3641d5364",
@@ -211,10 +211,13 @@
     "historicalDigest": "sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3",
     "publicationPatchPath": "docs/amendments/CONSTITUTION-1.5-ENTERPRISE-OPTIMIZATION-PUBLICATION.candidate.patch",
     "replay": "2/2 revised paths exact independent JS replay; six prior patch sections byte-identical; not native verifier or trusted CI",
-    "admission": "UNADMITTED_REVIEW_REQUIRED; old publication profile/checker remains sealed; no automatic substitution",
+    "admission": "SELECTED_UNADMITTED; previous unpublished 1.5 target superseded, retained for audit only",
     "ruleCount": 38,
     "ratification": "NOT_ASSERTED",
     "publication": "NOT_ASSERTED",
-    "productionReleaseAuthority": false
+    "productionReleaseAuthority": false,
+    "previousCandidateStatus": "SUPERSEDED_UNPUBLISHED_CANDIDATE",
+    "selection": "SOLE_PROSPECTIVE_1.5_CANDIDATE",
+    "publicationPatchDigest": "sha256:e5d0aea098db1397a9b1c1710ddc83dd76355549d8480f7993bff4a658e874f9"
   }
 }

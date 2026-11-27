@@ -31,7 +31,10 @@ export function readNavigationBaseline(root=process.cwd()){
  if(active.policyVersion==="1.3.0")return {originals:current,current,activeVersion:active.policyVersion,profile,patch};
  let r33=current;
  if(active.policyVersion==="1.5.0"){
-  const successor=read(constitutionPublicationProfile("1.4.0").patchPath);
+  // Historical readback selects only the exact immutable digest, never an arbitrary path.
+  const successorPath=active.authoritySetDigest==="sha256:b0fc80df000fa611474958cdb5668cb2d6913f519873a10c53e043c782fbd9b3"?"docs/amendments/CONSTITUTION-1.5-PRODUCT-COMPLETION-PUBLICATION.patch":active.authoritySetDigest==="sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20"?constitutionPublicationProfile("1.4.0").patchPath:null;
+  if(!successorPath)throw Error("Unknown activated 1.5 authority-set digest");
+  const successor=read(successorPath);
   r33=applyConstitutionPublicationPatch(current,reverseNavigationPatch(successor));
   const replay=applyConstitutionPublicationPatch(r33,successor);
   verifyNavigationBlobSeals(r33,replay,successor);

@@ -45,3 +45,13 @@ describe("revised enterprise authority review (not publication admission)", () =
     expect(() => reviewEnterpriseAuthoritySet({...prior,attestation:{...prior.attestation,authoritySetDigest:"wrong"}},historical,patch)).toThrow(/predecessor\/historical seal mismatch/);
   });
 });
+
+describe("single prospective 1.5 target", () => {
+  it("selects only the revised patch while retaining old target for explicit audit", async () => {
+    const { constitutionPublicationProfile } = await import("../../packages/application/src/constitution-publication-sources");
+    const { buildProductCompletionPublicationCandidate } = await import("../../scripts/check-constitution-1.5-candidate.mjs");
+    expect(constitutionPublicationProfile("1.4.0").patchPath).toBe("docs/amendments/CONSTITUTION-1.5-ENTERPRISE-OPTIMIZATION-PUBLICATION.candidate.patch");
+    expect(constitutionPublicationProfile("1.3.0").targetVersion).toBe("1.4.0");
+    expect(buildProductCompletionPublicationCandidate().descriptor.status).toBe("SUPERSEDED_UNPUBLISHED_CANDIDATE");
+  });
+});
