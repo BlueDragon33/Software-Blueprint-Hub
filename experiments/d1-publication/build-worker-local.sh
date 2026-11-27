@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+mode="${1:-}"
+if [[ $# -gt 1 || ( $# -eq 1 && "$mode" != "--anonymous-only" ) ]]; then
+  echo "Usage: $0 [--anonymous-only]" >&2; exit 2
+fi
 # Run only from the isolated exact candidate worktree. No remote deploy.
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
@@ -25,4 +29,8 @@ cd "$web"
 "$tools/.bin/vite" build --config "$root/experiments/d1-publication/vite.worker.config.mts"
 cd "$root"
 node "$root/experiments/d1-publication/verify-worker-bundle.mjs"
-bash "$root/experiments/d1-publication/smoke-worker-local.sh"
+if [[ "$mode" == "--anonymous-only" ]]; then
+  bash "$root/experiments/d1-publication/smoke-worker-local.sh" --anonymous-only
+else
+  bash "$root/experiments/d1-publication/smoke-worker-local.sh"
+fi

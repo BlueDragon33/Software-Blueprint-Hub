@@ -54,12 +54,19 @@ on:
       - "apps/web/src/server/runtime.cloudflare.ts"
       - ".github/workflows/prompt-workflow-ci.yml"
   workflow_dispatch:
+  push:
+    branches: ["candidate/enterprise-optimization-20261127"]
+    paths:
+      - ".github/workflows/prompt-workflow-ci.yml"
+      - "experiments/d1-publication/build-worker-local.sh"
+      - "experiments/d1-publication/smoke-worker-local.sh"
 
 permissions:
   contents: read
 
 jobs:
   prompt-workflow-integration:
+    if: github.event_name != 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
@@ -148,3 +155,39 @@ jobs:
       - name: Actual D1 typed repository and application parity
         if: github.event.pull_request.number == 183
         run: pnpm exec vitest run --config experiments/d1-publication/vitest.d1.config.mts
+
+  enterprise-worker-build-only:
+    # Exact selected candidate, public standard runner, no deployment or private credentials.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/candidate/enterprise-optimization-20261127' && github.repository == 'BlueDragon33/Software-Blueprint-Hub'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Verify exact candidate and locked dependencies
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          pnpm install --frozen-lockfile
+          npm ci --prefix experiments/d1-publication --no-audit --no-fund
+          pnpm prisma:generate
+      - name: Build exact isolated Worker and anonymous D1 smoke
+        env:
+          EXPECTED_CANDIDATE_REVISION: ${{ github.sha }}
+        run: |
+          unset CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID CLOUDFLARE_API_KEY AUTH_SECRET GITHUB_ID GITHUB_SECRET DATABASE_URL BLUEPRINT_OWNER_BOOTSTRAP_PROVIDER BLUEPRINT_OWNER_BOOTSTRAP_SUBJECT BLUEPRINT_ALLOW_LOCAL_HTTP_AUTH
+          export CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV=false
+          bash experiments/d1-publication/build-worker-local.sh --anonymous-only
+      - name: Record narrow build scope
+        run: echo "CANDIDATE_WORKER_BUILD_AND_ANONYMOUS_LOCAL_SMOKE_ONLY; NO_REMOTE_ADMISSION_OR_PUBLICATION"

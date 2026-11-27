@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
+mode="${1:-}"
+if [[ $# -gt 1 || ( $# -eq 1 && "$mode" != "--anonymous-only" ) ]]; then
+  echo "Usage: $0 [--anonymous-only]" >&2; exit 2
+fi
 root="$(git rev-parse --show-toplevel)"
 cd "$root"
 config="$root/apps/web/dist/server/wrangler.json"
@@ -38,6 +42,10 @@ curl --silent --fail --max-time 10 http://127.0.0.1:8787/constitution > "$persis
 grep -Fq 'System Owner authentication required' "$persist/constitution.html"
 grep -Fq '1.3.0' "$persist/constitution.html"
 echo "ACTUAL_FULL_APP_WORKER_D1_SMOKE_PASS $EXPECTED_CANDIDATE_REVISION"
+if [[ "$mode" == "--anonymous-only" ]]; then
+  echo "ANONYMOUS_LOCAL_SMOKE_ONLY; BROWSER_FIXTURE_NOT_REQUESTED"
+  exit 0
+fi
 
 # The existing anonymous smoke must have passed before browser fixture writes.
 # Fresh local DB only, no remote IDs or auth tokens. E2E JWTs are isolated fixtures.
