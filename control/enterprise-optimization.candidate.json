@@ -219,5 +219,424 @@
     "previousCandidateStatus": "SUPERSEDED_UNPUBLISHED_CANDIDATE",
     "selection": "SOLE_PROSPECTIVE_1.5_CANDIDATE",
     "publicationPatchDigest": "sha256:e5d0aea098db1397a9b1c1710ddc83dd76355549d8480f7993bff4a658e874f9"
+  },
+  "coordinationPlan": {
+    "status": "PROPOSED_EXECUTION_PLAN_NOT_RUNTIME_ENROLLMENT",
+    "purpose": "Hiến pháp quy định; Blueprint OS điều phối; các ứng dụng chuyên môn độc lập thực thi và training; App Manager quản trị; các ứng dụng sản phẩm giữ dữ liệu và runtime.",
+    "policyBinding": {
+      "target": "e2059451dd2e5e71bbee209542f0aceb3dd578e7",
+      "digest": "sha256:89d7956a68edc037d4ef480bbbc2c706a283d0934d5333251a63f4d7c41d3a20",
+      "activeSource": "1.3.0",
+      "noNewNumberedLaw": true,
+      "noActivation": true
+    },
+    "inventory": {
+      "existingRepositories": 8,
+      "proposedNewRepositories": 2,
+      "physicalRenameNow": false,
+      "displayLanguage": "vi",
+      "technicalIdsStable": true,
+      "inventoryBasis": "Existing 8-repository source review; names of two new repositories are proposals, not existing services or authorized creation."
+    },
+    "applications": [
+      {
+        "id": "BP-00",
+        "vi": "Blueprint OS — Điều hành",
+        "repository": "Software-Blueprint-Hub",
+        "disposition": "REUSE_UPGRADE",
+        "group": "control",
+        "roles": [
+          "constitution",
+          "orchestration",
+          "canonical-workpackage",
+          "authority",
+          "evidence",
+          "graph-projection"
+        ],
+        "deliverable": "Approved policy, dependency-aware work orders, canonical decisions and graph state",
+        "owner": "Hub canonical authority; no specialist self-certification",
+        "training": "coordination efficiency and bounded scheduling evaluation"
+      },
+      {
+        "id": "BP-01",
+        "vi": "Thẩm định và Quy hoạch chiến lược",
+        "repository": "Blueprint-01-ThamDinh-ChienLuoc",
+        "disposition": "PROPOSE_NEW_AFTER_POLICY_AND_SEPARATION_REVIEW",
+        "group": "01",
+        "roles": [
+          "appraisal",
+          "feasibility",
+          "alternative-strategy",
+          "scale",
+          "master-blueprint",
+          "roadmap"
+        ],
+        "deliverable": "S1 strategy alternatives and S2 master-plan candidate, with assumptions, evidence and acceptance criteria",
+        "owner": "Independent specialist owns assessment/training; Hub records approved strategy/plan; human project authority decides",
+        "training": "real project cases and unseen planning evaluation"
+      },
+      {
+        "id": "BP-04",
+        "vi": "Nghiên cứu Công nghệ và Thiết kế",
+        "repository": "Software-Blueprint-Tech-Intelligence",
+        "disposition": "REUSE_UPGRADE",
+        "group": "02",
+        "roles": [
+          "technology-research",
+          "algorithm",
+          "architecture-advice",
+          "ux-ui-design",
+          "benchmark"
+        ],
+        "deliverable": "Evidence-based solution and design specifications, feasibility experiments",
+        "owner": "Independent research app; product repository retains implementation; no decision or gate authority",
+        "training": "reproducible benchmarks, licensing/provenance, usability and held-out design tasks"
+      },
+      {
+        "id": "BP-06",
+        "vi": "Phòng vệ và Bảo mật",
+        "repository": "Software-Blueprint-Innovation-Defense",
+        "disposition": "REUSE_UPGRADE",
+        "group": "02",
+        "roles": [
+          "threat-model",
+          "data-protection",
+          "dependency-risk",
+          "supply-chain",
+          "security-design"
+        ],
+        "deliverable": "Scoped threats, countermeasures, verified security findings",
+        "owner": "Independent defense app; product owners implement fixes; mandatory gates unchanged",
+        "training": "authorized defensive test cases and false-positive/negative evaluation"
+      },
+      {
+        "id": "BP-07",
+        "vi": "Kiểm soát Thực thi",
+        "repository": "Software-Blueprint-Execution-Gateway",
+        "disposition": "REUSE_UPGRADE",
+        "group": "03",
+        "roles": [
+          "authenticate",
+          "scope",
+          "dispatch",
+          "replay-protection",
+          "revocation"
+        ],
+        "deliverable": "Bounded signed job grant and dispatch receipt",
+        "owner": "Narrow enforcement service, not an authority issuer or AI specialist",
+        "training": "deterministic security/contract validation; no forced AI training"
+      },
+      {
+        "id": "BP-08",
+        "vi": "Nhà máy Phần mềm",
+        "repository": "Software-Blueprint-Execution-Worker",
+        "disposition": "REUSE_UPGRADE",
+        "group": "03",
+        "roles": [
+          "frontend",
+          "backend",
+          "data",
+          "debug",
+          "integration",
+          "build",
+          "scoped-test",
+          "release-preparation",
+          "recovery"
+        ],
+        "deliverable": "Product repository revision and reproducible artifacts, tests and rollback instructions",
+        "owner": "Independent execution app; code remains in target product repository; no self-approval",
+        "training": "real bounded engineering tasks, held-out fix/build/test evaluation"
+      },
+      {
+        "id": "BP-09A",
+        "vi": "Kiểm định Kỹ thuật A",
+        "repository": "Software-Blueprint-Reviewer-A",
+        "disposition": "REUSE_UPGRADE",
+        "group": "04",
+        "roles": [
+          "technical-review",
+          "architecture-review",
+          "reproducible-evidence"
+        ],
+        "deliverable": "Source-bound findings and review verdict",
+        "owner": "Independent of reviewed changes or disclose self-review and require independent verification",
+        "training": "technical review corpus, held-out defects and reproducibility"
+      },
+      {
+        "id": "BP-09B",
+        "vi": "Kiểm định Độc lập B",
+        "repository": "Software-Blueprint-QA-Worker",
+        "disposition": "REUSE_UPGRADE",
+        "group": "04",
+        "roles": [
+          "independent-evidence-verification",
+          "product-acceptance-review",
+          "regression",
+          "adversarial-qa"
+        ],
+        "deliverable": "Independent findings and acceptance evidence; not canonical PASS",
+        "owner": "Independent from author and reviewed implementation",
+        "training": "held-out technical/product defects and evidence authenticity"
+      },
+      {
+        "id": "BP-11",
+        "vi": "Quản trị và Vận hành",
+        "repository": "Application-Management",
+        "disposition": "REUSE_UPGRADE",
+        "group": "06",
+        "roles": [
+          "app-catalog",
+          "scoped-access",
+          "device-management",
+          "management-surface",
+          "live-graph",
+          "operations-feedback"
+        ],
+        "deliverable": "Existing app registry and authenticated management interaction; live projection of Hub",
+        "owner": "App Manager owns management surface; no shadow policy or universal product data",
+        "training": "operational workflows and usability validation"
+      },
+      {
+        "id": "BP-12",
+        "vi": "Giám sát và Tối ưu",
+        "repository": "Blueprint-12-GiamSat-ToiUu",
+        "disposition": "PROPOSE_NEW_AFTER_POLICY_AND_SEPARATION_REVIEW",
+        "group": "cross-cutting",
+        "roles": [
+          "strategy-drift",
+          "risk-accumulation",
+          "root-cause-dedup",
+          "critical-path",
+          "resource-efficiency",
+          "process-evaluation"
+        ],
+        "deliverable": "Scoped findings, risk assessment, prioritized remediation/replan recommendation",
+        "owner": "Independent assessment app; Hub owns canonical threshold enforcement, task scheduling and closure; no duplicate journal",
+        "training": "real incident cohorts, calibrated scores, false-alert and recurrence evaluation"
+      }
+    ],
+    "sharedFunctions": {
+      "release": "BP-08+BP-00; isolate later only if proven necessary",
+      "knowledge": "each specialist owns its own training and private corpus; Hub records capability evidence only",
+      "design": "BP-04 independent capability; separate service only after verified need",
+      "monitoring": "BP-12 evaluates; Hub enforces canonical thresholds/closure using existing evaluator",
+      "gateway": "retain independent narrow trust boundary; not another authority"
+    },
+    "pipeline": {
+      "stages": [
+        {
+          "id": "S00",
+          "vi": "Tiếp nhận",
+          "owner": "BP-00",
+          "dependsOn": [],
+          "output": "canonical scoped request"
+        },
+        {
+          "id": "S01",
+          "vi": "Thẩm định",
+          "owner": "BP-01",
+          "dependsOn": [
+            "S00"
+          ],
+          "output": "evidence-based strategy options; technical/security input on demand from BP-04/BP-06"
+        },
+        {
+          "id": "G-S1",
+          "vi": "Duyệt định hướng",
+          "owner": "HUMAN_PROJECT_AUTHORITY",
+          "dependsOn": [
+            "S01"
+          ],
+          "output": "exact approved strategy"
+        },
+        {
+          "id": "S02",
+          "vi": "Quy hoạch tổng thể",
+          "owner": "BP-01",
+          "dependsOn": [
+            "G-S1"
+          ],
+          "output": "master blueprint, dependency, scale, roadmap, acceptance criteria"
+        },
+        {
+          "id": "G-S2",
+          "vi": "Duyệt quy hoạch",
+          "owner": "HUMAN_PROJECT_AUTHORITY",
+          "dependsOn": [
+            "S02"
+          ],
+          "output": "exact approved plan"
+        },
+        {
+          "id": "S03",
+          "vi": "Điều phối",
+          "owner": "BP-00",
+          "dependsOn": [
+            "G-S2"
+          ],
+          "output": "canonical WorkPackage DAG, capability routing and budgets"
+        },
+        {
+          "id": "S04",
+          "vi": "Nghiên cứu/thiết kế/phòng vệ",
+          "owner": "BP-04+BP-06",
+          "dependsOn": [
+            "S03"
+          ],
+          "output": "only necessary specialist deliverables; parallel where independent"
+        },
+        {
+          "id": "S05",
+          "vi": "Kiểm soát thực thi",
+          "owner": "BP-07",
+          "dependsOn": [
+            "S03"
+          ],
+          "output": "signed scoped dispatch; relevant S04 evidence required when applicable"
+        },
+        {
+          "id": "S06",
+          "vi": "Sản xuất",
+          "owner": "BP-08",
+          "dependsOn": [
+            "S05"
+          ],
+          "output": "exact revision, artifact and applicable S04 evidence before dependent work"
+        },
+        {
+          "id": "S07",
+          "vi": "Kiểm định",
+          "owner": "BP-09A+BP-09B",
+          "dependsOn": [
+            "S06"
+          ],
+          "output": "independent exact-scope findings/evidence; repair at originating stage"
+        },
+        {
+          "id": "S08",
+          "vi": "Chuẩn bị phát hành",
+          "owner": "BP-08+BP-00",
+          "dependsOn": [
+            "S07"
+          ],
+          "output": "artifact, rollback, protected gate eligibility; no new release app by default"
+        },
+        {
+          "id": "G-REL",
+          "vi": "Thẩm quyền phát hành",
+          "owner": "HUMAN_OR_EXISTING_PROTECTED_AUTHORITY",
+          "dependsOn": [
+            "S08"
+          ],
+          "output": "exact authorized release decision"
+        },
+        {
+          "id": "S09",
+          "vi": "Phát hành/nghiệm thu/vận hành",
+          "owner": "PRODUCT_RUNTIME+BP-11",
+          "dependsOn": [
+            "G-REL"
+          ],
+          "output": "observed product runtime and user acceptance; feedback to scoped planning/training"
+        }
+      ],
+      "scaling": "S1/S2 apply to new/material changes only; ordinary authorized work uses current approved plan; specialist stages conditional by risk/dependency, do not bypass mandatory gates",
+      "assurance": {
+        "owner": "BP-12",
+        "observes": "all stages through canonical events",
+        "burdenGreaterThan30": "immediate scoped remediation",
+        "dangerGreaterThan40": "verified root cause closure",
+        "criticalOverride": true,
+        "recordDedup": "canonical rootCauseId",
+        "decision": "Hub enforces and dispatches; reviewer independently verifies closure; no average masking",
+        "ai": "exception only; deterministic first"
+      },
+      "feedback": "return finding to root-cause stage; material strategy change returns to S1/S2 as applicable; unrelated eligible work continues"
+    },
+    "federation": {
+      "transport": "reuse versioned execution protocol/Gateway; each app has independent lifecycle, scope, data, tests and failure mode; no direct arbitrary cross-app writes",
+      "workOrder": [
+        "projectId",
+        "targetRepository",
+        "sourceRevision",
+        "workPackageId",
+        "stageId",
+        "approvedStrategyAndPlanRevision",
+        "policyDigest",
+        "capability",
+        "scope",
+        "dependencyEvidence",
+        "acceptanceCriteria",
+        "resourceBudget",
+        "idempotencyKey"
+      ],
+      "result": [
+        "engineId",
+        "engineRevision",
+        "workPackageId",
+        "targetRevision",
+        "status",
+        "artifactRefs",
+        "evidenceRefs",
+        "findings",
+        "actualResourceUseOrUnknown",
+        "nextAction"
+      ],
+      "graph": {
+        "existingRoute": "/apps/software-blueprint-hub",
+        "owner": "BP-00 canonical projection; BP-11 management UI",
+        "nodeTypes": [
+          "project",
+          "app",
+          "stage",
+          "workPackage",
+          "gate",
+          "incident",
+          "evidence"
+        ],
+        "edgeTypes": [
+          "depends-on",
+          "delegates",
+          "produces",
+          "verifies",
+          "blocks",
+          "feeds-learning"
+        ],
+        "progress": "verified weighted acceptance; risk, health, authority separate",
+        "identity": "canonical IDs remain stable; show Vietnamese names and repo; trace detecting vs causal owner",
+        "actions": "authenticated Hub commands only; no fake runtime"
+      },
+      "independence": "No product serving runtime requires continuous Hub availability; no cross-app data transfer beyond authorized contract; no specialist publishes law or self-certifies."
+    },
+    "rollout": [
+      {
+        "phase": "P0",
+        "work": "Finish lawful 1.5 admission, activation and adoption; no discretionary UI."
+      },
+      {
+        "phase": "P1",
+        "work": "Confirm reuse and separate lifecycle/least privilege/rollback/contract with bounded end-to-end prototype; approve two proposed repo creations only if justified; no physical renames now."
+      },
+      {
+        "phase": "P2",
+        "work": "Upgrade BP-07/08 for real bounded engineering; develop BP-01/12 independently; BP-04/06/09A/09B independent specialization in parallel under approved scopes."
+      },
+      {
+        "phase": "P3",
+        "work": "Federate one real product vertical slice, demonstrate independent services, event/contract and fail-closed gates, calibrate risk and measure efficiency."
+      },
+      {
+        "phase": "P4",
+        "work": "Enable existing App Manager Graph management with verified events; expand only after measured evidence."
+      }
+    ],
+    "constraints": [
+      "ZERO-SPEND",
+      "CLOUDFLARE-ONLY",
+      "no shadow canonical registry or ledger",
+      "no physical repo rename or new repo creation from this proposal",
+      "no repeated unchanged QA",
+      "preserve existing authority and exact mandatory gates"
+    ]
   }
 }
