@@ -2,7 +2,7 @@ name: Development Fast CI
 
 on:
   push:
-    branches: [main, "foundation/**", "phase6/**", "phase7/**", "phase8/**", "phase9/**"]
+    branches: [main, "foundation/**", "phase6/**", "phase7/**", "phase8/**", "phase9/**", "candidate/ab-d1-source-admission-20261127"]
   pull_request:
   workflow_dispatch:
 
@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   fast-check:
+    if: github.ref != 'refs/heads/candidate/ab-d1-source-admission-20261127'
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:
@@ -222,3 +223,44 @@ jobs:
             playwright-report/
           if-no-files-found: warn
           retention-days: 14
+
+  r3-d1-changed-surface:
+    # Candidate-only native QA; no deployment, secrets, cache, artifact upload,
+    # full gate, PostgreSQL runtime or previously accepted reviewer test suite.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/candidate/ab-d1-source-admission-20261127' && github.repository == 'BlueDragon33/Software-Blueprint-Hub'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.4.0
+          run_install: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Confirm exact revision and native Node24
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node -e "if(process.versions.node.split('.')[0]!=='24')process.exit(1)"
+          git rev-parse HEAD
+          node --version
+          pnpm --version
+      - name: Install existing locked QA dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          npm ci --prefix experiments/d1-publication --no-audit --no-fund
+          pnpm prisma:generate
+      - name: Typecheck affected application and runtime
+        run: |
+          pnpm --filter @blueprint-os/application typecheck
+          pnpm --filter @blueprint-os/runtime typecheck
+      - name: Run only R3 isolated D1 fixture
+        run: pnpm exec vitest run --config experiments/d1-publication/vitest.d1.config.mts experiments/d1-publication/tests/reviewer-source-admission.test.ts
+      - name: Record actual QA scope
+        if: success()
+        run: echo "Native changed-surface R3 fixture/typecheck only; no authenticated pilot, canonical WorkOrder binding, or publication authority." >> "$GITHUB_STEP_SUMMARY"
