@@ -23,6 +23,7 @@ import { AuthorityService } from "@blueprint-os/core";
 import type { SsoIdentityStore } from "../sso-identity-store";
 import { D1WorkflowExecutionJournal } from "./workflow-execution-journal";
 import { D1WorkflowInspectionQaJournal } from "./workflow-inspection-qa-journal";
+import { ReviewerBSourceAdmissionService } from "../reviewer-b-source-admission";
 import { createD1AuthorityRepository,createD1ConstitutionAuthorityRepository,D1DomainStore,D1LogStore,D1SsoStore,D1ProjectProfileRepository,D1WorkQualityRepository,D1GovernanceRepository,D1ReleaseRepository,D1PromptProjectionHistoryRepository,D1HumanProfessionalReviewDecisionRepository,D1WorkflowExecutionAuthorityRepository,type D1CanonicalBinding } from "@blueprint-os/persistence/d1";
 export function createD1BlueprintServerRuntime(db:D1CanonicalBinding,publicationTokenProvider?:()=>Promise<string|null>, trustedBuildRevision?:string) {
   if(!db||typeof db.prepare!=="function"||typeof db.batch!=="function")throw new Error("Canonical D1 binding required");
@@ -95,6 +96,13 @@ export function createD1BlueprintServerRuntime(db:D1CanonicalBinding,publication
   );
   const workflowExecutionJournal = new D1WorkflowExecutionJournal(logs);
   const workflowExecutionAuthority = new D1WorkflowExecutionAuthorityRepository(logs);
+  const workflowInspectionQaJournal = new D1WorkflowInspectionQaJournal(logs);
+  const reviewerBSourceAdmission = new ReviewerBSourceAdmissionService({
+    authority: workflowExecutionAuthority,
+    workPackages: workRepository,
+    execution: workflowExecutionJournal,
+    qa: workflowInspectionQaJournal
+  });
 
   const sso:SsoIdentityStore = new D1SsoStore(db);
   return Object.freeze({
@@ -106,7 +114,8 @@ export function createD1BlueprintServerRuntime(db:D1CanonicalBinding,publication
       return {authorityReady:row.authorityReady===1,reviewDecisionReady:row.reviewDecisionReady===1};
     },
     resolveLinkedAppManagementPrincipal: (subject:string,principalId:string) => logs.linkedPrincipal('application-management',subject,principalId),
-    workflowInspectionQaJournal: new D1WorkflowInspectionQaJournal(logs),
+    workflowInspectionQaJournal,
+    reviewerBSourceAdmission,
     authority,
     constitutionAuthority,
     profiles,
