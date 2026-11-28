@@ -35,8 +35,8 @@ VALUES (
 
 INSERT INTO "Project" ("id", "createdAt", "updatedAt")
 VALUES
-  ('project:p6-registry-alpha', '2026-11-25T00:00:00.000Z', '2026-11-25T00:00:00.000Z'),
-  ('project:p6-registry-beta', '2026-11-25T00:00:00.000Z', '2026-11-25T00:00:00.000Z');
+  ('project:p6-registry-alpha', '2026-11-25T00:00:00.000000Z', '2026-11-25T00:00:00.000000Z'),
+  ('project:p6-registry-beta', '2026-11-25T00:00:00.000000Z', '2026-11-25T00:00:00.000000Z');
 
 INSERT INTO "ProjectProfile" (
   "id",
@@ -82,8 +82,8 @@ VALUES
     "deploymentTarget":"managed web platform",
     "maintenanceModel":"versioned continuous maintenance"
   }',
-  '2026-11-25T00:00:00.000Z',
-  '2026-11-25T00:00:00.000Z'
+  '2026-11-25T00:00:00.000000Z',
+  '2026-11-25T00:00:00.000000Z'
 ),
 (
   'profile:p6-registry-beta',
@@ -119,8 +119,8 @@ VALUES
     "deploymentTarget":"managed web platform",
     "maintenanceModel":"versioned continuous maintenance"
   }',
-  '2026-11-25T00:00:00.000Z',
-  '2026-11-25T00:00:00.000Z'
+  '2026-11-25T00:00:00.000000Z',
+  '2026-11-25T00:00:00.000000Z'
 );
 
 
@@ -221,7 +221,7 @@ VALUES
       "updatedAt":"2026-09-25T15:12:00Z"
     }
   }',
-  '2026-11-25T00:00:00.000Z',
+  '2026-11-25T00:00:00.000000Z',
   '2026-11-25T00:00:00.000Z'
 ),
 (
@@ -244,7 +244,7 @@ VALUES
       "updatedAt":"2026-09-25T15:12:30Z"
     }
   }',
-  '2026-11-25T00:00:00.000Z',
+  '2026-11-25T00:00:00.000000Z',
   '2026-11-25T00:00:00.000Z'
 ),
 (
@@ -267,7 +267,7 @@ VALUES
       "updatedAt":"2026-09-25T15:13:00Z"
     }
   }',
-  '2026-11-25T00:00:00.000Z',
+  '2026-11-25T00:00:00.000000Z',
   '2026-11-25T00:00:00.000Z'
 );
 
@@ -295,7 +295,7 @@ VALUES
     "revision":"revision-p6-beta-quality",
     "createdAt":"2026-09-25T15:14:00Z"
   }',
-  '2026-09-25T15:14:00.000Z'
+  '2026-09-25T15:14:00.000000Z'
 ),
 (
   'evidence:p6-beta-security',
@@ -311,7 +311,7 @@ VALUES
     "revision":"revision-p6-beta-security",
     "createdAt":"2026-09-25T15:14:30Z"
   }',
-  '2026-09-25T15:14:30.000Z'
+  '2026-09-25T15:14:30.000000Z'
 );
 
 
@@ -469,7 +469,7 @@ VALUES (
       "updatedAt":"2026-09-26T00:50:00Z"
     }
   }',
-  '2026-09-26T00:50:00.000Z',
+  '2026-09-26T00:50:00.000000Z',
   '2026-09-26T00:50:00.000Z'
 );
 
@@ -490,7 +490,7 @@ VALUES (
     "revision":"revision-p6-006-e2e",
     "createdAt":"2026-09-26T00:51:00Z"
   }',
-  '2026-09-26T00:51:00.000Z'
+  '2026-09-26T00:51:00.000000Z'
 );
 
 INSERT INTO "ReleaseRecord" (

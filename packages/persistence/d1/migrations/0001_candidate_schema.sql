@@ -1,8 +1,8 @@
 -- P1 schema candidate; derived from 14 pinned PostgreSQL migrations. No DROP or data reset.
 CREATE TABLE "Project" (
   "id" TEXT NOT NULL CHECK (length("id")<=160),
-  "createdAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) CHECK (length("createdAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"createdAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"createdAt")="createdAt"),
-  "updatedAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) CHECK (length("updatedAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"updatedAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"updatedAt")="updatedAt"),
+  "createdAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now')||'000Z') CHECK (typeof("createdAt")='text' AND length("createdAt")=27 AND substr("createdAt",20,1)='.' AND substr("createdAt",27,1)='Z' AND substr("createdAt",21,6) NOT GLOB '*[^0-9]*' AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("createdAt",1,19)||'Z', '+0 seconds') IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("createdAt",1,19)||'Z', '+0 seconds')=(substr("createdAt",1,19)||'Z')),
+  "updatedAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now')||'000Z') CHECK (typeof("updatedAt")='text' AND length("updatedAt")=27 AND substr("updatedAt",20,1)='.' AND substr("updatedAt",27,1)='Z' AND substr("updatedAt",21,6) NOT GLOB '*[^0-9]*' AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("updatedAt",1,19)||'Z', '+0 seconds') IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("updatedAt",1,19)||'Z', '+0 seconds')=(substr("updatedAt",1,19)||'Z')),
   CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
 );
 CREATE TABLE "ProjectProfile" (
@@ -11,8 +11,8 @@ CREATE TABLE "ProjectProfile" (
   "schemaVersion" TEXT NOT NULL CHECK (length("schemaVersion")<=32),
   "recordVersion" INTEGER NOT NULL CHECK (typeof("recordVersion")='integer'),
   "document" TEXT NOT NULL CHECK (json_valid("document")),
-  "createdAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) CHECK (length("createdAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"createdAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"createdAt")="createdAt"),
-  "updatedAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) CHECK (length("updatedAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"updatedAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"updatedAt")="updatedAt"),
+  "createdAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now')||'000Z') CHECK (typeof("createdAt")='text' AND length("createdAt")=27 AND substr("createdAt",20,1)='.' AND substr("createdAt",27,1)='Z' AND substr("createdAt",21,6) NOT GLOB '*[^0-9]*' AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("createdAt",1,19)||'Z', '+0 seconds') IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("createdAt",1,19)||'Z', '+0 seconds')=(substr("createdAt",1,19)||'Z')),
+  "updatedAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now')||'000Z') CHECK (typeof("updatedAt")='text' AND length("updatedAt")=27 AND substr("updatedAt",20,1)='.' AND substr("updatedAt",27,1)='Z' AND substr("updatedAt",21,6) NOT GLOB '*[^0-9]*' AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("updatedAt",1,19)||'Z', '+0 seconds') IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("updatedAt",1,19)||'Z', '+0 seconds')=(substr("updatedAt",1,19)||'Z')),
   CONSTRAINT "ProjectProfile_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "ProjectProfile_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -73,7 +73,7 @@ CREATE TABLE "QualityGate" (
   "recordVersion" INTEGER NOT NULL CHECK (typeof("recordVersion")='integer'),
   "status" TEXT NOT NULL CHECK (length("status")<=32),
   "document" TEXT NOT NULL CHECK (json_valid("document")),
-  "createdAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) CHECK (length("createdAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"createdAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"createdAt")="createdAt"),
+  "createdAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now')||'000Z') CHECK (typeof("createdAt")='text' AND length("createdAt")=27 AND substr("createdAt",20,1)='.' AND substr("createdAt",27,1)='Z' AND substr("createdAt",21,6) NOT GLOB '*[^0-9]*' AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("createdAt",1,19)||'Z', '+0 seconds') IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("createdAt",1,19)||'Z', '+0 seconds')=(substr("createdAt",1,19)||'Z')),
   "updatedAt" TEXT NOT NULL CHECK (length("updatedAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"updatedAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"updatedAt")="updatedAt"),
   CONSTRAINT "QualityGate_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "QualityGate_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -85,7 +85,7 @@ CREATE TABLE "GateEvidence" (
   "source" TEXT NOT NULL CHECK (length("source")<=500),
   "revision" TEXT NOT NULL CHECK (length("revision")<=160),
   "document" TEXT NOT NULL CHECK (json_valid("document")),
-  "createdAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')) CHECK (length("createdAt")=24 AND strftime('%Y-%m-%dT%H:%M:%fZ',"createdAt") IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%fZ',"createdAt")="createdAt"),
+  "createdAt" TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%f','now')||'000Z') CHECK (typeof("createdAt")='text' AND length("createdAt")=27 AND substr("createdAt",20,1)='.' AND substr("createdAt",27,1)='Z' AND substr("createdAt",21,6) NOT GLOB '*[^0-9]*' AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("createdAt",1,19)||'Z', '+0 seconds') IS NOT NULL AND strftime('%Y-%m-%dT%H:%M:%SZ', substr("createdAt",1,19)||'Z', '+0 seconds')=(substr("createdAt",1,19)||'Z')),
   CONSTRAINT "GateEvidence_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "GateEvidence_gateId_fkey" FOREIGN KEY ("gateId") REFERENCES "QualityGate"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
